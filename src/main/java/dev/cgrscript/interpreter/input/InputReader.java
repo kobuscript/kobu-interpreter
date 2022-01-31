@@ -48,17 +48,10 @@ import java.util.List;
 
 public class InputReader {
 
-    private final InputReaderListener listener;
-
     private final FileFetcher fileFetcher;
 
-    public InputReader(InputReaderListener listener, FileFetcher fileFetcher) {
-        this.listener = listener;
+    public InputReader(FileFetcher fileFetcher) {
         this.fileFetcher = fileFetcher;
-    }
-
-    public FileFetcher getFileFetcher() {
-        return fileFetcher;
     }
 
     public ValueExpr readFromFile(EvalContext context, InputParser parser, InputType inputType,

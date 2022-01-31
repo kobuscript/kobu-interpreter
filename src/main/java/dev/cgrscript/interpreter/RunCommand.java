@@ -46,6 +46,7 @@ import dev.cgrscript.interpreter.writer.OutputWriterModeEnum;
 import picocli.CommandLine;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -95,7 +96,7 @@ public class RunCommand implements Callable<Integer> {
             moduleScope.checkErrors();
 
             Database database = new Database();
-            InputReader inputReader = new InputReader(null, new FileFetcher());
+            InputReader inputReader = new InputReader(new FileFetcher());
             OutputWriter outputWriter = new OutputWriter(
                     preview ? OutputWriterModeEnum.LOG_ONLY : OutputWriterModeEnum.WRITE_TO_DISK,
                     verbose ? OutputWriterLogTypeEnum.VERBOSE : OutputWriterLogTypeEnum.NORMAL,
@@ -105,6 +106,9 @@ public class RunCommand implements Callable<Integer> {
 
             moduleScope.checkErrors();
 
+            if (scriptArgs == null) {
+                scriptArgs = new ArrayList<>();
+            }
             moduleScope.runMainFunction(scriptArgs, database, inputReader, outputWriter);
 
         } catch (AnalyzerErrorList e) {

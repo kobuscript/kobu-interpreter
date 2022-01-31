@@ -2,6 +2,15 @@
   "resources": [
     {
       "pattern": ".*cgr$"
+    },
+    {
+      "pattern": ".*xsd$"
+    },
+    {
+      "pattern": ".*xml$"
+    },
+    {
+      "pattern": "cgr-default-entry-point$"
     }
   ]
 }

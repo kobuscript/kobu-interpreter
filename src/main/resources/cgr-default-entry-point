@@ -1,0 +1,5 @@
+module Main;
+
+fun main(args: string[]): void {
+    print("Hello World!");
+}
