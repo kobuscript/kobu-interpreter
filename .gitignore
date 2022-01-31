@@ -1,0 +1,9 @@
+/.vscode
+/grammar/.antlr
+/gen
+/target
+/.project
+/.settings
+.classpath
+/.idea
+*.iml
