@@ -26,14 +26,12 @@ package dev.cgrscript;
 
 import picocli.CommandLine;
 
-import java.io.IOException;
-
 
 public class App {
 
-    public static void main( String[] args ) throws IOException {
+    public static void main( String[] args ) {
         int exitCode = new CommandLine(new EntryCommand())
-                .setCommandName("crg")
+                .setCommandName("cgr")
                 .setCaseInsensitiveEnumValuesAllowed(true)
                 .execute(args);
         System.exit(exitCode);
