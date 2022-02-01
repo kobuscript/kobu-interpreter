@@ -28,11 +28,11 @@ options { tokenVocab=CgrScriptLexer; superClass=dev.cgrscript.antlr.CgrScriptPar
 
 prog : module importExpr* stat* ;
 
-module : 'module' moduleId END_STATEMENT? ;
+module : 'module' moduleId SEMI? ;
 
-moduleId : ID ( FIELD_SEPARATOR ID )* ;
+moduleId : ID ( DOT ID )* ;
 
-importExpr : 'import' moduleId END_STATEMENT? ;
+importExpr : 'import' moduleId SEMI? ;
 
 execStat : singleStat
            | blockStat
@@ -50,7 +50,7 @@ exprStat: expr
           | emptyExpr
           ;
 
-emptyExpr: END_STATEMENT ;
+emptyExpr: SEMI ;
 
 blockStat: ifStat
            | forStat
@@ -58,7 +58,7 @@ blockStat: ifStat
            ;
 
 functionReturnStat : RETURN expr
-                     | RETURN END_STATEMENT
+                     | RETURN SEMI
                      | RETURN {notifyErrorListenersPrevToken("';' expected");}
                      ;
 
@@ -70,56 +70,56 @@ stat : deftype
        | functionDecl
        ;
 
-functionDecl : 'fun' ID OPEN_GROUP functionDeclParam? CLOSE_GROUP COLON functionDeclRet OPEN_BLOCK execStat* CLOSE_BLOCK
-               | 'fun' ID OPEN_GROUP functionDeclParam? CLOSE_GROUP OPEN_BLOCK execStat* CLOSE_BLOCK {notifyMissingReturnStatement();}
+functionDecl : 'fun' ID LP functionDeclParam? RP COLON functionDeclRet LK execStat* RK
+               | 'fun' ID LP functionDeclParam? RP LK execStat* RK {notifyMissingReturnStatement();}
                ;
 
-nativeDecl : 'def' 'native' ID OPEN_GROUP functionDeclParam? CLOSE_GROUP COLON functionDeclRet ;
+nativeDecl : 'def' 'native' ID LP functionDeclParam? RP COLON functionDeclRet ;
 
 functionDeclRet : ( 'void' | type ) ;
 
-functionDeclParam : ID '?'? COLON type ( ARG_SEPARATOR functionDeclParam )?
+functionDeclParam : ID '?'? COLON type ( COMMA functionDeclParam )?
                     | ID '?'? {notifyErrorListeners("Missing type on function parameter");}
                     ;
 
-ifStat : 'if' OPEN_GROUP expr CLOSE_GROUP OPEN_BLOCK execStat* CLOSE_BLOCK elseIfStat? elseStat? ;
+ifStat : 'if' LP expr RP LK execStat* RK elseIfStat? elseStat? ;
 
-elseIfStat : 'else' 'if' OPEN_GROUP expr CLOSE_GROUP OPEN_BLOCK execStat* CLOSE_BLOCK elseIfStat? ;
+elseIfStat : 'else' 'if' LP expr RP LK execStat* RK elseIfStat? ;
 
-elseStat : 'else' OPEN_BLOCK execStat* CLOSE_BLOCK ;
+elseStat : 'else' LK execStat* RK ;
 
-forStat : 'for' OPEN_GROUP varDeclList? END_STATEMENT exprSequence END_STATEMENT assignmentSequece CLOSE_GROUP OPEN_BLOCK execStat* CLOSE_BLOCK ;
+forStat : 'for' LP varDeclList? SEMI exprSequence SEMI assignmentSequece RP LK execStat* RK ;
 
-whileStat : 'while' OPEN_GROUP expr CLOSE_GROUP OPEN_BLOCK execStat* CLOSE_BLOCK ;
+whileStat : 'while' LP expr RP LK execStat* RK ;
 
 breakStat: BREAK ;
 
 continueStat : CONTINUE ;
 
-exprSequence : expr ( ARG_SEPARATOR expr )* ;
+exprSequence : expr ( COMMA expr )* ;
 
-deftype : 'def' 'type' ID inheritance? OPEN_BLOCK attributes? CLOSE_BLOCK #recordType ;
+deftype : 'def' 'type' ID inheritance? LK attributes? RK #recordType ;
 
 inheritance : 'extends' ID ;
 
-attributes : ( STAR | ID ) COLON type ( ARG_SEPARATOR attributes )? ;
+attributes : ( STAR | ID ) COLON type ( COMMA attributes )? ;
 
-record : ID OPEN_BLOCK recordField? CLOSE_BLOCK ;
+record : ID LK recordField? RK ;
 
-recordField : ID COLON expr ( ARG_SEPARATOR recordField )? ;
+recordField : ID COLON expr ( COMMA recordField )? ;
 
 deftemplate : 'def' 'template' ID ruleExtends? 'for' 'any'? queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template TEMPLATE_END ;
 
 deffile : 'def' 'file' ID ruleExtends? 'for' 'any'? queryExpr joinExpr* ( 'when' expr )? FILE_PATH_EXPR pathExpr PATH_END
           | 'def' 'file' ID ruleExtends? 'for' 'any'? queryExpr joinExpr* ( 'when' expr )? FILE_PATH_EXPR pathExpr {notifyMissingEndStatement();};
 
-pathExpr : pathSegmentExpr ( PATH_SEPARATOR pathExpr )? ;
+pathExpr : pathSegmentExpr ( SLASH pathExpr )? ;
 
 pathSegmentExpr : PATH_SEGMENT                                 #pathStaticSegmentExpr
                   | PATH_VARIABLE_BEGIN expr PATH_VARIABLE_END #pathVariableExpr
                   ;
 
-defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? OPEN_BLOCK block CLOSE_BLOCK ;
+defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LK block RK ;
 
 ruleExtends : EXTENDS ID ;
 
@@ -133,7 +133,7 @@ queryPipeExpr : ID queryExprArraySelect?                                    #que
                 | functionCallExpr queryExprArraySelect?                    #queryFunctionCallExpr
                 ;
 
-queryExprArraySelect : OPEN_ARRAY queryExprArrayItem CLOSE_ARRAY ;
+queryExprArraySelect : LB queryExprArrayItem RB ;
 
 queryExprArrayItem : arrayIndexExpr       #queryExprArrayItemIndex
                      | STAR               #queryExprArrayItemAll
@@ -150,7 +150,7 @@ varDecl : VAR varDeclBody #varDeclStat
 
 varDeclBody : ID ( COLON type )? ( '=' expr )? ;
 
-varDeclList : VAR varDeclBody ( ARG_SEPARATOR varDeclBody )* ;
+varDeclList : VAR varDeclBody ( COMMA varDeclBody )* ;
 
 template : templateExpr template? ;
 
@@ -159,14 +159,14 @@ templateExpr : CONTENT                                       #templateStaticCont
                ;
 
 expr : record                                                                                       #recordExpr
-       | OPEN_ARRAY exprSequence? CLOSE_ARRAY                                                       #arrayExpr
-       | OPEN_GROUP expr ARG_SEPARATOR expr CLOSE_GROUP                                             #pairExpr
+       | LB exprSequence? RB                                                       #arrayExpr
+       | LP expr COMMA expr RP                                             #pairExpr
        | functionCallExpr                                                                           #functionCallProxyExpr
-       | expr OPEN_ARRAY arrayIndexExpr CLOSE_ARRAY                                                 #arrayAccessExpr
+       | expr LB arrayIndexExpr RB                                                 #arrayAccessExpr
        | NOT expr                                                                                   #notExpr
        | assignPostIncDec                                                                           #assignPostIncDecExpr
        | assignPreIncDec                                                                            #assignPreIncDecExpr
-       | expr FIELD_SEPARATOR expr                                                                  #fieldAccessExpr
+       | expr DOT expr                                                                  #fieldAccessExpr
        | expr ( STAR | DIV ) expr                                                                   #factorExpr
        | expr ( ADD | SUB ) expr                                                                    #addSubExpr
        | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS ) expr    #eqExpr
@@ -176,10 +176,10 @@ expr : record                                                                   
        | NUMBER                                                                                     #numberExpr
        | BOOLEAN                                                                                    #booleanExpr
        | NULL                                                                                       #nullExpr
-       | OPEN_GROUP expr CLOSE_GROUP                                                                #parenthesizedExpr
+       | LP expr RP                                                                #parenthesizedExpr
        ;
 
-functionCallExpr : ID OPEN_GROUP exprSequence? CLOSE_GROUP ;
+functionCallExpr : ID LP exprSequence? RP ;
 
 arrayIndexExpr : expr ':' expr  #arrayIndexSliceExpr
                  | ':' expr     #arrayIndexSliceEndExpr
@@ -196,10 +196,10 @@ assignPostIncDec : ID ( INC | DEC ) ;
 
 assignPreIncDec : ( INC | DEC) ID ;
 
-assignmentSequece : assignment ( ARG_SEPARATOR assignment )* ;
+assignmentSequece : assignment ( COMMA assignment )* ;
 
 type : ID                                                #singleType
-       | type OPEN_ARRAY CLOSE_ARRAY                     #arrayType
-       | OPEN_GROUP type ARG_SEPARATOR type CLOSE_GROUP  #pairType
+       | type LB RB                     #arrayType
+       | LP type COMMA type RP  #pairType
        ;
 

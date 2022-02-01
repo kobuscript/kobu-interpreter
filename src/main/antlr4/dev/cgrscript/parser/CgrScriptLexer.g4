@@ -28,16 +28,16 @@ channels { WSCHANNEL, COMMENTCHANNEL }
 
 options { superClass=dev.cgrscript.antlr.CgrScriptLexerBase; }
 
-MODULE_EXPR : 'module' ;
+MODULE : 'module' ;
 
-IMPORT_EXPR : 'import' ;
+IMPORT : 'import' ;
 
-DEF_EXPR : 'def' -> pushMode(DEF) ;
+DEF : 'def' -> pushMode(DEF_MODE) ;
 
 EXTENDS : 'extends' ;
 
-FUNCTION : 'fun' ;
-OPTIONAL : '?' ;
+FUN : 'fun' ;
+QM : '?' ;
 RETURN : 'return' ;
 IF : 'if' ;
 ELSE : 'else' ;
@@ -51,8 +51,8 @@ NULL : 'null' ;
 
 VAR : 'var' ;
 ASSIGN : '=' ;
-END_STATEMENT : ';' ;
-ARG_SEPARATOR : ',' ;
+SEMI : ';' ;
+COMMA : ',' ;
 COLON : ':' ;
 AS : 'as' ;
 ANY : 'any' ;
@@ -78,23 +78,23 @@ GREATER : '>' ;
 GREATER_OR_EQUALS : '>=' ;
 
 JOIN : 'join' ;
-FIELD_SEPARATOR : '.' ;
+DOT : '.' ;
 
-OPEN_GROUP : '(' ;
-CLOSE_GROUP : ')' ;
+LP : '(' ;
+RP : ')' ;
 
-OPEN_ARRAY : '[' ;
-CLOSE_ARRAY : ']' ;
+LB : '[' ;
+RB : ']' ;
 
 COMMENT_BLOCK : '/*' .*? '*/' -> channel(COMMENTCHANNEL) ;
 COMMENT_LINE : '//' .*? '\n' -> channel(COMMENTCHANNEL) ;
 
-OPEN_BLOCK : '{' ;
-TEMPLATE_BEGIN : '<-{' {this.SetTemplateMode(true);} -> pushMode(TEMPLATE) ;
+LK : '{' ;
+TEMPLATE_BEGIN : '<-{' {this.SetTemplateMode(true);} -> pushMode(TEMPLATE_MODE) ;
 TEMPLATE_EXPR_END : {this.IsTemplateMode()}? '}' -> popMode ;
-FILE_PATH_EXPR : '->' {this.SetPathMode(true);} -> pushMode(PATH) ;
+FILE_PATH_EXPR : '->' {this.SetPathMode(true);} -> pushMode(PATH_MODE) ;
 PATH_VARIABLE_END : {this.IsPathMode()}? '}' -> popMode ;
-CLOSE_BLOCK : '}' ;
+RK : '}' ;
 
 STRING : '"' (ESC | ~["\\])* '"' ;
 fragment ESC : '\\' (["\\/bfnrt] | UNICODE) ;
@@ -113,7 +113,7 @@ BOOLEAN : TRUE | FALSE ;
 ID : [a-zA-Z_][a-zA-Z0-9_]* ;
 WS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
 
-mode DEF;
+mode DEF_MODE;
 
 DEFTYPE : 'type' -> popMode ;
 DEFTEMPLATE : 'template' -> popMode ;
@@ -123,15 +123,15 @@ DEFFILE : 'file' -> popMode ;
 DEFNATIVE : 'native' -> popMode ;
 DEFWS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
 
-mode PATH;
+mode PATH_MODE;
 
-PATH_SEPARATOR : '/' ;
+SLASH : '/' ;
 PATH_VARIABLE_BEGIN : '${' -> pushMode(DEFAULT_MODE) ;
 PATH_SEGMENT : [a-zA-Z0-9_\\-\\.]+ ;
 PATH_END : ';' {this.SetPathMode(false);} -> popMode ;
 PATHWS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
 
-mode TEMPLATE;
+mode TEMPLATE_MODE;
 
 TEMPLATE_END : '}->' {this.SetTemplateMode(false);} -> popMode ;
 CONTENT : (CONT_ESC | '}' ~[-] ~[}] | ~[$}\\] )+ ;

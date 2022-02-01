@@ -109,7 +109,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             }
         }
         if (ctx.functionDeclRet().VOID() == null && exprList.isEmpty()) {
-            moduleScope.addError(new FunctionMissingReturnStatError(getSourceCodeRef(ctx.CLOSE_BLOCK())));
+            moduleScope.addError(new FunctionMissingReturnStatError(getSourceCodeRef(ctx.RK())));
         }
 
         function.setParameters(parameters);
@@ -779,7 +779,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         while (paramCtx != null) {
             var type = (Type) visit(paramCtx.type());
             FunctionParameter param = new FunctionParameter(getSourceCodeRef(paramCtx.ID()), paramCtx.ID().getText(), type,
-                    paramCtx.OPTIONAL() != null);
+                    paramCtx.QM() != null);
 
             FunctionParameter currentParam = paramsMap.get(param.getName());
             if (currentParam != null) {
