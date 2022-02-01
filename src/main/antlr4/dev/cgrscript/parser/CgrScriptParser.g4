@@ -26,7 +26,7 @@ parser grammar CgrScriptParser;
 
 options { tokenVocab=CgrScriptLexer; superClass=dev.cgrscript.antlr.CgrScriptParserBase; }
 
-prog : module (importExpr)* (stat)* ;
+prog : module importExpr* stat* ;
 
 module : 'module' moduleId END_STATEMENT? ;
 
@@ -46,14 +46,18 @@ singleStat: varDecl
             | exprStat
             ;
 
-exprStat: expr END_STATEMENT? ;
+exprStat: expr
+          | emptyExpr
+          ;
+
+emptyExpr: END_STATEMENT ;
 
 blockStat: ifStat
            | forStat
            | whileStat
            ;
 
-functionReturnStat : RETURN expr END_STATEMENT?
+functionReturnStat : RETURN expr
                      | RETURN END_STATEMENT
                      | RETURN {notifyErrorListenersPrevToken("';' expected");}
                      ;
@@ -70,7 +74,7 @@ functionDecl : 'fun' ID OPEN_GROUP functionDeclParam? CLOSE_GROUP COLON function
                | 'fun' ID OPEN_GROUP functionDeclParam? CLOSE_GROUP OPEN_BLOCK execStat* CLOSE_BLOCK {notifyMissingReturnStatement();}
                ;
 
-nativeDecl : 'def' 'native' ID OPEN_GROUP functionDeclParam? CLOSE_GROUP COLON functionDeclRet END_STATEMENT? ;
+nativeDecl : 'def' 'native' ID OPEN_GROUP functionDeclParam? CLOSE_GROUP COLON functionDeclRet ;
 
 functionDeclRet : ( 'void' | type ) ;
 
@@ -88,9 +92,9 @@ forStat : 'for' OPEN_GROUP varDeclList? END_STATEMENT exprSequence END_STATEMENT
 
 whileStat : 'while' OPEN_GROUP expr CLOSE_GROUP OPEN_BLOCK execStat* CLOSE_BLOCK ;
 
-breakStat: BREAK END_STATEMENT? ;
+breakStat: BREAK ;
 
-continueStat : CONTINUE END_STATEMENT? ;
+continueStat : CONTINUE ;
 
 exprSequence : expr ( ARG_SEPARATOR expr )* ;
 
@@ -141,7 +145,7 @@ joinOfExpr : 'of' expr ;
 
 block : execStat* ;
 
-varDecl : VAR varDeclBody END_STATEMENT? #varDeclStat
+varDecl : VAR varDeclBody #varDeclStat
           ;
 
 varDeclBody : ID ( COLON type )? ( '=' expr )? ;
@@ -183,9 +187,9 @@ arrayIndexExpr : expr ':' expr  #arrayIndexSliceExpr
                  | expr         #arrayIndexItemExpr
                  ;
 
-assignment : expr '=' expr END_STATEMENT?                       #assignElemValue
-             | assignPostIncDec END_STATEMENT?                  #assignPostIncDecStat
-             | assignPreIncDec END_STATEMENT?                   #assignPreIncDecStat
+assignment : expr '=' expr                       #assignElemValue
+             | assignPostIncDec                  #assignPostIncDecStat
+             | assignPreIncDec                   #assignPreIncDecStat
              ;
 
 assignPostIncDec : ID ( INC | DEC ) ;
