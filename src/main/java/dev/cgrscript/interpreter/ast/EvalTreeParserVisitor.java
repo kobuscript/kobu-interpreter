@@ -105,7 +105,10 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         List<Evaluable> exprList = new ArrayList<>();
         if (ctx.execStat() != null) {
             for (CgrScriptParser.ExecStatContext execStatContext : ctx.execStat()) {
-                exprList.add((Evaluable) visit(execStatContext));
+                Evaluable evaluable = (Evaluable) visit(execStatContext);
+                if (evaluable != null) {
+                    exprList.add(evaluable);
+                }
             }
         }
         if (ctx.functionDeclRet().VOID() == null && exprList.isEmpty()) {
@@ -123,7 +126,10 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitExprStat(CgrScriptParser.ExprStatContext ctx) {
-        return visit(ctx.expr());
+        if (ctx.expr() != null) {
+            return visit(ctx.expr());
+        }
+        return null;
     }
 
     @Override
@@ -235,7 +241,10 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         List<Evaluable> exprList = new ArrayList<>();
         if (ctx.block().execStat() != null) {
             for (CgrScriptParser.ExecStatContext execStatContext : ctx.block().execStat()) {
-                exprList.add((Evaluable) visit(execStatContext));
+                Evaluable evaluable = (Evaluable) visit(execStatContext);
+                if (evaluable != null) {
+                    exprList.add(evaluable);
+                }
             }
         }
         rule.setBlock(exprList);
@@ -343,7 +352,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         if (ctx.execStat() != null) {
             for (CgrScriptParser.ExecStatContext execStatContext : ctx.execStat()) {
                 var statNode = (Evaluable) visit(execStatContext);
-                block.add(statNode);
+                if (statNode != null) {
+                    block.add(statNode);
+                }
             }
         }
         IfStatement ifStatement = new IfStatement(getSourceCodeRef(ctx), (Expr) condExprNode, block);
@@ -355,7 +366,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             List<Evaluable> elseBlock = new ArrayList<>();
             for (CgrScriptParser.ExecStatContext execStatContext : ctx.elseStat().execStat()) {
                 var execStatNode = (Evaluable) visit(execStatContext);
-                elseBlock.add(execStatNode);
+                if (execStatNode != null) {
+                    elseBlock.add(execStatNode);
+                }
             }
             ifStatement.setElseBlock(elseBlock);
         }
@@ -369,7 +382,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         if (ctx.execStat() != null) {
             for (CgrScriptParser.ExecStatContext execStatContext : ctx.execStat()) {
                 var statNode = (Evaluable) visit(execStatContext);
-                block.add(statNode);
+                if (statNode != null) {
+                    block.add(statNode);
+                }
             }
         }
         ElseIfStatement elseIfStatement = new ElseIfStatement(getSourceCodeRef(ctx),
@@ -393,17 +408,23 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         List<Expr> condExprList = new ArrayList<>();
         for (CgrScriptParser.ExprContext exprContext : ctx.exprSequence().expr()) {
             var exprNode = visit(exprContext);
-            condExprList.add((Expr) exprNode);
+            if (exprNode != null) {
+                condExprList.add((Expr) exprNode);
+            }
         }
         List<Statement> stepStatementList = new ArrayList<>();
         for (CgrScriptParser.AssignmentContext assignmentContext : ctx.assignmentSequece().assignment()) {
             var statNode = visit(assignmentContext);
-            stepStatementList.add((Statement) statNode);
+            if (statNode != null) {
+                stepStatementList.add((Statement) statNode);
+            }
         }
         List<Evaluable> block = new ArrayList<>();
         for (CgrScriptParser.ExecStatContext execStatContext : ctx.execStat()) {
             var statNode = (Evaluable) visit(execStatContext);
-            block.add(statNode);
+            if (statNode != null) {
+                block.add(statNode);
+            }
         }
         return new ForStatement(getSourceCodeRef(ctx),
                 varDeclList, condExprList, stepStatementList, block);
@@ -415,7 +436,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         List<Evaluable> block = new ArrayList<>();
         for (CgrScriptParser.ExecStatContext execStatContext : ctx.execStat()) {
             var statNode = (Evaluable) visit(execStatContext);
-            block.add(statNode);
+            if (statNode != null) {
+                block.add(statNode);
+            }
         }
 
         return new WhileStatement(getSourceCodeRef(ctx), condExpr, block);
@@ -453,7 +476,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         if (ctx.exprSequence() != null) {
             for (CgrScriptParser.ExprContext exprContext : ctx.exprSequence().expr()) {
                 var exprNode = visit(exprContext);
-                elements.add((Expr) exprNode);
+                if (exprNode != null) {
+                    elements.add((Expr) exprNode);
+                }
             }
         }
         return new ArrayConstructorCallExpr(getSourceCodeRef(ctx), elements);
