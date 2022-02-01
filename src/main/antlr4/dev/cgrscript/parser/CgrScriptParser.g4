@@ -98,7 +98,7 @@ continueStat : CONTINUE ;
 
 exprSequence : expr ( COMMA expr )* ;
 
-deftype : 'def' 'type' ID inheritance? LCB attributes? RCB #recordType ;
+deftype : 'def' 'type' ID inheritance? LCB attributes? RCB ;
 
 inheritance : 'extends' ID ;
 
@@ -145,7 +145,7 @@ joinOfExpr : 'of' expr ;
 
 block : execStat* ;
 
-varDecl : VAR varDeclBody #varDeclStat
+varDecl : VAR varDeclBody
           ;
 
 varDeclBody : ID ( COLON type )? ( '=' expr )? ;

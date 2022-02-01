@@ -83,7 +83,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
     }
 
     @Override
-    public Void visitRecordType(CgrScriptParser.RecordTypeContext ctx) {
+    public Void visitDeftype(CgrScriptParser.DeftypeContext ctx) {
         var recordType = new RecordTypeSymbol(getSourceCodeRef(ctx), ctx.ID().getText(), moduleScope);
         moduleScope.define(recordType);
         return null;

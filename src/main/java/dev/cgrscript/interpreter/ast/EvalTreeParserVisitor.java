@@ -71,7 +71,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitRecordType(CgrScriptParser.RecordTypeContext ctx) {
+    public AstNode visitDeftype(CgrScriptParser.DeftypeContext ctx) {
         RecordTypeSymbol recordType = (RecordTypeSymbol) moduleScope.resolve(ctx.ID().getText());
         if (ctx.attributes() != null) {
 
@@ -283,7 +283,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitVarDeclStat(CgrScriptParser.VarDeclStatContext ctx) {
+    public AstNode visitVarDecl(CgrScriptParser.VarDeclContext ctx) {
         return visit(ctx.varDeclBody());
     }
 

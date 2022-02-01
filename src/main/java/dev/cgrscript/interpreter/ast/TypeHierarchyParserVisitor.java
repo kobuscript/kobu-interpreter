@@ -52,7 +52,7 @@ public class TypeHierarchyParserVisitor extends CgrScriptParserVisitor<Void> {
     }
 
     @Override
-    public Void visitRecordType(CgrScriptParser.RecordTypeContext ctx) {
+    public Void visitDeftype(CgrScriptParser.DeftypeContext ctx) {
 
         if (ctx.inheritance() != null) {
             RecordTypeSymbol recordType = (RecordTypeSymbol) moduleScope.resolve(ctx.ID().getText());
