@@ -159,14 +159,14 @@ templateExpr : CONTENT                                       #templateStaticCont
                ;
 
 expr : record                                                                                       #recordExpr
-       | LSB exprSequence? RSB                                                       #arrayExpr
-       | LP expr COMMA expr RP                                             #pairExpr
+       | LSB exprSequence? RSB                                                                      #arrayExpr
+       | LP expr COMMA expr RP                                                                      #pairExpr
        | functionCallExpr                                                                           #functionCallProxyExpr
-       | expr LSB arrayIndexExpr RSB                                                 #arrayAccessExpr
+       | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | NOT expr                                                                                   #notExpr
        | assignPostIncDec                                                                           #assignPostIncDecExpr
        | assignPreIncDec                                                                            #assignPreIncDecExpr
-       | expr DOT expr                                                                  #fieldAccessExpr
+       | expr DOT expr                                                                              #fieldAccessExpr
        | expr ( STAR | DIV ) expr                                                                   #factorExpr
        | expr ( ADD | SUB ) expr                                                                    #addSubExpr
        | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS ) expr    #eqExpr
@@ -176,7 +176,7 @@ expr : record                                                                   
        | NUMBER                                                                                     #numberExpr
        | BOOLEAN                                                                                    #booleanExpr
        | NULL                                                                                       #nullExpr
-       | LP expr RP                                                                #parenthesizedExpr
+       | LP expr RP                                                                                 #parenthesizedExpr
        ;
 
 functionCallExpr : ID LP exprSequence? RP ;
