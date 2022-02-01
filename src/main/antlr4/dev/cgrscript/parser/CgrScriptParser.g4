@@ -70,8 +70,8 @@ stat : deftype
        | functionDecl
        ;
 
-functionDecl : 'fun' ID LP functionDeclParam? RP COLON functionDeclRet LK execStat* RK
-               | 'fun' ID LP functionDeclParam? RP LK execStat* RK {notifyMissingReturnStatement();}
+functionDecl : 'fun' ID LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB
+               | 'fun' ID LP functionDeclParam? RP LCB execStat* RCB {notifyMissingReturnStatement();}
                ;
 
 nativeDecl : 'def' 'native' ID LP functionDeclParam? RP COLON functionDeclRet ;
@@ -82,15 +82,15 @@ functionDeclParam : ID '?'? COLON type ( COMMA functionDeclParam )?
                     | ID '?'? {notifyErrorListeners("Missing type on function parameter");}
                     ;
 
-ifStat : 'if' LP expr RP LK execStat* RK elseIfStat? elseStat? ;
+ifStat : 'if' LP expr RP LCB execStat* RCB elseIfStat? elseStat? ;
 
-elseIfStat : 'else' 'if' LP expr RP LK execStat* RK elseIfStat? ;
+elseIfStat : 'else' 'if' LP expr RP LCB execStat* RCB elseIfStat? ;
 
-elseStat : 'else' LK execStat* RK ;
+elseStat : 'else' LCB execStat* RCB ;
 
-forStat : 'for' LP varDeclList? SEMI exprSequence SEMI assignmentSequece RP LK execStat* RK ;
+forStat : 'for' LP varDeclList? SEMI exprSequence SEMI assignmentSequece RP LCB execStat* RCB ;
 
-whileStat : 'while' LP expr RP LK execStat* RK ;
+whileStat : 'while' LP expr RP LCB execStat* RCB ;
 
 breakStat: BREAK ;
 
@@ -98,13 +98,13 @@ continueStat : CONTINUE ;
 
 exprSequence : expr ( COMMA expr )* ;
 
-deftype : 'def' 'type' ID inheritance? LK attributes? RK #recordType ;
+deftype : 'def' 'type' ID inheritance? LCB attributes? RCB #recordType ;
 
 inheritance : 'extends' ID ;
 
 attributes : ( STAR | ID ) COLON type ( COMMA attributes )? ;
 
-record : ID LK recordField? RK ;
+record : ID LCB recordField? RCB ;
 
 recordField : ID COLON expr ( COMMA recordField )? ;
 
@@ -119,7 +119,7 @@ pathSegmentExpr : PATH_SEGMENT                                 #pathStaticSegmen
                   | PATH_VARIABLE_BEGIN expr PATH_VARIABLE_END #pathVariableExpr
                   ;
 
-defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LK block RK ;
+defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block RCB ;
 
 ruleExtends : EXTENDS ID ;
 
@@ -133,7 +133,7 @@ queryPipeExpr : ID queryExprArraySelect?                                    #que
                 | functionCallExpr queryExprArraySelect?                    #queryFunctionCallExpr
                 ;
 
-queryExprArraySelect : LB queryExprArrayItem RB ;
+queryExprArraySelect : LSB queryExprArrayItem RSB ;
 
 queryExprArrayItem : arrayIndexExpr       #queryExprArrayItemIndex
                      | STAR               #queryExprArrayItemAll
@@ -159,10 +159,10 @@ templateExpr : CONTENT                                       #templateStaticCont
                ;
 
 expr : record                                                                                       #recordExpr
-       | LB exprSequence? RB                                                       #arrayExpr
+       | LSB exprSequence? RSB                                                       #arrayExpr
        | LP expr COMMA expr RP                                             #pairExpr
        | functionCallExpr                                                                           #functionCallProxyExpr
-       | expr LB arrayIndexExpr RB                                                 #arrayAccessExpr
+       | expr LSB arrayIndexExpr RSB                                                 #arrayAccessExpr
        | NOT expr                                                                                   #notExpr
        | assignPostIncDec                                                                           #assignPostIncDecExpr
        | assignPreIncDec                                                                            #assignPreIncDecExpr
@@ -199,7 +199,7 @@ assignPreIncDec : ( INC | DEC) ID ;
 assignmentSequece : assignment ( COMMA assignment )* ;
 
 type : ID                                                #singleType
-       | type LB RB                     #arrayType
+       | type LSB RSB                     #arrayType
        | LP type COMMA type RP  #pairType
        ;
 

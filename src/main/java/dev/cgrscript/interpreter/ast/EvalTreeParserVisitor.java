@@ -109,7 +109,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             }
         }
         if (ctx.functionDeclRet().VOID() == null && exprList.isEmpty()) {
-            moduleScope.addError(new FunctionMissingReturnStatError(getSourceCodeRef(ctx.RK())));
+            moduleScope.addError(new FunctionMissingReturnStatError(getSourceCodeRef(ctx.RCB())));
         }
 
         function.setParameters(parameters);

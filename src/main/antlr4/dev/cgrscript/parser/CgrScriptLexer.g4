@@ -83,18 +83,18 @@ DOT : '.' ;
 LP : '(' ;
 RP : ')' ;
 
-LB : '[' ;
-RB : ']' ;
+LSB : '[' ;
+RSB : ']' ;
 
 COMMENT_BLOCK : '/*' .*? '*/' -> channel(COMMENTCHANNEL) ;
 COMMENT_LINE : '//' .*? '\n' -> channel(COMMENTCHANNEL) ;
 
-LK : '{' ;
+LCB : '{' ;
 TEMPLATE_BEGIN : '<-{' {this.SetTemplateMode(true);} -> pushMode(TEMPLATE_MODE) ;
 TEMPLATE_EXPR_END : {this.IsTemplateMode()}? '}' -> popMode ;
 FILE_PATH_EXPR : '->' {this.SetPathMode(true);} -> pushMode(PATH_MODE) ;
 PATH_VARIABLE_END : {this.IsPathMode()}? '}' -> popMode ;
-RK : '}' ;
+RCB : '}' ;
 
 STRING : '"' (ESC | ~["\\])* '"' ;
 fragment ESC : '\\' (["\\/bfnrt] | UNICODE) ;

@@ -91,7 +91,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
 
     @Override
     public Void visitFunctionDecl(CgrScriptParser.FunctionDeclContext ctx) {
-        var function = new FunctionSymbol(getSourceCodeRef(ctx.ID()), getSourceCodeRef(ctx.RK()),
+        var function = new FunctionSymbol(getSourceCodeRef(ctx.ID()), getSourceCodeRef(ctx.RCB()),
                 moduleScope, ctx.ID().getText());
         moduleScope.define(function);
         return null;
