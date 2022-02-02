@@ -28,10 +28,7 @@ import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.*;
-import dev.cgrscript.interpreter.error.analyzer.InvalidTypeError;
-import dev.cgrscript.interpreter.error.analyzer.InvalidVariableError;
-import dev.cgrscript.interpreter.error.analyzer.UndefinedFieldError;
-import dev.cgrscript.interpreter.error.analyzer.UndefinedVariableError;
+import dev.cgrscript.interpreter.error.analyzer.*;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 import dev.cgrscript.interpreter.error.eval.NullPointerError;
 
@@ -39,7 +36,7 @@ public class PostIncDecExpr implements Statement, Expr, HasTypeScope, Assignment
 
     private final SourceCodeRef sourceCodeRef;
 
-    private final String varName;
+    private final Expr refExpr;
 
     private final IncDecOperatorEnum operator;
 
@@ -49,9 +46,9 @@ public class PostIncDecExpr implements Statement, Expr, HasTypeScope, Assignment
 
     private Type type;
 
-    public PostIncDecExpr(SourceCodeRef sourceCodeRef, String varName, IncDecOperatorEnum operator) {
+    public PostIncDecExpr(SourceCodeRef sourceCodeRef, Expr refExpr, IncDecOperatorEnum operator) {
         this.sourceCodeRef = sourceCodeRef;
-        this.varName = varName;
+        this.refExpr = refExpr;
         this.operator = operator;
     }
 
@@ -62,42 +59,26 @@ public class PostIncDecExpr implements Statement, Expr, HasTypeScope, Assignment
 
     @Override
     public void analyze(EvalContext context) {
-        if (typeScope == null) {
-            var symbol = context.getCurrentScope().resolve(varName);
-            if (symbol == null) {
-                context.getModuleScope().addError(new UndefinedVariableError(sourceCodeRef, varName));
-                this.type = UnknownType.INSTANCE;
-                return;
-            }
-            if (!(symbol instanceof VariableSymbol)) {
-                context.getModuleScope().addError(new InvalidVariableError(sourceCodeRef, varName, symbol));
-                this.type = UnknownType.INSTANCE;
-                return;
-            }
-            var varType = ((VariableSymbol) symbol).getType();
-            if (!(varType instanceof NumberTypeSymbol)) {
-                var numberType = BuiltinScope.NUMBER_TYPE;
-                context.getModuleScope().addError(new InvalidTypeError(sourceCodeRef, numberType, varType));
-                this.type = UnknownType.INSTANCE;
-                return;
-            }
-
-            this.type = varType;
-        } else {
-            var field = typeScope.resolveField(varName);
-            if (field == null) {
-                context.getModuleScope().addError(new UndefinedFieldError(sourceCodeRef, typeScope, varName));
-                this.type = UnknownType.INSTANCE;
-                return;
-            }
-            if (!(field instanceof NumberTypeSymbol)) {
-                var numberType = BuiltinScope.NUMBER_TYPE;
-                context.getModuleScope().addError(new InvalidTypeError(sourceCodeRef, numberType, field));
-                this.type = UnknownType.INSTANCE;
-                return;
-            }
-            this.type = field;
+        if (!(refExpr instanceof MemoryReference)) {
+            context.getModuleScope().addError(new InvalidExpressionError(sourceCodeRef));
+            this.type = UnknownType.INSTANCE;
+            return;
         }
+        if (typeScope != null && refExpr instanceof HasTypeScope) {
+            ((HasTypeScope)refExpr).setTypeScope(typeScope);
+        }
+        refExpr.analyze(context);
+        if (refExpr.getType() instanceof UnknownType) {
+            this.type = UnknownType.INSTANCE;
+            return;
+        }
+        if (!(refExpr.getType() instanceof NumberTypeSymbol)) {
+            var numberType = BuiltinScope.NUMBER_TYPE;
+            context.getModuleScope().addError(new InvalidTypeError(sourceCodeRef, numberType, refExpr.getType()));
+            this.type = UnknownType.INSTANCE;
+            return;
+        }
+        this.type = refExpr.getType();
     }
 
     @Override
@@ -116,58 +97,26 @@ public class PostIncDecExpr implements Statement, Expr, HasTypeScope, Assignment
     }
 
     private ValueExpr eval(EvalContext context) {
-        if (valueScope == null) {
-            var symbol = context.getCurrentScope().resolve(varName);
-            if (symbol == null) {
-                throw new InternalInterpreterError("Variable not defined in scope",
-                        sourceCodeRef);
-            }
-            if (!(symbol instanceof VariableSymbol)) {
-                throw new InternalInterpreterError("Expected: Variable. Found: " + symbol.getClass().getName(),
-                        sourceCodeRef);
-            }
 
-            var valueExpr = ((LocalScope) context.getCurrentScope()).getValue(symbol.getName());
-            if (valueExpr == null || valueExpr instanceof NullValueExpr) {
-                throw new NullPointerError(sourceCodeRef, sourceCodeRef);
-            }
-            if (valueExpr instanceof NumberValueExpr) {
-                ValueExpr newValue = null;
-                if (operator.equals(IncDecOperatorEnum.INC)) {
-                    newValue = new NumberValueExpr(sourceCodeRef, ((NumberValueExpr)valueExpr).inc());
-                } else {
-                    newValue = new NumberValueExpr(sourceCodeRef, ((NumberValueExpr)valueExpr).dec());
-                }
-                context.getCurrentScope().setValue(varName, newValue);
-                return valueExpr;
-            }
-            throw new InternalInterpreterError("Expected: Number. Found: " + valueExpr.getStringValue(), sourceCodeRef);
-        } else {
-            if (valueScope instanceof NullValueExpr) {
-                throw new NullPointerError(valueScope.getSourceCodeRef(), valueScope.getSourceCodeRef());
-            }
-            if (valueScope instanceof HasFields) {
-                var field = ((HasFields)valueScope).resolveField(varName);
-                if (field == null || field instanceof NullValueExpr) {
-                    return new NullValueExpr(sourceCodeRef);
-                }
-                ValueExpr valueExpr = field.evalExpr(context);
-                if (valueExpr instanceof NumberValueExpr) {
-                    ValueExpr newValue = null;
-                    if (operator.equals(IncDecOperatorEnum.INC)) {
-                        newValue = new NumberValueExpr(sourceCodeRef, ((NumberValueExpr)valueExpr).inc());
-                    } else {
-                        newValue = new NumberValueExpr(sourceCodeRef, ((NumberValueExpr)valueExpr).dec());
-                    }
-                    ((HasFields)valueScope).updateFieldValue(context, varName, newValue);
-                    return valueExpr;
-                }
-                throw new InternalInterpreterError("Expected: Number. Found: " + valueExpr.getStringValue(), sourceCodeRef);
-            }
-
-            throw new InternalInterpreterError(
-                    "Invalid value for this operation: " + valueScope.getStringValue(), sourceCodeRef);
+        if (valueScope != null && refExpr instanceof HasTypeScope) {
+            ((HasTypeScope)refExpr).setValueScope(valueScope);
         }
+        ValueExpr val = refExpr.evalExpr(context);
+
+        if (!(val instanceof NumberValueExpr)) {
+            throw new InternalInterpreterError("Expected 'number', but got '" + val.getType() + "'", sourceCodeRef);
+        }
+
+        Number newVal;
+        if (operator == IncDecOperatorEnum.INC) {
+            newVal = ((NumberValueExpr)val).inc();
+        } else {
+            newVal = ((NumberValueExpr)val).dec();
+        }
+
+        NumberValueExpr newValExpr = new NumberValueExpr(newVal);
+        ((MemoryReference)refExpr).assign(context, newValExpr);
+        return new NumberValueExpr(((NumberValueExpr)val).getValue());
     }
 
     @Override

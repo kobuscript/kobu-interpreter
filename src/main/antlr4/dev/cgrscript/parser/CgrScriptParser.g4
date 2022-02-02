@@ -163,19 +163,20 @@ expr : record                                                                   
        | LP expr COMMA expr RP                                                                      #pairExpr
        | functionCallExpr                                                                           #functionCallProxyExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
-       | NOT expr                                                                                   #notExpr
-       | assignPostIncDec                                                                           #assignPostIncDecExpr
-       | assignPreIncDec                                                                            #assignPreIncDecExpr
        | expr DOT expr                                                                              #fieldAccessExpr
        | expr ( STAR | DIV ) expr                                                                   #factorExpr
        | expr ( ADD | SUB ) expr                                                                    #addSubExpr
        | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS ) expr    #eqExpr
        | expr ( AND | OR ) expr                                                                     #logicExpr
+       | expr ( INC | DEC )                                                                         #assignPostIncDecExpr
+       | ( INC | DEC ) expr                                                                         #assignPreIncDecExpr
+       | NOT expr                                                                                   #notExpr
+       | TRUE                                                                                       #trueExpr
+       | FALSE                                                                                      #falseExpr
+       | NULL                                                                                       #nullExpr
        | ID                                                                                         #idExpr
        | STRING                                                                                     #stringExpr
        | NUMBER                                                                                     #numberExpr
-       | BOOLEAN                                                                                    #booleanExpr
-       | NULL                                                                                       #nullExpr
        | LP expr RP                                                                                 #parenthesizedExpr
        ;
 
@@ -192,14 +193,14 @@ assignment : expr '=' expr                       #assignElemValue
              | assignPreIncDec                   #assignPreIncDecStat
              ;
 
-assignPostIncDec : ID ( INC | DEC ) ;
+assignPostIncDec : expr ( INC | DEC ) ;
 
-assignPreIncDec : ( INC | DEC) ID ;
+assignPreIncDec : ( INC | DEC) expr ;
 
 assignmentSequece : assignment ( COMMA assignment )* ;
 
-type : ID                                                #singleType
-       | type LSB RSB                     #arrayType
+type : ID                       #singleType
+       | type LSB RSB           #arrayType
        | LP type COMMA type RP  #pairType
        ;
 

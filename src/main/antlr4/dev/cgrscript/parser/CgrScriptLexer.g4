@@ -62,6 +62,9 @@ NOT : 'not' ;
 AND : 'and' ;
 OR : 'or' ;
 
+TRUE : 'true' ;
+FALSE : 'false' ;
+
 INC : '++' ;
 DEC : '--' ;
 STAR : '*' ;
@@ -105,10 +108,6 @@ NUMBER : '-'? INT '.' [0-9]+  // 1.35, 0.3, -4.5
         | '-'? INT // -3, 45
         ;
 fragment INT : '0' | [1-9] [0-9]* ; // no leading zeros
-
-TRUE : 'true' ;
-FALSE : 'false' ;
-BOOLEAN : TRUE | FALSE ;
 
 ID : [a-zA-Z_][a-zA-Z0-9_]* ;
 WS : [ \t\r\n]+ -> channel(WSCHANNEL) ;

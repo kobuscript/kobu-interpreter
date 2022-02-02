@@ -28,6 +28,7 @@ import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.*;
+import dev.cgrscript.interpreter.error.analyzer.InvalidExpressionError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidTypeError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidVariableError;
 import dev.cgrscript.interpreter.error.analyzer.UndefinedVariableError;
@@ -38,15 +39,15 @@ public class PreIncDecExpr implements Statement, Expr, Assignment {
 
     private final SourceCodeRef sourceCodeRef;
 
-    private final String varName;
+    private final Expr refExpr;
 
     private final IncDecOperatorEnum operator;
 
     private Type type;
 
-    public PreIncDecExpr(SourceCodeRef sourceCodeRef, String varName, IncDecOperatorEnum operator) {
+    public PreIncDecExpr(SourceCodeRef sourceCodeRef, Expr refExpr, IncDecOperatorEnum operator) {
         this.sourceCodeRef = sourceCodeRef;
-        this.varName = varName;
+        this.refExpr = refExpr;
         this.operator = operator;
     }
 
@@ -57,26 +58,23 @@ public class PreIncDecExpr implements Statement, Expr, Assignment {
 
     @Override
     public void analyze(EvalContext context) {
-        var symbol = context.getCurrentScope().resolve(varName);
-        if (symbol == null) {
-            context.getModuleScope().addError(new UndefinedVariableError(sourceCodeRef, varName));
+        if (!(refExpr instanceof MemoryReference)) {
+            context.getModuleScope().addError(new InvalidExpressionError(sourceCodeRef));
             this.type = UnknownType.INSTANCE;
             return;
         }
-        if (!(symbol instanceof VariableSymbol)) {
-            context.getModuleScope().addError(new InvalidVariableError(sourceCodeRef, varName, symbol));
+        refExpr.analyze(context);
+        if (refExpr.getType() instanceof UnknownType) {
             this.type = UnknownType.INSTANCE;
             return;
         }
-        var varType = ((VariableSymbol) symbol).getType();
-        if (!(varType instanceof NumberValueExpr)) {
+        if (!(refExpr.getType() instanceof NumberTypeSymbol)) {
             var numberType = BuiltinScope.NUMBER_TYPE;
-            context.getModuleScope().addError(new InvalidTypeError(sourceCodeRef, numberType, varType));
+            context.getModuleScope().addError(new InvalidTypeError(sourceCodeRef, numberType, refExpr.getType()));
             this.type = UnknownType.INSTANCE;
             return;
         }
-
-        this.type = varType;
+        this.type = refExpr.getType();
     }
 
     @Override
@@ -95,30 +93,21 @@ public class PreIncDecExpr implements Statement, Expr, Assignment {
     }
 
     private ValueExpr eval(EvalContext context) {
-        var symbol = context.getCurrentScope().resolve(varName);
-        if (symbol == null) {
-            throw new InternalInterpreterError("Variable not defined in scope",
-                    sourceCodeRef);
-        }
-        if (!(symbol instanceof VariableSymbol)) {
-            throw new InternalInterpreterError("Expected: Variable. Found: " + symbol.getClass().getName(),
-                    sourceCodeRef);
+        ValueExpr val = refExpr.evalExpr(context);
+
+        if (!(val instanceof NumberValueExpr)) {
+            throw new InternalInterpreterError("Expected 'number', but got '" + val.getType() + "'", sourceCodeRef);
         }
 
-        var valueExpr = ((LocalScope) context.getCurrentScope()).getValue(symbol.getName());
-        if (valueExpr == null || valueExpr instanceof NullValueExpr) {
-            throw new NullPointerError(sourceCodeRef, sourceCodeRef);
+        Number newVal;
+        if (operator == IncDecOperatorEnum.INC) {
+            newVal = ((NumberValueExpr)val).inc();
+        } else {
+            newVal = ((NumberValueExpr)val).dec();
         }
-        if (valueExpr instanceof NumberValueExpr) {
-            ValueExpr newValue = null;
-            if (operator.equals(IncDecOperatorEnum.INC)) {
-                newValue = new NumberValueExpr(sourceCodeRef, ((NumberValueExpr)valueExpr).inc());
-            } else {
-                newValue = new NumberValueExpr(sourceCodeRef, ((NumberValueExpr)valueExpr).dec());
-            }
-            context.getCurrentScope().setValue(varName, newValue);
-            return newValue;
-        }
-        throw new InternalInterpreterError("Expected: Number. Found: " + valueExpr.getStringValue(), sourceCodeRef);
+
+        NumberValueExpr newValExpr = new NumberValueExpr(newVal);
+        ((MemoryReference)refExpr).assign(context, newValExpr);
+        return newValExpr;
     }
 }

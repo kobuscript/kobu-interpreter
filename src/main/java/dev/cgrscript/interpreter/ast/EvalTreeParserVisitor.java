@@ -321,7 +321,6 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitAssignPostIncDec(CgrScriptParser.AssignPostIncDecContext ctx) {
-        String varName = ctx.ID().getText();
         IncDecOperatorEnum operator = null;
         if (ctx.INC() != null) {
             operator = IncDecOperatorEnum.INC;
@@ -329,12 +328,11 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             operator = IncDecOperatorEnum.DEC;
         }
 
-        return new PostIncDecExpr(getSourceCodeRef(ctx), varName, operator);
+        return new PostIncDecExpr(getSourceCodeRef(ctx), (Expr) visit(ctx.expr()), operator);
     }
 
     @Override
     public AstNode visitAssignPreIncDec(CgrScriptParser.AssignPreIncDecContext ctx) {
-        String varName = ctx.ID().getText();
         IncDecOperatorEnum operator = null;
         if (ctx.INC() != null) {
             operator = IncDecOperatorEnum.INC;
@@ -342,7 +340,31 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             operator = IncDecOperatorEnum.DEC;
         }
 
-        return new PreIncDecExpr(getSourceCodeRef(ctx), varName, operator);
+        return new PreIncDecExpr(getSourceCodeRef(ctx), (Expr) visit(ctx.expr()), operator);
+    }
+
+    @Override
+    public AstNode visitAssignPostIncDecExpr(CgrScriptParser.AssignPostIncDecExprContext ctx) {
+        IncDecOperatorEnum operator = null;
+        if (ctx.INC() != null) {
+            operator = IncDecOperatorEnum.INC;
+        } else {
+            operator = IncDecOperatorEnum.DEC;
+        }
+
+        return new PostIncDecExpr(getSourceCodeRef(ctx), (Expr) visit(ctx.expr()), operator);
+    }
+
+    @Override
+    public AstNode visitAssignPreIncDecExpr(CgrScriptParser.AssignPreIncDecExprContext ctx) {
+        IncDecOperatorEnum operator = null;
+        if (ctx.INC() != null) {
+            operator = IncDecOperatorEnum.INC;
+        } else {
+            operator = IncDecOperatorEnum.DEC;
+        }
+
+        return new PreIncDecExpr(getSourceCodeRef(ctx), (Expr) visit(ctx.expr()), operator);
     }
 
     @Override
@@ -672,9 +694,13 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitBooleanExpr(CgrScriptParser.BooleanExprContext ctx) {
-        return new BooleanValueExpr(getSourceCodeRef(ctx.BOOLEAN()),
-                ctx.BOOLEAN().getText().equals("true"));
+    public AstNode visitTrueExpr(CgrScriptParser.TrueExprContext ctx) {
+        return new BooleanValueExpr(getSourceCodeRef(ctx.TRUE()), true);
+    }
+
+    @Override
+    public AstNode visitFalseExpr(CgrScriptParser.FalseExprContext ctx) {
+        return new BooleanValueExpr(getSourceCodeRef(ctx.FALSE()), false);
     }
 
     @Override

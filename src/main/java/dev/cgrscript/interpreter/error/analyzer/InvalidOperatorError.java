@@ -36,17 +36,33 @@ public class InvalidOperatorError extends AnalyzerError {
 
     private final Type operandB;
 
+    private final int operands;
+
     public InvalidOperatorError(SourceCodeRef sourceCodeRef, Type operandA, String operator, Type operandB) {
         super(sourceCodeRef);
         this.operandA = operandA;
         this.operator = operator;
         this.operandB = operandB;
+        this.operands = 2;
+    }
+
+    public InvalidOperatorError(SourceCodeRef sourceCodeRef, String operator, Type operandA) {
+        super(sourceCodeRef);
+        this.operandA = operandA;
+        this.operator = operator;
+        this.operandB = null;
+        this.operands = 1;
     }
 
     @Override
     public String getDescription() {
-        String name1 = operandA != null ? operandA.getName() : "null";
-        String name2 = operandB != null ? operandB.getName() : "null";
-        return "Operator '" + operator + "' cannot be applied to '" + name1 + "' and '" + name2 + "'";
+        if (operands == 2) {
+            String name1 = operandA != null ? operandA.getName() : "null";
+            String name2 = operandB != null ? operandB.getName() : "null";
+            return "Operator '" + operator + "' cannot be applied to '" + name1 + "' and '" + name2 + "'";
+        } else {
+            String name1 = operandA != null ? operandA.getName() : "null";
+            return "Operator '" + operator + "' cannot be applied to '" + name1 + "'";
+        }
     }
 }

@@ -27,8 +27,10 @@ package dev.cgrscript.interpreter.ast.eval.expr;
 import dev.cgrscript.interpreter.ast.eval.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Expr;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.InvalidOperatorError;
+import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 
 public class NotExpr implements Expr {
 
@@ -55,14 +57,19 @@ public class NotExpr implements Expr {
         if (expr.getType() instanceof BooleanTypeSymbol) {
             type = booleanType;
         } else {
-            context.getModuleScope().addError(new InvalidOperatorError(sourceCodeRef, expr.getType(), "not", booleanType));
+            context.getModuleScope().addError(new InvalidOperatorError(sourceCodeRef, "not", expr.getType()));
             type = UnknownType.INSTANCE;
         }
     }
 
     @Override
     public ValueExpr evalExpr(EvalContext context) {
-        return null;
+        ValueExpr valueExpr = expr.evalExpr(context);
+        if (!(valueExpr instanceof BooleanValueExpr)) {
+            throw new InternalInterpreterError("Expected: boolean. Found: " + expr.getType(),
+                    expr.getSourceCodeRef());
+        }
+        return new BooleanValueExpr(!((BooleanValueExpr)valueExpr).getValue());
     }
 
     @Override

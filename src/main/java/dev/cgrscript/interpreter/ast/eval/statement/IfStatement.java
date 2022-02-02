@@ -116,7 +116,7 @@ public class IfStatement implements Statement {
             throw new NullPointerError(sourceCodeRef, condExpr.getSourceCodeRef());
         }
         if (!(condValue instanceof BooleanValueExpr)) {
-            throw new InternalInterpreterError("Expected: Boolean. Found: " + condValue.getStringValue(),
+            throw new InternalInterpreterError("Expected: boolean. Found: " + condValue.getStringValue(),
                     condExpr.getSourceCodeRef());
         }
 
