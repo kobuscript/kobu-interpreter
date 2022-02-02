@@ -589,7 +589,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         var leftExprNode = visit(ctx.expr(0));
         var rightExprNode = visit(ctx.expr(1));
         Expr expr;
-        if (ctx.ADD() != null) {
+        if (ctx.PLUS() != null) {
             expr = new AddExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, (Expr) rightExprNode);
         } else {
             expr = new SubExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, (Expr) rightExprNode);

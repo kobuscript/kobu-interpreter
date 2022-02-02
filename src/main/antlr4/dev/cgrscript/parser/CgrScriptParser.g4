@@ -165,7 +165,7 @@ expr : record                                                                   
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
        | expr ( STAR | DIV ) expr                                                                   #factorExpr
-       | expr ( ADD | SUB ) expr                                                                    #addSubExpr
+       | expr ( PLUS | MINUS ) expr                                                                    #addSubExpr
        | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS ) expr    #eqExpr
        | expr ( AND | OR ) expr                                                                     #logicExpr
        | expr ( INC | DEC )                                                                         #assignPostIncDecExpr

@@ -69,8 +69,8 @@ INC : '++' ;
 DEC : '--' ;
 STAR : '*' ;
 DIV : '/' ;
-ADD : '+' ;
-SUB : '-' ;
+PLUS : '+' ;
+MINUS : '-' ;
 OF : 'of' ;
 
 EQUALS : '==' ;
@@ -116,7 +116,6 @@ mode DEF_MODE;
 
 DEFTYPE : 'type' -> popMode ;
 DEFTEMPLATE : 'template' -> popMode ;
-DEFRECORD : 'record' -> popMode ;
 DEFRULE : 'rule' -> popMode ;
 DEFFILE : 'file' -> popMode ;
 DEFNATIVE : 'native' -> popMode ;
