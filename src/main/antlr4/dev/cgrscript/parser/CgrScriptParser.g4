@@ -57,7 +57,7 @@ blockStat: ifStat
            | whileStat
            ;
 
-functionReturnStat : RETURN expr
+functionReturnStat : RETURN exprWrapper
                      | RETURN SEMI
                      | RETURN {notifyErrorListenersPrevToken("';' expected");}
                      ;
@@ -96,7 +96,7 @@ breakStat: BREAK ;
 
 continueStat : CONTINUE ;
 
-exprSequence : expr ( COMMA expr )* ;
+exprSequence : exprWrapper ( COMMA exprWrapper )* ;
 
 deftype : 'def' 'type' ID inheritance? LCB attributes? RCB ;
 
@@ -106,7 +106,7 @@ attributes : ( STAR | ID ) COLON type ( COMMA attributes )? ;
 
 record : ID LCB recordField? RCB ;
 
-recordField : ID COLON expr ( COMMA recordField )? ;
+recordField : ID COLON exprWrapper ( COMMA recordField )? ;
 
 deftemplate : 'def' 'template' ID ruleExtends? 'for' 'any'? queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template TEMPLATE_END ;
 
@@ -148,7 +148,7 @@ block : execStat* ;
 varDecl : VAR varDeclBody
           ;
 
-varDeclBody : ID ( COLON type )? ( '=' expr )? ;
+varDeclBody : ID ( COLON type )? ( '=' exprWrapper )? ;
 
 varDeclList : VAR varDeclBody ( COMMA varDeclBody )* ;
 
@@ -158,6 +158,8 @@ templateExpr : CONTENT                                       #templateStaticCont
                | TEMPLATE_EXPR_BEGIN expr TEMPLATE_EXPR_END  #templateContentExpr
                ;
 
+exprWrapper : expr | assignPostIncDec | assignPreIncDec ;
+
 expr : record                                                                                       #recordExpr
        | LSB exprSequence? RSB                                                                      #arrayExpr
        | LP expr COMMA expr RP                                                                      #pairExpr
@@ -165,11 +167,9 @@ expr : record                                                                   
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
        | expr ( STAR | DIV ) expr                                                                   #factorExpr
-       | expr ( PLUS | MINUS ) expr                                                                    #addSubExpr
+       | expr ( PLUS | MINUS ) expr                                                                 #addSubExpr
        | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS ) expr    #eqExpr
        | expr ( AND | OR ) expr                                                                     #logicExpr
-       | expr ( INC | DEC )                                                                         #assignPostIncDecExpr
-       | ( INC | DEC ) expr                                                                         #assignPreIncDecExpr
        | NOT expr                                                                                   #notExpr
        | TRUE                                                                                       #trueExpr
        | FALSE                                                                                      #falseExpr

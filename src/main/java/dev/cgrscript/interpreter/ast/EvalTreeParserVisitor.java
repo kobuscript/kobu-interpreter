@@ -285,8 +285,8 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitFunctionReturnStat(CgrScriptParser.FunctionReturnStatContext ctx) {
         Expr expr = null;
-        if (ctx.expr() != null) {
-            expr = (Expr) visit(ctx.expr());
+        if (ctx.exprWrapper() != null) {
+            expr = (Expr) visit(ctx.exprWrapper());
         }
         return new ReturnStatement(getSourceCodeRef(ctx), expr);
     }
@@ -304,8 +304,8 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         }
         VarDeclExpr expr = new VarDeclExpr(
                 new VariableSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), type));
-        if (ctx.expr() != null) {
-            var exprNode = visit(ctx.expr());
+        if (ctx.exprWrapper() != null) {
+            var exprNode = visit(ctx.exprWrapper());
             expr.setValueExpr((Expr) exprNode);
         }
         return expr;
@@ -333,30 +333,6 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitAssignPreIncDec(CgrScriptParser.AssignPreIncDecContext ctx) {
-        IncDecOperatorEnum operator = null;
-        if (ctx.INC() != null) {
-            operator = IncDecOperatorEnum.INC;
-        } else {
-            operator = IncDecOperatorEnum.DEC;
-        }
-
-        return new PreIncDecExpr(getSourceCodeRef(ctx), (Expr) visit(ctx.expr()), operator);
-    }
-
-    @Override
-    public AstNode visitAssignPostIncDecExpr(CgrScriptParser.AssignPostIncDecExprContext ctx) {
-        IncDecOperatorEnum operator = null;
-        if (ctx.INC() != null) {
-            operator = IncDecOperatorEnum.INC;
-        } else {
-            operator = IncDecOperatorEnum.DEC;
-        }
-
-        return new PostIncDecExpr(getSourceCodeRef(ctx), (Expr) visit(ctx.expr()), operator);
-    }
-
-    @Override
-    public AstNode visitAssignPreIncDecExpr(CgrScriptParser.AssignPreIncDecExprContext ctx) {
         IncDecOperatorEnum operator = null;
         if (ctx.INC() != null) {
             operator = IncDecOperatorEnum.INC;
@@ -428,7 +404,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             }
         }
         List<Expr> condExprList = new ArrayList<>();
-        for (CgrScriptParser.ExprContext exprContext : ctx.exprSequence().expr()) {
+        for (CgrScriptParser.ExprWrapperContext exprContext : ctx.exprSequence().exprWrapper()) {
             var exprNode = visit(exprContext);
             if (exprNode != null) {
                 condExprList.add((Expr) exprNode);
@@ -483,7 +459,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
         CgrScriptParser.RecordFieldContext fieldCtx = ctx.recordField();
         while (fieldCtx != null) {
-            var exprNode = visit(fieldCtx.expr());
+            var exprNode = visit(fieldCtx.exprWrapper());
             recordConstructor.addField(new RecordFieldExpr(getSourceCodeRef(fieldCtx.ID()), fieldCtx.ID().getText(),
                     (Expr) exprNode));
             fieldCtx = fieldCtx.recordField();
@@ -496,7 +472,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitArrayExpr(CgrScriptParser.ArrayExprContext ctx) {
         List<Expr> elements = new ArrayList<>();
         if (ctx.exprSequence() != null) {
-            for (CgrScriptParser.ExprContext exprContext : ctx.exprSequence().expr()) {
+            for (CgrScriptParser.ExprWrapperContext exprContext : ctx.exprSequence().exprWrapper()) {
                 var exprNode = visit(exprContext);
                 if (exprNode != null) {
                     elements.add((Expr) exprNode);
@@ -519,7 +495,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
         List<FunctionArgExpr> args = new ArrayList<>();
         if (ctx.exprSequence() != null) {
-            for (CgrScriptParser.ExprContext exprContext : ctx.exprSequence().expr()) {
+            for (CgrScriptParser.ExprWrapperContext exprContext : ctx.exprSequence().exprWrapper()) {
                 var exprNode = visit(exprContext);
                 FunctionArgExpr argExpr = new FunctionArgExpr(getSourceCodeRef(exprContext),
                         (Expr) exprNode);
