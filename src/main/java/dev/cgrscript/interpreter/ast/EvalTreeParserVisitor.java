@@ -484,8 +484,8 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitPairExpr(CgrScriptParser.PairExprContext ctx) {
-        Expr leftExpr = (Expr) visit(ctx.expr(0));
-        Expr rightExpr = (Expr) visit(ctx.expr(1));
+        Expr leftExpr = (Expr) visit(ctx.exprWrapper(0));
+        Expr rightExpr = (Expr) visit(ctx.exprWrapper(1));
 
         return new PairConstructorCallExpr(getSourceCodeRef(ctx), leftExpr, rightExpr);
     }
@@ -537,8 +537,8 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitArrayIndexItemExpr(CgrScriptParser.ArrayIndexItemExprContext ctx) {
-        Expr expr = (Expr) visit(ctx.expr());
-        return new ArrayItemIndexExpr(getSourceCodeRef(ctx.expr()), expr);
+        Expr expr = (Expr) visit(ctx.exprWrapper());
+        return new ArrayItemIndexExpr(getSourceCodeRef(ctx.exprWrapper()), expr);
     }
 
     @Override

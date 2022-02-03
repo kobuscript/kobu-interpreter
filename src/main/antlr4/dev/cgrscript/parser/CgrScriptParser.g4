@@ -162,7 +162,7 @@ exprWrapper : expr | assignPostIncDec | assignPreIncDec ;
 
 expr : record                                                                                       #recordExpr
        | LSB exprSequence? RSB                                                                      #arrayExpr
-       | LP expr COMMA expr RP                                                                      #pairExpr
+       | LP exprWrapper COMMA exprWrapper RP                                                        #pairExpr
        | functionCallExpr                                                                           #functionCallProxyExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
@@ -185,7 +185,7 @@ functionCallExpr : ID LP exprSequence? RP ;
 arrayIndexExpr : expr ':' expr  #arrayIndexSliceExpr
                  | ':' expr     #arrayIndexSliceEndExpr
                  | expr ':'     #arrayIndexSliceBeginExpr
-                 | expr         #arrayIndexItemExpr
+                 | exprWrapper  #arrayIndexItemExpr
                  ;
 
 assignment : expr '=' expr                       #assignElemValue
