@@ -24,10 +24,11 @@ SOFTWARE.
 
 package dev.cgrscript.config;
 
-import dev.cgrscript.interpreter.ast.symbol.FileScriptRef;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.config.error.ProjectDependencyError;
 import dev.cgrscript.config.error.ProjectError;
+import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import dev.cgrscript.interpreter.file_system.CgrScriptFile;
+import dev.cgrscript.interpreter.file_system.local.LocalCgrFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -56,7 +57,12 @@ public class DependencyResolver {
 
     }
 
-    public List<File> getDependenciesSrcDirs() throws ProjectError {
+    public CgrScriptFile loadModuleScript(String moduleId) {
+
+        return null;
+    }
+
+    private List<File> getDependenciesSrcDirs() throws ProjectError {
         List<File> srcDirs = new ArrayList<>();
         Set<String> libs;
 
@@ -94,9 +100,9 @@ public class DependencyResolver {
 
         Project dependencyProject;
         try {
-            dependencyProject = projectReader.load(dependencyProjectFile);
+            dependencyProject = projectReader.load(new LocalCgrFile(dependencyProjectFile));
         } catch (ProjectError error) {
-            throw new ProjectDependencyError(new SourceCodeRef(new FileScriptRef(dependencyProjectFile)), dependency, error);
+            throw new ProjectDependencyError(new SourceCodeRef(new LocalCgrFile(dependencyProjectFile)), dependency, error);
         }
 
         List<File> srcDirs = new ArrayList<>();

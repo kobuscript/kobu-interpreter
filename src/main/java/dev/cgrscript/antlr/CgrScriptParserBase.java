@@ -27,7 +27,8 @@ public abstract class CgrScriptParserBase extends Parser {
         int charPos = token.getCharPositionInLine() + (token.getStopIndex() - token.getStartIndex()) + 1;
         for (ANTLRErrorListener errorListener : getErrorListeners()) {
             if (errorListener instanceof ParserErrorListener) {
-                ((ParserErrorListener) errorListener).missingEndStatement(token.getLine(), charPos);
+                ((ParserErrorListener) errorListener)
+                        .missingEndStatement(token.getLine(), charPos, token.getStartIndex(), token.getStopIndex());
             }
         }
     }
@@ -38,7 +39,9 @@ public abstract class CgrScriptParserBase extends Parser {
         int charPosStop = token.getCharPositionInLine() + (token.getStopIndex() - token.getStartIndex());
         for (ANTLRErrorListener errorListener : getErrorListeners()) {
             if (errorListener instanceof ParserErrorListener) {
-                ((ParserErrorListener) errorListener).missingReturnStatement(token.getLine(), charPosStart, charPosStop);
+                ((ParserErrorListener) errorListener)
+                        .missingReturnStatement(token.getLine(), charPosStart, charPosStop,
+                                token.getStartIndex(), token.getStopIndex());
             }
         }
     }

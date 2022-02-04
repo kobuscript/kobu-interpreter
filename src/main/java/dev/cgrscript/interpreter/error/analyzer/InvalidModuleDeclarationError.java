@@ -26,6 +26,7 @@ package dev.cgrscript.interpreter.error.analyzer;
 
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
+import dev.cgrscript.interpreter.file_system.ScriptRef;
 
 public class InvalidModuleDeclarationError extends AnalyzerError {
 
@@ -42,7 +43,7 @@ public class InvalidModuleDeclarationError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "Invalid module declaration. Expecting '" + getSourceCodeRefs().get(0).getScript().extractModuleId()
+        return "Invalid module declaration. Expecting '" + ((ScriptRef)getSourceCodeRefs().get(0).getFile()).extractModuleId()
                 + "', found '" + moduleId + "'";
     }
 }

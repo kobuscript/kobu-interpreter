@@ -22,38 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.symbol;
+package dev.cgrscript.interpreter.file_system;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ClasspathScriptRef implements ScriptRef {
+public interface CgrFile extends CgrFileSystemEntry, ResourceRef {
 
-    private final String path;
+    InputStream newInputStream() throws IOException;
 
-    public ClasspathScriptRef(String path) {
-        this.path = path;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    @Override
-    public String getAbsolutePath() {
-        return path;
-    }
-
-    @Override
-    public String extractModuleId() {
-        return path
-                .replaceAll("^/", "")
-                .replaceAll("/", ".")
-                .replaceAll("\\.cgr$", "");
-    }
-
-    @Override
-    public InputStream newInputStream() throws IOException {
-        return ClasspathScriptRef.class.getResourceAsStream(path);
-    }
 }

@@ -22,17 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.symbol;
+package dev.cgrscript.interpreter.file_system;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-public interface ScriptRef {
-
-    String getAbsolutePath();
+public interface CgrScriptFile extends CgrFile, ScriptRef {
 
     String extractModuleId();
-
-    InputStream newInputStream() throws IOException;
 
 }

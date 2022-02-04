@@ -37,6 +37,8 @@ import dev.cgrscript.interpreter.error.analyzer.InvalidMainFunctionError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidTypeError;
 import dev.cgrscript.interpreter.error.analyzer.MainFunctionNotFoundError;
 import dev.cgrscript.interpreter.error.analyzer.SymbolConflictError;
+import dev.cgrscript.interpreter.file_system.CgrScriptFile;
+import dev.cgrscript.interpreter.file_system.ScriptRef;
 import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
 import dev.cgrscript.interpreter.writer.OutputWriter;

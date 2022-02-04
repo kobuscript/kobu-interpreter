@@ -22,28 +22,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.eval.function.global.conf;
+package dev.cgrscript.interpreter.file_system;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.cgrscript.interpreter.ast.eval.function.BuiltinGlobalFunction;
-import dev.cgrscript.interpreter.file_system.local.LocalCgrScriptFile;
-import dev.cgrscript.interpreter.file_system.CgrScriptFile;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import java.io.IOException;
+import java.io.InputStream;
 
-import java.util.Map;
+public class ClasspathScriptRef implements ScriptRef {
 
-public class MainScriptDirFunctionImpl extends BuiltinGlobalFunction {
+    private final String path;
 
-    @Override
-    protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        var script = context.getModuleScope().getScript();
-        if (script instanceof LocalCgrScriptFile) {
-            return new StringValueExpr(((LocalCgrScriptFile)script).getFile().getParentFile().getAbsolutePath());
-        }
-        return new NullValueExpr();
+    public ClasspathScriptRef(String path) {
+        this.path = path;
     }
 
+    @Override
+    public String getAbsolutePath() {
+        return path;
+    }
+
+    @Override
+    public String extractModuleId() {
+        return path
+                .replaceAll("^/", "")
+                .replaceAll("/", ".")
+                .replaceAll("\\.cgr$", "");
+    }
+
+    @Override
+    public InputStream newInputStream() throws IOException {
+        return ClasspathScriptRef.class.getResourceAsStream(path);
+    }
 }
+

@@ -30,6 +30,8 @@ import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.analyzer.DuplicatedModuleReferenceError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidModuleDeclarationError;
 import dev.cgrscript.interpreter.error.analyzer.NativeFunctionNotFoundError;
+import dev.cgrscript.interpreter.file_system.CgrScriptFile;
+import dev.cgrscript.interpreter.file_system.ScriptRef;
 import dev.cgrscript.interpreter.module.ModuleLoader;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.parser.CgrScriptParser;

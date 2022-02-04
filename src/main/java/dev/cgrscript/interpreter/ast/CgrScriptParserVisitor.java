@@ -48,7 +48,9 @@ public abstract class CgrScriptParserVisitor<T> extends CgrScriptParserBaseVisit
                 ctx.getStart().getLine(),
                 ctx.getStart().getCharPositionInLine(),
                 ctx.getStop().getLine(),
-                ctx.getStop().getCharPositionInLine() + ctx.getStop().getText().length());
+                ctx.getStop().getCharPositionInLine() + ctx.getStop().getText().length(),
+                ctx.getStart().getStartIndex(),
+                ctx.getStop().getStopIndex());
     }
 
     protected SourceCodeRef getSourceCodeRef(TerminalNode node) {
@@ -58,6 +60,8 @@ public abstract class CgrScriptParserVisitor<T> extends CgrScriptParserBaseVisit
                 node.getSymbol().getLine(),
                 node.getSymbol().getCharPositionInLine(),
                 node.getSymbol().getLine(),
-                node.getSymbol().getCharPositionInLine() + node.getSymbol().getText().length());
+                node.getSymbol().getCharPositionInLine() + node.getSymbol().getText().length(),
+                node.getSymbol().getStartIndex(),
+                node.getSymbol().getStopIndex());
     }
 }

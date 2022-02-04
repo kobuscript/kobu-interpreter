@@ -22,28 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.eval.function.global.conf;
+package dev.cgrscript.interpreter.file_system;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.cgrscript.interpreter.ast.eval.function.BuiltinGlobalFunction;
-import dev.cgrscript.interpreter.file_system.local.LocalCgrScriptFile;
-import dev.cgrscript.interpreter.file_system.CgrScriptFile;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+public interface CgrFileSystemEntry {
 
-import java.util.Map;
+    String getAbsolutePath();
 
-public class MainScriptDirFunctionImpl extends BuiltinGlobalFunction {
-
-    @Override
-    protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        var script = context.getModuleScope().getScript();
-        if (script instanceof LocalCgrScriptFile) {
-            return new StringValueExpr(((LocalCgrScriptFile)script).getFile().getParentFile().getAbsolutePath());
-        }
-        return new NullValueExpr();
-    }
+    String getName();
 
 }

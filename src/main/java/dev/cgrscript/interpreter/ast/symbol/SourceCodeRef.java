@@ -24,9 +24,12 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.file_system.ResourceRef;
+import dev.cgrscript.interpreter.file_system.ScriptRef;
+
 public class SourceCodeRef {
 
-    private final ScriptRef script;
+    private final ResourceRef file;
 
     private String moduleId;
 
@@ -38,26 +41,34 @@ public class SourceCodeRef {
 
     private int charEnd;
 
-    public SourceCodeRef(ScriptRef script) {
-        this.script = script;
+    private int startOffset;
+
+    private int endOffset;
+
+    public SourceCodeRef(ResourceRef file) {
+        this.file = file;
     }
 
-    public SourceCodeRef(ScriptRef script, String moduleId) {
-        this.script = script;
+    public SourceCodeRef(ResourceRef file, String moduleId) {
+        this.file = file;
         this.moduleId = moduleId;
     }
 
-    public SourceCodeRef(ScriptRef script, String moduleId, int lineStart, int charStart, int lineEnd, int charEnd) {
-        this.script = script;
+    public SourceCodeRef(ResourceRef file, String moduleId,
+                         int lineStart, int charStart, int lineEnd, int charEnd,
+                         int startOffset, int endOffset) {
+        this.file = file;
         this.moduleId = moduleId;
         this.lineStart = lineStart;
         this.charStart = charStart;
         this.lineEnd = lineEnd;
         this.charEnd = charEnd;
+        this.startOffset = startOffset;
+        this.endOffset = endOffset;
     }
 
-    public ScriptRef getScript() {
-        return script;
+    public ResourceRef getFile() {
+        return file;
     }
 
     public String getModuleId() {
@@ -80,4 +91,11 @@ public class SourceCodeRef {
         return charEnd;
     }
 
+    public int getStartOffset() {
+        return startOffset;
+    }
+
+    public int getEndOffset() {
+        return endOffset;
+    }
 }

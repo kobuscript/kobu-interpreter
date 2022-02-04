@@ -22,28 +22,50 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.eval.function.global.conf;
+package dev.cgrscript.interpreter.file_system.local;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.cgrscript.interpreter.ast.eval.function.BuiltinGlobalFunction;
-import dev.cgrscript.interpreter.file_system.local.LocalCgrScriptFile;
-import dev.cgrscript.interpreter.file_system.CgrScriptFile;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import dev.cgrscript.interpreter.file_system.CgrDirectory;
+import dev.cgrscript.interpreter.file_system.CgrFileSystemEntry;
 
-import java.util.Map;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MainScriptDirFunctionImpl extends BuiltinGlobalFunction {
+public class LocalCgrDirectory implements CgrDirectory {
 
-    @Override
-    protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        var script = context.getModuleScope().getScript();
-        if (script instanceof LocalCgrScriptFile) {
-            return new StringValueExpr(((LocalCgrScriptFile)script).getFile().getParentFile().getAbsolutePath());
-        }
-        return new NullValueExpr();
+    private final File dir;
+
+    public LocalCgrDirectory(File dir) {
+        this.dir = dir;
     }
 
+    @Override
+    public List<CgrFileSystemEntry> list() {
+        List<CgrFileSystemEntry> entries = new ArrayList<>();
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    entries.add(new LocalCgrDirectory(file));
+                } else {
+                    entries.add(new LocalCgrFile(file));
+                }
+            }
+        }
+        return entries;
+    }
+
+    @Override
+    public String getAbsolutePath() {
+        return dir.getAbsolutePath();
+    }
+
+    @Override
+    public String getName() {
+        return dir.getName();
+    }
+
+    public File getDir() {
+        return dir;
+    }
 }

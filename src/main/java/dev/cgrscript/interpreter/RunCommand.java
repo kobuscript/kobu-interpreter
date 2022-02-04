@@ -34,6 +34,8 @@ import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.AnalyzerErrorList;
 import dev.cgrscript.interpreter.error.EvalError;
 import dev.cgrscript.interpreter.error.ParserErrorListener;
+import dev.cgrscript.interpreter.file_system.local.LocalCgrFile;
+import dev.cgrscript.interpreter.file_system.local.LocalCgrFileSystem;
 import dev.cgrscript.interpreter.input.FileFetcher;
 import dev.cgrscript.interpreter.input.InputNativeFunctionRegistry;
 import dev.cgrscript.interpreter.input.InputReader;
@@ -74,10 +76,11 @@ public class RunCommand implements Callable<Integer> {
                 return 1;
             }
 
+            LocalCgrFileSystem fileSystem = new LocalCgrFileSystem();
             ParserErrorListener parserErrorListener = new ParserErrorListener();
-            ModuleLoader moduleLoader = new ModuleLoader(new ProjectReader(), parserErrorListener);
+            ModuleLoader moduleLoader = new ModuleLoader(fileSystem, new ProjectReader(), parserErrorListener);
             InputNativeFunctionRegistry.register(moduleLoader);
-            ModuleScope moduleScope = moduleLoader.load(file);
+            ModuleScope moduleScope = moduleLoader.load(new LocalCgrFile(file));
 
             if (parserErrorListener.hasErrors()) {
                 return 1;

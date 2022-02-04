@@ -45,6 +45,6 @@ public class InvalidFileError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "File not found: " + getSourceCodeRefs().get(0).getScript().getAbsolutePath();
+        return "File not found: " + getSourceCodeRefs().get(0).getFile().getAbsolutePath();
     }
 }

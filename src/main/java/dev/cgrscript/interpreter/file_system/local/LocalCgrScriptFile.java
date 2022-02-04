@@ -22,9 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.symbol;
+package dev.cgrscript.interpreter.file_system.local;
 
-import dev.cgrscript.interpreter.module.ModuleLoader;
+import dev.cgrscript.interpreter.file_system.CgrFileSystem;
+import dev.cgrscript.interpreter.file_system.CgrScriptFile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,17 +35,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileScriptRef implements ScriptRef {
+public class LocalCgrScriptFile implements CgrScriptFile {
 
-    private File srcDir;
+    private final File srcDir;
 
     private final File file;
 
-    public FileScriptRef(File file) {
-        this.file = file;
-    }
-
-    public FileScriptRef(File srcDir, File file) {
+    protected LocalCgrScriptFile(File srcDir, File file) {
         this.srcDir = srcDir;
         this.file = file;
     }
@@ -63,6 +60,11 @@ public class FileScriptRef implements ScriptRef {
     }
 
     @Override
+    public String getName() {
+        return file.getName();
+    }
+
+    @Override
     public String extractModuleId() {
         Path modulePath = null;
         if (srcDir != null) {
@@ -77,7 +79,7 @@ public class FileScriptRef implements ScriptRef {
         for (int i = 0; i < modulePath.getNameCount() - 1; i++) {
             segments.add(modulePath.getName(i).toString());
         }
-        segments.add(modulePath.getFileName().toString().replace(ModuleLoader.SCRIPT_FILE_EXT, ""));
+        segments.add(modulePath.getFileName().toString().replace(CgrFileSystem.SCRIPT_FILE_EXT, ""));
 
         return String.join(".", segments);
     }

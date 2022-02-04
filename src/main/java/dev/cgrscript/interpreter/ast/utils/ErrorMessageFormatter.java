@@ -43,7 +43,7 @@ public class ErrorMessageFormatter {
         StringBuilder source = new StringBuilder();
         int pad = 0;
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(sourceCodeRef.getScript().newInputStream()))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(sourceCodeRef.getFile().newInputStream()))) {
             int lineIdx = 0;
             String line = "";
             while (lineIdx < sourceCodeRef.getLineStart()) {
@@ -106,7 +106,7 @@ public class ErrorMessageFormatter {
 
         if (analyzerError.getSourceCodeRefs().size() == 1) {
             SourceCodeRef sourceCodeRef = analyzerError.getSourceCodeRefs().get(0);
-            message.append("ERROR: ").append(sourceCodeRef.getScript().getAbsolutePath()).append('\n');
+            message.append("ERROR: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
             message.append(' ').append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
             message.append(' ');
             message.append(analyzerError.getDescription());
@@ -117,7 +117,7 @@ public class ErrorMessageFormatter {
             message.append('\n').append('\n');
 
             for (SourceCodeRef sourceCodeRef : analyzerError.getSourceCodeRefs()) {
-                message.append("File: ").append(sourceCodeRef.getScript().getAbsolutePath()).append('\n');
+                message.append("File: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
                 message.append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
                 message.append('\n');
                 message.append(getSource(sourceCodeRef));
@@ -130,7 +130,7 @@ public class ErrorMessageFormatter {
     public static StringBuilder getMessage(EvalError evalError) throws IOException {
         StringBuilder message = new StringBuilder();
         SourceCodeRef sourceCodeRef = evalError.getSourceCodeRef();
-        message.append("ERROR: ").append(sourceCodeRef.getScript().getAbsolutePath()).append('\n');
+        message.append("ERROR: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
         message.append(' ').append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
         message.append(' ');
         message.append(evalError.getDescription());
@@ -143,7 +143,7 @@ public class ErrorMessageFormatter {
     public static StringBuilder getMessage(ParserError parserError) throws IOException {
         StringBuilder message = new StringBuilder();
         SourceCodeRef sourceCodeRef = parserError.getSourceCodeRef();
-        message.append("ERROR: ").append(sourceCodeRef.getScript().getAbsolutePath()).append('\n');
+        message.append("ERROR: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
         message.append(' ').append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
         message.append(' ');
         message.append(parserError.getMessage());

@@ -22,28 +22,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.eval.function.global.conf;
+package dev.cgrscript.interpreter.file_system.local;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.cgrscript.interpreter.ast.eval.function.BuiltinGlobalFunction;
-import dev.cgrscript.interpreter.file_system.local.LocalCgrScriptFile;
-import dev.cgrscript.interpreter.file_system.CgrScriptFile;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import dev.cgrscript.interpreter.file_system.CgrFile;
 
-import java.util.Map;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-public class MainScriptDirFunctionImpl extends BuiltinGlobalFunction {
+public class LocalCgrFile implements CgrFile {
+
+    private final File file;
+
+    public LocalCgrFile(File file) {
+        this.file = file;
+    }
+
+    public File getFile() {
+        return file;
+    }
 
     @Override
-    protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        var script = context.getModuleScope().getScript();
-        if (script instanceof LocalCgrScriptFile) {
-            return new StringValueExpr(((LocalCgrScriptFile)script).getFile().getParentFile().getAbsolutePath());
-        }
-        return new NullValueExpr();
+    public String getAbsolutePath() {
+        return file.getAbsolutePath();
+    }
+
+    @Override
+    public String getName() {
+        return file.getName();
+    }
+
+    @Override
+    public InputStream newInputStream() throws IOException {
+        return new FileInputStream(file);
     }
 
 }

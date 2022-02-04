@@ -24,19 +24,20 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.error.analyzer;
 
-import dev.cgrscript.interpreter.ast.symbol.ScriptRef;
+import dev.cgrscript.interpreter.file_system.CgrScriptFile;
 import dev.cgrscript.interpreter.error.AnalyzerError;
+import dev.cgrscript.interpreter.file_system.ScriptRef;
 
 public class MainFunctionNotFoundError extends AnalyzerError {
 
-    private final ScriptRef scriptRef;
+    private final ScriptRef cgrScriptFile;
 
-    public MainFunctionNotFoundError(ScriptRef scriptRef) {
-        this.scriptRef = scriptRef;
+    public MainFunctionNotFoundError(ScriptRef cgrScriptFile) {
+        this.cgrScriptFile = cgrScriptFile;
     }
 
     @Override
     public String getDescription() {
-        return scriptRef.getAbsolutePath() + ": main function not found";
+        return cgrScriptFile.getAbsolutePath() + ": main function not found";
     }
 }

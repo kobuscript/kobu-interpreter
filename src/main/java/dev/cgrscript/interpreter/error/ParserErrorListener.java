@@ -24,10 +24,10 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.error;
 
-import dev.cgrscript.interpreter.ast.symbol.ScriptRef;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.ast.utils.ErrorMessageFormatter;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
+import dev.cgrscript.interpreter.file_system.ScriptRef;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
@@ -50,7 +50,8 @@ public class ParserErrorListener extends BaseErrorListener {
         Token offendingToken = (Token) offendingSymbol;
         SourceCodeRef sourceCodeRef = new SourceCodeRef(currentScript, currentScript.extractModuleId(),
                 line, charPositionInLine,
-                line, charPositionInLine + (offendingToken.getStopIndex() - offendingToken.getStartIndex()));
+                line, charPositionInLine + (offendingToken.getStopIndex() - offendingToken.getStartIndex()),
+                offendingToken.getStartIndex(), offendingToken.getStopIndex());
 
         try {
             System.err.println(ErrorMessageFormatter.getMessage(new ParserError(sourceCodeRef, msg)));
@@ -61,10 +62,10 @@ public class ParserErrorListener extends BaseErrorListener {
         this.hasErrors = true;
     }
 
-    public void missingEndStatement(int line, int charPos) {
+    public void missingEndStatement(int line, int charPos, int startOffset, int endOffset) {
         SourceCodeRef sourceCodeRef = new SourceCodeRef(currentScript, currentScript.extractModuleId(),
                 line, charPos,
-                line, charPos);
+                line, charPos, startOffset, endOffset);
 
         try {
             System.err.println(ErrorMessageFormatter.getMessage(new ParserError(sourceCodeRef, "';' expected")));
@@ -75,10 +76,10 @@ public class ParserErrorListener extends BaseErrorListener {
         this.hasErrors = true;
     }
 
-    public void missingReturnStatement(int line, int charPosStart, int charPosStop) {
+    public void missingReturnStatement(int line, int charPosStart, int charPosStop, int startOffset, int endOffset) {
         SourceCodeRef sourceCodeRef = new SourceCodeRef(currentScript, currentScript.extractModuleId(),
                 line, charPosStart,
-                line, charPosStop);
+                line, charPosStop, startOffset, endOffset);
 
         try {
             System.err.println(ErrorMessageFormatter.getMessage(new ParserError(sourceCodeRef, "Missing return type on function declaration")));

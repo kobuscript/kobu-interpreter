@@ -24,7 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.config;
 
-import dev.cgrscript.interpreter.ast.symbol.FileScriptRef;
+import dev.cgrscript.interpreter.file_system.CgrFile;
+import dev.cgrscript.interpreter.file_system.local.LocalCgrScriptFile;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.config.error.*;
 import org.w3c.dom.Document;
@@ -35,6 +36,7 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -54,10 +56,10 @@ public class ProjectReader {
         }
     }
 
-    public Project load(File projectFile) throws ProjectError {
+    public Project load(CgrFile projectFile) throws ProjectError {
 
         DocumentBuilder db;
-        SourceCodeRef sourceCodeRef = new SourceCodeRef(new FileScriptRef(projectFile));
+        SourceCodeRef sourceCodeRef = new SourceCodeRef(projectFile);
         try {
             db = dbf.newDocumentBuilder();
         } catch (Exception ex) {
@@ -65,8 +67,8 @@ public class ProjectReader {
         }
 
         Document doc;
-        try {
-            doc = db.parse(projectFile);
+        try (InputStream in = projectFile.newInputStream()) {
+            doc = db.parse(in);
         } catch (Exception ex) {
             throw new InvalidProjectFileError(sourceCodeRef, ex);
         }

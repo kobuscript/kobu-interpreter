@@ -33,13 +33,14 @@ import dev.cgrscript.interpreter.ast.CgrScriptParserVisitor;
 import dev.cgrscript.interpreter.ast.ModuleParserVisitor;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunctionId;
-import dev.cgrscript.interpreter.ast.symbol.*;
+import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
+import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.error.analyzer.CyclicModuleReferenceError;
 import dev.cgrscript.interpreter.error.analyzer.InternalParserError;
-import dev.cgrscript.interpreter.error.analyzer.InvalidFileError;
 import dev.cgrscript.interpreter.error.analyzer.ModuleNotFoundError;
+import dev.cgrscript.interpreter.file_system.*;
 import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.writer.OutputWriter;
 import dev.cgrscript.parser.CgrScriptLexer;
@@ -48,23 +49,22 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.*;
 
 public class ModuleLoader {
 
-    public static final String SCRIPT_FILE_EXT = ".cgr";
+    private final CgrFileSystem fileSystem;
 
     private final ProjectReader projectReader;
 
     private final ParserErrorListener parserErrorListener;
 
+    private DependencyResolver dependencyResolver;
     private Project project;
-    private File projectDir;
-    private final List<File> srcDirs = new ArrayList<>();
+    private CgrDirectory projectDir;
+    private final List<CgrDirectory> srcDirs = new ArrayList<>();
 
     private final Map<String, ModuleScope> modules = new HashMap<>();
 
@@ -74,7 +74,8 @@ public class ModuleLoader {
 
     private final Map<NativeFunctionId, NativeFunction> nativeFunctions = new HashMap<>();
 
-    public ModuleLoader(ProjectReader projectReader, ParserErrorListener parserErrorListener) {
+    public ModuleLoader(CgrFileSystem fileSystem, ProjectReader projectReader, ParserErrorListener parserErrorListener) {
+        this.fileSystem = fileSystem;
         this.projectReader = projectReader;
         this.parserErrorListener = parserErrorListener;
     }
@@ -83,14 +84,13 @@ public class ModuleLoader {
         nativeFunctions.put(nativeFunctionId, nativeFunction);
     }
 
-    public ModuleScope load(File file) throws AnalyzerError {
+    public ModuleScope load(CgrFile file) throws AnalyzerError {
         loadRoot(file);
         if (project == null) {
             createDefaultProject(file);
         }
-        var srcDir = getSrcDir(file);
 
-        ModuleScope module = loadModule(new FileScriptRef(srcDir, file), null, null);
+        ModuleScope module = loadModule(fileSystem.loadScript(srcDirs, file), null, null);
         modules.put(module.getModuleId(), module);
 
         return module;
@@ -108,14 +108,11 @@ public class ModuleLoader {
             module = loadModule(classpathRef, moduleId, sourceCodeRef);
         } else {
 
-            File moduleFile = getRelativeFile(moduleId);
-            File srcDir = getSrcDirRelativeFile(moduleFile);
-            if (srcDir == null) {
+            CgrScriptFile script = fileSystem.loadScript(srcDirs, moduleId);
+            if (script == null) {
                 throw new ModuleNotFoundError(sourceCodeRef, moduleId);
             }
-            moduleFile = srcDir.toPath().resolve(moduleFile.toPath()).toFile();
-
-            module = loadModule(new FileScriptRef(srcDir, moduleFile), moduleId, sourceCodeRef);
+            module = loadModule(script, moduleId, sourceCodeRef);
         }
         modules.put(module.getModuleId(), module);
         return module;
@@ -150,7 +147,7 @@ public class ModuleLoader {
         return errors;
     }
 
-    public File getProjectDir() {
+    public CgrDirectory getProjectDir() {
         return projectDir;
     }
 
@@ -158,80 +155,51 @@ public class ModuleLoader {
         return project;
     }
 
-    private void loadRoot(File file) throws AnalyzerError {
+    private void loadRoot(CgrFileSystemEntry file) throws AnalyzerError {
         if (project == null && file != null) {
-            if (file.isFile()) {
+            if (file instanceof CgrFile) {
                 if (file.getName().equals(ProjectReader.PROJECT_CFG)) {
-                    this.loadProjectDefinition(file);
+                    this.loadProjectDefinition((CgrFile) file);
                     return;
                 }
-                loadRoot(file.getParentFile());
-            } else if (file.isDirectory()) {
-                File[] items = file.listFiles();
-                if (items != null) {
-                    for (File dirItem : items) {
-                        if (dirItem.isFile() && dirItem.getName().equals(ProjectReader.PROJECT_CFG)) {
-                            this.loadProjectDefinition(dirItem);
-                            return;
-                        }
+                loadRoot(fileSystem.getParent(file));
+            } else if (file instanceof CgrDirectory) {
+                List<CgrFileSystemEntry> items = ((CgrDirectory)file).list();
+                for (CgrFileSystemEntry dirItem : items) {
+                    if (dirItem instanceof CgrFile && dirItem.getName().equals(ProjectReader.PROJECT_CFG)) {
+                        this.loadProjectDefinition((CgrFile) dirItem);
+                        return;
                     }
-                    loadRoot(file.getParentFile());
                 }
+                loadRoot(fileSystem.getParent(file));
             }
         }
     }
 
-    private void createDefaultProject(File scriptFile) {
-        this.projectDir = scriptFile.getParentFile();
+    private void createDefaultProject(CgrFile scriptFile) {
+        this.projectDir = fileSystem.getParent(scriptFile);
         this.project = new Project();
-        srcDirs.add(scriptFile.getParentFile());
+        srcDirs.add(this.projectDir);
     }
 
-    private void loadProjectDefinition(File file) throws AnalyzerError {
+    private void loadProjectDefinition(CgrFile file) throws AnalyzerError {
         this.project = projectReader.load(file);
         if (project.getSourcePaths() == null || project.getSourcePaths().isEmpty()) {
-            srcDirs.add(file.getParentFile());
+            srcDirs.add(fileSystem.getParent(file));
         } else {
             for (ProjectSourcePath sourcePath : project.getSourcePaths()) {
-                srcDirs.add(new File(file.getParentFile(), sourcePath.getPath()));
+                srcDirs.add((CgrDirectory) fileSystem.loadEntry(fileSystem.getParent(file), sourcePath.getPath()));
             }
         }
 
-        DependencyResolver dependencyResolver = new DependencyResolver(project, projectReader);
-        srcDirs.addAll(dependencyResolver.getDependenciesSrcDirs());
-
-        this.projectDir = file.getParentFile();
-    }
-
-    private File getSrcDir(File file) throws AnalyzerError {
-        Path filePath = file.toPath();
-        for (File srcDir : srcDirs) {
-            if (filePath.startsWith(srcDir.toPath())) {
-                return srcDir;
-            }
-        }
-        throw new InvalidFileError(new SourceCodeRef(new FileScriptRef(file)), srcDirs);
-    }
-
-    private File getRelativeFile(String moduleId) {
-        return new File(moduleId.replace('.', '/') + SCRIPT_FILE_EXT);
+        dependencyResolver = new DependencyResolver(project, projectReader);
+        this.projectDir = fileSystem.getParent(file);
     }
 
     private ClasspathScriptRef getModuleFromClasspath(String moduleId) {
-        String path = "/" + moduleId.replaceAll("\\.", "/") + SCRIPT_FILE_EXT;
+        String path = "/" + moduleId.replaceAll("\\.", "/") + CgrFileSystem.SCRIPT_FILE_EXT;
         if (ModuleLoader.class.getResource(path) != null) {
             return new ClasspathScriptRef(path);
-        }
-        return null;
-    }
-
-    private File getSrcDirRelativeFile(File file) {
-        Path filePath = file.toPath();
-        for (File srcDir : srcDirs) {
-            File fullFilePath = srcDir.toPath().resolve(filePath).toFile();
-            if (fullFilePath.isFile()) {
-                return srcDir;
-            }
         }
         return null;
     }
