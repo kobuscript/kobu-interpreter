@@ -27,6 +27,7 @@ package dev.cgrscript.config;
 import dev.cgrscript.config.error.ProjectDependencyError;
 import dev.cgrscript.config.error.ProjectError;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import dev.cgrscript.interpreter.file_system.CgrFileSystem;
 import dev.cgrscript.interpreter.file_system.CgrScriptFile;
 import dev.cgrscript.interpreter.file_system.local.LocalCgrFile;
 
@@ -96,7 +97,7 @@ public class DependencyResolver {
     private List<File> getDependenciesSrcDirs(ProjectDependency dependency, Set<String> libs) throws ProjectError {
         var cleanUrl = cleanUrl(dependency.getUrl());
         var dependencyDir = getDependencyDir(dependency, cleanUrl);
-        var dependencyProjectFile = new File(dependencyDir, ProjectReader.PROJECT_CFG);
+        var dependencyProjectFile = new File(dependencyDir, CgrFileSystem.PROJECT_CFG);
 
         Project dependencyProject;
         try {

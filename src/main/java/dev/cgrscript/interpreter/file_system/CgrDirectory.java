@@ -24,10 +24,6 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.file_system;
 
-import java.util.List;
-
 public interface CgrDirectory extends CgrFileSystemEntry {
-
-    List<CgrFileSystemEntry> list();
 
 }

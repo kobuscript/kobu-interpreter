@@ -25,11 +25,8 @@ SOFTWARE.
 package dev.cgrscript.interpreter.file_system.local;
 
 import dev.cgrscript.interpreter.file_system.CgrDirectory;
-import dev.cgrscript.interpreter.file_system.CgrFileSystemEntry;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LocalCgrDirectory implements CgrDirectory {
 
@@ -37,22 +34,6 @@ public class LocalCgrDirectory implements CgrDirectory {
 
     public LocalCgrDirectory(File dir) {
         this.dir = dir;
-    }
-
-    @Override
-    public List<CgrFileSystemEntry> list() {
-        List<CgrFileSystemEntry> entries = new ArrayList<>();
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    entries.add(new LocalCgrDirectory(file));
-                } else {
-                    entries.add(new LocalCgrFile(file));
-                }
-            }
-        }
-        return entries;
     }
 
     @Override

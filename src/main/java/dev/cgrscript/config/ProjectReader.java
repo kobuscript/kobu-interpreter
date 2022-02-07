@@ -44,8 +44,6 @@ import java.util.Set;
 
 public class ProjectReader {
 
-    public static final String PROJECT_CFG = "cgr.xml";
-
     private final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
     public ProjectReader() throws ProjectError {

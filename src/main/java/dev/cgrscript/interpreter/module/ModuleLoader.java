@@ -156,23 +156,11 @@ public class ModuleLoader {
         return project;
     }
 
-    private void loadRoot(CgrFileSystemEntry file) throws ProjectError {
+    private void loadRoot(CgrFile file) throws ProjectError {
         if (project == null && file != null) {
-            if (file instanceof CgrFile) {
-                if (file.getName().equals(ProjectReader.PROJECT_CFG)) {
-                    this.loadProjectDefinition((CgrFile) file);
-                    return;
-                }
-                loadRoot(fileSystem.getParent(file));
-            } else if (file instanceof CgrDirectory) {
-                List<CgrFileSystemEntry> items = ((CgrDirectory)file).list();
-                for (CgrFileSystemEntry dirItem : items) {
-                    if (dirItem instanceof CgrFile && dirItem.getName().equals(ProjectReader.PROJECT_CFG)) {
-                        this.loadProjectDefinition((CgrFile) dirItem);
-                        return;
-                    }
-                }
-                loadRoot(fileSystem.getParent(file));
+            CgrFile projectFile = fileSystem.findProjectDefinition(file);
+            if (projectFile != null) {
+                loadProjectDefinition(projectFile);
             }
         }
     }

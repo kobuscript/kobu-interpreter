@@ -33,6 +33,11 @@ import java.util.List;
 public class LocalCgrFileSystem implements CgrFileSystem {
 
     @Override
+    public CgrFile findProjectDefinition(CgrFile file) {
+        return findProjectRoot(file);
+    }
+
+    @Override
     public CgrFileSystemEntry loadEntry(CgrDirectory parent, String subPath) {
         File dir = ((LocalCgrDirectory)parent).getDir();
         File file = new File(dir, subPath);
@@ -81,6 +86,26 @@ public class LocalCgrFileSystem implements CgrFileSystem {
             return null;
         }
         return new LocalCgrDirectory(dir);
+    }
+
+    private CgrFile findProjectRoot(CgrFileSystemEntry entry) {
+        if (entry instanceof CgrFile) {
+            if (entry.getName().equals(PROJECT_CFG)) {
+                return (CgrFile) entry;
+            }
+            return findProjectRoot(getParent(entry));
+        } else if (entry instanceof CgrDirectory) {
+            File[] files = ((LocalCgrDirectory) entry).getDir().listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile() && file.getName().equals(PROJECT_CFG)) {
+                        return new LocalCgrFile(file);
+                    }
+                }
+            }
+            return findProjectRoot(getParent(entry));
+        }
+        return null;
     }
 
 }
