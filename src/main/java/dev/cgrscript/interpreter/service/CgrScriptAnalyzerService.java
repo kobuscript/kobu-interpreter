@@ -75,6 +75,7 @@ public class CgrScriptAnalyzerService {
         try {
             projectReader = new ProjectReader();
         } catch (ProjectError e) {
+            e.printStackTrace();
             //Project definition has errors. We can't validate the current script.
             return errors;
         }

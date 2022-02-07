@@ -30,7 +30,7 @@ public interface CgrFileSystem {
 
     String SCRIPT_FILE_EXT = ".cgr";
 
-    public static final String PROJECT_CFG = "cgr.xml";
+    String PROJECT_CFG = "cgr.xml";
 
     CgrFile findProjectDefinition(CgrFile file);
 
