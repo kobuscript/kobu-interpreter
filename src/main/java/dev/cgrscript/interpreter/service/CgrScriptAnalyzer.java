@@ -49,9 +49,7 @@ import dev.cgrscript.interpreter.writer.OutputWriterModeEnum;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CgrScriptAnalyzerService {
-
-    private final CgrFileSystem fileSystem;
+public class CgrScriptAnalyzer {
 
     private final Database database = new Database();
 
@@ -62,11 +60,7 @@ public class CgrScriptAnalyzerService {
             OutputWriterLogTypeEnum.NORMAL,
             new FileSystemWriterHandler());
 
-    public CgrScriptAnalyzerService(CgrFileSystem fileSystem) {
-        this.fileSystem = fileSystem;
-    }
-
-    public List<CgrScriptError> analyze(CgrFile file) {
+    public List<CgrScriptError> analyze(CgrFileSystem fileSystem, CgrFile file) {
 
         List<CgrScriptError> errors = new ArrayList<>();
 
