@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="https://cgrscript.dev" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://cgrscript.dev https://cgrscript.dev/xsd/cgr-1.0.0.xsd">
+<cgr-project xmlns="https://cgrscript.dev" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://cgrscript.dev https://cgrscript.dev/xsd/cgr-1.0.0.xsd">
     <groupId>$GROUPID$</groupId>
     <name>$NAME$</name>
     <version>$VERSION$</version>
@@ -8,4 +8,4 @@
     <sourcePaths>
         <sourcePath>src</sourcePath>
     </sourcePaths>
-</project>
+</cgr-project>
