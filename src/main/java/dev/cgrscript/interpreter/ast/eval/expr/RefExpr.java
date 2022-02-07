@@ -48,6 +48,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference {
 
     private Type type;
 
+    private RuleSymbol ruleSymbol;
+
     private boolean assignMode;
 
     public RefExpr(SourceCodeRef sourceCodeRef, String varName) {
@@ -69,6 +71,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference {
                 return;
             }
             if (!assignMode && symbol instanceof RuleSymbol) {
+                this.ruleSymbol = (RuleSymbol) symbol;
                 this.type = BuiltinScope.RULE_REF_TYPE;
                 return;
             }
@@ -89,6 +92,9 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference {
 
     @Override
     public ValueExpr evalExpr(EvalContext context) {
+        if (ruleSymbol != null) {
+            return new RuleRefValueExpr(sourceCodeRef, ruleSymbol);
+        }
         if (valueScope == null) {
             var symbol = context.getCurrentScope().resolve(varName);
             if (symbol == null) {
@@ -98,9 +104,6 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference {
             if (symbol instanceof VariableSymbol) {
                 var valueExpr = context.getCurrentScope().getValue(symbol.getName());
                 return Objects.requireNonNullElseGet(valueExpr, () -> new NullValueExpr(sourceCodeRef));
-            }
-            if (symbol instanceof RuleSymbol) {
-                return new RuleRefValueExpr(sourceCodeRef, (RuleSymbol) symbol);
             }
 
             throw new InternalInterpreterError("Expected: Variable. Found: " + symbol.getClass().getName(),

@@ -26,24 +26,10 @@ package dev.cgrscript.interpreter.error;
 
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 
-public class ParserError extends Exception implements CgrScriptError {
+public interface CgrScriptError {
 
-    private final SourceCodeRef sourceCodeRef;
+    String getDescription();
 
-    public ParserError(SourceCodeRef sourceCodeRef, String message) {
-        super(message);
-        this.sourceCodeRef = sourceCodeRef;
-    }
-
-    @Override
-    public SourceCodeRef getSourceCodeRef() {
-        return sourceCodeRef;
-    }
-
-
-    @Override
-    public String getDescription() {
-        return getMessage();
-    }
+    SourceCodeRef getSourceCodeRef();
 
 }

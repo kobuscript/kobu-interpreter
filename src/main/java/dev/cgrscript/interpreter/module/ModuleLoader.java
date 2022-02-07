@@ -28,6 +28,7 @@ import dev.cgrscript.config.DependencyResolver;
 import dev.cgrscript.config.Project;
 import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.config.ProjectSourcePath;
+import dev.cgrscript.config.error.ProjectError;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.CgrScriptParserVisitor;
 import dev.cgrscript.interpreter.ast.ModuleParserVisitor;
@@ -155,7 +156,7 @@ public class ModuleLoader {
         return project;
     }
 
-    private void loadRoot(CgrFileSystemEntry file) throws AnalyzerError {
+    private void loadRoot(CgrFileSystemEntry file) throws ProjectError {
         if (project == null && file != null) {
             if (file instanceof CgrFile) {
                 if (file.getName().equals(ProjectReader.PROJECT_CFG)) {
@@ -182,7 +183,7 @@ public class ModuleLoader {
         srcDirs.add(this.projectDir);
     }
 
-    private void loadProjectDefinition(CgrFile file) throws AnalyzerError {
+    private void loadProjectDefinition(CgrFile file) throws ProjectError {
         this.project = projectReader.load(file);
         if (project.getSourcePaths() == null || project.getSourcePaths().isEmpty()) {
             srcDirs.add(fileSystem.getParent(file));

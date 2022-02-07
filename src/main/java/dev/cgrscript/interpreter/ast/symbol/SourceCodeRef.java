@@ -25,7 +25,6 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.file_system.ResourceRef;
-import dev.cgrscript.interpreter.file_system.ScriptRef;
 
 public class SourceCodeRef {
 

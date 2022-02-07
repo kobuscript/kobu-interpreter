@@ -35,6 +35,10 @@ public class FileSystemWriterHandler implements WriterHandler {
 
     private final String projectDir;
 
+    public FileSystemWriterHandler() {
+        projectDir = "";
+    }
+
     public FileSystemWriterHandler(String projectDir) {
         this.projectDir = projectDir;
     }

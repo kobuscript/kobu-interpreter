@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.error;
 
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import dev.cgrscript.interpreter.file_system.CgrFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,5 +56,38 @@ public abstract class AnalyzerError extends Exception {
 
     public String getDescription() {
         return getClass().getSimpleName();
+    }
+
+    public List<CgrScriptError> toCgrScriptError(CgrFile file) {
+        List<CgrScriptError> errors = new ArrayList<>();
+
+        for (SourceCodeRef sourceCodeRef : sourceCodeRefs) {
+            if (sourceCodeRef.getFile().getAbsolutePath().equals(file.getAbsolutePath())) {
+                errors.add(new CgrScriptErrorImpl(getDescription(), sourceCodeRef));
+            }
+        }
+
+        return errors;
+    }
+
+    public static class CgrScriptErrorImpl implements CgrScriptError {
+
+        private final String description;
+        private final SourceCodeRef sourceCodeRef;
+
+        public CgrScriptErrorImpl(String description, SourceCodeRef sourceCodeRef) {
+            this.description = description;
+            this.sourceCodeRef = sourceCodeRef;
+        }
+
+        @Override
+        public String getDescription() {
+            return description;
+        }
+
+        @Override
+        public SourceCodeRef getSourceCodeRef() {
+            return sourceCodeRef;
+        }
     }
 }

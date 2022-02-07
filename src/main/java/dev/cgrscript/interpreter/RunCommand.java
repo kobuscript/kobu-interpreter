@@ -30,10 +30,7 @@ import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
 import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.utils.ErrorMessageFormatter;
-import dev.cgrscript.interpreter.error.AnalyzerError;
-import dev.cgrscript.interpreter.error.AnalyzerErrorList;
-import dev.cgrscript.interpreter.error.EvalError;
-import dev.cgrscript.interpreter.error.ParserErrorListener;
+import dev.cgrscript.interpreter.error.*;
 import dev.cgrscript.interpreter.file_system.local.LocalCgrFile;
 import dev.cgrscript.interpreter.file_system.local.LocalCgrFileSystem;
 import dev.cgrscript.interpreter.input.FileFetcher;
@@ -82,9 +79,7 @@ public class RunCommand implements Callable<Integer> {
             InputNativeFunctionRegistry.register(moduleLoader);
             ModuleScope moduleScope = moduleLoader.load(new LocalCgrFile(file));
 
-            if (parserErrorListener.hasErrors()) {
-                return 1;
-            }
+            parserErrorListener.checkErrors();
 
             moduleScope.checkErrors();
 
@@ -114,6 +109,11 @@ public class RunCommand implements Callable<Integer> {
             }
             moduleScope.runMainFunction(scriptArgs, database, inputReader, outputWriter);
 
+        } catch (ParserErrorList e) {
+            for (ParserError error : e.getErrors()) {
+                System.err.println(ErrorMessageFormatter.getMessage(error));
+            }
+            return 1;
         } catch (AnalyzerErrorList e) {
             for (AnalyzerError error : e.getErrors()) {
                 System.err.println(ErrorMessageFormatter.getMessage(error));

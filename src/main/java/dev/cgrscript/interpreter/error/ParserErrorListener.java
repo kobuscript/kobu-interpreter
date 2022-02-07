@@ -34,10 +34,12 @@ import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ParserErrorListener extends BaseErrorListener {
 
-    private boolean hasErrors = false;
+    private final List<ParserError> errors = new ArrayList<>();
 
     private ScriptRef currentScript;
 
@@ -53,13 +55,8 @@ public class ParserErrorListener extends BaseErrorListener {
                 line, charPositionInLine + (offendingToken.getStopIndex() - offendingToken.getStartIndex()),
                 offendingToken.getStartIndex(), offendingToken.getStopIndex());
 
-        try {
-            System.err.println(ErrorMessageFormatter.getMessage(new ParserError(sourceCodeRef, msg)));
-        } catch (IOException ex) {
-            throw new InternalInterpreterError(ex, sourceCodeRef);
-        }
+        errors.add(new ParserError(sourceCodeRef, msg));
 
-        this.hasErrors = true;
     }
 
     public void missingEndStatement(int line, int charPos, int startOffset, int endOffset) {
@@ -67,13 +64,8 @@ public class ParserErrorListener extends BaseErrorListener {
                 line, charPos,
                 line, charPos, startOffset, endOffset);
 
-        try {
-            System.err.println(ErrorMessageFormatter.getMessage(new ParserError(sourceCodeRef, "';' expected")));
-        } catch (IOException ex) {
-            throw new InternalInterpreterError(ex, sourceCodeRef);
-        }
+        errors.add(new ParserError(sourceCodeRef, "';' expected"));
 
-        this.hasErrors = true;
     }
 
     public void missingReturnStatement(int line, int charPosStart, int charPosStop, int startOffset, int endOffset) {
@@ -81,21 +73,22 @@ public class ParserErrorListener extends BaseErrorListener {
                 line, charPosStart,
                 line, charPosStop, startOffset, endOffset);
 
-        try {
-            System.err.println(ErrorMessageFormatter.getMessage(new ParserError(sourceCodeRef, "Missing return type on function declaration")));
-        } catch (IOException ex) {
-            throw new InternalInterpreterError(ex, sourceCodeRef);
-        }
+        errors.add(new ParserError(sourceCodeRef, "Missing return type on function declaration"));
 
-        this.hasErrors = true;
     }
 
     public void setCurrentScript(ScriptRef currentScript) {
         this.currentScript = currentScript;
     }
 
-    public boolean hasErrors() {
-        return hasErrors;
+    public List<ParserError> getErrors() {
+        return errors;
+    }
+
+    public void checkErrors() throws ParserErrorList {
+        if (!errors.isEmpty()) {
+            throw new ParserErrorList(errors);
+        }
     }
 
 }

@@ -64,7 +64,11 @@ public class ModuleScope implements Scope {
 
     private final Map<String, Symbol> symbols = new HashMap<>();
 
+    private final Map<String, Symbol> dependenciesSymbols = new HashMap<>();
+
     private List<AnalyzerError> errors;
+
+    private List<AnalyzerError> dependenciesErrors;
 
     private AnalyzerStepEnum step;
 
@@ -100,6 +104,10 @@ public class ModuleScope implements Scope {
         if (symbol != null) {
             return symbol;
         }
+        symbol = dependenciesSymbols.get(name);
+        if (symbol != null) {
+            return symbol;
+        }
         return builtinScope.resolve(name);
     }
 
@@ -114,10 +122,10 @@ public class ModuleScope implements Scope {
             if (currentDef != null) {
                 addError(new SymbolConflictError(currentDef, symbol));
             } else {
-                symbols.put(name, symbol);
+                dependenciesSymbols.put(name, symbol);
             }
         });
-        addErrors(imported.getErrors());
+        addDependencyErrors(imported.getErrors());
     }
 
     public void analyze(Database database, InputReader inputReader, OutputWriter outputWriter) {
@@ -170,11 +178,24 @@ public class ModuleScope implements Scope {
         return errors;
     }
 
+    public List<AnalyzerError> getAllErrors() {
+        List<AnalyzerError> errors;
+        if (this.errors != null) {
+            errors = new ArrayList<>(this.errors);
+        } else {
+            errors = new ArrayList<>();
+        }
+        if (dependenciesErrors != null) {
+            errors.addAll(dependenciesErrors);
+        }
+        return errors;
+    }
+
     public void checkErrors() throws AnalyzerError {
-        if (errors == null || errors.isEmpty()) {
+        if ((errors == null || errors.isEmpty()) && (dependenciesErrors == null || dependenciesErrors.isEmpty())) {
             return;
         }
-        throw new AnalyzerErrorList(errors);
+        throw new AnalyzerErrorList(getAllErrors());
     }
 
     public Map<String, Symbol> getSymbols() {
@@ -200,14 +221,14 @@ public class ModuleScope implements Scope {
         errors.add(error);
     }
 
-    public void addErrors(List<AnalyzerError> errorList) {
+    public void addDependencyErrors(List<AnalyzerError> errorList) {
         if (errorList == null) {
             return;
         }
-        if (errors == null) {
-            errors = new ArrayList<>();
+        if (dependenciesErrors == null) {
+            dependenciesErrors = new ArrayList<>();
         }
-        errors.addAll(errorList);
+        dependenciesErrors.addAll(errorList);
     }
 
     public List<ProjectProperty> getProperties() {

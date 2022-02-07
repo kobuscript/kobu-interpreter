@@ -24,26 +24,18 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.error;
 
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import java.util.List;
 
-public class ParserError extends Exception implements CgrScriptError {
+public class ParserErrorList extends Exception {
 
-    private final SourceCodeRef sourceCodeRef;
+    private final List<ParserError> errors;
 
-    public ParserError(SourceCodeRef sourceCodeRef, String message) {
-        super(message);
-        this.sourceCodeRef = sourceCodeRef;
+    public ParserErrorList(List<ParserError> errors) {
+        this.errors = errors;
     }
 
-    @Override
-    public SourceCodeRef getSourceCodeRef() {
-        return sourceCodeRef;
-    }
-
-
-    @Override
-    public String getDescription() {
-        return getMessage();
+    public List<ParserError> getErrors() {
+        return errors;
     }
 
 }
