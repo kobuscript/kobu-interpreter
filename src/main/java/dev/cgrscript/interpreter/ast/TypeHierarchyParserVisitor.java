@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast;
 
 import dev.cgrscript.interpreter.error.AnalyzerError;
+import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.error.analyzer.RecordInvalidSuperTypeError;
 import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
 import dev.cgrscript.interpreter.module.ModuleLoader;
@@ -34,8 +35,11 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class TypeHierarchyParserVisitor extends CgrScriptParserVisitor<Void> {
 
-    public TypeHierarchyParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope) {
+    private final ParserErrorListener parserErrorListener;
+
+    public TypeHierarchyParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, ParserErrorListener parserErrorListener) {
         super(moduleLoader);
+        this.parserErrorListener = parserErrorListener;
         this.moduleScope = moduleScope;
     }
 
@@ -43,8 +47,8 @@ public class TypeHierarchyParserVisitor extends CgrScriptParserVisitor<Void> {
     public Void visitImportExpr(CgrScriptParser.ImportExprContext ctx) {
         var moduleId = ctx.moduleId().getText();
         try {
-            var module = moduleLoader.getScope(moduleId, getSourceCodeRef(ctx));
-            moduleLoader.visit(moduleId, new TypeHierarchyParserVisitor(moduleLoader, module), AnalyzerStepEnum.TYPE_HIERARCHY);
+            var module = moduleLoader.getScope(parserErrorListener, moduleId, getSourceCodeRef(ctx));
+            moduleLoader.visit(moduleId, new TypeHierarchyParserVisitor(moduleLoader, module, parserErrorListener), AnalyzerStepEnum.TYPE_HIERARCHY);
         } catch (AnalyzerError e) {
             moduleScope.addError(e);
         }

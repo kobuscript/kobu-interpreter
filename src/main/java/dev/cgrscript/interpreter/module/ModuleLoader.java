@@ -29,7 +29,6 @@ import dev.cgrscript.config.Project;
 import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.config.ProjectSourcePath;
 import dev.cgrscript.config.error.ProjectError;
-import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.CgrScriptParserVisitor;
 import dev.cgrscript.interpreter.ast.ModuleParserVisitor;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
@@ -42,8 +41,6 @@ import dev.cgrscript.interpreter.error.analyzer.CyclicModuleReferenceError;
 import dev.cgrscript.interpreter.error.analyzer.InternalParserError;
 import dev.cgrscript.interpreter.error.analyzer.ModuleNotFoundError;
 import dev.cgrscript.interpreter.file_system.*;
-import dev.cgrscript.interpreter.input.InputReader;
-import dev.cgrscript.interpreter.writer.OutputWriter;
 import dev.cgrscript.parser.CgrScriptLexer;
 import dev.cgrscript.parser.CgrScriptParser;
 import org.antlr.v4.runtime.CharStreams;
@@ -60,8 +57,6 @@ public class ModuleLoader {
 
     private final ProjectReader projectReader;
 
-    private final ParserErrorListener parserErrorListener;
-
     private DependencyResolver dependencyResolver;
     private Project project;
     private CgrDirectory projectDir;
@@ -75,29 +70,40 @@ public class ModuleLoader {
 
     private final Map<NativeFunctionId, NativeFunction> nativeFunctions = new HashMap<>();
 
-    public ModuleLoader(CgrFileSystem fileSystem, ProjectReader projectReader, ParserErrorListener parserErrorListener) {
+    public ModuleLoader(CgrFileSystem fileSystem, ProjectReader projectReader) {
         this.fileSystem = fileSystem;
         this.projectReader = projectReader;
-        this.parserErrorListener = parserErrorListener;
     }
 
     public void addNativeFunction(NativeFunctionId nativeFunctionId, NativeFunction nativeFunction) {
         nativeFunctions.put(nativeFunctionId, nativeFunction);
     }
 
-    public ModuleScope load(CgrFile file) throws AnalyzerError {
-        loadRoot(file);
-        if (project == null) {
-            createDefaultProject(file);
-        }
+    public ModuleScope load(ParserErrorListener parserErrorListener, CgrFile file, CgrFile projectFile) throws AnalyzerError {
+        loadProject(file, projectFile);
 
-        ModuleScope module = loadModule(fileSystem.loadScript(srcDirs, file), null, null);
+        ModuleScope module = loadModule(parserErrorListener, fileSystem.loadScript(srcDirs, file),
+                null, null);
         modules.put(module.getModuleId(), module);
 
         return module;
     }
 
-    public ModuleScope getScope(String moduleId, SourceCodeRef sourceCodeRef) throws AnalyzerError {
+    public CgrFile findModuleFile(CgrFile projectFile, CgrFile refFile, String moduleId) throws AnalyzerError {
+        loadProject(refFile, projectFile);
+        return fileSystem.loadScript(srcDirs, moduleId);
+    }
+
+    private void loadProject(CgrFile file, CgrFile projectFile) throws ProjectError {
+        if (projectFile != null && project == null) {
+            loadProjectDefinition(projectFile);
+        }
+        if (project == null) {
+            createDefaultProject(file);
+        }
+    }
+
+    public ModuleScope getScope(ParserErrorListener parserErrorListener, String moduleId, SourceCodeRef sourceCodeRef) throws AnalyzerError {
 
         ModuleScope module = modules.get(moduleId);
         if (module != null) {
@@ -106,14 +112,14 @@ public class ModuleLoader {
 
         var classpathRef = getModuleFromClasspath(moduleId);
         if (classpathRef != null) {
-            module = loadModule(classpathRef, moduleId, sourceCodeRef);
+            module = loadModule(parserErrorListener, classpathRef, moduleId, sourceCodeRef);
         } else {
 
             CgrScriptFile script = fileSystem.loadScript(srcDirs, moduleId);
             if (script == null) {
                 throw new ModuleNotFoundError(sourceCodeRef, moduleId);
             }
-            module = loadModule(script, moduleId, sourceCodeRef);
+            module = loadModule(parserErrorListener, script, moduleId, sourceCodeRef);
         }
         modules.put(module.getModuleId(), module);
         return module;
@@ -132,37 +138,12 @@ public class ModuleLoader {
         moduleScope.setStep(step);
     }
 
-    public void analyze(Database database, InputReader inputReader, OutputWriter outputWriter) {
-        for (ModuleScope module : modules.values()) {
-            module.analyze(database, inputReader, outputWriter);
-        }
-    }
-
-    public List<AnalyzerError> getErrors() {
-        List<AnalyzerError> errors = new ArrayList<>();
-        for (ModuleScope module : modules.values()) {
-            if (module.getErrors() != null) {
-                errors.addAll(module.getErrors());
-            }
-        }
-        return errors;
-    }
-
     public CgrDirectory getProjectDir() {
         return projectDir;
     }
 
     public Project getProject() {
         return project;
-    }
-
-    private void loadRoot(CgrFile file) throws ProjectError {
-        if (project == null && file != null) {
-            CgrFile projectFile = fileSystem.findProjectDefinition(file);
-            if (projectFile != null) {
-                loadProjectDefinition(projectFile);
-            }
-        }
     }
 
     private void createDefaultProject(CgrFile scriptFile) {
@@ -193,7 +174,9 @@ public class ModuleLoader {
         return null;
     }
 
-    private ModuleScope loadModule(ScriptRef script, String moduleId, SourceCodeRef sourceCodeRef) throws AnalyzerError {
+    private ModuleScope loadModule(ParserErrorListener parserErrorListener,
+                                   ScriptRef script, String moduleId,
+                                   SourceCodeRef sourceCodeRef) throws AnalyzerError {
 
         String scriptModule = moduleId != null ? moduleId : script.extractModuleId();
 
@@ -214,7 +197,7 @@ public class ModuleLoader {
             parser.addErrorListener(parserErrorListener);
             var tree = parser.prog();
 
-            var visitor = new ModuleParserVisitor(this, script, nativeFunctions);
+            var visitor = new ModuleParserVisitor(this, parserErrorListener, script, nativeFunctions);
             visitor.visit(tree);
 
             var moduleScope = visitor.getModuleScope();

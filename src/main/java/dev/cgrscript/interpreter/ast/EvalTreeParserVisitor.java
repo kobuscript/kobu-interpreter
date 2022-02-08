@@ -38,6 +38,7 @@ import dev.cgrscript.interpreter.ast.template.TemplateStatement;
 import dev.cgrscript.interpreter.ast.template.TemplateStaticContentStatement;
 import dev.cgrscript.interpreter.ast.utils.NumberParser;
 import dev.cgrscript.interpreter.error.AnalyzerError;
+import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.error.analyzer.DuplicatedFunctionParamError;
 import dev.cgrscript.interpreter.error.analyzer.FunctionMissingReturnStatError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
@@ -53,8 +54,11 @@ import java.util.Map;
 
 public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
-    public EvalTreeParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope) {
+    private final ParserErrorListener parserErrorListener;
+
+    public EvalTreeParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, ParserErrorListener parserErrorListener) {
         super(moduleLoader);
+        this.parserErrorListener = parserErrorListener;
         this.moduleScope = moduleScope;
     }
 
@@ -62,8 +66,8 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitImportExpr(CgrScriptParser.ImportExprContext ctx) {
         var moduleId = ctx.moduleId().getText();
         try {
-            var module = moduleLoader.getScope(moduleId, getSourceCodeRef(ctx));
-            moduleLoader.visit(moduleId, new EvalTreeParserVisitor(moduleLoader, module), AnalyzerStepEnum.EVAL_TREE);
+            var module = moduleLoader.getScope(parserErrorListener, moduleId, getSourceCodeRef(ctx));
+            moduleLoader.visit(moduleId, new EvalTreeParserVisitor(moduleLoader, module, parserErrorListener), AnalyzerStepEnum.EVAL_TREE);
         } catch (AnalyzerError e) {
             moduleScope.addError(e);
         }

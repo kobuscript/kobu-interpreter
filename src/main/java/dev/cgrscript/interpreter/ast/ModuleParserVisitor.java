@@ -27,10 +27,10 @@ package dev.cgrscript.interpreter.ast;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunctionId;
 import dev.cgrscript.interpreter.error.AnalyzerError;
+import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.error.analyzer.DuplicatedModuleReferenceError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidModuleDeclarationError;
 import dev.cgrscript.interpreter.error.analyzer.NativeFunctionNotFoundError;
-import dev.cgrscript.interpreter.file_system.CgrScriptFile;
 import dev.cgrscript.interpreter.file_system.ScriptRef;
 import dev.cgrscript.interpreter.module.ModuleLoader;
 import dev.cgrscript.interpreter.ast.symbol.*;
@@ -43,12 +43,16 @@ import java.util.stream.Collectors;
 
 public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
 
+    private final ParserErrorListener parserErrorListener;
+
     private final ScriptRef script;
 
     private final Map<NativeFunctionId, NativeFunction> nativeFunctions;
 
-    public ModuleParserVisitor(ModuleLoader moduleLoader, ScriptRef script, Map<NativeFunctionId, NativeFunction> nativeFunctions) {
+    public ModuleParserVisitor(ModuleLoader moduleLoader, ParserErrorListener parserErrorListener, ScriptRef script,
+                               Map<NativeFunctionId, NativeFunction> nativeFunctions) {
         super(moduleLoader);
+        this.parserErrorListener = parserErrorListener;
         this.script = script;
         this.nativeFunctions = nativeFunctions;
     }
@@ -76,7 +80,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
             if (!moduleScope.addImportedModule(importedModuleId)) {
                 moduleScope.addError(new DuplicatedModuleReferenceError(getSourceCodeRef(ctx), importedModuleId));
             }
-            ModuleScope importedModule = moduleLoader.getScope(importedModuleId, getSourceCodeRef(ctx));
+            ModuleScope importedModule = moduleLoader.getScope(parserErrorListener, importedModuleId, getSourceCodeRef(ctx));
             moduleScope.merge(importedModule);
         } catch (AnalyzerError error) {
             moduleScope.addError(error);

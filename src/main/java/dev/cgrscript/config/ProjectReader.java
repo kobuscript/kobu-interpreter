@@ -24,18 +24,16 @@ SOFTWARE.
 
 package dev.cgrscript.config;
 
-import dev.cgrscript.interpreter.file_system.CgrFile;
-import dev.cgrscript.interpreter.file_system.local.LocalCgrScriptFile;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.config.error.*;
+import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import dev.cgrscript.interpreter.file_system.CgrFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,22 +44,14 @@ public class ProjectReader {
 
     private final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-    public ProjectReader() throws ProjectError {
-        try {
-            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        } catch (Exception ex) {
-            throw new ProjectSetupError(null, ex);
-        }
-    }
-
     public Project load(CgrFile projectFile) throws ProjectError {
 
         DocumentBuilder db;
         SourceCodeRef sourceCodeRef = new SourceCodeRef(projectFile);
         try {
             db = dbf.newDocumentBuilder();
-        } catch (Exception ex) {
-            throw new ProjectSetupError(sourceCodeRef, ex);
+        } catch (ParserConfigurationException ex) {
+            throw new ProjectSetupError(ex);
         }
 
         Document doc;

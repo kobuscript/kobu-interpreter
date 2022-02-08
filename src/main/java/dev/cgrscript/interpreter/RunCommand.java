@@ -31,6 +31,7 @@ import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.utils.ErrorMessageFormatter;
 import dev.cgrscript.interpreter.error.*;
+import dev.cgrscript.interpreter.file_system.CgrFile;
 import dev.cgrscript.interpreter.file_system.local.LocalCgrFile;
 import dev.cgrscript.interpreter.file_system.local.LocalCgrFileSystem;
 import dev.cgrscript.interpreter.input.FileFetcher;
@@ -75,20 +76,22 @@ public class RunCommand implements Callable<Integer> {
 
             LocalCgrFileSystem fileSystem = new LocalCgrFileSystem();
             ParserErrorListener parserErrorListener = new ParserErrorListener();
-            ModuleLoader moduleLoader = new ModuleLoader(fileSystem, new ProjectReader(), parserErrorListener);
+            ModuleLoader moduleLoader = new ModuleLoader(fileSystem, new ProjectReader());
             InputNativeFunctionRegistry.register(moduleLoader);
-            ModuleScope moduleScope = moduleLoader.load(new LocalCgrFile(file));
+            LocalCgrFile localFile = new LocalCgrFile(this.file);
+            CgrFile projectFile = fileSystem.findProjectDefinition(localFile);
+            ModuleScope moduleScope = moduleLoader.load(parserErrorListener, localFile, projectFile);
 
             parserErrorListener.checkErrors();
 
             moduleScope.checkErrors();
 
-            EvalTreeParserVisitor evalTreeParserVisitor = new EvalTreeParserVisitor(moduleLoader, moduleScope);
+            EvalTreeParserVisitor evalTreeParserVisitor = new EvalTreeParserVisitor(moduleLoader, moduleScope, parserErrorListener);
             moduleLoader.visit(moduleScope.getModuleId(), evalTreeParserVisitor, AnalyzerStepEnum.EVAL_TREE);
 
             moduleScope.checkErrors();
 
-            TypeHierarchyParserVisitor typeHierarchyParserVisitor = new TypeHierarchyParserVisitor(moduleLoader, moduleScope);
+            TypeHierarchyParserVisitor typeHierarchyParserVisitor = new TypeHierarchyParserVisitor(moduleLoader, moduleScope, parserErrorListener);
             moduleLoader.visit(moduleScope.getModuleId(), typeHierarchyParserVisitor, AnalyzerStepEnum.TYPE_HIERARCHY);
 
             moduleScope.checkErrors();

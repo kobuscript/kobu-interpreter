@@ -24,15 +24,9 @@ SOFTWARE.
 
 package dev.cgrscript.config.error;
 
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+public class ProjectSetupError extends RuntimeException {
 
-public class ProjectSetupError extends ProjectError {
-
-    public ProjectSetupError(SourceCodeRef sourceCodeRef) {
-        super(sourceCodeRef);
-    }
-
-    public ProjectSetupError(SourceCodeRef sourceCodeRef, Throwable cause) {
-        super(cause, sourceCodeRef);
+    public ProjectSetupError(Throwable cause) {
+        super(cause);
     }
 }
