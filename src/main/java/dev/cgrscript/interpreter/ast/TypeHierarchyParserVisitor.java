@@ -47,7 +47,7 @@ public class TypeHierarchyParserVisitor extends CgrScriptParserVisitor<Void> {
     public Void visitImportExpr(CgrScriptParser.ImportExprContext ctx) {
         var moduleId = ctx.moduleId().getText();
         try {
-            var module = moduleLoader.getScope(parserErrorListener, moduleId, getSourceCodeRef(ctx));
+            var module = moduleLoader.loadScope(parserErrorListener, moduleId, getSourceCodeRef(ctx));
             moduleLoader.visit(moduleId, new TypeHierarchyParserVisitor(moduleLoader, module, parserErrorListener), AnalyzerStepEnum.TYPE_HIERARCHY);
         } catch (AnalyzerError e) {
             moduleScope.addError(e);

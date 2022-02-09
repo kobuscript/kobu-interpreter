@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.expr;
 
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.expr.value.ModuleRefValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RuleRefValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.*;
@@ -70,10 +71,16 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference {
                 this.type = ((VariableSymbol) symbol).getType();
                 return;
             }
-            if (!assignMode && symbol instanceof RuleSymbol) {
-                this.ruleSymbol = (RuleSymbol) symbol;
-                this.type = BuiltinScope.RULE_REF_TYPE;
-                return;
+            if (!assignMode) {
+                if (symbol instanceof RuleSymbol) {
+                    this.ruleSymbol = (RuleSymbol) symbol;
+                    this.type = BuiltinScope.RULE_REF_TYPE;
+                    return;
+                }
+                if (symbol instanceof ModuleRefSymbol) {
+                    this.type = (ModuleRefSymbol) symbol;
+                    return;
+                }
             }
 
             context.getModuleScope().addError(new InvalidVariableError(sourceCodeRef, varName, symbol));
@@ -104,6 +111,10 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference {
             if (symbol instanceof VariableSymbol) {
                 var valueExpr = context.getCurrentScope().getValue(symbol.getName());
                 return Objects.requireNonNullElseGet(valueExpr, () -> new NullValueExpr(sourceCodeRef));
+            }
+            if (symbol instanceof ModuleRefSymbol) {
+                ModuleRefSymbol moduleRefSymbol = (ModuleRefSymbol) symbol;
+                return new ModuleRefValueExpr(moduleRefSymbol, moduleRefSymbol.getModuleScope());
             }
 
             throw new InternalInterpreterError("Expected: Variable. Found: " + symbol.getClass().getName(),

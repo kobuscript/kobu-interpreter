@@ -76,12 +76,22 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
     @Override
     public Void visitImportExpr(CgrScriptParser.ImportExprContext ctx) {
         try {
-            String importedModuleId = ctx.moduleId().getText();
-            if (!moduleScope.addImportedModule(importedModuleId)) {
-                moduleScope.addError(new DuplicatedModuleReferenceError(getSourceCodeRef(ctx), importedModuleId));
+            String dependencyModuleId = ctx.moduleId().getText();
+            if (!moduleScope.addModule(dependencyModuleId)) {
+                moduleScope.addError(new DuplicatedModuleReferenceError(getSourceCodeRef(ctx), dependencyModuleId));
+                return null;
             }
-            ModuleScope importedModule = moduleLoader.getScope(parserErrorListener, importedModuleId, getSourceCodeRef(ctx));
-            moduleScope.merge(importedModule);
+            String alias = null;
+            SourceCodeRef sourceCodeRef = null;
+            if (ctx.moduleScope() != null) {
+                alias = ctx.moduleScope().ID().getText();
+                sourceCodeRef = getSourceCodeRef(ctx.moduleScope().ID());
+            } else {
+                sourceCodeRef = getSourceCodeRef(ctx.moduleId());
+            }
+            ModuleScope dependency = moduleLoader.loadScope(parserErrorListener,
+                    dependencyModuleId, getSourceCodeRef(ctx));
+            moduleScope.merge(dependency, alias, sourceCodeRef);
         } catch (AnalyzerError error) {
             moduleScope.addError(error);
         }

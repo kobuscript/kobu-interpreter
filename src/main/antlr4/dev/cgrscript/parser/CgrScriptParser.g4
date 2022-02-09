@@ -32,7 +32,9 @@ module : 'module' moduleId SEMI? ;
 
 moduleId : ID ( DOT ID )* ;
 
-importExpr : 'import' moduleId SEMI? ;
+importExpr : 'import' moduleId moduleScope? SEMI? ;
+
+moduleScope : 'as' ID ;
 
 execStat : singleStat
            | blockStat
@@ -104,7 +106,7 @@ inheritance : 'extends' ID ;
 
 attributes : ( STAR | ID ) COLON type ( COMMA attributes )? ;
 
-record : ID LCB recordField? RCB ;
+record : typeName LCB recordField? RCB ;
 
 recordField : ID COLON exprWrapper ( COMMA recordField )? ;
 
@@ -199,8 +201,9 @@ assignPreIncDec : ( INC | DEC) expr ;
 
 assignmentSequece : assignment ( COMMA assignment )* ;
 
-type : ID                       #singleType
+type : typeName                 #typeNameExpr
        | type LSB RSB           #arrayType
        | LP type COMMA type RP  #pairType
        ;
 
+typeName : ID ( DOT ID )? ;

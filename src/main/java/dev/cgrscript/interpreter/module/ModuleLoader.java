@@ -122,7 +122,12 @@ public class ModuleLoader {
         return null;
     }
 
-    public ModuleScope getScope(ParserErrorListener parserErrorListener, String moduleId, SourceCodeRef sourceCodeRef) throws AnalyzerError {
+    public ModuleScope getScope(String moduleId) {
+        return modules.get(moduleId);
+    }
+
+    public ModuleScope loadScope(ParserErrorListener parserErrorListener,
+                                 String moduleId, SourceCodeRef sourceCodeRef) throws AnalyzerError {
 
         ModuleScope module = modules.get(moduleId);
         if (module != null) {

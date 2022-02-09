@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval;
 
+import dev.cgrscript.interpreter.ast.symbol.ModuleRefSymbol;
 import dev.cgrscript.interpreter.error.analyzer.SymbolConflictError;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.symbol.Scope;
@@ -88,8 +89,15 @@ public class LocalScope implements Scope {
 
     public ValueExpr getValue(String symbolName) {
         var value = memory.get(symbolName);
-        if (value == null && enclosingScope instanceof LocalScope) {
-            return ((LocalScope)enclosingScope).getValue(symbolName);
+        if (value == null) {
+            if (enclosingScope instanceof LocalScope) {
+                return ((LocalScope) enclosingScope).getValue(symbolName);
+            } else if (enclosingScope instanceof ModuleScope){
+                var symbol = enclosingScope.resolve(symbolName);
+                if (symbol instanceof ModuleRefSymbol) {
+
+                }
+            }
         }
         return value;
     }

@@ -28,6 +28,7 @@ import dev.cgrscript.interpreter.ast.eval.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Expr;
 import dev.cgrscript.interpreter.ast.eval.HasTypeScope;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.expr.value.ModuleRefValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.FunctionType;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
@@ -133,6 +134,10 @@ public class FunctionCallExpr implements Expr, HasTypeScope {
         } else {
             if (valueScope instanceof NullValueExpr) {
                 throw new NullPointerError(valueScope.getSourceCodeRef(), valueScope.getSourceCodeRef());
+            }
+            if (valueScope instanceof ModuleRefValueExpr) {
+                return context.evalFunction(functionType, args.stream()
+                        .map(arg -> arg.evalExpr(context)).collect(Collectors.toList()), sourceCodeRef);
             }
             return context.evalMethod(valueScope, functionType, args.stream()
                     .map(arg -> arg.evalExpr(context)).collect(Collectors.toList()), sourceCodeRef);

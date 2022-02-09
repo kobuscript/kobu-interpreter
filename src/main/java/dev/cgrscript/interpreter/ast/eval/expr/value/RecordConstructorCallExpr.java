@@ -28,10 +28,7 @@ import dev.cgrscript.interpreter.ast.eval.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Expr;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.RecordFieldExpr;
-import dev.cgrscript.interpreter.ast.symbol.RecordTypeSymbol;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
-import dev.cgrscript.interpreter.ast.symbol.Type;
-import dev.cgrscript.interpreter.ast.symbol.UnknownType;
+import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.InvalidRecordFieldError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidRecordFieldTypeError;
 import dev.cgrscript.interpreter.error.analyzer.UndefinedTypeError;
@@ -45,14 +42,17 @@ public class RecordConstructorCallExpr implements Expr {
 
     private final SourceCodeRef sourceCodeRef;
 
+    private final String moduleAlias;
+
     private final String recordTypeName;
 
     private final List<RecordFieldExpr> fields = new ArrayList<>();
 
     private Type type;
 
-    public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, String recordTypeName) {
+    public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, String moduleAlias, String recordTypeName) {
         this.sourceCodeRef = sourceCodeRef;
+        this.moduleAlias = moduleAlias;
         this.recordTypeName = recordTypeName;
     }
 
@@ -72,7 +72,20 @@ public class RecordConstructorCallExpr implements Expr {
 
     @Override
     public void analyze(EvalContext context) {
-        var symbolType = context.getCurrentScope().resolve(recordTypeName);
+        Symbol symbolType;
+
+        if (moduleAlias == null) {
+            symbolType = context.getCurrentScope().resolve(recordTypeName);
+        } else {
+            ModuleRefSymbol moduleRefSymbol = (ModuleRefSymbol) context.getModuleScope().resolveLocal(moduleAlias);
+            if (moduleRefSymbol == null) {
+                context.getModuleScope().addError(new UndefinedTypeError(sourceCodeRef, moduleAlias + "." + recordTypeName));
+                type = UnknownType.INSTANCE;
+                return;
+            }
+            symbolType = moduleRefSymbol.getModuleScope().resolve(recordTypeName);
+        }
+
         if (!(symbolType instanceof RecordTypeSymbol)) {
             context.getModuleScope().addError(new UndefinedTypeError(sourceCodeRef, recordTypeName));
             type = UnknownType.INSTANCE;

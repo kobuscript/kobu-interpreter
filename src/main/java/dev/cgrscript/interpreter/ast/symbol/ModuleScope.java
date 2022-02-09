@@ -37,7 +37,6 @@ import dev.cgrscript.interpreter.error.analyzer.InvalidMainFunctionError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidTypeError;
 import dev.cgrscript.interpreter.error.analyzer.MainFunctionNotFoundError;
 import dev.cgrscript.interpreter.error.analyzer.SymbolConflictError;
-import dev.cgrscript.interpreter.file_system.CgrScriptFile;
 import dev.cgrscript.interpreter.file_system.ScriptRef;
 import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
@@ -60,7 +59,7 @@ public class ModuleScope implements Scope {
 
     private final ScriptRef script;
 
-    private final Set<String> importedModules = new HashSet<>();
+    private final Set<String> loadedModules = new HashSet<>();
 
     private final Map<String, Symbol> symbols = new HashMap<>();
 
@@ -100,32 +99,50 @@ public class ModuleScope implements Scope {
 
     @Override
     public Symbol resolve(String name) {
-        Symbol symbol = symbols.get(name);
+
+        Symbol symbol = resolveLocal(name);
         if (symbol != null) {
             return symbol;
         }
+
         symbol = dependenciesSymbols.get(name);
         if (symbol != null) {
             return symbol;
         }
         return builtinScope.resolve(name);
+
+    }
+
+    public Symbol resolveLocal(String name) {
+        return symbols.get(name);
     }
 
     public NativeFunction getNativeFunction(NativeFunctionId nativeFunctionId) {
         return nativeFunctions.get(nativeFunctionId);
     }
 
-    public void merge(ModuleScope imported) {
-        importedModules.addAll(imported.importedModules);
-        imported.getSymbols().forEach((name, symbol) -> {
-            Symbol currentDef = symbols.get(name);
+    public void merge(ModuleScope dependency, String alias, SourceCodeRef sourceCodeRef) {
+        if (alias != null) {
+            ModuleRefSymbol moduleRefSymbol = new ModuleRefSymbol(sourceCodeRef, dependency);
+            Symbol currentDef = symbols.get(alias);
             if (currentDef != null) {
-                addError(new SymbolConflictError(currentDef, symbol));
+                addError(new SymbolConflictError(currentDef, moduleRefSymbol));
             } else {
-                dependenciesSymbols.put(name, symbol);
+                symbols.put(alias, moduleRefSymbol);
             }
-        });
-        addDependencyErrors(imported.getErrors());
+
+
+        } else {
+            dependency.getSymbols().forEach((name, symbol) -> {
+                Symbol currentDef = symbols.get(name);
+                if (currentDef != null) {
+                    addError(new SymbolConflictError(currentDef, symbol));
+                } else {
+                    dependenciesSymbols.put(name, symbol);
+                }
+            });
+        }
+        addDependencyErrors(dependency.getErrors());
     }
 
     public void analyze(Database database, InputReader inputReader, OutputWriter outputWriter) {
@@ -202,8 +219,8 @@ public class ModuleScope implements Scope {
         return symbols;
     }
 
-    public boolean addImportedModule(String importedModuleId) {
-        return importedModules.add(importedModuleId);
+    public boolean addModule(String moduleId) {
+        return loadedModules.add(moduleId);
     }
 
     public AnalyzerStepEnum getStep() {

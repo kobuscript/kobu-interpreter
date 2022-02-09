@@ -66,7 +66,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitImportExpr(CgrScriptParser.ImportExprContext ctx) {
         var moduleId = ctx.moduleId().getText();
         try {
-            var module = moduleLoader.getScope(parserErrorListener, moduleId, getSourceCodeRef(ctx));
+            var module = moduleLoader.loadScope(parserErrorListener, moduleId, getSourceCodeRef(ctx));
             moduleLoader.visit(moduleId, new EvalTreeParserVisitor(moduleLoader, module, parserErrorListener), AnalyzerStepEnum.EVAL_TREE);
         } catch (AnalyzerError e) {
             moduleScope.addError(e);
@@ -458,8 +458,16 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitRecord(CgrScriptParser.RecordContext ctx) {
-        String recordType = ctx.ID().getText();
-        RecordConstructorCallExpr recordConstructor = new RecordConstructorCallExpr(getSourceCodeRef(ctx.ID()), recordType);
+        String moduleAlias = null;
+        String recordType = null;
+        if (ctx.typeName().ID().size() == 1) {
+            recordType = ctx.typeName().ID(0).getText();
+        } else {
+            moduleAlias = ctx.typeName().ID(0).getText();
+            recordType = ctx.typeName().ID(1).getText();
+        }
+        RecordConstructorCallExpr recordConstructor = new RecordConstructorCallExpr(getSourceCodeRef(ctx.typeName()),
+                moduleAlias, recordType);
 
         CgrScriptParser.RecordFieldContext fieldCtx = ctx.recordField();
         while (fieldCtx != null) {
@@ -780,16 +788,37 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitSingleType(CgrScriptParser.SingleTypeContext ctx) {
-        var typeName = ctx.ID().getText();
-        var symbol = moduleScope.resolve(typeName);
+    public AstNode visitTypeName(CgrScriptParser.TypeNameContext ctx) {
+        if (ctx.ID().size() == 1) {
+            var typeName = ctx.ID(0).getText();
+            var symbol = moduleScope.resolve(typeName);
 
-        if (!(symbol instanceof Type)) {
-            moduleScope.addError(new UndefinedTypeError(getSourceCodeRef(ctx.ID()), typeName));
-            return UnknownType.INSTANCE;
+            if (!(symbol instanceof Type)) {
+                moduleScope.addError(new UndefinedTypeError(getSourceCodeRef(ctx.ID(0)), typeName));
+                return UnknownType.INSTANCE;
+            }
+
+            return (Type) symbol;
+        } else {
+            var moduleAlias = ctx.ID(0).getText();
+            var typeName = ctx.ID(1).getText();
+
+            ModuleRefSymbol moduleRefSymbol = (ModuleRefSymbol) moduleScope.resolveLocal(moduleAlias);
+
+            if (moduleRefSymbol == null) {
+                moduleScope.addError(new UndefinedTypeError(getSourceCodeRef(ctx), typeName));
+                return UnknownType.INSTANCE;
+            }
+
+            var symbol = moduleRefSymbol.getModuleScope().resolve(typeName);
+
+            if (!(symbol instanceof Type)) {
+                moduleScope.addError(new UndefinedTypeError(getSourceCodeRef(ctx), moduleAlias + "." + typeName));
+                return UnknownType.INSTANCE;
+            }
+
+            return (Type) symbol;
         }
-
-        return (Type) symbol;
     }
 
     @Override
