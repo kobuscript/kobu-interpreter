@@ -69,11 +69,18 @@ stat : deftype
        | defrule
        | deffile
        | nativeDecl
+       | 'def' {notifyErrorListenersPrevToken("'type', 'template', 'rule', 'file' or 'native' expected");}
        | functionDecl
        ;
 
 functionDecl : 'fun' ID LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB
-               | 'fun' ID LP functionDeclParam? RP LCB execStat* RCB {notifyMissingReturnStatement();}
+               | 'fun' ID LP functionDeclParam? RP LCB {notifyMissingFunctionReturnType();}
+               | 'fun' ID LP functionDeclParam? RP COLON functionDeclRet LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+               | 'fun' ID LP functionDeclParam? RP COLON {notifyErrorListenersPrevToken("return type expected");}
+               | 'fun' ID LP functionDeclParam? RP {notifyErrorListenersPrevToken("':' expected");}
+               | 'fun' ID LP functionDeclParam? {notifyErrorListenersPrevToken("')' expected");}
+               | 'fun' ID {notifyErrorListenersPrevToken("'(' expected");}
+               | 'fun' {notifyErrorListenersPrevToken("function name expected");}
                ;
 
 nativeDecl : 'def' 'native' ID LP functionDeclParam? RP COLON functionDeclRet ;
@@ -81,7 +88,7 @@ nativeDecl : 'def' 'native' ID LP functionDeclParam? RP COLON functionDeclRet ;
 functionDeclRet : ( 'void' | type ) ;
 
 functionDeclParam : ID '?'? COLON type ( COMMA functionDeclParam )?
-                    | ID '?'? {notifyErrorListeners("Missing type on function parameter");}
+                    | ID '?'? COLON? {notifyErrorListenersPrevToken("parameter type expected");}
                     ;
 
 ifStat : 'if' LP expr RP LCB execStat* RCB elseIfStat? elseStat? ;
@@ -100,20 +107,41 @@ continueStat : CONTINUE ;
 
 exprSequence : exprWrapper ( COMMA exprWrapper )* ;
 
-deftype : 'def' 'type' ID inheritance? LCB attributes? RCB ;
+deftype : 'def' 'type' ID inheritance? LCB attributes? RCB
+          | 'def' 'type' ID inheritance? LCB attributes? {notifyErrorListenersPrevToken("'}' expected");}
+          | 'def' 'type' ID inheritance? LCB {notifyErrorListenersPrevToken("'}' expected");}
+          | 'def' 'type' ID inheritance? {notifyErrorListenersPrevToken("'{' expected");}
+          | 'def' 'type' {notifyErrorListenersPrevToken("type name expected");}
+          ;
 
 inheritance : 'extends' ID ;
 
-attributes : ( STAR | ID ) COLON type ( COMMA attributes )? ;
+attributes : ( STAR | ID ) COLON type ( COMMA attributes )?
+             | ( STAR | ID ) COLON type COMMA
+             | ( STAR | ID ) COLON? {notifyErrorListenersPrevToken("attribute type expected");}
+             ;
 
 record : typeName LCB recordField? RCB ;
 
 recordField : ID COLON exprWrapper ( COMMA recordField )? ;
 
-deftemplate : 'def' 'template' ID ruleExtends? 'for' 'any'? queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template TEMPLATE_END ;
+deftemplate : 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template TEMPLATE_END
+              | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template {notifyErrorListenersPrevToken("'}->' expected");}
+              | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
+              | 'def' 'template' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'<-{' expected");}
+              | 'def' 'template' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query clause expected");}
+              | 'def' 'template' ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
+              | 'def' 'template' {notifyErrorListenersPrevToken("rule name expected");}
+              ;
 
-deffile : 'def' 'file' ID ruleExtends? 'for' 'any'? queryExpr joinExpr* ( 'when' expr )? FILE_PATH_EXPR pathExpr PATH_END
-          | 'def' 'file' ID ruleExtends? 'for' 'any'? queryExpr joinExpr* ( 'when' expr )? FILE_PATH_EXPR pathExpr {notifyMissingEndStatement();};
+deffile : 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? FILE_PATH_EXPR pathExpr PATH_END
+          | 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? FILE_PATH_EXPR pathExpr {notifyMissingEndStatement();}
+          | 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
+          | 'def' 'file' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'->' expected");}
+          | 'def' 'file' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query clause expected");}
+          | 'def' 'file' ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
+          | 'def' 'file' {notifyErrorListenersPrevToken("rule name expected");}
+          ;
 
 pathExpr : pathSegmentExpr ( SLASH pathExpr )? ;
 
@@ -121,15 +149,28 @@ pathSegmentExpr : PATH_SEGMENT                                 #pathStaticSegmen
                   | PATH_VARIABLE_BEGIN expr PATH_VARIABLE_END #pathVariableExpr
                   ;
 
-defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block RCB ;
+defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block RCB
+          | 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block {notifyErrorListenersPrevToken("'}' expected");}
+          | 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
+          | 'def' 'rule' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'{' expected");}
+          | 'def' 'rule' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query clause expected");}
+          | 'def' 'rule' ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
+          | 'def' 'rule' {notifyErrorListenersPrevToken("rule name expected");}
+          ;
 
 ruleExtends : EXTENDS ID ;
 
-queryExpr : 'any'? type queryExprAlias? queryExprSegment? ;
+queryExpr : 'any'? type queryExprAlias? queryExprSegment?
+            | 'any' {notifyErrorListenersPrevToken("type expected");}
+            ;
 
-queryExprAlias : 'as' ID ;
+queryExprAlias : 'as' ID
+                 | 'as' {notifyErrorListenersPrevToken("alias expected");}
+                 ;
 
-queryExprSegment : DIV queryPipeExpr queryExprAlias? queryExprSegment? ;
+queryExprSegment : DIV queryPipeExpr queryExprAlias? queryExprSegment?
+                   | DIV {notifyErrorListenersPrevToken("field or selector expected");}
+                   ;
 
 queryPipeExpr : ID queryExprArraySelect?                                    #queryFieldExpr
                 | functionCallExpr queryExprArraySelect?                    #queryFunctionCallExpr

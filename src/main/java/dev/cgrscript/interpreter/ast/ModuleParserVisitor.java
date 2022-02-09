@@ -100,16 +100,20 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
 
     @Override
     public Void visitDeftype(CgrScriptParser.DeftypeContext ctx) {
-        var recordType = new RecordTypeSymbol(getSourceCodeRef(ctx), ctx.ID().getText(), moduleScope);
-        moduleScope.define(recordType);
+        if (ctx.ID() != null) {
+            var recordType = new RecordTypeSymbol(getSourceCodeRef(ctx), ctx.ID().getText(), moduleScope);
+            moduleScope.define(recordType);
+        }
         return null;
     }
 
     @Override
     public Void visitFunctionDecl(CgrScriptParser.FunctionDeclContext ctx) {
-        var function = new FunctionSymbol(getSourceCodeRef(ctx.ID()), getSourceCodeRef(ctx.RCB()),
-                moduleScope, ctx.ID().getText());
-        moduleScope.define(function);
+        if (ctx.ID() != null && ctx.RCB() != null) {
+            var function = new FunctionSymbol(getSourceCodeRef(ctx.ID()), getSourceCodeRef(ctx.RCB()),
+                    moduleScope, ctx.ID().getText());
+            moduleScope.define(function);
+        }
         return null;
     }
 
@@ -130,6 +134,9 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
 
     @Override
     public Void visitDeftemplate(CgrScriptParser.DeftemplateContext ctx) {
+        if (ctx.ID() == null) {
+            return null;
+        }
         String parentRule = null;
         if (ctx.ruleExtends() != null) {
             parentRule = ctx.ruleExtends().ID().getText();
@@ -141,6 +148,9 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
 
     @Override
     public Void visitDefrule(CgrScriptParser.DefruleContext ctx) {
+        if (ctx.ID() == null) {
+            return null;
+        }
         String parentRule = null;
         if (ctx.ruleExtends() != null) {
             parentRule = ctx.ruleExtends().ID().getText();
@@ -152,6 +162,9 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
 
     @Override
     public Void visitDeffile(CgrScriptParser.DeffileContext ctx) {
+        if (ctx.ID() == null) {
+            return null;
+        }
         String parentRule = null;
         if (ctx.ruleExtends() != null) {
             parentRule = ctx.ruleExtends().ID().getText();

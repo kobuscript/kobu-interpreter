@@ -33,10 +33,7 @@ import dev.cgrscript.interpreter.ast.CgrScriptParserVisitor;
 import dev.cgrscript.interpreter.ast.ModuleParserVisitor;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunctionId;
-import dev.cgrscript.interpreter.ast.symbol.BuiltinTypeSymbol;
-import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
-import dev.cgrscript.interpreter.ast.symbol.RecordTypeSymbol;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.error.analyzer.CyclicModuleReferenceError;
@@ -112,11 +109,23 @@ public class ModuleLoader {
         }
         var refModule = modules.get(scriptFile.extractModuleId());
         if (refModule != null) {
-            var symbol = refModule.resolve(typeName);
-            if (symbol instanceof RecordTypeSymbol) {
-                return CgrTypeDescriptor.recordType(symbol.getSourceCodeRef().getModuleId(), typeName);
-            } else if (symbol instanceof BuiltinTypeSymbol) {
-                return CgrTypeDescriptor.builtinType(typeName);
+            int idx = typeName.indexOf('.');
+            Symbol symbol = null;
+            if (idx == -1) {
+                symbol = refModule.resolve(typeName);
+            } else {
+                var otherModule = refModule.resolve(typeName.substring(0, idx));
+                if (otherModule instanceof ModuleRefSymbol) {
+                    symbol = ((ModuleRefSymbol)otherModule).getModuleScope().resolve(typeName.substring(idx + 1));
+                }
+            }
+
+            if (symbol != null) {
+                if (symbol instanceof RecordTypeSymbol) {
+                    return CgrTypeDescriptor.recordType(symbol.getSourceCodeRef().getModuleId(), typeName);
+                } else if (symbol instanceof BuiltinTypeSymbol) {
+                    return CgrTypeDescriptor.builtinType(typeName);
+                }
             }
         }
         return null;

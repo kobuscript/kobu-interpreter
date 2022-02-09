@@ -100,6 +100,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitFunctionDecl(CgrScriptParser.FunctionDeclContext ctx) {
         var function = (FunctionSymbol) moduleScope.resolve(ctx.ID().getText());
+        if (function == null) {
+            return null;
+        }
         List<FunctionParameter> parameters = new ArrayList<>();
         if (ctx.functionDeclParam() != null) {
             CgrScriptParser.FunctionDeclParamContext paramCtx = ctx.functionDeclParam();
@@ -155,7 +158,13 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitDeftemplate(CgrScriptParser.DeftemplateContext ctx) {
+        if (ctx.ID() == null) {
+            return null;
+        }
         var rule = (RuleSymbol) moduleScope.resolve(ctx.ID().getText());
+        if (rule == null) {
+            return null;
+        }
         var query = (Query) visit(ctx.queryExpr());
 
         for (CgrScriptParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
@@ -229,7 +238,13 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitDefrule(CgrScriptParser.DefruleContext ctx) {
+        if (ctx.ID() == null) {
+            return null;
+        }
         var rule = (RuleSymbol) moduleScope.resolve(ctx.ID().getText());
+        if (rule == null) {
+            return null;
+        }
         var query = (Query) visit(ctx.queryExpr());
 
         for (CgrScriptParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
@@ -258,7 +273,13 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitDeffile(CgrScriptParser.DeffileContext ctx) {
+        if (ctx.ID() == null) {
+            return null;
+        }
         var rule = (RuleSymbol) moduleScope.resolve(ctx.ID().getText());
+        if (rule == null) {
+            return null;
+        }
         var query = (Query) visit(ctx.queryExpr());
 
         for (CgrScriptParser.JoinExprContext joinExprContext : ctx.joinExpr()) {

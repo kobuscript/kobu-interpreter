@@ -33,14 +33,14 @@ public abstract class CgrScriptParserBase extends Parser {
         }
     }
 
-    public void notifyMissingReturnStatement() {
+    public void notifyMissingFunctionReturnType() {
         Token token = getRuleContext().getStart();
         int charPosStart = token.getCharPositionInLine();
         int charPosStop = token.getCharPositionInLine() + (token.getStopIndex() - token.getStartIndex());
         for (ANTLRErrorListener errorListener : getErrorListeners()) {
             if (errorListener instanceof ParserErrorListener) {
                 ((ParserErrorListener) errorListener)
-                        .missingReturnStatement(token.getLine(), charPosStart, charPosStop,
+                        .missingFunctionReturnType(token.getLine(), charPosStart, charPosStop,
                                 token.getStartIndex(), token.getStopIndex());
             }
         }
