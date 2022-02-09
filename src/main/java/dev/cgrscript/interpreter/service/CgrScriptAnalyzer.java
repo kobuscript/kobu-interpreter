@@ -39,12 +39,16 @@ import dev.cgrscript.interpreter.input.FileFetcher;
 import dev.cgrscript.interpreter.input.InputNativeFunctionRegistry;
 import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
+import dev.cgrscript.interpreter.module.CgrTypeDescriptor;
 import dev.cgrscript.interpreter.module.ModuleLoader;
 import dev.cgrscript.interpreter.writer.FileSystemWriterHandler;
 import dev.cgrscript.interpreter.writer.OutputWriter;
 import dev.cgrscript.interpreter.writer.OutputWriterLogTypeEnum;
 import dev.cgrscript.interpreter.writer.OutputWriterModeEnum;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -137,6 +141,24 @@ public class CgrScriptAnalyzer {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile);
         return moduleLoader.findModuleFile(projectFile, refFile, moduleId);
+    }
+
+    public synchronized CgrTypeDescriptor getTypeModule(CgrFile refFile, String typeName) {
+        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile);
+        return moduleLoader.getTypeModule(refFile, typeName);
+    }
+
+    public String loadBuiltinModule(String moduleId) {
+        String path = "/" + moduleId.replaceAll("\\.", "/") + CgrFileSystem.SCRIPT_FILE_EXT;
+        try (InputStream in = CgrScriptAnalyzer.class.getResourceAsStream(path)) {
+            if (in == null) {
+                return null;
+            }
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException ex) {
+            return null;
+        }
     }
 
     private ModuleLoader getModuleLoader(CgrFile projectFile) {
