@@ -39,10 +39,7 @@ import dev.cgrscript.interpreter.ast.template.TemplateStaticContentStatement;
 import dev.cgrscript.interpreter.ast.utils.NumberParser;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.ParserErrorListener;
-import dev.cgrscript.interpreter.error.analyzer.DuplicatedFunctionParamError;
-import dev.cgrscript.interpreter.error.analyzer.FunctionMissingReturnStatError;
-import dev.cgrscript.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
-import dev.cgrscript.interpreter.error.analyzer.UndefinedTypeError;
+import dev.cgrscript.interpreter.error.analyzer.*;
 import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
 import dev.cgrscript.interpreter.module.ModuleLoader;
 import dev.cgrscript.parser.CgrScriptParser;
@@ -206,6 +203,10 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitTemplateContentExpr(CgrScriptParser.TemplateContentExprContext ctx) {
+        if (ctx.expr() == null) {
+            moduleScope.addError(new MissingExpressionError(getSourceCodeRef(ctx)));
+            return new TemplateStaticContentStatement(getSourceCodeRef(ctx), "");
+        }
         Expr expr = (Expr) visit(ctx.expr());
         return new TemplateContentStatement(getSourceCodeRef(ctx.expr()), expr);
     }

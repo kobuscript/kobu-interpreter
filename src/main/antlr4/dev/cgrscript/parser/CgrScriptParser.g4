@@ -197,9 +197,15 @@ varDeclList : VAR varDeclBody ( COMMA varDeclBody )* ;
 
 template : templateExpr template? ;
 
-templateExpr : CONTENT                                       #templateStaticContentExpr
-               | TEMPLATE_EXPR_BEGIN expr TEMPLATE_EXPR_END  #templateContentExpr
+templateExpr : templateStaticContentExpr
+               | templateContentExpr
                ;
+
+templateStaticContentExpr : CONTENT ;
+
+templateContentExpr : TEMPLATE_EXPR_BEGIN expr? TEMPLATE_EXPR_END
+                      | TEMPLATE_EXPR_BEGIN expr {notifyErrorListenersPrevToken("'}' expected");}
+                      ;
 
 exprWrapper : expr | assignPostIncDec | assignPreIncDec ;
 
