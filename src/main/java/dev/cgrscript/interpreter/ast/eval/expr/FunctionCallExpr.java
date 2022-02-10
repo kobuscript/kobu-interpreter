@@ -30,10 +30,7 @@ import dev.cgrscript.interpreter.ast.eval.HasTypeScope;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ModuleRefValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.cgrscript.interpreter.ast.symbol.FunctionType;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
-import dev.cgrscript.interpreter.ast.symbol.Type;
-import dev.cgrscript.interpreter.ast.symbol.UnknownType;
+import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.InvalidFunctionCallError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidTypeError;
 import dev.cgrscript.interpreter.error.analyzer.UndefinedFunctionName;
@@ -71,7 +68,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope {
 
             var functionSymbol = context.getModuleScope().resolve(functionName);
             if (!(functionSymbol instanceof FunctionType)) {
-                context.getModuleScope().addError(new UndefinedFunctionName(sourceCodeRef, functionName));
+                context.getModuleScope().addError(new UndefinedFunctionName(sourceCodeRef, null, functionName));
                 this.type = UnknownType.INSTANCE;
                 return;
             }
@@ -83,7 +80,12 @@ public class FunctionCallExpr implements Expr, HasTypeScope {
 
             var methodType = typeScope.resolveMethod(functionName);
             if (methodType == null) {
-                context.getModuleScope().addError(new UndefinedMethodError(sourceCodeRef, typeScope, functionName));
+                if (typeScope instanceof ModuleRefSymbol) {
+                    var moduleId = ((ModuleRefSymbol)typeScope).getModuleScope().getModuleId();
+                    context.getModuleScope().addError(new UndefinedFunctionName(sourceCodeRef, moduleId, functionName));
+                } else {
+                    context.getModuleScope().addError(new UndefinedMethodError(sourceCodeRef, typeScope, functionName));
+                }
                 this.type = UnknownType.INSTANCE;
                 return;
             }

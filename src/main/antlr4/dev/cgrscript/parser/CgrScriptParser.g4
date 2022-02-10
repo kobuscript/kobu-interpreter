@@ -26,7 +26,7 @@ parser grammar CgrScriptParser;
 
 options { tokenVocab=CgrScriptLexer; superClass=dev.cgrscript.antlr.CgrScriptParserBase; }
 
-prog : module importExpr* stat* ;
+prog : module importExpr* stat* EOF ;
 
 module : 'module' moduleId SEMI? ;
 

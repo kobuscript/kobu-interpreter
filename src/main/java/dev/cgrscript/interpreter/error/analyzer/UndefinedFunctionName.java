@@ -29,15 +29,22 @@ import dev.cgrscript.interpreter.error.AnalyzerError;
 
 public class UndefinedFunctionName extends AnalyzerError {
 
+    private final String moduleId;
+
     private final String functionName;
 
-    public UndefinedFunctionName(SourceCodeRef sourceCodeRef, String functionName) {
+    public UndefinedFunctionName(SourceCodeRef sourceCodeRef, String moduleId, String functionName) {
         super(sourceCodeRef);
+        this.moduleId = moduleId;
         this.functionName = functionName;
     }
 
     @Override
     public String getDescription() {
-        return "'" + functionName + "' is not defined";
+        if (moduleId != null) {
+            return "'" + functionName + "' is not defined in module '" + moduleId + "'";
+        } else {
+            return "'" + functionName + "' is not defined";
+        }
     }
 }

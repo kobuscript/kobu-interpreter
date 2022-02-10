@@ -111,6 +111,7 @@ fragment INT : '0' | [1-9] [0-9]* ; // no leading zeros
 
 ID : [a-zA-Z_][a-zA-Z0-9_]* ;
 WS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
+BAD_CHARACTER : .+? ;
 
 mode DEF_MODE;
 

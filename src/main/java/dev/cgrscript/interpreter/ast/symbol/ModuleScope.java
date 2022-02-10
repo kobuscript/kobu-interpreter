@@ -59,7 +59,7 @@ public class ModuleScope implements Scope {
 
     private final ScriptRef script;
 
-    private final Set<String> loadedModules = new HashSet<>();
+    private final Map<String, ModuleScope> loadedModules = new HashMap<>();
 
     private final Map<String, Symbol> symbols = new HashMap<>();
 
@@ -146,6 +146,9 @@ public class ModuleScope implements Scope {
     }
 
     public void analyze(Database database, InputReader inputReader, OutputWriter outputWriter) {
+        for (ModuleScope module : loadedModules.values()) {
+            module.analyze(database, inputReader, outputWriter);
+        }
         for (Symbol sym : symbols.values()) {
             if (sym instanceof HasExpr) {
                 ((HasExpr) sym).analyze(database, inputReader, outputWriter);
@@ -219,8 +222,12 @@ public class ModuleScope implements Scope {
         return symbols;
     }
 
-    public boolean addModule(String moduleId) {
-        return loadedModules.add(moduleId);
+    public boolean addModule(ModuleScope moduleScope) {
+        if (loadedModules.containsKey(moduleScope.getModuleId())) {
+            return false;
+        }
+        loadedModules.put(moduleScope.getModuleId(), moduleScope);
+        return true;
     }
 
     public AnalyzerStepEnum getStep() {
