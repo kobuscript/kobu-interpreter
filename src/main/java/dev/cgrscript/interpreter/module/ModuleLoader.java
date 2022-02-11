@@ -151,7 +151,7 @@ public class ModuleLoader {
             }
 
             if (symbol != null) {
-                if (symbol instanceof FunctionSymbol) {
+                if (symbol instanceof FunctionSymbol || symbol instanceof NativeFunctionSymbol) {
                     return CgrElementDescriptor.element(symbol.getSourceCodeRef().getModuleId(), functionName);
                 } else if (symbol instanceof BuiltinFunctionSymbol) {
                     return CgrElementDescriptor.builtinElement(functionName);
