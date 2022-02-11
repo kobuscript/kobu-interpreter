@@ -3,14 +3,14 @@ package dev.cgrscript.interpreter.error.analyzer;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 
-public class InvalidVariableDeclError extends AnalyzerError {
+public class InvalidStatementError extends AnalyzerError {
 
-    public InvalidVariableDeclError(SourceCodeRef sourceCodeRef) {
+    public InvalidStatementError(SourceCodeRef sourceCodeRef) {
         super(sourceCodeRef);
     }
 
     @Override
     public String getDescription() {
-        return "missing variable type";
+        return "not a valid statement";
     }
 }

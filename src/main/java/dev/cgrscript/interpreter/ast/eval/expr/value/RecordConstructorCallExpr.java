@@ -102,12 +102,13 @@ public class RecordConstructorCallExpr implements Expr {
                 fieldExpr.setTargetType(fieldType);
             }
             fieldExpr.analyze(context);
+            var exprType = fieldExpr.getType();
             if (fieldType == null) {
                 context.getModuleScope().addError(new InvalidRecordFieldError(fieldExpr.getSourceCodeRef(),
                         recordType, fieldExpr.getFieldName()));
                 continue;
             }
-            if (!fieldType.isAssignableFrom(fieldExpr.getType())) {
+            if (!(exprType instanceof UnknownType) && !fieldType.isAssignableFrom(fieldExpr.getType())) {
                 context.getModuleScope().addError(new InvalidRecordFieldTypeError(fieldExpr.getSourceCodeRef(),
                         recordType, fieldExpr.getFieldName(), fieldExpr.getType()));
             }

@@ -39,7 +39,7 @@ import dev.cgrscript.interpreter.input.FileFetcher;
 import dev.cgrscript.interpreter.input.InputNativeFunctionRegistry;
 import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
-import dev.cgrscript.interpreter.module.CgrTypeDescriptor;
+import dev.cgrscript.interpreter.module.CgrElementDescriptor;
 import dev.cgrscript.interpreter.module.ModuleLoader;
 import dev.cgrscript.interpreter.writer.FileSystemWriterHandler;
 import dev.cgrscript.interpreter.writer.OutputWriter;
@@ -143,10 +143,16 @@ public class CgrScriptAnalyzer {
         return moduleLoader.findModuleFile(projectFile, refFile, moduleId);
     }
 
-    public synchronized CgrTypeDescriptor getTypeModule(CgrFile refFile, String typeName) {
+    public synchronized CgrElementDescriptor getTypeModule(CgrFile refFile, String typeName) {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile);
         return moduleLoader.getTypeModule(refFile, typeName);
+    }
+
+    public synchronized CgrElementDescriptor getFunctionModule(CgrFile refFile, String functionName) {
+        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile);
+        return moduleLoader.getFunctionModule(refFile, functionName);
     }
 
     public String loadBuiltinModule(String moduleId) {

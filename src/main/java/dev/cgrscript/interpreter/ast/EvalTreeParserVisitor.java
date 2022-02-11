@@ -135,8 +135,17 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitMethodCallStat(CgrScriptParser.MethodCallStatContext ctx) {
-        Expr expr = (Expr) visit(ctx.expr());
+        CgrScriptParser.ExprContext exprCtx = ctx.expr();
+        if (exprCtx instanceof CgrScriptParser.FactorExprContext
+                || exprCtx instanceof CgrScriptParser.AddSubExprContext
+                || exprCtx instanceof CgrScriptParser.EqExprContext
+                || exprCtx instanceof CgrScriptParser.LogicExprContext
+                || exprCtx instanceof CgrScriptParser.NotExprContext) {
+            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+        }
+        Expr expr = (Expr) visit(exprCtx);
         Expr functionCallExpr = (Expr) visit(ctx.functionCallExpr());
+
         return new FieldAccessExpr(getSourceCodeRef(ctx), expr, functionCallExpr);
     }
 
@@ -657,6 +666,11 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         var rightExprNode = visit(ctx.expr(1));
         return new FieldAccessExpr(getSourceCodeRef(ctx),
                 (Expr) leftExprNode, (Expr) rightExprNode);
+    }
+
+    @Override
+    public AstNode visitParenthesizedExpr(CgrScriptParser.ParenthesizedExprContext ctx) {
+        return visit(ctx.expr());
     }
 
     @Override

@@ -102,7 +102,7 @@ public class ModuleLoader {
         }
     }
 
-    public CgrTypeDescriptor getTypeModule(CgrFile refFile, String typeName) {
+    public CgrElementDescriptor getTypeModule(CgrFile refFile, String typeName) {
         var scriptFile = fileSystem.loadScript(srcDirs, refFile);
         if (scriptFile == null) {
             return null;
@@ -122,9 +122,29 @@ public class ModuleLoader {
 
             if (symbol != null) {
                 if (symbol instanceof RecordTypeSymbol) {
-                    return CgrTypeDescriptor.recordType(symbol.getSourceCodeRef().getModuleId(), typeName);
+                    return CgrElementDescriptor.element(symbol.getSourceCodeRef().getModuleId(), typeName);
                 } else if (symbol instanceof BuiltinTypeSymbol) {
-                    return CgrTypeDescriptor.builtinType(typeName);
+                    return CgrElementDescriptor.builtinElement(typeName);
+                }
+            }
+        }
+        return null;
+    }
+
+    public CgrElementDescriptor getFunctionModule(CgrFile refFile, String functionName) {
+        var scriptFile = fileSystem.loadScript(srcDirs, refFile);
+        if (scriptFile == null) {
+            return null;
+        }
+        var refModule = modules.get(scriptFile.extractModuleId());
+        if (refModule != null) {
+            var symbol = refModule.resolve(functionName);
+
+            if (symbol != null) {
+                if (symbol instanceof FunctionSymbol) {
+                    return CgrElementDescriptor.element(symbol.getSourceCodeRef().getModuleId(), functionName);
+                } else if (symbol instanceof BuiltinFunctionSymbol) {
+                    return CgrElementDescriptor.builtinElement(functionName);
                 }
             }
         }

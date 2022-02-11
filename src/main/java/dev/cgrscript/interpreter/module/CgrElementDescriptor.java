@@ -1,13 +1,13 @@
 package dev.cgrscript.interpreter.module;
 
-public class CgrTypeDescriptor {
+public class CgrElementDescriptor {
 
-    public static CgrTypeDescriptor builtinType(String name) {
-        return new CgrTypeDescriptor(true, null, name);
+    public static CgrElementDescriptor builtinElement(String name) {
+        return new CgrElementDescriptor(true, null, name);
     }
 
-    public static CgrTypeDescriptor recordType(String moduleId, String name) {
-        return new CgrTypeDescriptor(false, moduleId, name);
+    public static CgrElementDescriptor element(String moduleId, String name) {
+        return new CgrElementDescriptor(false, moduleId, name);
     }
 
     private final boolean builtin;
@@ -16,7 +16,7 @@ public class CgrTypeDescriptor {
 
     private final String name;
 
-    private CgrTypeDescriptor(boolean builtin, String moduleId, String name) {
+    private CgrElementDescriptor(boolean builtin, String moduleId, String name) {
         this.builtin = builtin;
         this.moduleId = moduleId;
         this.name = name;

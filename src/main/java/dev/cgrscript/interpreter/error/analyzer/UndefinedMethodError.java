@@ -42,6 +42,6 @@ public class UndefinedMethodError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "Method " + methodName + " does not exist on type " + typeScope.getName();
+        return "method " + methodName + " does not exist on type " + typeScope.getName();
     }
 }

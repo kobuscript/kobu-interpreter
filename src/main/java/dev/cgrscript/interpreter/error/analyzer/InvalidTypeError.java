@@ -50,6 +50,6 @@ public class InvalidTypeError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "Expected '" + expected.getName() + "', but got '" + found.getName() + "'";
+        return "expected '" + expected.getName() + "', but got '" + found.getName() + "'";
     }
 }

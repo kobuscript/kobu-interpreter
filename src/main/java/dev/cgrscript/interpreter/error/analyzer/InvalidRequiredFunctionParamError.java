@@ -42,6 +42,6 @@ public class InvalidRequiredFunctionParamError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "A required parameter cannot follow an optional parameter";
+        return "a required parameter cannot follow an optional parameter";
     }
 }

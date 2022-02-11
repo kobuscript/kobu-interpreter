@@ -51,6 +51,6 @@ public class InvalidReturnTypeError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "Type '" + foundType.getName() + "' is not assignable to type '" + function.getReturnType().getName() + "'";
+        return "type '" + foundType.getName() + "' is not assignable to type '" + function.getReturnType().getName() + "'";
     }
 }

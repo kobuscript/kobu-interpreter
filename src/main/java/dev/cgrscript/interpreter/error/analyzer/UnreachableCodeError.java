@@ -35,6 +35,6 @@ public class UnreachableCodeError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "Unreachable statement";
+        return "unreachable statement";
     }
 }
