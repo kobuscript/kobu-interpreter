@@ -109,36 +109,46 @@ public class ModuleLoader {
         }
         var refModule = modules.get(scriptFile.extractModuleId());
         if (refModule != null) {
+            String canonicalName = typeName;
             int idx = typeName.indexOf('.');
             Symbol symbol = null;
             if (idx == -1) {
                 symbol = refModule.resolve(typeName);
             } else {
+                canonicalName = typeName.substring(idx + 1);
                 var otherModule = refModule.resolve(typeName.substring(0, idx));
                 if (otherModule instanceof ModuleRefSymbol) {
-                    symbol = ((ModuleRefSymbol)otherModule).getModuleScope().resolve(typeName.substring(idx + 1));
+                    symbol = ((ModuleRefSymbol)otherModule).getModuleScope().resolve(canonicalName);
                 }
             }
 
             if (symbol != null) {
                 if (symbol instanceof RecordTypeSymbol) {
-                    return CgrElementDescriptor.element(symbol.getSourceCodeRef().getModuleId(), typeName);
+                    return CgrElementDescriptor.element(symbol.getSourceCodeRef().getModuleId(), canonicalName);
                 } else if (symbol instanceof BuiltinTypeSymbol) {
-                    return CgrElementDescriptor.builtinElement(typeName);
+                    return CgrElementDescriptor.builtinElement(canonicalName);
                 }
             }
         }
         return null;
     }
 
-    public CgrElementDescriptor getFunctionModule(CgrFile refFile, String functionName) {
+    public CgrElementDescriptor getFunctionModule(CgrFile refFile, String functionName, String scope) {
         var scriptFile = fileSystem.loadScript(srcDirs, refFile);
         if (scriptFile == null) {
             return null;
         }
         var refModule = modules.get(scriptFile.extractModuleId());
         if (refModule != null) {
-            var symbol = refModule.resolve(functionName);
+            Symbol symbol = null;
+            if (scope != null) {
+                var scopeSymbol = refModule.resolveLocal(scope);
+                if (scopeSymbol instanceof ModuleRefSymbol) {
+                    symbol = ((ModuleRefSymbol)scopeSymbol).getModuleScope().resolve(functionName);
+                }
+            } else {
+                symbol = refModule.resolve(functionName);
+            }
 
             if (symbol != null) {
                 if (symbol instanceof FunctionSymbol) {

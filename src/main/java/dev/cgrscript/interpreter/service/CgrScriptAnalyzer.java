@@ -149,10 +149,10 @@ public class CgrScriptAnalyzer {
         return moduleLoader.getTypeModule(refFile, typeName);
     }
 
-    public synchronized CgrElementDescriptor getFunctionModule(CgrFile refFile, String functionName) {
+    public synchronized CgrElementDescriptor getFunctionModule(CgrFile refFile, String functionName, String scope) {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile);
-        return moduleLoader.getFunctionModule(refFile, functionName);
+        return moduleLoader.getFunctionModule(refFile, functionName, scope);
     }
 
     public String loadBuiltinModule(String moduleId) {

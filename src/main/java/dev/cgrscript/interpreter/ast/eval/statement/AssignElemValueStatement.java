@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.statement;
 
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.symbol.ModuleRefSymbol;
 import dev.cgrscript.interpreter.error.analyzer.InvalidAssignExprTypeError;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidAssignmentError;
@@ -62,7 +63,7 @@ public class AssignElemValueStatement implements Statement, Assignment {
         }
         exprRight.analyze(context);
 
-        if (!type.isAssignableFrom(exprRight.getType())) {
+        if (exprRight.getType() instanceof ModuleRefSymbol || !type.isAssignableFrom(exprRight.getType())) {
             context.getModuleScope().addError(new InvalidAssignExprTypeError(exprRight.getSourceCodeRef(),
                     type, exprRight.getType()));
         }

@@ -25,11 +25,8 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.expr;
 
 import dev.cgrscript.interpreter.ast.eval.*;
-import dev.cgrscript.interpreter.ast.symbol.BuiltinScope;
+import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.InvalidAssignExprTypeError;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
-import dev.cgrscript.interpreter.ast.symbol.UnknownType;
-import dev.cgrscript.interpreter.ast.symbol.VariableSymbol;
 import dev.cgrscript.interpreter.error.analyzer.InvalidVariableDeclError;
 
 public class VarDeclExpr implements Statement {
@@ -85,6 +82,10 @@ public class VarDeclExpr implements Statement {
             if (!varSymbol.getType().isAssignableFrom(valueExpr.getType())) {
                 context.getModuleScope().addError(new InvalidAssignExprTypeError(valueExpr.getSourceCodeRef(),
                         varSymbol.getType(), valueExpr.getType()));
+            } else if (varSymbol.getType() instanceof ModuleRefSymbol) {
+                context.getModuleScope().addError(new InvalidAssignExprTypeError(valueExpr.getSourceCodeRef(),
+                        varSymbol.getType(), valueExpr.getType()));
+                varSymbol.setType(BuiltinScope.ANY_TYPE);
             }
         }
     }
