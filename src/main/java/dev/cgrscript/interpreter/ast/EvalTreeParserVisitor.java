@@ -129,11 +129,15 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitExprStat(CgrScriptParser.ExprStatContext ctx) {
-        if (ctx.expr() != null) {
-            return visit(ctx.expr());
-        }
-        return null;
+    public AstNode visitGlobalFunctionCallStat(CgrScriptParser.GlobalFunctionCallStatContext ctx) {
+        return visit(ctx.functionCallExpr());
+    }
+
+    @Override
+    public AstNode visitMethodCallStat(CgrScriptParser.MethodCallStatContext ctx) {
+        Expr expr = (Expr) visit(ctx.expr());
+        Expr functionCallExpr = (Expr) visit(ctx.functionCallExpr());
+        return new FieldAccessExpr(getSourceCodeRef(ctx), expr, functionCallExpr);
     }
 
     @Override

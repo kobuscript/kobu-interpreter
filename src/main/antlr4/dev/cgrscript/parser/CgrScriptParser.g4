@@ -45,12 +45,13 @@ singleStat: varDecl
             | assignment
             | breakStat
             | continueStat
-            | exprStat
+            | functionCallStat
+            | emptyExpr
             ;
 
-exprStat: expr
-          | emptyExpr
-          ;
+functionCallStat : functionCallExpr             #globalFunctionCallStat
+                   | expr DOT functionCallExpr  #methodCallStat
+                   ;
 
 emptyExpr: SEMI ;
 
@@ -105,7 +106,7 @@ breakStat: BREAK ;
 
 continueStat : CONTINUE ;
 
-exprSequence : exprWrapper ( COMMA exprWrapper )* ;
+exprSequence : exprWrapper ( COMMA exprWrapper )* COMMA? ;
 
 deftype : 'def' 'type' ID inheritance? LCB attributes? RCB
           | 'def' 'type' ID inheritance? LCB attributes? {notifyErrorListenersPrevToken("'}' expected");}
@@ -121,15 +122,19 @@ attributes : ( STAR | ID ) COLON type ( COMMA attributes )?
              | ( STAR | ID ) COLON? {notifyErrorListenersPrevToken("attribute type expected");}
              ;
 
-record : typeName LCB recordField? RCB ;
+record : typeName LCB recordField? RCB
+         | typeName LCB recordField? {notifyErrorListenersPrevToken("'}' expected");}
+         ;
 
-recordField : ID COLON exprWrapper ( COMMA recordField )? ;
+recordField : ID COLON exprWrapper ( COMMA recordField )?
+              | ID COLON exprWrapper COMMA
+              | ID COLON? {notifyErrorListenersPrevToken("value expected");};
 
 deftemplate : 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template TEMPLATE_END
               | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template {notifyErrorListenersPrevToken("'}->' expected");}
               | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
               | 'def' 'template' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'<-{' expected");}
-              | 'def' 'template' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query clause expected");}
+              | 'def' 'template' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query expected");}
               | 'def' 'template' ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
               | 'def' 'template' {notifyErrorListenersPrevToken("rule name expected");}
               ;
@@ -138,22 +143,27 @@ deffile : 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )
           | 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? FILE_PATH_EXPR pathExpr {notifyMissingEndStatement();}
           | 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
           | 'def' 'file' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'->' expected");}
-          | 'def' 'file' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query clause expected");}
+          | 'def' 'file' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query expected");}
           | 'def' 'file' ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
           | 'def' 'file' {notifyErrorListenersPrevToken("rule name expected");}
           ;
 
 pathExpr : pathSegmentExpr ( SLASH pathExpr )? ;
 
-pathSegmentExpr : PATH_SEGMENT                                 #pathStaticSegmentExpr
-                  | PATH_VARIABLE_BEGIN expr PATH_VARIABLE_END #pathVariableExpr
+pathSegmentExpr : pathStaticSegmentExpr
+                  | pathVariableExpr
                   ;
+
+pathStaticSegmentExpr : PATH_SEGMENT ;
+pathVariableExpr : PATH_VARIABLE_BEGIN expr? PATH_VARIABLE_END
+                   | PATH_VARIABLE_BEGIN expr {notifyErrorListenersPrevToken("'}' expected");}
+                   ;
 
 defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block RCB
           | 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block {notifyErrorListenersPrevToken("'}' expected");}
           | 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
           | 'def' 'rule' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'{' expected");}
-          | 'def' 'rule' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query clause expected");}
+          | 'def' 'rule' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query expected");}
           | 'def' 'rule' ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
           | 'def' 'rule' {notifyErrorListenersPrevToken("rule name expected");}
           ;
@@ -211,7 +221,14 @@ exprWrapper : expr | assignPostIncDec | assignPreIncDec ;
 
 expr : record                                                                                       #recordExpr
        | LSB exprSequence? RSB                                                                      #arrayExpr
+       | LSB exprSequence? {notifyErrorListenersPrevToken("']' expected");}                         #arrayErr1
        | LP exprWrapper COMMA exprWrapper RP                                                        #pairExpr
+       | LP exprWrapper COMMA exprWrapper {notifyErrorListenersPrevToken("')' expected");}          #pairErr1
+       | LP exprWrapper COMMA {notifyErrorListenersPrevToken("value expected");}                    #pairErr2
+       | LP exprWrapper {notifyErrorListenersPrevToken("',' or ')' expected");}                     #pairErr3
+       | LP {notifyErrorListenersPrevToken("value expected");}                                      #pairErr4
+       | LP exprWrapper COMMA exprWrapper COMMA
+           {notifyErrorListenersPrevToken("Only tuples with two values are supported");}            #pairErr5
        | functionCallExpr                                                                           #functionCallProxyExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
@@ -229,7 +246,9 @@ expr : record                                                                   
        | LP expr RP                                                                                 #parenthesizedExpr
        ;
 
-functionCallExpr : ID LP exprSequence? RP ;
+functionCallExpr : ID LP exprSequence? RP
+                   | ID LP exprSequence? {notifyErrorListenersPrevToken("')' expected");}
+                   ;
 
 arrayIndexExpr : expr ':' expr  #arrayIndexSliceExpr
                  | ':' expr     #arrayIndexSliceEndExpr

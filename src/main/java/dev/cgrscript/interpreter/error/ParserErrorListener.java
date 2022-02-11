@@ -26,10 +26,7 @@ package dev.cgrscript.interpreter.error;
 
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.file_system.ScriptRef;
-import org.antlr.v4.runtime.BaseErrorListener;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
-import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +49,11 @@ public class ParserErrorListener extends BaseErrorListener {
                 line, charPositionInLine + (offendingToken.getStopIndex() - offendingToken.getStartIndex()),
                 offendingToken.getStartIndex(), offendingToken.getStopIndex());
 
-        errors.add(new ParserError(sourceCodeRef, msg));
+        String message = msg;
+        if (e instanceof NoViableAltException) {
+            message = "Not a valid statement or expression";
+        }
+        errors.add(new ParserError(sourceCodeRef, message));
 
     }
 
