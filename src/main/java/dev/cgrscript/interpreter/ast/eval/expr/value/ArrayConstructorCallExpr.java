@@ -28,10 +28,7 @@ import dev.cgrscript.interpreter.ast.eval.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Expr;
 import dev.cgrscript.interpreter.ast.eval.HasTargetType;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-import dev.cgrscript.interpreter.ast.symbol.ArrayType;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
-import dev.cgrscript.interpreter.ast.symbol.Type;
-import dev.cgrscript.interpreter.ast.symbol.UnknownType;
+import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.InvalidTypeError;
 
 import java.util.ArrayList;
@@ -69,7 +66,7 @@ public class ArrayConstructorCallExpr implements Expr, HasTargetType {
             targetElementType = ((ArrayType)targetType).getElementType();
         }
         Type elementType = targetElementType;
-        if (elements != null) {
+        if (elements != null && !elements.isEmpty()) {
             for (Expr element : elements) {
                 if (targetElementType != null && element instanceof HasTargetType) {
                     ((HasTargetType) element).setTargetType(targetElementType);
@@ -94,6 +91,8 @@ public class ArrayConstructorCallExpr implements Expr, HasTargetType {
                     }
                 }
             }
+        } else if (elementType == null) {
+            elementType = BuiltinScope.ANY_TYPE;
         }
 
         this.type = new ArrayType(elementType);

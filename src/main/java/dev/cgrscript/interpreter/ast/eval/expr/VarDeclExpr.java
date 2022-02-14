@@ -76,15 +76,17 @@ public class VarDeclExpr implements Statement {
         scope.define(varSymbol);
 
         if (valueExpr != null) {
-            if (valueExpr.getType() instanceof UnknownType) {
+            Type valueType = valueExpr.getType();
+            if (valueType instanceof UnknownType ||
+                    (valueType instanceof ArrayType && ((ArrayType) valueType).getElementType() instanceof UnknownType)) {
                 return;
             }
-            if (!varSymbol.getType().isAssignableFrom(valueExpr.getType())) {
+            if (!varSymbol.getType().isAssignableFrom(valueType)) {
                 context.getModuleScope().addError(new InvalidAssignExprTypeError(valueExpr.getSourceCodeRef(),
-                        varSymbol.getType(), valueExpr.getType()));
+                        varSymbol.getType(), valueType));
             } else if (varSymbol.getType() instanceof ModuleRefSymbol) {
                 context.getModuleScope().addError(new InvalidAssignExprTypeError(valueExpr.getSourceCodeRef(),
-                        varSymbol.getType(), valueExpr.getType()));
+                        varSymbol.getType(), valueType));
                 varSymbol.setType(BuiltinScope.ANY_TYPE);
             }
         }

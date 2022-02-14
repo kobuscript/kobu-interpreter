@@ -96,6 +96,10 @@ public class ArrayType implements Type {
                 new FunctionParameter("arr", this, false)));
         methods.put("distinct", new BuiltinFunctionSymbol("distinct", new ArrayDistinctMethodImpl(), this));
 
+        if (elementType == null) {
+            return;
+        }
+
         if (elementType.getComparator() != null) {
             methods.put("sort", new BuiltinFunctionSymbol("sort", new ArraySortMethodImpl()));
         } else if (elementType instanceof RecordTypeSymbol) {
