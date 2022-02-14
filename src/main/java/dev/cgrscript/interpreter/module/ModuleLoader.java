@@ -133,6 +133,40 @@ public class ModuleLoader {
         return null;
     }
 
+    public CgrElementDescriptor getFieldType(CgrFile refFile, String typeName, String fieldName) {
+        var scriptFile = fileSystem.loadScript(srcDirs, refFile);
+        if (scriptFile == null) {
+            return null;
+        }
+        var refModule = modules.get(scriptFile.extractModuleId());
+        if (refModule != null) {
+            String canonicalName = typeName;
+            int idx = typeName.indexOf('.');
+            Symbol symbol = null;
+            if (idx == -1) {
+                symbol = refModule.resolve(typeName);
+            } else {
+                canonicalName = typeName.substring(idx + 1);
+                var otherModule = refModule.resolve(typeName.substring(0, idx));
+                if (otherModule instanceof ModuleRefSymbol) {
+                    symbol = ((ModuleRefSymbol)otherModule).getModuleScope().resolve(canonicalName);
+                }
+            }
+
+            if (symbol instanceof RecordTypeSymbol) {
+                var type = ((RecordTypeSymbol)symbol).resolveField(fieldName);
+
+                if (type instanceof BuiltinTypeSymbol) {
+                    return CgrElementDescriptor.builtinElement(type.getName());
+                } else if (type instanceof RecordTypeSymbol){
+                    return CgrElementDescriptor
+                            .element(((RecordTypeSymbol)type).getModule().getModuleId(), type.getName());
+                }
+            }
+        }
+        return null;
+    }
+
     public CgrElementDescriptor getFunctionModule(CgrFile refFile, String functionName, String scope) {
         var scriptFile = fileSystem.loadScript(srcDirs, refFile);
         if (scriptFile == null) {
@@ -155,6 +189,81 @@ public class ModuleLoader {
                     return CgrElementDescriptor.element(symbol.getSourceCodeRef().getModuleId(), functionName);
                 } else if (symbol instanceof BuiltinFunctionSymbol) {
                     return CgrElementDescriptor.builtinElement(functionName);
+                }
+            }
+        }
+        return null;
+    }
+
+    public CgrElementDescriptor getFunctionReturnType(CgrFile refFile, String functionName, String scope) {
+        var scriptFile = fileSystem.loadScript(srcDirs, refFile);
+        if (scriptFile == null) {
+            return null;
+        }
+        var refModule = modules.get(scriptFile.extractModuleId());
+        if (refModule != null) {
+            Symbol symbol = null;
+            if (scope != null) {
+                var scopeSymbol = refModule.resolveLocal(scope);
+                if (scopeSymbol instanceof ModuleRefSymbol) {
+                    symbol = ((ModuleRefSymbol)scopeSymbol).getModuleScope().resolve(functionName);
+                }
+            } else {
+                symbol = refModule.resolve(functionName);
+            }
+
+            if (symbol instanceof FunctionType) {
+                var returnType = ((FunctionType)symbol).getReturnType();
+                if (returnType != null) {
+                    if (returnType instanceof BuiltinTypeSymbol) {
+                        return CgrElementDescriptor.builtinElement(returnType.getName());
+                    } else if (returnType instanceof RecordTypeSymbol){
+                        return CgrElementDescriptor
+                                .element(((RecordTypeSymbol)returnType).getModule().getModuleId(), returnType.getName());
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public CgrElementDescriptor getRuleModule(CgrFile refFile, String ruleName, String scope) {
+        var scriptFile = fileSystem.loadScript(srcDirs, refFile);
+        if (scriptFile == null) {
+            return null;
+        }
+        var refModule = modules.get(scriptFile.extractModuleId());
+        if (refModule != null) {
+            Symbol symbol = null;
+            if (scope != null) {
+                var scopeSymbol = refModule.resolveLocal(scope);
+                if (scopeSymbol instanceof ModuleRefSymbol) {
+                    symbol = ((ModuleRefSymbol)scopeSymbol).getModuleScope().resolve(ruleName);
+                }
+            } else {
+                symbol = refModule.resolve(ruleName);
+            }
+
+            if (symbol instanceof RuleSymbol) {
+                return CgrElementDescriptor.element(symbol.getSourceCodeRef().getModuleId(), ruleName);
+            }
+        }
+        return null;
+    }
+
+    public CgrElementDescriptor getReferenceType(CgrFile refFile, String varName, int offset, String fieldName) {
+        var scriptFile = fileSystem.loadScript(srcDirs, refFile);
+        if (scriptFile == null) {
+            return null;
+        }
+        var module = modules.get(scriptFile.extractModuleId());
+        if (module != null) {
+            var localVar = module.findLocalVar(varName, offset);
+            if (localVar != null && localVar.getType() instanceof RecordTypeSymbol) {
+                RecordTypeSymbol type = (RecordTypeSymbol) localVar.getType();
+                var fieldRecordType = type.getAttributeRecordType(fieldName);
+                if (fieldRecordType != null) {
+                    return CgrElementDescriptor.element(fieldRecordType.getModule().getModuleId(), fieldRecordType.getName());
                 }
             }
         }

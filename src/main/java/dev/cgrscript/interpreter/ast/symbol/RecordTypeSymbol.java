@@ -51,6 +51,10 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         this.module = module;
     }
 
+    public ModuleScope getModule() {
+        return module;
+    }
+
     @Override
     public String getIdentifier() {
         return getName();
@@ -133,6 +137,23 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         }
         if (unknownAttributes != null) {
             return unknownAttributes.getType();
+        }
+        return null;
+    }
+
+    public RecordTypeSymbol getAttributeRecordType(String name) {
+        RecordTypeAttribute attr = attributes.get(name);
+        if (attr != null) {
+            return this;
+        }
+        if (superType != null) {
+            var recordType = superType.getAttributeRecordType(name);
+            if (recordType != null) {
+                return recordType;
+            }
+        }
+        if (unknownAttributes != null) {
+            return this;
         }
         return null;
     }

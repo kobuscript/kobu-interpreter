@@ -149,10 +149,34 @@ public class CgrScriptAnalyzer {
         return moduleLoader.getTypeModule(refFile, typeName);
     }
 
+    public synchronized CgrElementDescriptor getFieldType(CgrFile refFile, String typeName, String fieldName) {
+        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile);
+        return moduleLoader.getFieldType(refFile, typeName, fieldName);
+    }
+
     public synchronized CgrElementDescriptor getFunctionModule(CgrFile refFile, String functionName, String scope) {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile);
         return moduleLoader.getFunctionModule(refFile, functionName, scope);
+    }
+
+    public synchronized CgrElementDescriptor getFunctionReturnType(CgrFile refFile, String functionName, String scope) {
+        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile);
+        return moduleLoader.getFunctionReturnType(refFile, functionName, scope);
+    }
+
+    public synchronized CgrElementDescriptor getRuleModule(CgrFile refFile, String ruleName, String scope) {
+        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile);
+        return moduleLoader.getRuleModule(refFile, ruleName, scope);
+    }
+
+    public synchronized CgrElementDescriptor getReferenceType(CgrFile refFile, String varName, int offset, String fieldName) {
+        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile);
+        return moduleLoader.getReferenceType(refFile, varName, offset, fieldName);
     }
 
     public String loadBuiltinModule(String moduleId) {

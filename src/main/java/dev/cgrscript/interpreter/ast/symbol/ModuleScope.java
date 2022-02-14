@@ -27,6 +27,7 @@ package dev.cgrscript.interpreter.ast.symbol;
 import dev.cgrscript.config.ProjectProperty;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.expr.VarDeclExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
@@ -64,6 +65,8 @@ public class ModuleScope implements Scope {
     private final Map<String, Symbol> symbols = new HashMap<>();
 
     private final Map<String, Symbol> dependenciesSymbols = new HashMap<>();
+
+    private final Map<String, List<VariableSymbol>> localVarIndex = new HashMap<>();
 
     private List<AnalyzerError> errors;
 
@@ -143,6 +146,22 @@ public class ModuleScope implements Scope {
             });
         }
         addDependencyErrors(dependency.getErrors());
+    }
+
+    public void registerLocalVar(VariableSymbol localVar) {
+        if (localVar.getSourceCodeRef() != null) {
+            var vars = localVarIndex.computeIfAbsent(localVar.getName(), k -> new ArrayList<>());
+            vars.add(localVar);
+        }
+    }
+
+    public VariableSymbol findLocalVar(String name, int offset) {
+        var vars = localVarIndex.get(name);
+        if (vars != null) {
+            return vars.stream()
+                    .filter(v -> v.getSourceCodeRef().getStartOffset() == offset).findFirst().orElse(null);
+        }
+        return null;
     }
 
     public void analyze(Database database, InputReader inputReader, OutputWriter outputWriter) {

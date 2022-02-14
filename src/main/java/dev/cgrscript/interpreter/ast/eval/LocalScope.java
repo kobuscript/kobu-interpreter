@@ -24,11 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval;
 
-import dev.cgrscript.interpreter.ast.symbol.ModuleRefSymbol;
+import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.SymbolConflictError;
-import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
-import dev.cgrscript.interpreter.ast.symbol.Scope;
-import dev.cgrscript.interpreter.ast.symbol.Symbol;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,6 +65,10 @@ public class LocalScope implements Scope {
             moduleScope.addError(new SymbolConflictError(currentSymbol, symbol));
         }
         this.symbols.put(symbol.getName(), symbol);
+
+        if (symbol instanceof VariableSymbol) {
+            moduleScope.registerLocalVar((VariableSymbol) symbol);
+        }
     }
 
     @Override
