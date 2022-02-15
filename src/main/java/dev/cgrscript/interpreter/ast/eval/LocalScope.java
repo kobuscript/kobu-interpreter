@@ -66,9 +66,6 @@ public class LocalScope implements Scope {
         }
         this.symbols.put(symbol.getName(), symbol);
 
-        if (symbol instanceof VariableSymbol) {
-            moduleScope.registerLocalVar((VariableSymbol) symbol);
-        }
     }
 
     @Override

@@ -43,6 +43,11 @@ public abstract class BuiltinTypeSymbol extends Symbol implements Type {
     }
 
     @Override
+    public SourceCodeRef getFieldRef(String name) {
+        return null;
+    }
+
+    @Override
     public FunctionType resolveMethod(String name) {
         var method = methods.get(name);
         if (method == null && !(this instanceof AnyTypeSymbol)) {

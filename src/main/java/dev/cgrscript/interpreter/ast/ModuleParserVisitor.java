@@ -141,7 +141,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ruleExtends() != null) {
             parentRule = ctx.ruleExtends().ID().getText();
         }
-        var template = new RuleSymbol(getSourceCodeRef(ctx), ctx.ID().getText(), moduleScope, RuleTypeEnum.TEMPLATE, parentRule);
+        var template = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), moduleScope, RuleTypeEnum.TEMPLATE, parentRule);
         moduleScope.define(template);
         return null;
     }
@@ -155,7 +155,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ruleExtends() != null) {
             parentRule = ctx.ruleExtends().ID().getText();
         }
-        var rule = new RuleSymbol(getSourceCodeRef(ctx), ctx.ID().getText(), moduleScope, RuleTypeEnum.RULE, parentRule);
+        var rule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), moduleScope, RuleTypeEnum.RULE, parentRule);
         moduleScope.define(rule);
         return null;
     }
@@ -169,7 +169,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ruleExtends() != null) {
             parentRule = ctx.ruleExtends().ID().getText();
         }
-        var fileRule = new RuleSymbol(getSourceCodeRef(ctx), ctx.ID().getText(), moduleScope, RuleTypeEnum.FILE, parentRule);
+        var fileRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), moduleScope, RuleTypeEnum.FILE, parentRule);
         moduleScope.define(fileRule);
         return null;
     }

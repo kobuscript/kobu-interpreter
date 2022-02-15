@@ -305,7 +305,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         SourceCodeRef sourceCodeRef = getSourceCodeRef(ctx);
         QueryTypeClause templateClause = new QueryTypeClause(sourceCodeRef, BuiltinScope.TEMPLATE_TYPE,
                 false, "$_templateRef");
-        QueryJoin templateJoin = new QueryJoin(sourceCodeRef, templateClause, new RefExpr(sourceCodeRef, bind));
+        QueryJoin templateJoin = new QueryJoin(sourceCodeRef, templateClause, new RefExpr(moduleScope, sourceCodeRef, bind));
         query.addJoin(templateJoin);
 
         if (ctx.expr() != null) {
@@ -550,7 +550,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             }
         }
 
-        return new FunctionCallExpr(getSourceCodeRef(ctx),
+        return new FunctionCallExpr(moduleScope, getSourceCodeRef(ctx),
                 ctx.ID().getText(), args);
     }
 
@@ -675,7 +675,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitIdExpr(CgrScriptParser.IdExprContext ctx) {
-        return new RefExpr(getSourceCodeRef(ctx.ID()), ctx.ID().getText());
+        return new RefExpr(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText());
     }
 
     @Override

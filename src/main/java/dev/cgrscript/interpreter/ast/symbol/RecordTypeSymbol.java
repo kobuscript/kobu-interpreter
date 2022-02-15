@@ -141,19 +141,20 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         return null;
     }
 
-    public RecordTypeSymbol getAttributeRecordType(String name) {
+    @Override
+    public SourceCodeRef getFieldRef(String name) {
         RecordTypeAttribute attr = attributes.get(name);
         if (attr != null) {
-            return this;
+            return attr.getSourceCodeRef();
         }
         if (superType != null) {
-            var recordType = superType.getAttributeRecordType(name);
-            if (recordType != null) {
-                return recordType;
+            var ref = superType.getFieldRef(name);
+            if (ref != null) {
+                return ref;
             }
         }
         if (unknownAttributes != null) {
-            return this;
+            return unknownAttributes.getSourceCodeRef();
         }
         return null;
     }

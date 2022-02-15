@@ -26,6 +26,7 @@ package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.config.ProjectProperty;
 import dev.cgrscript.database.Database;
+import dev.cgrscript.interpreter.ast.eval.HasElementRef;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.VarDeclExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
@@ -66,7 +67,7 @@ public class ModuleScope implements Scope {
 
     private final Map<String, Symbol> dependenciesSymbols = new HashMap<>();
 
-    private final Map<String, List<VariableSymbol>> localVarIndex = new HashMap<>();
+    private final Map<Integer, HasElementRef> refsByOffset = new HashMap<>();
 
     private List<AnalyzerError> errors;
 
@@ -116,6 +117,14 @@ public class ModuleScope implements Scope {
 
     }
 
+    public void registerRef(int offset, HasElementRef ref) {
+        refsByOffset.put(offset, ref);
+    }
+
+    public HasElementRef getRef(int offset) {
+        return refsByOffset.get(offset);
+    }
+
     public Symbol resolveLocal(String name) {
         return symbols.get(name);
     }
@@ -146,22 +155,6 @@ public class ModuleScope implements Scope {
             });
         }
         addDependencyErrors(dependency.getErrors());
-    }
-
-    public void registerLocalVar(VariableSymbol localVar) {
-        if (localVar.getSourceCodeRef() != null) {
-            var vars = localVarIndex.computeIfAbsent(localVar.getName(), k -> new ArrayList<>());
-            vars.add(localVar);
-        }
-    }
-
-    public VariableSymbol findLocalVar(String name, int offset) {
-        var vars = localVarIndex.get(name);
-        if (vars != null) {
-            return vars.stream()
-                    .filter(v -> v.getSourceCodeRef().getStartOffset() == offset).findFirst().orElse(null);
-        }
-        return null;
     }
 
     public void analyze(Database database, InputReader inputReader, OutputWriter outputWriter) {

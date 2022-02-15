@@ -56,6 +56,11 @@ public class ModuleRefSymbol extends Symbol implements Type {
     }
 
     @Override
+    public SourceCodeRef getFieldRef(String name) {
+        return null;
+    }
+
+    @Override
     public FunctionType resolveMethod(String name) {
         var symbol = moduleScope.resolveLocal(name);
         if (symbol instanceof FunctionType) {

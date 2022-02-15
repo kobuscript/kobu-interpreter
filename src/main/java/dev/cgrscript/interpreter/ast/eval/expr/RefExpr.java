@@ -37,7 +37,7 @@ import dev.cgrscript.interpreter.error.eval.NullPointerError;
 
 import java.util.Objects;
 
-public class RefExpr implements Expr, HasTypeScope, MemoryReference {
+public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementRef {
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -53,9 +53,13 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference {
 
     private boolean assignMode;
 
-    public RefExpr(SourceCodeRef sourceCodeRef, String varName) {
+    private SourceCodeRef elementRef;
+
+    public RefExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String varName) {
         this.sourceCodeRef = sourceCodeRef;
         this.varName = varName;
+
+        moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
     }
 
     @Override
@@ -68,16 +72,19 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference {
                 return;
             }
             if (symbol instanceof VariableSymbol) {
+                this.elementRef = symbol.getSourceCodeRef();
                 this.type = ((VariableSymbol) symbol).getType();
                 return;
             }
             if (!assignMode) {
                 if (symbol instanceof RuleSymbol) {
                     this.ruleSymbol = (RuleSymbol) symbol;
+                    this.elementRef = this.ruleSymbol.getSourceCodeRef();
                     this.type = BuiltinScope.RULE_REF_TYPE;
                     return;
                 }
                 if (symbol instanceof ModuleRefSymbol) {
+                    this.elementRef = symbol.getSourceCodeRef();
                     this.type = (ModuleRefSymbol) symbol;
                     return;
                 }
@@ -93,6 +100,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference {
                 this.type = UnknownType.INSTANCE;
                 return;
             }
+            this.elementRef = typeScope.getFieldRef(varName);
             this.type = field;
         }
     }
@@ -182,5 +190,10 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference {
             throw new InternalInterpreterError("Can't update a field of: " + valueScope.getClass().getName(),
                     valueScope.getSourceCodeRef());
         }
+    }
+
+    @Override
+    public SourceCodeRef getElementRef() {
+        return elementRef;
     }
 }

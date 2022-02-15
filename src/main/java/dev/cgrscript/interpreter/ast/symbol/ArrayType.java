@@ -49,6 +49,11 @@ public class ArrayType implements Type {
     }
 
     @Override
+    public SourceCodeRef getSourceCodeRef() {
+        return null;
+    }
+
+    @Override
     public String getName() {
         return elementType.getName() + "[]";
     }
@@ -60,6 +65,11 @@ public class ArrayType implements Type {
 
     @Override
     public Type resolveField(String name) {
+        return null;
+    }
+
+    @Override
+    public SourceCodeRef getFieldRef(String name) {
         return null;
     }
 

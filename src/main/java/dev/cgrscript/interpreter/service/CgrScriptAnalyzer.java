@@ -28,13 +28,16 @@ import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
 import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
+import dev.cgrscript.interpreter.ast.eval.HasElementRef;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
+import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.CgrScriptError;
 import dev.cgrscript.interpreter.error.ParserError;
 import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.file_system.CgrFile;
 import dev.cgrscript.interpreter.file_system.CgrFileSystem;
+import dev.cgrscript.interpreter.file_system.CgrScriptFile;
 import dev.cgrscript.interpreter.input.FileFetcher;
 import dev.cgrscript.interpreter.input.InputNativeFunctionRegistry;
 import dev.cgrscript.interpreter.input.InputReader;
@@ -143,40 +146,24 @@ public class CgrScriptAnalyzer {
         return moduleLoader.findModuleFile(projectFile, refFile, moduleId);
     }
 
-    public synchronized CgrElementDescriptor getTypeModule(CgrFile refFile, String typeName) {
+    public synchronized CgrElementDescriptor getTypeDescriptor(CgrFile refFile, String typeName) {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile);
-        return moduleLoader.getTypeModule(refFile, typeName);
+        return moduleLoader.getTypeDescriptor(refFile, typeName);
     }
 
-    public synchronized CgrElementDescriptor getFieldType(CgrFile refFile, String typeName, String fieldName) {
+    public synchronized SourceCodeRef getElementRef(CgrFile refFile, int offset) {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile);
-        return moduleLoader.getFieldType(refFile, typeName, fieldName);
-    }
-
-    public synchronized CgrElementDescriptor getFunctionModule(CgrFile refFile, String functionName, String scope) {
-        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
-        ModuleLoader moduleLoader = getModuleLoader(projectFile);
-        return moduleLoader.getFunctionModule(refFile, functionName, scope);
-    }
-
-    public synchronized CgrElementDescriptor getFunctionReturnType(CgrFile refFile, String functionName, String scope) {
-        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
-        ModuleLoader moduleLoader = getModuleLoader(projectFile);
-        return moduleLoader.getFunctionReturnType(refFile, functionName, scope);
-    }
-
-    public synchronized CgrElementDescriptor getRuleModule(CgrFile refFile, String ruleName, String scope) {
-        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
-        ModuleLoader moduleLoader = getModuleLoader(projectFile);
-        return moduleLoader.getRuleModule(refFile, ruleName, scope);
-    }
-
-    public synchronized CgrElementDescriptor getReferenceType(CgrFile refFile, String varName, int offset, String fieldName) {
-        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
-        ModuleLoader moduleLoader = getModuleLoader(projectFile);
-        return moduleLoader.getReferenceType(refFile, varName, offset, fieldName);
+        CgrScriptFile script = moduleLoader.loadScript(refFile);
+        if (script != null) {
+            ModuleScope module = moduleLoader.getScope(script.extractModuleId());
+            HasElementRef elementRef = module.getRef(offset);
+            if (elementRef != null) {
+                return elementRef.getElementRef();
+            }
+        }
+        return null;
     }
 
     public String loadBuiltinModule(String moduleId) {

@@ -31,11 +31,15 @@ import java.util.Comparator;
 
 public interface Type extends AstNode {
 
+    SourceCodeRef getSourceCodeRef();
+
     String getName();
 
     String getIdentifier();
 
     Type resolveField(String name);
+
+    SourceCodeRef getFieldRef(String name);
 
     FunctionType resolveMethod(String name);
 

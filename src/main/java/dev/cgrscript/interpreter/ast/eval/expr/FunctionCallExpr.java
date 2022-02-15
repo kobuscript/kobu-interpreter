@@ -24,10 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.expr;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
-import dev.cgrscript.interpreter.ast.eval.Expr;
-import dev.cgrscript.interpreter.ast.eval.HasTypeScope;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ModuleRefValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.*;
@@ -40,7 +37,7 @@ import dev.cgrscript.interpreter.error.eval.NullPointerError;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FunctionCallExpr implements Expr, HasTypeScope {
+public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -56,10 +53,13 @@ public class FunctionCallExpr implements Expr, HasTypeScope {
 
     private Type type;
 
-    public FunctionCallExpr(SourceCodeRef sourceCodeRef, String functionName, List<FunctionArgExpr> args) {
+    public FunctionCallExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef,
+                            String functionName, List<FunctionArgExpr> args) {
         this.sourceCodeRef = sourceCodeRef;
         this.functionName = functionName;
         this.args = args;
+
+        moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
     }
 
     @Override
@@ -172,5 +172,10 @@ public class FunctionCallExpr implements Expr, HasTypeScope {
     @Override
     public void setValueScope(ValueExpr valueScope) {
         this.valueScope = valueScope;
+    }
+
+    @Override
+    public SourceCodeRef getElementRef() {
+        return functionType != null ? functionType.getSourceCodeRef() : null;
     }
 }
