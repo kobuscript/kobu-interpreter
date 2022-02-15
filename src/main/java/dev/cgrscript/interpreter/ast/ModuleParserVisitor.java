@@ -34,7 +34,7 @@ import dev.cgrscript.interpreter.error.analyzer.NativeFunctionNotFoundError;
 import dev.cgrscript.interpreter.file_system.ScriptRef;
 import dev.cgrscript.interpreter.module.ModuleLoader;
 import dev.cgrscript.interpreter.ast.symbol.*;
-import dev.cgrscript.parser.CgrScriptParser;
+import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.List;

@@ -29,6 +29,7 @@ import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
 import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
 import dev.cgrscript.interpreter.ast.eval.HasElementRef;
+import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
@@ -83,6 +84,10 @@ public class CgrScriptAnalyzer {
     }
 
     public synchronized List<CgrScriptError> analyze(CgrFile file) {
+        return analyze(file, false);
+    }
+
+    public synchronized List<CgrScriptError> analyze(CgrFile file, boolean ignoreErrors) {
 
         CgrFile projectFile = fileSystem.findProjectDefinition(file);
         ModuleLoader moduleLoader = getModuleLoader(projectFile);
@@ -100,11 +105,15 @@ public class CgrScriptAnalyzer {
         }
 
         if (addErrors(file, errors, parserErrorListener)) {
-            return errors;
+            if (!ignoreErrors) {
+                return errors;
+            }
         }
 
         if (addErrors(file, errors, moduleScope)) {
-            return errors;
+            if (!ignoreErrors) {
+                return errors;
+            }
         }
 
         EvalTreeParserVisitor evalTreeParserVisitor = new EvalTreeParserVisitor(moduleLoader, moduleScope, parserErrorListener);
@@ -112,11 +121,15 @@ public class CgrScriptAnalyzer {
             moduleLoader.visit(moduleScope.getModuleId(), evalTreeParserVisitor, AnalyzerStepEnum.EVAL_TREE);
         } catch (AnalyzerError e) {
             errors.addAll(e.toCgrScriptError(file));
-            return errors;
+            if (!ignoreErrors) {
+                return errors;
+            }
         }
 
         if (addErrors(file, errors, moduleScope)) {
-            return errors;
+            if (!ignoreErrors) {
+                return errors;
+            }
         }
 
         TypeHierarchyParserVisitor typeHierarchyParserVisitor = new TypeHierarchyParserVisitor(moduleLoader, moduleScope, parserErrorListener);
@@ -124,17 +137,23 @@ public class CgrScriptAnalyzer {
             moduleLoader.visit(moduleScope.getModuleId(), typeHierarchyParserVisitor, AnalyzerStepEnum.TYPE_HIERARCHY);
         } catch (AnalyzerError e) {
             errors.addAll(e.toCgrScriptError(file));
-            return errors;
+            if (!ignoreErrors) {
+                return errors;
+            }
         }
 
         if (addErrors(file, errors, moduleScope)) {
-            return errors;
+            if (!ignoreErrors) {
+                return errors;
+            }
         }
 
         moduleScope.analyze(database, inputReader, outputWriter);
 
         if (addErrors(file, errors, moduleScope)) {
-            return errors;
+            if (!ignoreErrors) {
+                return errors;
+            }
         }
 
         return errors;
@@ -166,6 +185,11 @@ public class CgrScriptAnalyzer {
             }
         }
         return null;
+    }
+
+    public synchronized List<SymbolDescriptor> getSuggestions(CgrFile refFile, int offset) {
+
+        return new ArrayList<>();
     }
 
     public String loadBuiltinModule(String moduleId) {

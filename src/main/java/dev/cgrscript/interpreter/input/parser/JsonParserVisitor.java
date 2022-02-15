@@ -34,8 +34,8 @@ import dev.cgrscript.interpreter.ast.symbol.ArrayType;
 import dev.cgrscript.interpreter.ast.symbol.Type;
 import dev.cgrscript.interpreter.ast.utils.NumberParser;
 import dev.cgrscript.interpreter.ast.utils.RecordFactory;
-import dev.cgrscript.json.JSONBaseVisitor;
-import dev.cgrscript.json.JSONParser;
+import dev.cgrscript.antlr.json.JSONBaseVisitor;
+import dev.cgrscript.antlr.json.JSONParser;
 
 import java.util.ArrayList;
 import java.util.List;

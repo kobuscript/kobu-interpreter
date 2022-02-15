@@ -24,8 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.input;
 
-import dev.cgrscript.csv.CSVLexer;
-import dev.cgrscript.csv.CSVParser;
+import dev.cgrscript.antlr.csv.CSVLexer;
+import dev.cgrscript.antlr.csv.CSVParser;
 import dev.cgrscript.interpreter.ast.eval.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
@@ -33,8 +33,8 @@ import dev.cgrscript.interpreter.ast.symbol.ArrayType;
 import dev.cgrscript.interpreter.ast.symbol.Type;
 import dev.cgrscript.interpreter.input.parser.CsvParserVisitor;
 import dev.cgrscript.interpreter.input.parser.JsonParserVisitor;
-import dev.cgrscript.json.JSONLexer;
-import dev.cgrscript.json.JSONParser;
+import dev.cgrscript.antlr.json.JSONLexer;
+import dev.cgrscript.antlr.json.JSONParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 

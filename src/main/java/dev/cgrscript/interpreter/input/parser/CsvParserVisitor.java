@@ -24,8 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.input.parser;
 
-import dev.cgrscript.csv.CSVBaseVisitor;
-import dev.cgrscript.csv.CSVParser;
+import dev.cgrscript.antlr.csv.CSVBaseVisitor;
+import dev.cgrscript.antlr.csv.CSVParser;
 import dev.cgrscript.interpreter.ast.eval.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;

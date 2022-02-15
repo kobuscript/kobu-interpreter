@@ -35,7 +35,11 @@ import dev.cgrscript.interpreter.error.analyzer.UndefinedVariableError;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 import dev.cgrscript.interpreter.error.eval.NullPointerError;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementRef {
 
@@ -64,6 +68,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
 
     @Override
     public void analyze(EvalContext context) {
+
         if (typeScope == null) {
             var symbol = context.getCurrentScope().resolve(varName);
             if (symbol == null) {
@@ -196,4 +201,5 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     public SourceCodeRef getElementRef() {
         return elementRef;
     }
+
 }

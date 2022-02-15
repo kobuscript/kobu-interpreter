@@ -30,7 +30,7 @@ import dev.cgrscript.interpreter.error.analyzer.RecordInvalidSuperTypeError;
 import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
 import dev.cgrscript.interpreter.module.ModuleLoader;
 import dev.cgrscript.interpreter.ast.symbol.*;
-import dev.cgrscript.parser.CgrScriptParser;
+import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class TypeHierarchyParserVisitor extends CgrScriptParserVisitor<Void> {

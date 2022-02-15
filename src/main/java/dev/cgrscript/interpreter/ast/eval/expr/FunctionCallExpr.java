@@ -34,6 +34,8 @@ import dev.cgrscript.interpreter.error.analyzer.UndefinedFunctionName;
 import dev.cgrscript.interpreter.error.analyzer.UndefinedMethodError;
 import dev.cgrscript.interpreter.error.eval.NullPointerError;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,6 +66,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
     @Override
     public void analyze(EvalContext context) {
+
         if (typeScope == null) {
 
             var functionSymbol = context.getModuleScope().resolve(functionName);
@@ -178,4 +181,5 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
     public SourceCodeRef getElementRef() {
         return functionType != null ? functionType.getSourceCodeRef() : null;
     }
+
 }

@@ -1,6 +1,6 @@
 package dev.cgrscript.antlr;
 
-import dev.cgrscript.typescript.TypeScriptParser;
+import dev.cgrscript.antlr.typescript.TypeScriptParser;
 import org.antlr.v4.runtime.*;
 
 /**

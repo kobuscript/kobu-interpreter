@@ -42,7 +42,7 @@ import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.error.analyzer.*;
 import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
 import dev.cgrscript.interpreter.module.ModuleLoader;
-import dev.cgrscript.parser.CgrScriptParser;
+import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;

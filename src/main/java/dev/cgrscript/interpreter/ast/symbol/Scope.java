@@ -24,6 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import java.util.Collection;
+
 public interface Scope {
 
     Scope getEnclosingScope();
@@ -31,5 +33,7 @@ public interface Scope {
     void define(Symbol symbol);
 
     Symbol resolve(String name);
+
+    Collection<Symbol> getSymbols();
 
 }

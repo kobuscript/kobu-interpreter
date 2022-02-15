@@ -32,6 +32,7 @@ import dev.cgrscript.interpreter.ast.eval.function.global.rules.FireRulesFunctio
 import dev.cgrscript.interpreter.ast.eval.function.global.rules.InsertFunctionImpl;
 import dev.cgrscript.interpreter.ast.eval.function.global.rules.UpdateFunctionImpl;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,6 +71,11 @@ public class BuiltinScope implements Scope {
     @Override
     public Symbol resolve(String name) {
         return symbols.get(name);
+    }
+
+    @Override
+    public Collection<Symbol> getSymbols() {
+        return symbols.values();
     }
 
     private void buildScope() {

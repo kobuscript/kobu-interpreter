@@ -29,7 +29,7 @@ import dev.cgrscript.interpreter.module.ModuleLoader;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import dev.cgrscript.parser.CgrScriptParserBaseVisitor;
+import dev.cgrscript.antlr.cgrscript.CgrScriptParserBaseVisitor;
 
 public abstract class CgrScriptParserVisitor<T> extends CgrScriptParserBaseVisitor<T> {
 

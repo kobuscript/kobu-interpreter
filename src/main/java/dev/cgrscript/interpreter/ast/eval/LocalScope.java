@@ -24,13 +24,12 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval;
 
-import dev.cgrscript.interpreter.ast.symbol.*;
+import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
+import dev.cgrscript.interpreter.ast.symbol.Scope;
+import dev.cgrscript.interpreter.ast.symbol.Symbol;
 import dev.cgrscript.interpreter.error.analyzer.SymbolConflictError;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LocalScope implements Scope {
 
@@ -77,6 +76,11 @@ public class LocalScope implements Scope {
         return symbol;
     }
 
+    @Override
+    public Collection<Symbol> getSymbols() {
+        return symbols.values();
+    }
+
     public void setValue(String symbolName, ValueExpr value) {
         memory.put(symbolName, value);
     }
@@ -87,16 +91,10 @@ public class LocalScope implements Scope {
 
     public ValueExpr getValue(String symbolName) {
         var value = memory.get(symbolName);
-        if (value == null) {
-            if (enclosingScope instanceof LocalScope) {
-                return ((LocalScope) enclosingScope).getValue(symbolName);
-            } else if (enclosingScope instanceof ModuleScope){
-                var symbol = enclosingScope.resolve(symbolName);
-                if (symbol instanceof ModuleRefSymbol) {
-
-                }
-            }
+        if (value == null && enclosingScope instanceof LocalScope) {
+            return ((LocalScope) enclosingScope).getValue(symbolName);
         }
         return value;
     }
+
 }

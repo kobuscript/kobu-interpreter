@@ -1,6 +1,6 @@
 package dev.cgrscript.antlr;
 
-import dev.cgrscript.typescript.TypeScriptLexer;
+import dev.cgrscript.antlr.typescript.TypeScriptLexer;
 import org.antlr.v4.runtime.*;
 
 import java.util.Stack;

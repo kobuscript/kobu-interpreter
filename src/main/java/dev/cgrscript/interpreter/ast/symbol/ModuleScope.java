@@ -28,7 +28,6 @@ import dev.cgrscript.config.ProjectProperty;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.eval.HasElementRef;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.VarDeclExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
@@ -117,6 +116,13 @@ public class ModuleScope implements Scope {
 
     }
 
+    @Override
+    public Collection<Symbol> getSymbols() {
+        var result = new ArrayList<>(symbols.values());
+        result.addAll(builtinScope.getSymbols());
+        return result;
+    }
+
     public void registerRef(int offset, HasElementRef ref) {
         refsByOffset.put(offset, ref);
     }
@@ -145,7 +151,7 @@ public class ModuleScope implements Scope {
 
 
         } else {
-            dependency.getSymbols().forEach((name, symbol) -> {
+            dependency.getSymbolsMap().forEach((name, symbol) -> {
                 Symbol currentDef = symbols.get(name);
                 if (currentDef != null) {
                     addError(new SymbolConflictError(currentDef, symbol));
@@ -230,7 +236,7 @@ public class ModuleScope implements Scope {
         throw new AnalyzerErrorList(getAllErrors());
     }
 
-    public Map<String, Symbol> getSymbols() {
+    public Map<String, Symbol> getSymbolsMap() {
         return symbols;
     }
 
