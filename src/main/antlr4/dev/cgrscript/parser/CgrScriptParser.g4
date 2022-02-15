@@ -84,7 +84,7 @@ functionDecl : 'fun' ID LP functionDeclParam? RP COLON functionDeclRet LCB execS
                | 'fun' {notifyErrorListenersPrevToken("function name expected");}
                ;
 
-nativeDecl : 'def' 'native' ID LP functionDeclParam? RP COLON functionDeclRet ;
+nativeDecl : 'def' 'native' ID LP functionDeclParam? RP COLON functionDeclRet SEMI?;
 
 functionDeclRet : ( 'void' | type ) ;
 

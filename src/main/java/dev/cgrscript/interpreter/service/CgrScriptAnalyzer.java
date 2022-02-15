@@ -158,9 +158,11 @@ public class CgrScriptAnalyzer {
         CgrScriptFile script = moduleLoader.loadScript(refFile);
         if (script != null) {
             ModuleScope module = moduleLoader.getScope(script.extractModuleId());
-            HasElementRef elementRef = module.getRef(offset);
-            if (elementRef != null) {
-                return elementRef.getElementRef();
+            if (module != null) {
+                HasElementRef elementRef = module.getRef(offset);
+                if (elementRef != null) {
+                    return elementRef.getElementRef();
+                }
             }
         }
         return null;
