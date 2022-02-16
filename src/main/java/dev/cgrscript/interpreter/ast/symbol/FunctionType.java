@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface FunctionType {
 
@@ -36,4 +37,16 @@ public interface FunctionType {
 
     Type getReturnType();
 
+    default String getDescription() {
+        StringBuilder str = new StringBuilder();
+        str.append('(');
+        str.append(getParameters().stream().map(p -> p.getName() + ": " + p.getType().getName())
+                .collect(Collectors.joining(", ")));
+        str.append(')');
+        if (getReturnType() != null) {
+            str.append(": ").append(getReturnType().getName());
+        }
+
+        return str.toString();
+    }
 }

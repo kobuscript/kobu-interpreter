@@ -22,37 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.symbol;
+package dev.cgrscript.interpreter.ast.eval;
 
-import dev.cgrscript.interpreter.ast.AstNode;
-import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+public class FieldDescriptor {
 
-import java.util.Comparator;
-import java.util.List;
+    private final String name;
 
-public interface Type extends AstNode {
+    private final String typeName;
 
-    SourceCodeRef getSourceCodeRef();
+    public FieldDescriptor(String name, String typeName) {
+        this.name = name;
+        this.typeName = typeName;
+    }
 
-    String getName();
+    public String getName() {
+        return name;
+    }
 
-    String getIdentifier();
-
-    List<FieldDescriptor> getFields();
-
-    List<FunctionType> getMethods();
-
-    Type resolveField(String name);
-
-    SourceCodeRef getFieldRef(String name);
-
-    FunctionType resolveMethod(String name);
-
-    boolean isAssignableFrom(Type type);
-
-    Type getCommonSuperType(Type type);
-
-    Comparator<ValueExpr> getComparator();
+    public String getTypeName() {
+        return typeName;
+    }
 
 }

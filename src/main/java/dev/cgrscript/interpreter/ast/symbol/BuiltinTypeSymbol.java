@@ -24,7 +24,11 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class BuiltinTypeSymbol extends Symbol implements Type {
@@ -45,6 +49,18 @@ public abstract class BuiltinTypeSymbol extends Symbol implements Type {
     @Override
     public SourceCodeRef getFieldRef(String name) {
         return null;
+    }
+
+    @Override
+    public List<FieldDescriptor> getFields() {
+        List<FieldDescriptor> fields = new ArrayList<>();
+        this.fields.forEach((k, v) -> fields.add(new FieldDescriptor(k, v.getName())));
+        return fields;
+    }
+
+    @Override
+    public List<FunctionType> getMethods() {
+        return new ArrayList<>(methods.values());
     }
 
     @Override

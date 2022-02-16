@@ -34,12 +34,18 @@ public class SymbolDescriptor {
 
     private final String name;
 
+    private String description = "";
+
+    private String metadata = "";
+
     public SymbolDescriptor(Symbol symbol) {
         this.name = symbol.getName();
         if (symbol instanceof FunctionType) {
             this.type = SymbolTypeEnum.FUNCTION;
+            this.description = ((FunctionType)symbol).getDescription();
         } else if (symbol instanceof VariableSymbol) {
             this.type = SymbolTypeEnum.VARIABLE;
+            this.metadata = ((VariableSymbol)symbol).getType().getName();
         } else if (symbol instanceof Type) {
             this.type = SymbolTypeEnum.TYPE;
         } else if (symbol instanceof RuleSymbol) {
@@ -56,12 +62,35 @@ public class SymbolDescriptor {
         }
     }
 
+    public SymbolDescriptor(FieldDescriptor fieldDescriptor) {
+        this.type = SymbolTypeEnum.FIELD;
+        this.name = fieldDescriptor.getName();
+        this.metadata = fieldDescriptor.getTypeName();
+    }
+
+    public SymbolDescriptor(FunctionType functionType) {
+        this.type = SymbolTypeEnum.FUNCTION;
+        this.name = functionType.getName();
+        this.description = functionType.getDescription();
+    }
+
+    public SymbolDescriptor(SymbolTypeEnum type, String name, String description, String metadata) {
+        this.type = type;
+        this.name = name;
+        this.description = description;
+        this.metadata = metadata;
+    }
+
     public SymbolTypeEnum getType() {
         return type;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     @Override

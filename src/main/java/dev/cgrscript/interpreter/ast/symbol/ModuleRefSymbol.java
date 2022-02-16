@@ -24,9 +24,12 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 public class ModuleRefSymbol extends Symbol implements Type {
 
@@ -44,6 +47,22 @@ public class ModuleRefSymbol extends Symbol implements Type {
     @Override
     public String getIdentifier() {
         return getName();
+    }
+
+    @Override
+    public List<FieldDescriptor> getFields() {
+        List<FieldDescriptor> fields = new ArrayList<>();
+        for (Symbol symbol : moduleScope.getSymbols()) {
+            if (symbol instanceof RuleSymbol) {
+                fields.add(new FieldDescriptor(symbol.getName(), ((RuleSymbol)symbol).getRuleType().name()));
+            }
+        }
+        return fields;
+    }
+
+    @Override
+    public List<FunctionType> getMethods() {
+        return null;
     }
 
     @Override

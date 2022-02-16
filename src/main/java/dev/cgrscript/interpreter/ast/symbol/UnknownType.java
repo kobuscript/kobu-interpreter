@@ -24,9 +24,12 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 public class UnknownType implements Type {
 
@@ -48,6 +51,16 @@ public class UnknownType implements Type {
     @Override
     public String getIdentifier() {
         return getName();
+    }
+
+    @Override
+    public List<FieldDescriptor> getFields() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<FunctionType> getMethods() {
+        return new ArrayList<>();
     }
 
     @Override

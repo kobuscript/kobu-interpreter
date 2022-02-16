@@ -39,6 +39,7 @@ import dev.cgrscript.interpreter.ast.template.TemplateStatement;
 import dev.cgrscript.interpreter.ast.template.TemplateStaticContentStatement;
 import dev.cgrscript.interpreter.ast.utils.NumberParser;
 import dev.cgrscript.interpreter.error.AnalyzerError;
+import dev.cgrscript.interpreter.error.ParserError;
 import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.error.analyzer.*;
 import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
@@ -751,8 +752,15 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         boolean exprStatus = topLevelExpression;
         topLevelExpression = false;
 
-        var leftExprNode = visit(ctx.expr(0));
-        var rightExprNode = visit(ctx.expr(1));
+        AstNode leftExprNode = visit(ctx.expr(0));
+
+        AstNode rightExprNode = null;
+        if (ctx.expr().size() == 2) {
+            rightExprNode = visit(ctx.expr(1));
+        } else {
+            moduleScope.addError(new InvalidFieldAccessError(getSourceCodeRef(ctx.DOT())));
+            rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.DOT()), "");
+        }
 
         if (exprStatus && !(rightExprNode instanceof FunctionCallExpr)) {
             moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));

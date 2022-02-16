@@ -24,14 +24,12 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.array.*;
 import dev.cgrscript.interpreter.ast.utils.StringFunctions;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class ArrayType implements Type {
 
@@ -61,6 +59,16 @@ public class ArrayType implements Type {
     @Override
     public String getIdentifier() {
         return "ArrayOf" + elementType.getIdentifier();
+    }
+
+    @Override
+    public List<FieldDescriptor> getFields() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<FunctionType> getMethods() {
+        return new ArrayList<>(methods.values());
     }
 
     @Override

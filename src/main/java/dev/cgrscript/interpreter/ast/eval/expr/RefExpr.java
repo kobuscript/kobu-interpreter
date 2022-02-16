@@ -65,14 +65,22 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
         this.sourceCodeRef = sourceCodeRef;
         this.varName = varName;
 
-        moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
+        if (varName.equals("")) {
+            moduleScope.registerRef(sourceCodeRef.getStartOffset() + 1, this);
+        } else {
+            moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
+        }
     }
 
     @Override
     public void analyze(EvalContext context) {
-        this.symbolsInScope = context.getCurrentScope().getSymbolDescriptors();
-
         if (typeScope == null) {
+            this.symbolsInScope = context.getCurrentScope().getSymbolDescriptors();
+
+            if (varName.equals("")) {
+                return;
+            }
+
             var symbol = context.getCurrentScope().resolve(varName);
             if (symbol == null) {
                 context.getModuleScope().addError(new UndefinedVariableError(sourceCodeRef, varName));
@@ -102,6 +110,19 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             this.type = UnknownType.INSTANCE;
 
         } else {
+            List<SymbolDescriptor> symbols = new ArrayList<>();
+            for (FieldDescriptor field : typeScope.getFields()) {
+                symbols.add(new SymbolDescriptor(field));
+            }
+            for (FunctionType method : typeScope.getMethods()) {
+                symbols.add(new SymbolDescriptor(method));
+            }
+            this.symbolsInScope = symbols;
+
+            if (varName.equals("")) {
+                return;
+            }
+
             var field = typeScope.resolveField(varName);
             if (field == null) {
                 context.getModuleScope().addError(new UndefinedFieldError(sourceCodeRef, typeScope, varName));

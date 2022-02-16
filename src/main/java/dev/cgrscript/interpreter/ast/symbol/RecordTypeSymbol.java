@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.database.Database;
+import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.record.RecordEntriesMethodImpl;
 import dev.cgrscript.interpreter.ast.eval.function.record.RecordValuesMethodImpl;
@@ -58,6 +59,20 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     @Override
     public String getIdentifier() {
         return getName();
+    }
+
+    @Override
+    public List<FieldDescriptor> getFields() {
+        List<FieldDescriptor> fields = new ArrayList<>();
+
+        attributes.forEach((k, v) -> fields.add(new FieldDescriptor(k, v.getType().getName())));
+
+        return fields;
+    }
+
+    @Override
+    public List<FunctionType> getMethods() {
+        return new ArrayList<>(methods.values());
     }
 
     public void setSuperType(RecordSuperType superType) {

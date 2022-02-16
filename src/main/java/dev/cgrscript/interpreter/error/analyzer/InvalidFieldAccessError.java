@@ -22,37 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.symbol;
+package dev.cgrscript.interpreter.error.analyzer;
 
-import dev.cgrscript.interpreter.ast.AstNode;
-import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import dev.cgrscript.interpreter.error.AnalyzerError;
 
-import java.util.Comparator;
-import java.util.List;
+public class InvalidFieldAccessError extends AnalyzerError {
 
-public interface Type extends AstNode {
+    public InvalidFieldAccessError(SourceCodeRef sourceCodeRef) {
+        super(sourceCodeRef);
+    }
 
-    SourceCodeRef getSourceCodeRef();
-
-    String getName();
-
-    String getIdentifier();
-
-    List<FieldDescriptor> getFields();
-
-    List<FunctionType> getMethods();
-
-    Type resolveField(String name);
-
-    SourceCodeRef getFieldRef(String name);
-
-    FunctionType resolveMethod(String name);
-
-    boolean isAssignableFrom(Type type);
-
-    Type getCommonSuperType(Type type);
-
-    Comparator<ValueExpr> getComparator();
-
+    @Override
+    public String getDescription() {
+        return "identifier expected";
+    }
 }

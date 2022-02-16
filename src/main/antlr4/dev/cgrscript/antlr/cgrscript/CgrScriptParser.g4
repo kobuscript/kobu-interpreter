@@ -227,7 +227,7 @@ expr : record                                                                   
            {notifyErrorListenersPrevToken("Only tuples with two values are supported");}            #pairErr5
        | functionCallExpr                                                                           #functionCallProxyExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
-       | expr DOT expr                                                                              #fieldAccessExpr
+       | expr DOT expr?                                                                              #fieldAccessExpr
        | expr ( STAR | DIV ) expr                                                                   #factorExpr
        | expr ( PLUS | MINUS ) expr                                                                 #addSubExpr
        | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS ) expr    #eqExpr

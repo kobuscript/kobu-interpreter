@@ -24,13 +24,12 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.pair.PairLeftMethodImpl;
 import dev.cgrscript.interpreter.ast.eval.function.pair.PairRightMethodImpl;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class PairType implements Type {
 
@@ -67,6 +66,16 @@ public class PairType implements Type {
     @Override
     public String getIdentifier() {
         return "PairOf" + leftType.getIdentifier() + "And" + rightType.getIdentifier();
+    }
+
+    @Override
+    public List<FieldDescriptor> getFields() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<FunctionType> getMethods() {
+        return new ArrayList<>(methods.values());
     }
 
     @Override
