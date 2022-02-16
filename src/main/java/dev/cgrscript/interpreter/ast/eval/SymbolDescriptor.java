@@ -1,6 +1,28 @@
-package dev.cgrscript.interpreter.ast.eval;
+/*
+MIT License
 
-import dev.cgrscript.interpreter.ast.symbol.*;
+Copyright (c) 2022 Luiz Mineo
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
+
+package dev.cgrscript.interpreter.ast.eval;
 
 import java.util.Objects;
 
@@ -10,26 +32,9 @@ public class SymbolDescriptor {
 
     private final String name;
 
-    public SymbolDescriptor(Symbol symbol) {
-        this.name = symbol.getName();
-        if (symbol instanceof FunctionType) {
-            this.type = SymbolTypeEnum.FUNCTION;
-        } else if (symbol instanceof VariableSymbol) {
-            this.type = SymbolTypeEnum.VARIABLE;
-        } else if (symbol instanceof Type) {
-            this.type = SymbolTypeEnum.TYPE;
-        } else if (symbol instanceof RuleSymbol) {
-            RuleSymbol rule = (RuleSymbol) symbol;
-            if (rule.getRuleType() == RuleTypeEnum.RULE) {
-                this.type = SymbolTypeEnum.RULE;
-            } else if (rule.getRuleType() == RuleTypeEnum.TEMPLATE) {
-                this.type = SymbolTypeEnum.TEMPLATE;
-            } else {
-                this.type = SymbolTypeEnum.FILE;
-            }
-        } else {
-            throw new IllegalArgumentException("invalid symbol type: " + symbol.getClass().getName());
-        }
+    public SymbolDescriptor(SymbolTypeEnum type, String name) {
+        this.type = type;
+        this.name = name;
     }
 
     public SymbolTypeEnum getType() {

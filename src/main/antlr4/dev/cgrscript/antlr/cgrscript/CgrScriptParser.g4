@@ -45,13 +45,9 @@ singleStat: varDecl
             | assignment
             | breakStat
             | continueStat
-            | functionCallStat
+            | expr
             | emptyExpr
             ;
-
-functionCallStat : functionCallExpr             #globalFunctionCallStat
-                   | expr DOT functionCallExpr  #methodCallStat
-                   ;
 
 emptyExpr: SEMI ;
 
