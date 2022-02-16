@@ -36,7 +36,7 @@ public class PrintFunctionImpl extends BuiltinGlobalFunction {
 
     @Override
     protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        ValueExpr valueExpr = args.get("str");
+        ValueExpr valueExpr = args.get("obj");
         if (valueExpr instanceof StringValueExpr) {
             System.out.println(((StringValueExpr)valueExpr).getValue());
         } else {

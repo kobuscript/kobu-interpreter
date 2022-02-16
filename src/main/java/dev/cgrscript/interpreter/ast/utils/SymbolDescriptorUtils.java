@@ -22,33 +22,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.symbol;
+package dev.cgrscript.interpreter.ast.utils;
+
+import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
+import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-public interface FunctionType {
+public class SymbolDescriptorUtils {
 
-    String getName();
+    private static final List<SymbolDescriptor> keywords = List.of(
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "if", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "for", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "while", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "var", "", ""));
 
-    SourceCodeRef getSourceCodeRef();
-
-    List<FunctionParameter> getParameters();
-
-    Type getReturnType();
-
-    default String getDescription() {
-        StringBuilder str = new StringBuilder();
-        str.append('(');
-        str.append(getParameters().stream().map(FunctionParameter::getDescription)
-                .collect(Collectors.joining(", ")));
-        str.append(')');
-        if (getReturnType() != null) {
-            str.append(": ").append(getReturnType().getName());
-        } else {
-            str.append(": void");
-        }
-
-        return str.toString();
+    public static List<SymbolDescriptor> getKeywords() {
+        return keywords;
     }
+
 }

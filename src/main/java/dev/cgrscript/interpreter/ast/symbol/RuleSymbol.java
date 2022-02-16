@@ -104,10 +104,12 @@ public class RuleSymbol extends Symbol implements HasExpr {
         }
         var context = new EvalContext(moduleScope, database, inputReader, outputWriter);
         int errors = moduleScope.getErrors() != null ? moduleScope.getErrors().size() : 0;
-        query.analyze(context);
-        if (moduleScope.getErrors() == null || errors == moduleScope.getErrors().size()) {
-            //analyze block if the query has no errors
-            context.analyzeBlock(block);
+        if (query != null) {
+            query.analyze(context);
+            if (moduleScope.getErrors() == null || errors == moduleScope.getErrors().size()) {
+                //analyze block if the query has no errors
+                context.analyzeBlock(block);
+            }
         }
     }
 

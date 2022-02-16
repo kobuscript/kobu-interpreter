@@ -117,7 +117,7 @@ public class BuiltinScope implements Scope {
                 new FunctionParameter("records", recordArrayType, false));
 
         var printFunc = new BuiltinFunctionSymbol("print", new PrintFunctionImpl(),
-                new FunctionParameter("str", ANY_TYPE, false));
+                new FunctionParameter("obj", ANY_TYPE, false));
 
         symbols.put("env", envVarFunc);
         symbols.put("property", propVarFunc);

@@ -27,9 +27,9 @@ package dev.cgrscript.interpreter.error.analyzer;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 
-public class InvalidFieldAccessError extends AnalyzerError {
+public class IdentifierExpectedError extends AnalyzerError {
 
-    public InvalidFieldAccessError(SourceCodeRef sourceCodeRef) {
+    public IdentifierExpectedError(SourceCodeRef sourceCodeRef) {
         super(sourceCodeRef);
     }
 

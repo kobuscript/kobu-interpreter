@@ -68,6 +68,8 @@ public class ModuleScope implements Scope {
 
     private final Map<Integer, HasElementRef> refsByOffset = new HashMap<>();
 
+    private int maxRefOffset = 0;
+
     private List<AnalyzerError> errors;
 
     private List<AnalyzerError> dependenciesErrors;
@@ -124,11 +126,16 @@ public class ModuleScope implements Scope {
     }
 
     public void registerRef(int offset, HasElementRef ref) {
+        maxRefOffset = Math.max(maxRefOffset, offset);
         refsByOffset.put(offset, ref);
     }
 
     public HasElementRef getRef(int offset) {
-        return refsByOffset.get(offset);
+        var elem = refsByOffset.get(offset);
+        while (elem == null && offset <= maxRefOffset) {
+            elem = refsByOffset.get(++offset);
+        }
+        return elem;
     }
 
     public Symbol resolveLocal(String name) {

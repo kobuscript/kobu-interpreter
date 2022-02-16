@@ -126,8 +126,8 @@ recordField : ID COLON exprWrapper ( COMMA recordField )?
               | ID COLON exprWrapper COMMA
               | ID COLON? {notifyErrorListenersPrevToken("value expected");};
 
-deftemplate : 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template TEMPLATE_END
-              | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template {notifyErrorListenersPrevToken("'}->' expected");}
+deftemplate : 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? TEMPLATE_END
+              | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? RCB? {notifyErrorListenersPrevToken("'}->' expected");}
               | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
               | 'def' 'template' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'<-{' expected");}
               | 'def' 'template' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query expected");}
@@ -227,12 +227,18 @@ expr : record                                                                   
            {notifyErrorListenersPrevToken("Only tuples with two values are supported");}            #pairErr5
        | functionCallExpr                                                                           #functionCallProxyExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
-       | expr DOT expr?                                                                              #fieldAccessExpr
+       | expr DOT expr                                                                              #fieldAccessExpr
+       | expr DOT                                                                                   #fieldAccessErr
        | expr ( STAR | DIV ) expr                                                                   #factorExpr
+       | expr ( STAR | DIV )                                                                        #factorErr
        | expr ( PLUS | MINUS ) expr                                                                 #addSubExpr
+       | expr ( PLUS | MINUS )                                                                      #addSubErr
        | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS ) expr    #eqExpr
+       | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS )         #eqErr
        | expr ( AND | OR ) expr                                                                     #logicExpr
+       | expr ( AND | OR )                                                                          #logicErr
        | NOT expr                                                                                   #notExpr
+       | NOT                                                                                        #notErrr
        | TRUE                                                                                       #trueExpr
        | FALSE                                                                                      #falseExpr
        | NULL                                                                                       #nullExpr

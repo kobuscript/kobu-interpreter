@@ -27,6 +27,7 @@ package dev.cgrscript.interpreter.ast.eval;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.symbol.Scope;
 import dev.cgrscript.interpreter.ast.symbol.Symbol;
+import dev.cgrscript.interpreter.ast.utils.SymbolDescriptorUtils;
 import dev.cgrscript.interpreter.error.analyzer.SymbolConflictError;
 
 import java.util.*;
@@ -114,6 +115,10 @@ public class LocalScope implements Scope {
                 }
             }
             scope = scope.getEnclosingScope();
+        }
+
+        if (typeSet.contains(SymbolTypeEnum.KEYWORD)) {
+            result.addAll(SymbolDescriptorUtils.getKeywords());
         }
 
         return result;

@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval;
 
+import dev.cgrscript.interpreter.ast.eval.function.BuiltinMethod;
 import dev.cgrscript.interpreter.ast.symbol.*;
 
 import java.util.Objects;
@@ -43,11 +44,17 @@ public class SymbolDescriptor {
         if (symbol instanceof FunctionType) {
             this.type = SymbolTypeEnum.FUNCTION;
             this.description = ((FunctionType)symbol).getDescription();
+            if (symbol.getSourceCodeRef() != null) {
+                this.metadata = symbol.getSourceCodeRef().getModuleId();
+            }
         } else if (symbol instanceof VariableSymbol) {
             this.type = SymbolTypeEnum.VARIABLE;
             this.metadata = ((VariableSymbol)symbol).getType().getName();
         } else if (symbol instanceof Type) {
             this.type = SymbolTypeEnum.TYPE;
+            if (symbol.getSourceCodeRef() != null) {
+                this.metadata = symbol.getSourceCodeRef().getModuleId();
+            }
         } else if (symbol instanceof RuleSymbol) {
             RuleSymbol rule = (RuleSymbol) symbol;
             if (rule.getRuleType() == RuleTypeEnum.RULE) {
@@ -56,6 +63,9 @@ public class SymbolDescriptor {
                 this.type = SymbolTypeEnum.TEMPLATE;
             } else {
                 this.type = SymbolTypeEnum.FILE;
+            }
+            if (symbol.getSourceCodeRef() != null) {
+                this.metadata = symbol.getSourceCodeRef().getModuleId();
             }
         } else {
             throw new IllegalArgumentException("invalid symbol type: " + symbol.getClass().getName());
@@ -91,6 +101,10 @@ public class SymbolDescriptor {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getMetadata() {
+        return metadata;
     }
 
     @Override

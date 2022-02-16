@@ -62,4 +62,13 @@ public class FunctionParameter {
     public boolean isOptional() {
         return optional;
     }
+
+    public String getDescription() {
+        String str = name;
+        if (optional) {
+            str += "?";
+        }
+        str += ": " + type.getName();
+        return str;
+    }
 }
