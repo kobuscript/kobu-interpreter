@@ -75,7 +75,13 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     @Override
     public void analyze(EvalContext context) {
         if (typeScope == null) {
-            this.symbolsInScope = context.getCurrentScope().getSymbolDescriptors();
+            this.symbolsInScope = context.getCurrentScope()
+                    .getSymbolDescriptors(SymbolTypeEnum.VARIABLE,
+                            SymbolTypeEnum.FUNCTION,
+                            SymbolTypeEnum.RULE,
+                            SymbolTypeEnum.TEMPLATE,
+                            SymbolTypeEnum.FILE,
+                            SymbolTypeEnum.KEYWORD);
 
             if (varName.equals("")) {
                 return;

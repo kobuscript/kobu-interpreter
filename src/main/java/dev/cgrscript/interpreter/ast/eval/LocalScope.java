@@ -97,13 +97,21 @@ public class LocalScope implements Scope {
         return value;
     }
 
-    public Collection<SymbolDescriptor> getSymbolDescriptors() {
+    public Collection<SymbolDescriptor> getSymbolDescriptors(SymbolTypeEnum... types) {
+        Set<SymbolTypeEnum> typeSet = new HashSet<>(Arrays.asList(types));
+        return getSymbolDescriptors(typeSet);
+    }
+
+    public Collection<SymbolDescriptor> getSymbolDescriptors(Set<SymbolTypeEnum> typeSet) {
         Collection<SymbolDescriptor> result = new LinkedHashSet<>();
         Scope scope = this;
 
         while (scope != null) {
             for (Symbol symbol : scope.getSymbols()) {
-                result.add(new SymbolDescriptor(symbol));
+                SymbolDescriptor symbolDescriptor = new SymbolDescriptor(symbol);
+                if (typeSet.contains(symbolDescriptor.getType())) {
+                    result.add(symbolDescriptor);
+                }
             }
             scope = scope.getEnclosingScope();
         }

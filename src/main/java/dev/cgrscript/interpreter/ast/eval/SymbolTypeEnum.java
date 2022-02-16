@@ -26,6 +26,7 @@ package dev.cgrscript.interpreter.ast.eval;
 
 public enum SymbolTypeEnum {
 
+    KEYWORD,
     VARIABLE,
     FIELD,
     FUNCTION,

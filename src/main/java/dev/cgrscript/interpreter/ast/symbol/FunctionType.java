@@ -45,6 +45,8 @@ public interface FunctionType {
         str.append(')');
         if (getReturnType() != null) {
             str.append(": ").append(getReturnType().getName());
+        } else {
+            str.append(": void");
         }
 
         return str.toString();
