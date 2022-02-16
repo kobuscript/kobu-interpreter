@@ -188,7 +188,21 @@ public class CgrScriptAnalyzer {
     }
 
     public synchronized List<SymbolDescriptor> getSuggestions(CgrFile refFile, int offset) {
+        analyze(refFile, true);
 
+        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile);
+
+        CgrScriptFile script = moduleLoader.loadScript(refFile);
+        if (script != null) {
+            ModuleScope module = moduleLoader.getScope(script.extractModuleId());
+            if (module != null) {
+                HasElementRef elementRef = module.getRef(offset);
+                if (elementRef != null) {
+                    return elementRef.requestSuggestions();
+                }
+            }
+        }
         return new ArrayList<>();
     }
 

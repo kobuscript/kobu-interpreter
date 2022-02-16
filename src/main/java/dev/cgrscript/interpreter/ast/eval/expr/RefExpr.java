@@ -59,6 +59,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
 
     private SourceCodeRef elementRef;
 
+    private Collection<SymbolDescriptor> symbolsInScope;
+
     public RefExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String varName) {
         this.sourceCodeRef = sourceCodeRef;
         this.varName = varName;
@@ -68,6 +70,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
 
     @Override
     public void analyze(EvalContext context) {
+        this.symbolsInScope = context.getCurrentScope().getSymbolDescriptors();
 
         if (typeScope == null) {
             var symbol = context.getCurrentScope().resolve(varName);
@@ -200,6 +203,11 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     @Override
     public SourceCodeRef getElementRef() {
         return elementRef;
+    }
+
+    @Override
+    public List<SymbolDescriptor> requestSuggestions() {
+        return new ArrayList<>(symbolsInScope);
     }
 
 }

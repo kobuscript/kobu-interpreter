@@ -24,6 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval;
 
+import dev.cgrscript.interpreter.ast.symbol.*;
+
 import java.util.Objects;
 
 public class SymbolDescriptor {
@@ -32,9 +34,26 @@ public class SymbolDescriptor {
 
     private final String name;
 
-    public SymbolDescriptor(SymbolTypeEnum type, String name) {
-        this.type = type;
-        this.name = name;
+    public SymbolDescriptor(Symbol symbol) {
+        this.name = symbol.getName();
+        if (symbol instanceof FunctionType) {
+            this.type = SymbolTypeEnum.FUNCTION;
+        } else if (symbol instanceof VariableSymbol) {
+            this.type = SymbolTypeEnum.VARIABLE;
+        } else if (symbol instanceof Type) {
+            this.type = SymbolTypeEnum.TYPE;
+        } else if (symbol instanceof RuleSymbol) {
+            RuleSymbol rule = (RuleSymbol) symbol;
+            if (rule.getRuleType() == RuleTypeEnum.RULE) {
+                this.type = SymbolTypeEnum.RULE;
+            } else if (rule.getRuleType() == RuleTypeEnum.TEMPLATE) {
+                this.type = SymbolTypeEnum.TEMPLATE;
+            } else {
+                this.type = SymbolTypeEnum.FILE;
+            }
+        } else {
+            throw new IllegalArgumentException("invalid symbol type: " + symbol.getClass().getName());
+        }
     }
 
     public SymbolTypeEnum getType() {

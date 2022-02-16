@@ -55,6 +55,8 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
     private Type type;
 
+    private Collection<SymbolDescriptor> symbolsInScope;
+
     public FunctionCallExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef,
                             String functionName, List<FunctionArgExpr> args) {
         this.sourceCodeRef = sourceCodeRef;
@@ -66,6 +68,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
     @Override
     public void analyze(EvalContext context) {
+        this.symbolsInScope = context.getCurrentScope().getSymbolDescriptors();
 
         if (typeScope == null) {
 
@@ -180,6 +183,11 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
     @Override
     public SourceCodeRef getElementRef() {
         return functionType != null ? functionType.getSourceCodeRef() : null;
+    }
+
+    @Override
+    public List<SymbolDescriptor> requestSuggestions() {
+        return new ArrayList<>(symbolsInScope);
     }
 
 }
