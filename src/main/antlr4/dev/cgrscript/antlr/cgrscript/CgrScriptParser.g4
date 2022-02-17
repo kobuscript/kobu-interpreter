@@ -88,10 +88,10 @@ functionDeclParam : ID '?'? COLON type ( COMMA functionDeclParam )?
                     | ID '?'? COLON? {notifyErrorListenersPrevToken("parameter type expected");}
                     ;
 
-ifStat : 'if' LP expr RP LCB execStat* RCB elseIfStat? elseStat?
-         | 'if' LP expr RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
-         | 'if' LP expr {notifyErrorListenersPrevToken("')' expected");}
-         | 'if' LP RP {notifyErrorListenersPrevToken("boolean expression expected");}
+ifStat : 'if' LP expr? RP LCB execStat* RCB elseIfStat? elseStat?
+         | 'if' LP expr? RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+         | 'if' LP expr? RP {notifyErrorListenersPrevToken("'{' expected");}
+         | 'if' LP expr? {notifyErrorListenersPrevToken("')' expected");}
          | 'if' {notifyErrorListenersPrevToken("'(' expected");}
          ;
 

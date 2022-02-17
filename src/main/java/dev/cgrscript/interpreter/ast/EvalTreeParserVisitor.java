@@ -400,6 +400,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitIfStat(CgrScriptParser.IfStatContext ctx) {
+        if (ctx.LP() != null && ctx.RP() != null && ctx.expr() == null) {
+            moduleScope.addError(new MissingExpressionError(getSourceCodeRef(ctx.LP())));
+        }
 
         topLevelExpression = false;
         var condExprNode = ctx.expr() != null ? visit(ctx.expr()) : null;
