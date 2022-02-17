@@ -956,7 +956,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         }
 
         StringBuilder str = new StringBuilder();
-        String source = ctx.STRING().getText();
+        String source = ctx.stringLiteral().getText();
         boolean escape = false;
         StringBuilder unicode = null;
         for (int i = 1; i < source.length() - 1; i++) {
@@ -974,6 +974,8 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
                     str.append('\b');
                 } else if (c == 'f') {
                     str.append('\f');
+                } else if (c == '"') {
+                    str.append('"');
                 } else if (c == 'u') {
                     unicode = new StringBuilder();
                 }
@@ -987,7 +989,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
                 str.append(c);
             }
         }
-        return new StringValueExpr(getSourceCodeRef(ctx.STRING()), str.toString());
+        return new StringValueExpr(getSourceCodeRef(ctx.stringLiteral()), str.toString());
     }
 
     @Override

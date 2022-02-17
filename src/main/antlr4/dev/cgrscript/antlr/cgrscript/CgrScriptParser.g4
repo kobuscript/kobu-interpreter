@@ -269,7 +269,7 @@ expr : record                                                                   
        | FALSE                                                                                      #falseExpr
        | NULL                                                                                       #nullExpr
        | ID                                                                                         #idExpr
-       | STRING                                                                                     #stringExpr
+       | stringLiteral                                                                              #stringExpr
        | NUMBER                                                                                     #numberExpr
        | LP expr RP                                                                                 #parenthesizedExpr
        ;
@@ -301,3 +301,7 @@ type : typeName                 #typeNameExpr
        ;
 
 typeName : ID ( DOT ID )? ;
+
+stringLiteral : OPEN_QUOTE STRING_CONTENT? CLOSE_QUOTE
+                | OPEN_QUOTE STRING_CONTENT? NEW_LINE {notifyErrorListenersPrevToken("illegal line end in string literal");}
+                ;

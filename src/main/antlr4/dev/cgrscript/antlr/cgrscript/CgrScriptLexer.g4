@@ -99,10 +99,7 @@ FILE_PATH_EXPR : '->' {this.SetPathMode(true);} -> pushMode(PATH_MODE) ;
 PATH_VARIABLE_END : {this.IsPathMode()}? '}' -> popMode ;
 RCB : '}' ;
 
-STRING : '"' (ESC | ~["\\])* '"' ;
-fragment ESC : '\\' (["\\/bfnrt] | UNICODE) ;
-fragment UNICODE : 'u' HEX HEX HEX HEX ;
-fragment HEX : [0-9a-fA-F] ;
+OPEN_QUOTE : '"' -> pushMode(STRING_MODE) ;
 
 NUMBER : '-'? INT '.' [0-9]+  // 1.35, 0.3, -4.5
         | '-'? INT // -3, 45
@@ -112,6 +109,13 @@ fragment INT : '0' | [1-9] [0-9]* ; // no leading zeros
 ID : [a-zA-Z_][a-zA-Z0-9_]* ;
 WS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
 BAD_CHARACTER : .+? ;
+
+mode STRING_MODE;
+
+STRING_CONTENT : (ESC | ~[\n"\\])+ ;
+fragment ESC : '\\' ["\\/bfnrt] ;
+NEW_LINE : '\n' -> popMode ;
+CLOSE_QUOTE : '"' -> popMode ;
 
 mode DEF_MODE;
 
