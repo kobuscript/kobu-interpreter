@@ -22,15 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.symbol;
+package dev.cgrscript.interpreter.ast.eval;
 
-import dev.cgrscript.database.Database;
-import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
-import dev.cgrscript.interpreter.input.InputReader;
-import dev.cgrscript.interpreter.writer.OutputWriter;
-
-public interface HasExpr {
-
-    void analyze(EvalModeEnum evalMode, Database database, InputReader inputReader, OutputWriter outputWriter);
-
+public enum EvalModeEnum {
+    ANALYZER_SERVICE,
+    EXECUTION
 }

@@ -70,13 +70,15 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
     public void analyze(EvalContext context) {
 
         if (typeScope == null) {
-            this.symbolsInScope = context.getCurrentScope()
-                    .getSymbolDescriptors(SymbolTypeEnum.VARIABLE,
-                            SymbolTypeEnum.FUNCTION,
-                            SymbolTypeEnum.RULE,
-                            SymbolTypeEnum.TEMPLATE,
-                            SymbolTypeEnum.FILE,
-                            SymbolTypeEnum.KEYWORD);
+            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+                this.symbolsInScope = context.getCurrentScope()
+                        .getSymbolDescriptors(SymbolTypeEnum.VARIABLE,
+                                SymbolTypeEnum.FUNCTION,
+                                SymbolTypeEnum.RULE,
+                                SymbolTypeEnum.TEMPLATE,
+                                SymbolTypeEnum.FILE,
+                                SymbolTypeEnum.KEYWORD);
+            }
 
             var functionSymbol = context.getModuleScope().resolve(functionName);
             if (!(functionSymbol instanceof FunctionType)) {
@@ -89,14 +91,16 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
             this.functionType = functionType;
 
         } else {
-            List<SymbolDescriptor> symbols = new ArrayList<>();
-            for (FieldDescriptor field : typeScope.getFields()) {
-                symbols.add(new SymbolDescriptor(field));
+            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+                List<SymbolDescriptor> symbols = new ArrayList<>();
+                for (FieldDescriptor field : typeScope.getFields()) {
+                    symbols.add(new SymbolDescriptor(field));
+                }
+                for (FunctionType method : typeScope.getMethods()) {
+                    symbols.add(new SymbolDescriptor(method));
+                }
+                this.symbolsInScope = symbols;
             }
-            for (FunctionType method : typeScope.getMethods()) {
-                symbols.add(new SymbolDescriptor(method));
-            }
-            this.symbolsInScope = symbols;
 
             var methodType = typeScope.resolveMethod(functionName);
             if (methodType == null) {

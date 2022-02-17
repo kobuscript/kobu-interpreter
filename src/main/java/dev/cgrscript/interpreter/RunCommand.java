@@ -28,6 +28,7 @@ import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
 import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
+import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.utils.ErrorMessageFormatter;
 import dev.cgrscript.interpreter.error.*;
@@ -103,7 +104,7 @@ public class RunCommand implements Callable<Integer> {
                     verbose ? OutputWriterLogTypeEnum.VERBOSE : OutputWriterLogTypeEnum.NORMAL,
                     new FileSystemWriterHandler(moduleScope.getProjectDir()));
 
-            moduleScope.analyze(database, inputReader, outputWriter);
+            moduleScope.analyze(EvalModeEnum.EXECUTION, database, inputReader, outputWriter);
 
             moduleScope.checkErrors();
 

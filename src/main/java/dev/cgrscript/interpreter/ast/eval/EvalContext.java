@@ -37,6 +37,8 @@ import java.util.Map;
 
 public class EvalContext {
 
+    private final EvalModeEnum evalMode;
+
     private final ModuleScope moduleScope;
 
     private final Database database;
@@ -57,9 +59,11 @@ public class EvalContext {
 
     private ValueExpr returnValue;
 
-    public EvalContext(ModuleScope moduleScope, Database database,
+    public EvalContext(EvalModeEnum evalMode,
+                       ModuleScope moduleScope, Database database,
                        InputReader inputReader, OutputWriter outputWriter,
                        FunctionSymbol function) {
+        this.evalMode = evalMode;
         this.moduleScope = moduleScope;
         this.database = database;
         this.inputReader = inputReader;
@@ -69,9 +73,11 @@ public class EvalContext {
         pushNewScope();
     }
 
-    public EvalContext(ModuleScope moduleScope, Database database,
+    public EvalContext(EvalModeEnum evalMode,
+                       ModuleScope moduleScope, Database database,
                        InputReader inputReader, OutputWriter outputWriter,
                        RuleContext ruleContext) {
+        this.evalMode = evalMode;
         this.moduleScope = moduleScope;
         this.database = database;
         this.inputReader = inputReader;
@@ -81,14 +87,20 @@ public class EvalContext {
         pushNewScope();
     }
 
-    public EvalContext(ModuleScope moduleScope, Database database,
+    public EvalContext(EvalModeEnum evalMode,
+                       ModuleScope moduleScope, Database database,
                        InputReader inputReader, OutputWriter outputWriter) {
+        this.evalMode = evalMode;
         this.moduleScope = moduleScope;
         this.database = database;
         this.inputReader = inputReader;
         this.outputWriter = outputWriter;
         loadProperties();
         pushNewScope();
+    }
+
+    public EvalModeEnum getEvalMode() {
+        return evalMode;
     }
 
     public LocalScope getCurrentScope() {
@@ -141,7 +153,7 @@ public class EvalContext {
     public ValueExpr evalFunction(FunctionType functionType, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
         if (functionType instanceof FunctionSymbol) {
             FunctionSymbol functionSymbol = (FunctionSymbol) functionType;
-            return functionSymbol.eval(args, database, inputReader, outputWriter);
+            return functionSymbol.eval(EvalModeEnum.EXECUTION, args, database, inputReader, outputWriter);
         } else if (functionType instanceof BuiltinFunctionSymbol) {
             BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) functionType;
             return builtinFunctionSymbol.getFunctionImpl().run(this, args, sourceCodeRef);

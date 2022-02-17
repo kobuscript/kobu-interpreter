@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.database.Database;
+import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.record.RecordEntriesMethodImpl;
@@ -298,7 +299,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     @Override
-    public void analyze(Database database, InputReader inputReader, OutputWriter outputWriter) {
+    public void analyze(EvalModeEnum evalMode, Database database, InputReader inputReader, OutputWriter outputWriter) {
         if (superType != null) {
             if (superType.hasSuperType(this)) {
                 module.addError(new CyclicRecordInheritanceError(superType.getSourceCodeRef(), this, superType));

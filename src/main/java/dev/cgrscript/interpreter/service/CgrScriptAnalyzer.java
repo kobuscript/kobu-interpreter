@@ -28,6 +28,7 @@ import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
 import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
+import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.HasElementRef;
 import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
@@ -84,10 +85,10 @@ public class CgrScriptAnalyzer {
     }
 
     public synchronized List<CgrScriptError> analyze(CgrFile file) {
-        return analyze(file, false);
+        return analyze(file, EvalModeEnum.EXECUTION);
     }
 
-    public synchronized List<CgrScriptError> analyze(CgrFile file, boolean ignoreErrors) {
+    public synchronized List<CgrScriptError> analyze(CgrFile file, EvalModeEnum evalMode) {
 
         CgrFile projectFile = fileSystem.findProjectDefinition(file);
         ModuleLoader moduleLoader = getModuleLoader(projectFile);
@@ -105,13 +106,13 @@ public class CgrScriptAnalyzer {
         }
 
         if (addErrors(file, errors, parserErrorListener)) {
-            if (!ignoreErrors) {
+            if (evalMode == EvalModeEnum.EXECUTION) {
                 return errors;
             }
         }
 
         if (addErrors(file, errors, moduleScope)) {
-            if (!ignoreErrors) {
+            if (evalMode == EvalModeEnum.EXECUTION) {
                 return errors;
             }
         }
@@ -121,13 +122,13 @@ public class CgrScriptAnalyzer {
             moduleLoader.visit(moduleScope.getModuleId(), evalTreeParserVisitor, AnalyzerStepEnum.EVAL_TREE);
         } catch (AnalyzerError e) {
             errors.addAll(e.toCgrScriptError(file));
-            if (!ignoreErrors) {
+            if (evalMode == EvalModeEnum.EXECUTION) {
                 return errors;
             }
         }
 
         if (addErrors(file, errors, moduleScope)) {
-            if (!ignoreErrors) {
+            if (evalMode == EvalModeEnum.EXECUTION) {
                 return errors;
             }
         }
@@ -137,21 +138,21 @@ public class CgrScriptAnalyzer {
             moduleLoader.visit(moduleScope.getModuleId(), typeHierarchyParserVisitor, AnalyzerStepEnum.TYPE_HIERARCHY);
         } catch (AnalyzerError e) {
             errors.addAll(e.toCgrScriptError(file));
-            if (!ignoreErrors) {
+            if (evalMode == EvalModeEnum.EXECUTION) {
                 return errors;
             }
         }
 
         if (addErrors(file, errors, moduleScope)) {
-            if (!ignoreErrors) {
+            if (evalMode == EvalModeEnum.EXECUTION) {
                 return errors;
             }
         }
 
-        moduleScope.analyze(database, inputReader, outputWriter);
+        moduleScope.analyze(evalMode, database, inputReader, outputWriter);
 
         if (addErrors(file, errors, moduleScope)) {
-            if (!ignoreErrors) {
+            if (evalMode == EvalModeEnum.EXECUTION) {
                 return errors;
             }
         }
@@ -188,7 +189,7 @@ public class CgrScriptAnalyzer {
     }
 
     public synchronized List<SymbolDescriptor> getSuggestions(CgrFile refFile, int offset) {
-        analyze(refFile, true);
+        analyze(refFile, EvalModeEnum.ANALYZER_SERVICE);
 
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile);

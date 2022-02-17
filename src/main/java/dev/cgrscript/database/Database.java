@@ -179,7 +179,8 @@ public class Database {
             RuleIndex currentIndex = getCurrentIndex();
             if (currentIndex == null) return;
             while ((fact = queue.poll()) != null) {
-                EvalContext factCtx = new EvalContext(context.getModuleScope(), context.getDatabase(),
+                EvalContext factCtx = new EvalContext(context.getEvalMode(),
+                        context.getModuleScope(), context.getDatabase(),
                         context.getInputParser(), context.getOutputWriter());
                 currentIndex.insertFact(factCtx, fact);
             }

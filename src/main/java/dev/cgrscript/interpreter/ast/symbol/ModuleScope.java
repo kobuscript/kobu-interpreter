@@ -26,6 +26,7 @@ package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.config.ProjectProperty;
 import dev.cgrscript.database.Database;
+import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.HasElementRef;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
@@ -170,13 +171,13 @@ public class ModuleScope implements Scope {
         addDependencyErrors(dependency.getErrors());
     }
 
-    public void analyze(Database database, InputReader inputReader, OutputWriter outputWriter) {
+    public void analyze(EvalModeEnum evalMode, Database database, InputReader inputReader, OutputWriter outputWriter) {
         for (ModuleScope module : loadedModules.values()) {
-            module.analyze(database, inputReader, outputWriter);
+            module.analyze(evalMode, database, inputReader, outputWriter);
         }
         for (Symbol sym : symbols.values()) {
             if (sym instanceof HasExpr) {
-                ((HasExpr) sym).analyze(database, inputReader, outputWriter);
+                ((HasExpr) sym).analyze(evalMode, database, inputReader, outputWriter);
             }
         }
     }
@@ -212,9 +213,9 @@ public class ModuleScope implements Scope {
             ArrayValueExpr argsArrayExpr = new ArrayValueExpr(new ArrayType(BuiltinScope.STRING_TYPE), values);
             List<ValueExpr> argList = new ArrayList<>();
             argList.add(argsArrayExpr);
-            function.eval(argList, database, inputReader, outputWriter);
+            function.eval(EvalModeEnum.EXECUTION, argList, database, inputReader, outputWriter);
         } else {
-            function.eval(new ArrayList<>(), database, inputReader, outputWriter);
+            function.eval(EvalModeEnum.EXECUTION, new ArrayList<>(), database, inputReader, outputWriter);
         }
 
     }

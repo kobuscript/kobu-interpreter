@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.Evaluable;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.database.Database;
@@ -78,8 +79,8 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
     }
 
     @Override
-    public void analyze(Database database, InputReader inputReader, OutputWriter outputWriter) {
-        var context = new EvalContext(moduleScope, database, inputReader, outputWriter, this);
+    public void analyze(EvalModeEnum evalMode, Database database, InputReader inputReader, OutputWriter outputWriter) {
+        var context = new EvalContext(evalMode, moduleScope, database, inputReader, outputWriter, this);
         var scope = context.getCurrentScope();
         for (FunctionParameter parameter : parameters) {
             VariableSymbol variableSymbol = new VariableSymbol(parameter.getSourceCodeRef(), parameter.getName(),
@@ -96,8 +97,8 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
         context.popBranch();
     }
 
-    public ValueExpr eval(List<ValueExpr> args, Database database, InputReader inputReader, OutputWriter outputWriter) {
-        var context = new EvalContext(moduleScope, database, inputReader, outputWriter, this);
+    public ValueExpr eval(EvalModeEnum evalMode, List<ValueExpr> args, Database database, InputReader inputReader, OutputWriter outputWriter) {
+        var context = new EvalContext(evalMode, moduleScope, database, inputReader, outputWriter, this);
         var scope = context.getCurrentScope();
         for (int i = 0; i < parameters.size(); i++) {
             FunctionParameter parameter = parameters.get(i);

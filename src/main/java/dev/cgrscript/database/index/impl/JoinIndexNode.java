@@ -83,7 +83,7 @@ public class JoinIndexNode extends TwoInputsIndexNode {
             }
 
             EvalContext context = accContextMap.computeIfAbsent(left.getMatchId(), key -> {
-                var ctx = new EvalContext(left.getContext().getModuleScope(),
+                var ctx = new EvalContext(left.getContext().getEvalMode(), left.getContext().getModuleScope(),
                         left.getContext().getDatabase(), left.getContext().getInputParser(),
                         left.getContext().getOutputWriter());
                 ctx.getCurrentScope().addAll(left.getContext().getCurrentScope());

@@ -66,7 +66,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
         this.varName = varName;
 
         if (varName.equals("")) {
-            int offset = sourceCodeRef.getStartOffset() + (sourceCodeRef.getEndOffset() - sourceCodeRef.getStartOffset());
+            int offset = sourceCodeRef.getStartOffset()
+                    + (sourceCodeRef.getEndOffset() - sourceCodeRef.getStartOffset()) + 1;
             moduleScope.registerRef(offset, this);
         } else {
             moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
@@ -76,13 +77,15 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     @Override
     public void analyze(EvalContext context) {
         if (typeScope == null) {
-            this.symbolsInScope = context.getCurrentScope()
-                    .getSymbolDescriptors(SymbolTypeEnum.VARIABLE,
-                            SymbolTypeEnum.FUNCTION,
-                            SymbolTypeEnum.RULE,
-                            SymbolTypeEnum.TEMPLATE,
-                            SymbolTypeEnum.FILE,
-                            SymbolTypeEnum.KEYWORD);
+            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+                this.symbolsInScope = context.getCurrentScope()
+                        .getSymbolDescriptors(SymbolTypeEnum.VARIABLE,
+                                SymbolTypeEnum.FUNCTION,
+                                SymbolTypeEnum.RULE,
+                                SymbolTypeEnum.TEMPLATE,
+                                SymbolTypeEnum.FILE,
+                                SymbolTypeEnum.KEYWORD);
+            }
 
             if (varName.equals("")) {
                 return;
@@ -117,14 +120,16 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             this.type = UnknownType.INSTANCE;
 
         } else {
-            List<SymbolDescriptor> symbols = new ArrayList<>();
-            for (FieldDescriptor field : typeScope.getFields()) {
-                symbols.add(new SymbolDescriptor(field));
+            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+                List<SymbolDescriptor> symbols = new ArrayList<>();
+                for (FieldDescriptor field : typeScope.getFields()) {
+                    symbols.add(new SymbolDescriptor(field));
+                }
+                for (FunctionType method : typeScope.getMethods()) {
+                    symbols.add(new SymbolDescriptor(method));
+                }
+                this.symbolsInScope = symbols;
             }
-            for (FunctionType method : typeScope.getMethods()) {
-                symbols.add(new SymbolDescriptor(method));
-            }
-            this.symbolsInScope = symbols;
 
             if (varName.equals("")) {
                 return;

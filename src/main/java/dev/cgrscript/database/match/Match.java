@@ -66,7 +66,7 @@ public class Match {
     }
 
     public Match setFact(RecordValueExpr rootRecord, ValueExpr fact, String bind) {
-        EvalContext matchCtx = new EvalContext(context.getModuleScope(), context.getDatabase(),
+        EvalContext matchCtx = new EvalContext(context.getEvalMode(), context.getModuleScope(), context.getDatabase(),
                 context.getInputParser(), context.getOutputWriter());
         matchCtx.getCurrentScope().addAll(context.getCurrentScope());
         if (bind != null) {
@@ -77,7 +77,7 @@ public class Match {
     }
 
     public Match merge(Match match) {
-        EvalContext matchCtx = new EvalContext(context.getModuleScope(), context.getDatabase(),
+        EvalContext matchCtx = new EvalContext(context.getEvalMode(), context.getModuleScope(), context.getDatabase(),
                 context.getInputParser(), context.getOutputWriter());
         matchCtx.getCurrentScope().addAll(context.getCurrentScope());
         matchCtx.getCurrentScope().addAll(match.context.getCurrentScope());

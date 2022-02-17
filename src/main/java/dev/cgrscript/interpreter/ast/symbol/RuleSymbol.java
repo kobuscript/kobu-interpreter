@@ -26,6 +26,7 @@ package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.Evaluable;
 import dev.cgrscript.interpreter.ast.query.Query;
 import dev.cgrscript.interpreter.error.analyzer.CyclicRuleReferenceError;
@@ -86,7 +87,7 @@ public class RuleSymbol extends Symbol implements HasExpr {
     }
 
     @Override
-    public void analyze(Database database, InputReader inputReader, OutputWriter outputWriter) {
+    public void analyze(EvalModeEnum evalMode, Database database, InputReader inputReader, OutputWriter outputWriter) {
         if (parentRule != null) {
             Symbol parentRuleSym = moduleScope.resolve(parentRule);
             if (!(parentRuleSym instanceof RuleSymbol)) {
@@ -102,7 +103,7 @@ public class RuleSymbol extends Symbol implements HasExpr {
                 }
             }
         }
-        var context = new EvalContext(moduleScope, database, inputReader, outputWriter);
+        var context = new EvalContext(evalMode, moduleScope, database, inputReader, outputWriter);
         int errors = moduleScope.getErrors() != null ? moduleScope.getErrors().size() : 0;
         if (query != null) {
             query.analyze(context);
