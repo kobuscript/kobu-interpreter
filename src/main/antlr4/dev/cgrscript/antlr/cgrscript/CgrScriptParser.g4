@@ -88,15 +88,40 @@ functionDeclParam : ID '?'? COLON type ( COMMA functionDeclParam )?
                     | ID '?'? COLON? {notifyErrorListenersPrevToken("parameter type expected");}
                     ;
 
-ifStat : 'if' LP expr RP LCB execStat* RCB elseIfStat? elseStat? ;
+ifStat : 'if' LP expr RP LCB execStat* RCB elseIfStat? elseStat?
+         | 'if' LP expr RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+         | 'if' LP expr {notifyErrorListenersPrevToken("')' expected");}
+         | 'if' LP RP {notifyErrorListenersPrevToken("boolean expression expected");}
+         | 'if' {notifyErrorListenersPrevToken("'(' expected");}
+         ;
 
-elseIfStat : 'else' 'if' LP expr RP LCB execStat* RCB elseIfStat? ;
+elseIfStat : 'else' 'if' LP expr RP LCB execStat* RCB elseIfStat?
+             | 'else' 'if' LP expr RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+             | 'else' 'if' LP expr RP {notifyErrorListenersPrevToken("'{' expected");}
+             | 'else' 'if' LP RP {notifyErrorListenersPrevToken("boolean expression expected");}
+             | 'else' 'if' LP expr? {notifyErrorListenersPrevToken("')' expected");}
+             ;
 
-elseStat : 'else' LCB execStat* RCB ;
+elseStat : 'else' LCB execStat* RCB
+           | 'else' LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+           | 'else' {notifyErrorListenersPrevToken("'{' expected");}
+           ;
 
-forStat : 'for' LP varDeclList? SEMI exprSequence SEMI assignmentSequece RP LCB execStat* RCB ;
+forStat : 'for' LP varDeclList? SEMI exprSequence? SEMI assignmentSequece? RP LCB execStat* RCB
+          | 'for' LP varDeclList? SEMI exprSequence? SEMI assignmentSequece? RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+          | 'for' LP varDeclList? SEMI exprSequence? SEMI assignmentSequece? RP {notifyErrorListenersPrevToken("'{' expected");}
+          | 'for' LP varDeclList? SEMI exprSequence? SEMI assignmentSequece? {notifyErrorListenersPrevToken("')' expected");}
+          | 'for' LP varDeclList? SEMI exprSequence? {notifyErrorListenersPrevToken("';' expected");}
+          | 'for' LP varDeclList? {notifyErrorListenersPrevToken("';' expected");}
+          ;
 
-whileStat : 'while' LP expr RP LCB execStat* RCB ;
+whileStat : 'while' LP expr RP LCB execStat* RCB
+            | 'while' LP expr RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+            | 'while' LP expr RP {notifyErrorListenersPrevToken("'{' expected");}
+            | 'while' LP expr {notifyErrorListenersPrevToken("')' expected");}
+            | 'while' LP RP {notifyErrorListenersPrevToken("boolean expression expected");}
+            | 'while' {notifyErrorListenersPrevToken("'(' expected");}
+            ;
 
 breakStat: BREAK ;
 
@@ -195,6 +220,7 @@ joinOfExpr : 'of' expr ;
 block : execStat* ;
 
 varDecl : VAR varDeclBody
+          | VAR {notifyErrorListenersPrevToken("identifier expected");}
           ;
 
 varDeclBody : ID ( COLON type )? ( '=' exprWrapper )? ;
@@ -238,7 +264,7 @@ expr : record                                                                   
        | expr ( AND | OR ) expr                                                                     #logicExpr
        | expr ( AND | OR )                                                                          #logicErr
        | NOT expr                                                                                   #notExpr
-       | NOT                                                                                        #notErrr
+       | NOT                                                                                        #notErr
        | TRUE                                                                                       #trueExpr
        | FALSE                                                                                      #falseExpr
        | NULL                                                                                       #nullExpr

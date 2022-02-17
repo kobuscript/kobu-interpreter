@@ -66,7 +66,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
         this.varName = varName;
 
         if (varName.equals("")) {
-            moduleScope.registerRef(sourceCodeRef.getStartOffset() + 1, this);
+            int offset = sourceCodeRef.getStartOffset() + (sourceCodeRef.getEndOffset() - sourceCodeRef.getStartOffset());
+            moduleScope.registerRef(offset, this);
         } else {
             moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
         }

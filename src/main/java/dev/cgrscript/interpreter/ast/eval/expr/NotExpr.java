@@ -50,6 +50,7 @@ public class NotExpr implements Expr {
         expr.analyze(context);
 
         if (expr.getType() instanceof UnknownType) {
+            type = UnknownType.INSTANCE;
             return;
         }
 

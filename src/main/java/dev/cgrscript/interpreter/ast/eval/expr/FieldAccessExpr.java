@@ -64,6 +64,7 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope {
         Type typeRef = leftExpr.getType();
 
         if (typeRef instanceof UnknownType) {
+            this.type = UnknownType.INSTANCE;
             return;
         }
 
