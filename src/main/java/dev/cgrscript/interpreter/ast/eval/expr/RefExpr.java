@@ -242,6 +242,9 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
 
     @Override
     public List<SymbolDescriptor> requestSuggestions() {
+        if (symbolsInScope == null) {
+            return new ArrayList<>();
+        }
         return new ArrayList<>(symbolsInScope);
     }
 

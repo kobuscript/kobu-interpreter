@@ -45,9 +45,12 @@ singleStat: varDecl
             | assignment
             | breakStat
             | continueStat
+            | invalidKeyword
             | expr
             | emptyExpr
             ;
+
+invalidKeyword : keyword=( 'def' | 'fun' | 'template' | 'type' | 'rule' | 'file' ) ;
 
 emptyExpr: SEMI ;
 

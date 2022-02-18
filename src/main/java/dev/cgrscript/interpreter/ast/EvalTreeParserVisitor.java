@@ -307,7 +307,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         rule.setQuery(query);
 
         List<Evaluable> exprList = new ArrayList<>();
-        if (ctx.block().execStat() != null) {
+        if (ctx.block() != null && ctx.block().execStat() != null) {
             for (CgrScriptParser.ExecStatContext execStatContext : ctx.block().execStat()) {
                 Evaluable evaluable = (Evaluable) visit(execStatContext);
                 if (evaluable != null) {
@@ -356,6 +356,12 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         exprList.add((Evaluable) visit(ctx.pathExpr()));
         rule.setBlock(exprList);
 
+        return null;
+    }
+
+    @Override
+    public AstNode visitInvalidKeyword(CgrScriptParser.InvalidKeywordContext ctx) {
+        moduleScope.addError(new InvalidKeywordError(getSourceCodeRef(ctx), ctx.keyword.getText()));
         return null;
     }
 
@@ -594,7 +600,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
                 moduleAlias, recordType);
 
         CgrScriptParser.RecordFieldContext fieldCtx = ctx.recordField();
-        while (fieldCtx != null) {
+        while (fieldCtx != null && fieldCtx.exprWrapper() != null) {
             var exprNode = visit(fieldCtx.exprWrapper());
             recordConstructor.addField(new RecordFieldExpr(getSourceCodeRef(fieldCtx.ID()), fieldCtx.ID().getText(),
                     (Expr) exprNode));
