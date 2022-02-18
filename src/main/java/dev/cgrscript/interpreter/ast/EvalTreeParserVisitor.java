@@ -38,6 +38,7 @@ import dev.cgrscript.interpreter.ast.template.TemplateContentStatement;
 import dev.cgrscript.interpreter.ast.template.TemplateStatement;
 import dev.cgrscript.interpreter.ast.template.TemplateStaticContentStatement;
 import dev.cgrscript.interpreter.ast.utils.NumberParser;
+import dev.cgrscript.interpreter.ast.utils.SymbolDescriptorUtils;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.error.analyzer.*;
@@ -69,6 +70,43 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             moduleLoader.visit(moduleId, new EvalTreeParserVisitor(moduleLoader, module, parserErrorListener), AnalyzerStepEnum.EVAL_TREE);
         } catch (AnalyzerError e) {
             moduleScope.addError(e);
+        }
+        return null;
+    }
+
+    @Override
+    public AstNode visitInvalidStat(CgrScriptParser.InvalidStatContext ctx) {
+        //add a reference element for auto-completion service
+        moduleScope.registerRef(ctx.ID().getSymbol().getStartIndex(), new HasElementRef() {
+            @Override
+            public SourceCodeRef getElementRef() {
+                return null;
+            }
+
+            @Override
+            public List<SymbolDescriptor> requestSuggestions() {
+                return SymbolDescriptorUtils.getGlobalKeywords();
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public AstNode visitInvalidDef(CgrScriptParser.InvalidDefContext ctx) {
+        moduleScope.addError(new InvalidDefinitionError(getSourceCodeRef(ctx.DEF())));
+        if (ctx.INVALID_DEF() != null) {
+            //add a reference element for auto-completion service
+            moduleScope.registerRef(ctx.INVALID_DEF().getSymbol().getStartIndex(), new HasElementRef() {
+                @Override
+                public SourceCodeRef getElementRef() {
+                    return null;
+                }
+
+                @Override
+                public List<SymbolDescriptor> requestSuggestions() {
+                    return SymbolDescriptorUtils.getDefKeywords();
+                }
+            });
         }
         return null;
     }
@@ -325,7 +363,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitFunctionReturnStat(CgrScriptParser.FunctionReturnStatContext ctx) {
         Expr expr = null;
         if (ctx.exprWrapper() != null) {
+            topLevelExpression = false;
             expr = (Expr) visit(ctx.exprWrapper());
+            topLevelExpression = true;
         }
         return new ReturnStatement(getSourceCodeRef(ctx), expr);
     }

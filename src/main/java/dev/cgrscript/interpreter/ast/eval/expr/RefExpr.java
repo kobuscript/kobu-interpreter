@@ -79,8 +79,10 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
         if (typeScope == null) {
             if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
                 this.symbolsInScope = context.getCurrentScope()
-                        .getSymbolDescriptors(SymbolTypeEnum.VARIABLE,
+                        .getSymbolDescriptors(
+                                SymbolTypeEnum.VARIABLE,
                                 SymbolTypeEnum.FUNCTION,
+                                SymbolTypeEnum.MODULE,
                                 SymbolTypeEnum.RULE,
                                 SymbolTypeEnum.TEMPLATE,
                                 SymbolTypeEnum.FILE,

@@ -118,7 +118,7 @@ public class LocalScope implements Scope {
         }
 
         if (typeSet.contains(SymbolTypeEnum.KEYWORD)) {
-            result.addAll(SymbolDescriptorUtils.getKeywords());
+            result.addAll(SymbolDescriptorUtils.getStatKeywords());
         }
 
         return result;

@@ -31,6 +31,7 @@ public enum SymbolTypeEnum {
     FIELD,
     FUNCTION,
     TYPE,
+    MODULE,
     RULE,
     TEMPLATE,
     FILE

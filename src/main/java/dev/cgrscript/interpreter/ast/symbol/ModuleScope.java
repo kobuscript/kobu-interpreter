@@ -149,7 +149,7 @@ public class ModuleScope implements Scope {
 
     public void merge(ModuleScope dependency, String alias, SourceCodeRef sourceCodeRef) {
         if (alias != null) {
-            ModuleRefSymbol moduleRefSymbol = new ModuleRefSymbol(sourceCodeRef, dependency);
+            ModuleRefSymbol moduleRefSymbol = new ModuleRefSymbol(sourceCodeRef, alias, dependency);
             Symbol currentDef = symbols.get(alias);
             if (currentDef != null) {
                 addError(new SymbolConflictError(currentDef, moduleRefSymbol));
@@ -174,6 +174,7 @@ public class ModuleScope implements Scope {
     public void analyze(EvalModeEnum evalMode, Database database, InputReader inputReader, OutputWriter outputWriter) {
         for (ModuleScope module : loadedModules.values()) {
             module.analyze(evalMode, database, inputReader, outputWriter);
+            addDependencyErrors(module.getErrors());
         }
         for (Symbol sym : symbols.values()) {
             if (sym instanceof HasExpr) {

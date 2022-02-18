@@ -28,6 +28,8 @@ channels { WSCHANNEL, COMMENTCHANNEL }
 
 options { superClass=dev.cgrscript.antlr.CgrScriptLexerBase; }
 
+fragment NEW_LINE : '\n' ;
+
 MODULE : 'module' ;
 
 IMPORT : 'import' ;
@@ -114,7 +116,7 @@ mode STRING_MODE;
 
 STRING_CONTENT : (ESC | ~[\n"\\])+ ;
 fragment ESC : '\\' ["\\/bfnrt] ;
-NEW_LINE : '\n' -> popMode ;
+STRING_BREAK : NEW_LINE -> popMode ;
 CLOSE_QUOTE : '"' -> popMode ;
 
 mode DEF_MODE;
@@ -124,7 +126,9 @@ DEFTEMPLATE : 'template' -> popMode ;
 DEFRULE : 'rule' -> popMode ;
 DEFFILE : 'file' -> popMode ;
 DEFNATIVE : 'native' -> popMode ;
-DEFWS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
+INVALID_DEF : [a-zA-Z0-9]+ -> popMode ;
+DEF_BREAK : NEW_LINE -> popMode ;
+DEFWS : [ \t\r]+ -> channel(WSCHANNEL) ;
 
 mode PATH_MODE;
 

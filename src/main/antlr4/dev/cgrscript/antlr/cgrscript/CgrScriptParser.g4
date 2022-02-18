@@ -66,9 +66,14 @@ stat : deftype
        | defrule
        | deffile
        | nativeDecl
-       | 'def' {notifyErrorListenersPrevToken("'type', 'template', 'rule', 'file' or 'native' expected");}
+       | invalidDef
        | functionDecl
+       | invalidStat
        ;
+
+invalidDef : 'def' ( INVALID_DEF | DEF_BREAK ) {notifyErrorListenersPrevToken("'type', 'template', 'rule', 'file' or 'native' expected");} ;
+
+invalidStat : ID {notifyErrorListenersPrevToken("'def' or 'fun' expected");} ;
 
 functionDecl : 'fun' ID LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB
                | 'fun' ID LP functionDeclParam? RP LCB {notifyMissingFunctionReturnType();}
@@ -303,5 +308,5 @@ type : typeName                 #typeNameExpr
 typeName : ID ( DOT ID )? ;
 
 stringLiteral : OPEN_QUOTE STRING_CONTENT? CLOSE_QUOTE
-                | OPEN_QUOTE STRING_CONTENT? NEW_LINE {notifyErrorListenersPrevToken("illegal line end in string literal");}
+                | OPEN_QUOTE STRING_CONTENT? STRING_BREAK {notifyErrorListenersPrevToken("illegal line end in string literal");}
                 ;

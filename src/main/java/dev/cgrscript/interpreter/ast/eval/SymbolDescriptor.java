@@ -24,7 +24,6 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval;
 
-import dev.cgrscript.interpreter.ast.eval.function.BuiltinMethod;
 import dev.cgrscript.interpreter.ast.symbol.*;
 
 import java.util.Objects;
@@ -33,7 +32,7 @@ public class SymbolDescriptor {
 
     private final SymbolTypeEnum type;
 
-    private final String name;
+    private String name;
 
     private String description = "";
 
@@ -49,7 +48,11 @@ public class SymbolDescriptor {
             }
         } else if (symbol instanceof VariableSymbol) {
             this.type = SymbolTypeEnum.VARIABLE;
-            this.metadata = ((VariableSymbol)symbol).getType().getName();
+            this.metadata = ((VariableSymbol) symbol).getType().getName();
+        } else if (symbol instanceof ModuleRefSymbol) {
+            this.name = ((ModuleRefSymbol)symbol).getAlias();
+            this.type = SymbolTypeEnum.MODULE;
+            this.metadata = ((ModuleRefSymbol)symbol).getModuleScope().getModuleId();
         } else if (symbol instanceof Type) {
             this.type = SymbolTypeEnum.TYPE;
             if (symbol.getSourceCodeRef() != null) {

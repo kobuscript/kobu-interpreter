@@ -72,7 +72,8 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
         if (typeScope == null) {
             if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
                 this.symbolsInScope = context.getCurrentScope()
-                        .getSymbolDescriptors(SymbolTypeEnum.VARIABLE,
+                        .getSymbolDescriptors(
+                                SymbolTypeEnum.VARIABLE,
                                 SymbolTypeEnum.FUNCTION,
                                 SymbolTypeEnum.RULE,
                                 SymbolTypeEnum.TEMPLATE,

@@ -31,14 +31,36 @@ import java.util.List;
 
 public class SymbolDescriptorUtils {
 
-    private static final List<SymbolDescriptor> keywords = List.of(
+    private static final List<SymbolDescriptor> globalKeywords = List.of(
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "module", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "import", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "def", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "fun", "", "")
+    );
+
+    private static final List<SymbolDescriptor> defKeywords = List.of(
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "type", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "rule", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "template", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "file", "", "")
+    );
+
+    private static final List<SymbolDescriptor> statKeywords = List.of(
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "if", "", ""),
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "for", "", ""),
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "while", "", ""),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "var", "", ""));
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "var", "", "")
+    );
 
-    public static List<SymbolDescriptor> getKeywords() {
-        return keywords;
+    public static List<SymbolDescriptor> getStatKeywords() {
+        return statKeywords;
     }
 
+    public static List<SymbolDescriptor> getDefKeywords() {
+        return defKeywords;
+    }
+
+    public static List<SymbolDescriptor> getGlobalKeywords() {
+        return globalKeywords;
+    }
 }

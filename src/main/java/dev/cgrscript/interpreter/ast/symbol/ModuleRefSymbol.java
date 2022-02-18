@@ -33,11 +33,18 @@ import java.util.List;
 
 public class ModuleRefSymbol extends Symbol implements Type {
 
+    private final String alias;
+
     private final ModuleScope moduleScope;
 
-    public ModuleRefSymbol(SourceCodeRef sourceCodeRef, ModuleScope moduleScope) {
+    public ModuleRefSymbol(SourceCodeRef sourceCodeRef, String alias, ModuleScope moduleScope) {
         super(sourceCodeRef, "$" + moduleScope.getModuleId());
+        this.alias = alias;
         this.moduleScope = moduleScope;
+    }
+
+    public String getAlias() {
+        return alias;
     }
 
     public ModuleScope getModuleScope() {
@@ -62,7 +69,13 @@ public class ModuleRefSymbol extends Symbol implements Type {
 
     @Override
     public List<FunctionType> getMethods() {
-        return null;
+        List<FunctionType> functions = new ArrayList<>();
+        for (Symbol symbol : moduleScope.getSymbols()) {
+            if (symbol instanceof FunctionSymbol) {
+                functions.add((FunctionType) symbol);
+            }
+        }
+        return functions;
     }
 
     @Override
