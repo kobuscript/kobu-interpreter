@@ -32,17 +32,17 @@ import java.util.List;
 public class SymbolDescriptorUtils {
 
     private static final List<SymbolDescriptor> globalKeywords = List.of(
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "module", "", ""),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "import", "", ""),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "def", "", ""),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "fun", "", "")
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "module", "", "module definition"),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "import", "", "import another module"),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "def", "", "define a new type or rule"),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "fun", "", "define a new function")
     );
 
     private static final List<SymbolDescriptor> defKeywords = List.of(
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "type", "", ""),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "rule", "", ""),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "template", "", ""),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "file", "", "")
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "type", "", "define a new record type"),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "rule", "", "define a new rule"),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "template", "", " define a new template rule"),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "file", "", "define a new file rule")
     );
 
     private static final List<SymbolDescriptor> statKeywords = List.of(

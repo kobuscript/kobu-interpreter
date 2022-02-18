@@ -37,9 +37,9 @@ public class NativeFunctionSymbol extends Symbol implements FunctionType {
 
     private Type returnType;
 
-    public NativeFunctionSymbol(SourceCodeRef sourceCodeRef, String name,
+    public NativeFunctionSymbol(SourceCodeRef sourceCodeRef, ModuleScope moduleScope, String name,
                                 NativeFunction functionImpl) {
-        super(sourceCodeRef, name);
+        super(moduleScope, sourceCodeRef, name);
         this.functionImpl = functionImpl;
         this.functionImpl.setFuncDef(this);
     }

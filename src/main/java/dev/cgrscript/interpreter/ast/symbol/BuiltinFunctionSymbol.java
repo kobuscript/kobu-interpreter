@@ -39,7 +39,7 @@ public class BuiltinFunctionSymbol extends Symbol implements FunctionType {
     private Type returnType;
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl) {
-        super(null, name);
+        super(null,null, name);
         this.functionImpl = functionImpl;
         this.functionImpl.setFuncDef(this);
     }

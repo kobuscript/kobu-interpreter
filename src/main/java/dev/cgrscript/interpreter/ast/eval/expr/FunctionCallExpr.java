@@ -64,6 +64,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
         this.args = args;
 
         moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
+        moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
     }
 
     @Override
@@ -207,6 +208,11 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
     @Override
     public List<SymbolDescriptor> requestSuggestions() {
         return new ArrayList<>(symbolsInScope);
+    }
+
+    @Override
+    public boolean hasOwnCompletionScope() {
+        return false;
     }
 
 }

@@ -38,7 +38,7 @@ public class ModuleRefSymbol extends Symbol implements Type {
     private final ModuleScope moduleScope;
 
     public ModuleRefSymbol(SourceCodeRef sourceCodeRef, String alias, ModuleScope moduleScope) {
-        super(sourceCodeRef, "$" + moduleScope.getModuleId());
+        super(moduleScope, sourceCodeRef, "$" + moduleScope.getModuleId());
         this.alias = alias;
         this.moduleScope = moduleScope;
     }

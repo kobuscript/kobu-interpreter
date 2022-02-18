@@ -26,13 +26,12 @@ package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.config.ProjectProperty;
 import dev.cgrscript.database.Database;
-import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
-import dev.cgrscript.interpreter.ast.eval.HasElementRef;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunctionId;
+import dev.cgrscript.interpreter.ast.utils.SymbolDescriptorUtils;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.AnalyzerErrorList;
 import dev.cgrscript.interpreter.error.analyzer.InvalidMainFunctionError;
@@ -69,7 +68,11 @@ public class ModuleScope implements Scope {
 
     private final Map<Integer, HasElementRef> refsByOffset = new HashMap<>();
 
+    private final Map<Integer, AutoCompletionSource> autoCompletionSourceByOffset = new HashMap<>();
+
     private int maxRefOffset = 0;
+
+    private int maxAutoCompletionSourceOffset = 0;
 
     private List<AnalyzerError> errors;
 
@@ -131,12 +134,31 @@ public class ModuleScope implements Scope {
         refsByOffset.put(offset, ref);
     }
 
+    public void registerAutoCompletionSource(int offset, AutoCompletionSource autoCompletionSource) {
+        maxAutoCompletionSourceOffset = Math.max(maxAutoCompletionSourceOffset, offset);
+        autoCompletionSourceByOffset.put(offset, autoCompletionSource);
+    }
+
     public HasElementRef getRef(int offset) {
         var elem = refsByOffset.get(offset);
         while (elem == null && offset <= maxRefOffset) {
             elem = refsByOffset.get(++offset);
         }
         return elem;
+    }
+
+    public List<SymbolDescriptor> getSuggestions(int offset) {
+        var elem = autoCompletionSourceByOffset.get(offset);
+        if (elem != null) {
+            return elem.requestSuggestions();
+        }
+        while (elem == null && offset <= maxAutoCompletionSourceOffset) {
+            elem = autoCompletionSourceByOffset.get(++offset);
+        }
+        if (elem != null && !elem.hasOwnCompletionScope()) {
+            return elem.requestSuggestions();
+        }
+        return SymbolDescriptorUtils.getGlobalKeywords();
     }
 
     public Symbol resolveLocal(String name) {

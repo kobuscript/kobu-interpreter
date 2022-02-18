@@ -38,7 +38,7 @@ public abstract class BuiltinTypeSymbol extends Symbol implements Type {
     private final Map<String, Type> fields = new HashMap<>();
 
     public BuiltinTypeSymbol(String name) {
-        super(null, name);
+        super(null, null, name);
     }
 
     @Override

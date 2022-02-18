@@ -2,12 +2,8 @@ package dev.cgrscript.interpreter.ast.eval;
 
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 
-import java.util.List;
-
-public interface HasElementRef {
+public interface HasElementRef extends AutoCompletionSource {
 
     SourceCodeRef getElementRef();
-
-    List<SymbolDescriptor> requestSuggestions();
 
 }

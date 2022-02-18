@@ -74,7 +74,7 @@ stat : deftype
        | invalidStat
        ;
 
-invalidDef : 'def' ( INVALID_DEF | DEF_BREAK ) {notifyErrorListenersPrevToken("'type', 'template', 'rule', 'file' or 'native' expected");} ;
+invalidDef : 'def' elem=( INVALID_DEF | DEF_BREAK ) ;
 
 invalidStat : ID {notifyErrorListenersPrevToken("'def' or 'fun' expected");} ;
 

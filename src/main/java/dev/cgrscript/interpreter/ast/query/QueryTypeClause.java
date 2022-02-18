@@ -84,7 +84,7 @@ public class QueryTypeClause implements Evaluable {
             context.getModuleScope().addError(new InvalidQueryType(sourceCodeRef, type));
             return;
         }
-        VariableSymbol variableSymbol = new VariableSymbol(sourceCodeRef, bind, type);
+        VariableSymbol variableSymbol = new VariableSymbol(bind, type);
         context.getCurrentScope().define(variableSymbol);
 
         if (pipeClause != null) {
@@ -99,7 +99,7 @@ public class QueryTypeClause implements Evaluable {
 
     public void createEmptyArray(EvalContext context) {
 
-        VariableSymbol variableSymbol = new VariableSymbol(sourceCodeRef, bind, type);
+        VariableSymbol variableSymbol = new VariableSymbol(bind, type);
         context.getCurrentScope().define(variableSymbol);
         context.getCurrentScope().setValue(bind, new ArrayValueExpr(new ArrayType(type), new ArrayList<>()));
 

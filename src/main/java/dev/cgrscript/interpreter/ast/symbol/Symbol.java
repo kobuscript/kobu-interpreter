@@ -24,7 +24,12 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
-public abstract class Symbol {
+import dev.cgrscript.interpreter.ast.eval.AutoCompletionSource;
+import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
+
+import java.util.List;
+
+public abstract class Symbol implements AutoCompletionSource {
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -32,9 +37,12 @@ public abstract class Symbol {
 
     private Scope scope;
 
-    public Symbol(SourceCodeRef sourceCodeRef, String name) {
+    public Symbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String name) {
         this.sourceCodeRef = sourceCodeRef;
         this.name = name;
+        if (moduleScope != null) {
+            moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
+        }
     }
 
     public SourceCodeRef getSourceCodeRef() {
@@ -53,4 +61,13 @@ public abstract class Symbol {
         this.scope = scope;
     }
 
+    @Override
+    public List<SymbolDescriptor> requestSuggestions() {
+        return EMPTY_LIST;
+    }
+
+    @Override
+    public boolean hasOwnCompletionScope() {
+        return true;
+    }
 }

@@ -126,7 +126,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
             return null;
         }
 
-        var function = new NativeFunctionSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), nativeFunction);
+        var function = new NativeFunctionSymbol(getSourceCodeRef(ctx.ID()), moduleScope, ctx.ID().getText(), nativeFunction);
         moduleScope.define(function);
 
         return null;

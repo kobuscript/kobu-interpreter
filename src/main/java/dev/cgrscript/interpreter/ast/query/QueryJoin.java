@@ -89,7 +89,7 @@ public class QueryJoin implements Evaluable {
             for (String key : scope.getKeys()) {
                 Symbol symbol = scope.resolve(key);
                 if (symbol instanceof VariableSymbol) {
-                    context.getCurrentScope().define(new VariableSymbol(symbol.getSourceCodeRef(), symbol.getName(),
+                    context.getCurrentScope().define(new VariableSymbol(symbol.getName(),
                             new ArrayType(((VariableSymbol)symbol).getType())));
                 }
             }

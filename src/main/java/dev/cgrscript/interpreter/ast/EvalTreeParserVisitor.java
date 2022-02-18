@@ -77,15 +77,15 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitInvalidStat(CgrScriptParser.InvalidStatContext ctx) {
         //add a reference element for auto-completion service
-        moduleScope.registerRef(ctx.ID().getSymbol().getStartIndex(), new HasElementRef() {
-            @Override
-            public SourceCodeRef getElementRef() {
-                return null;
-            }
-
+        moduleScope.registerAutoCompletionSource(ctx.ID().getSymbol().getStartIndex(), new AutoCompletionSource() {
             @Override
             public List<SymbolDescriptor> requestSuggestions() {
                 return SymbolDescriptorUtils.getGlobalKeywords();
+            }
+
+            @Override
+            public boolean hasOwnCompletionScope() {
+                return true;
             }
         });
         return null;
@@ -94,17 +94,17 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitInvalidDef(CgrScriptParser.InvalidDefContext ctx) {
         moduleScope.addError(new InvalidDefinitionError(getSourceCodeRef(ctx.DEF())));
-        if (ctx.INVALID_DEF() != null) {
+        if (ctx.elem != null) {
             //add a reference element for auto-completion service
-            moduleScope.registerRef(ctx.INVALID_DEF().getSymbol().getStartIndex(), new HasElementRef() {
-                @Override
-                public SourceCodeRef getElementRef() {
-                    return null;
-                }
-
+            moduleScope.registerAutoCompletionSource(ctx.elem.getStartIndex(), new AutoCompletionSource() {
                 @Override
                 public List<SymbolDescriptor> requestSuggestions() {
                     return SymbolDescriptorUtils.getDefKeywords();
+                }
+
+                @Override
+                public boolean hasOwnCompletionScope() {
+                    return true;
                 }
             });
         }
@@ -390,7 +390,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             type = (Type) visit(ctx.type());
         }
         VarDeclExpr expr = new VarDeclExpr(
-                new VariableSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), type));
+                new VariableSymbol(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText(), type));
         if (ctx.exprWrapper() != null) {
             var exprNode = visit(ctx.exprWrapper());
             expr.setValueExpr((Expr) exprNode);

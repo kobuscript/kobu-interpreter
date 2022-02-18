@@ -24,10 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
-import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
-import dev.cgrscript.interpreter.ast.eval.Evaluable;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.error.analyzer.FunctionMissingReturnStatError;
 import dev.cgrscript.interpreter.input.InputReader;
@@ -48,7 +45,7 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
     private List<Evaluable> exprList;
 
     public FunctionSymbol(SourceCodeRef sourceCodeRef, SourceCodeRef closeFunctionRef, ModuleScope moduleScope, String name) {
-        super(sourceCodeRef, name);
+        super(moduleScope, sourceCodeRef, name);
         this.closeFunctionRef = closeFunctionRef;
         this.moduleScope = moduleScope;
     }
@@ -83,7 +80,7 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
         var context = new EvalContext(evalMode, moduleScope, database, inputReader, outputWriter, this);
         var scope = context.getCurrentScope();
         for (FunctionParameter parameter : parameters) {
-            VariableSymbol variableSymbol = new VariableSymbol(parameter.getSourceCodeRef(), parameter.getName(),
+            VariableSymbol variableSymbol = new VariableSymbol(moduleScope, parameter.getSourceCodeRef(), parameter.getName(),
                     parameter.getType());
             scope.define(variableSymbol);
         }
@@ -104,7 +101,7 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
             FunctionParameter parameter = parameters.get(i);
             ValueExpr arg = i < args.size() ? args.get(i) : null;
 
-            VariableSymbol variableSymbol = new VariableSymbol(parameter.getSourceCodeRef(), parameter.getName(),
+            VariableSymbol variableSymbol = new VariableSymbol(moduleScope, parameter.getSourceCodeRef(), parameter.getName(),
                     parameter.getType());
             scope.define(variableSymbol);
             if (arg != null) {

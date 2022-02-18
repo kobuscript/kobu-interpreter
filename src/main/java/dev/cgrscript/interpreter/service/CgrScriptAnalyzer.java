@@ -28,6 +28,7 @@ import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
 import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
+import dev.cgrscript.interpreter.ast.eval.AutoCompletionSource;
 import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.HasElementRef;
 import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
@@ -198,10 +199,7 @@ public class CgrScriptAnalyzer {
         if (script != null) {
             ModuleScope module = moduleLoader.getScope(script.extractModuleId());
             if (module != null) {
-                HasElementRef elementRef = module.getRef(offset);
-                if (elementRef != null) {
-                    return elementRef.requestSuggestions();
-                }
+                return module.getSuggestions(offset);
             }
         }
         return new ArrayList<>();

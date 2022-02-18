@@ -69,8 +69,10 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             int offset = sourceCodeRef.getStartOffset()
                     + (sourceCodeRef.getEndOffset() - sourceCodeRef.getStartOffset()) + 1;
             moduleScope.registerRef(offset, this);
+            moduleScope.registerAutoCompletionSource(offset, this);
         } else {
             moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
+            moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
         }
     }
 
@@ -243,9 +245,14 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     @Override
     public List<SymbolDescriptor> requestSuggestions() {
         if (symbolsInScope == null) {
-            return new ArrayList<>();
+            return EMPTY_LIST;
         }
         return new ArrayList<>(symbolsInScope);
+    }
+
+    @Override
+    public boolean hasOwnCompletionScope() {
+        return false;
     }
 
 }

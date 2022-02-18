@@ -49,7 +49,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     private RecordTypeUnknownAttributes unknownAttributes;
 
     public RecordTypeSymbol(SourceCodeRef sourceCodeRef, String name, ModuleScope module) {
-        super(sourceCodeRef, name);
+        super(module, sourceCodeRef, name);
         this.module = module;
     }
 

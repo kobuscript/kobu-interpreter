@@ -52,7 +52,7 @@ public class RuleSymbol extends Symbol implements HasExpr {
 
     public RuleSymbol(SourceCodeRef sourceCodeRef, String name, ModuleScope moduleScope,
                       RuleTypeEnum ruleType, String parentRule) {
-        super(sourceCodeRef, name);
+        super(moduleScope, sourceCodeRef, name);
         this.moduleScope = moduleScope;
         this.ruleType = ruleType;
         this.parentRule = parentRule;

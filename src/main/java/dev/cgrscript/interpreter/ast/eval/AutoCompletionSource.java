@@ -22,28 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.symbol;
+package dev.cgrscript.interpreter.ast.eval;
 
-public class VariableSymbol extends Symbol {
+import java.util.List;
 
-    private Type type;
+public interface AutoCompletionSource {
 
-    public VariableSymbol(String name, Type type) {
-        super(null, null, name);
-        this.type = type;
-    }
+    List<SymbolDescriptor> EMPTY_LIST = List.of();
 
-    public VariableSymbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String name, Type type) {
-        super(moduleScope, sourceCodeRef, name);
-        this.type = type;
-    }
+    List<SymbolDescriptor> requestSuggestions();
 
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
-    }
+    boolean hasOwnCompletionScope();
 
 }
