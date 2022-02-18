@@ -129,6 +129,10 @@ public class ModuleScope implements Scope {
         return result;
     }
 
+    public Collection<Symbol> getDependenciesSymbols() {
+        return new ArrayList<>(dependenciesSymbols.values());
+    }
+
     public void registerRef(int offset, HasElementRef ref) {
         maxRefOffset = Math.max(maxRefOffset, offset);
         refsByOffset.put(offset, ref);

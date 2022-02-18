@@ -117,6 +117,13 @@ public class LocalScope implements Scope {
             scope = scope.getEnclosingScope();
         }
 
+        for (Symbol symbol : moduleScope.getDependenciesSymbols()) {
+            SymbolDescriptor symbolDescriptor = new SymbolDescriptor(symbol);
+            if (typeSet.contains(symbolDescriptor.getType())) {
+                result.add(symbolDescriptor);
+            }
+        }
+
         if (typeSet.contains(SymbolTypeEnum.KEYWORD)) {
             result.addAll(SymbolDescriptorUtils.getStatKeywords());
         }
