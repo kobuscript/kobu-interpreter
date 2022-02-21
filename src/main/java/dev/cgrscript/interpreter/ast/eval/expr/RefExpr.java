@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
 
 public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementRef {
 
+    private final ModuleScope moduleScope;
+
     private final SourceCodeRef sourceCodeRef;
 
     private final String varName;
@@ -62,6 +64,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     private Collection<SymbolDescriptor> symbolsInScope;
 
     public RefExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String varName) {
+        this.moduleScope = moduleScope;
         this.sourceCodeRef = sourceCodeRef;
         this.varName = varName;
 
@@ -248,7 +251,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             return EMPTY_LIST;
         }
         var symbols = new ArrayList<>(symbolsInScope);
-        symbols.addAll(getExternalSymbols(externalModules,
+        symbols.addAll(getExternalSymbols(moduleScope, externalModules,
                 SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE, SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE));
         return symbols;
     }

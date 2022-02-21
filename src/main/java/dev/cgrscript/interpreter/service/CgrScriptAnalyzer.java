@@ -200,14 +200,14 @@ public class CgrScriptAnalyzer {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
 
-        if (moduleLoader.indexBuilt()) {
-            analyze(moduleLoader, refFile, EvalModeEnum.ANALYZER_SERVICE);
-        } else {
-            moduleLoader.buildIndex(new ParserErrorListener());
-        }
-
         CgrScriptFile script = moduleLoader.loadScript(refFile);
         if (script != null) {
+            if (moduleLoader.indexBuilt()) {
+                analyze(moduleLoader, refFile, EvalModeEnum.ANALYZER_SERVICE);
+            } else {
+                moduleLoader.buildIndex(new ParserErrorListener(), script);
+            }
+
             String moduleId = script.extractModuleId();
             ModuleScope module = moduleLoader.getScope(moduleId);
             List<ModuleScope> externalModules = moduleLoader.getExternalModules(moduleId);

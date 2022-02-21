@@ -70,11 +70,15 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (!declaredModuleId.equals(fileModuleId)) {
             moduleScope.addError(new InvalidModuleDeclarationError(getSourceCodeRef(ctx), declaredModuleId));
         }
+        moduleScope.setNewImportOffset(ctx.SEMI() != null ?
+                ctx.SEMI().getSymbol().getStopIndex() + 1 :
+                ctx.moduleId().stop.getStopIndex() + 1);
         return null;
     }
 
     @Override
     public Void visitImportExpr(CgrScriptParser.ImportExprContext ctx) {
+        int endOffset = 0;
         try {
             String dependencyModuleId = ctx.moduleId().getText();
             String alias = null;
@@ -82,8 +86,10 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
             if (ctx.moduleScope() != null) {
                 alias = ctx.moduleScope().ID().getText();
                 sourceCodeRef = getSourceCodeRef(ctx.moduleScope().ID());
+                endOffset = ctx.moduleScope().ID().getSymbol().getStopIndex();
             } else {
                 sourceCodeRef = getSourceCodeRef(ctx.moduleId());
+                endOffset = ctx.moduleId().stop.getStopIndex();
             }
             ModuleScope dependency = moduleLoader.loadScope(parserErrorListener,
                     dependencyModuleId, getSourceCodeRef(ctx));
@@ -95,6 +101,9 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         } catch (AnalyzerError error) {
             moduleScope.addError(error);
         }
+        moduleScope.setNewImportOffset(ctx.SEMI() != null ?
+                ctx.SEMI().getSymbol().getStopIndex() + 1 :
+                endOffset + 1);
         return null;
     }
 

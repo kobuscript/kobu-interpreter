@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 
 public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
+    private final ModuleScope moduleScope;
+
     private final SourceCodeRef sourceCodeRef;
 
     private final String functionName;
@@ -59,6 +61,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
     public FunctionCallExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef,
                             String functionName, List<FunctionArgExpr> args) {
+        this.moduleScope = moduleScope;
         this.sourceCodeRef = sourceCodeRef;
         this.functionName = functionName;
         this.args = args;
@@ -208,7 +211,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
     @Override
     public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
         var symbols = new ArrayList<>(symbolsInScope);
-        symbols.addAll(getExternalSymbols(externalModules,
+        symbols.addAll(getExternalSymbols(moduleScope, externalModules,
                 SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE, SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE));
         return symbols;
     }

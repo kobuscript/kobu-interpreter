@@ -37,12 +37,12 @@ public interface AutoCompletionSource {
 
     boolean hasOwnCompletionScope();
 
-    default List<SymbolDescriptor> getExternalSymbols(List<ModuleScope> externalModules, SymbolTypeEnum... types) {
+    default List<SymbolDescriptor> getExternalSymbols(ModuleScope moduleScope, List<ModuleScope> externalModules, SymbolTypeEnum... types) {
         Set<SymbolTypeEnum> typeSet = new HashSet<>(Arrays.asList(types));
         List<SymbolDescriptor> symbols = new ArrayList<>();
         for (ModuleScope externalModule : externalModules) {
             for (Symbol symbol : externalModule.getSymbols()) {
-                var descriptor = new SymbolDescriptor(symbol, externalModule.getModuleId());
+                var descriptor = new SymbolDescriptor(symbol, externalModule.getModuleId(), moduleScope.getNewImportOffset());
                 if (typeSet.contains(descriptor.getType())) {
                     symbols.add(descriptor);
                 }
