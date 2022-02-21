@@ -40,8 +40,10 @@ public interface FunctionType {
     default String getDescription() {
         StringBuilder str = new StringBuilder();
         str.append('(');
-        str.append(getParameters().stream().map(FunctionParameter::getDescription)
-                .collect(Collectors.joining(", ")));
+        if (getParameters() != null) {
+            str.append(getParameters().stream().map(FunctionParameter::getDescription)
+                    .collect(Collectors.joining(", ")));
+        }
         str.append(')');
         if (getReturnType() != null) {
             str.append(": ").append(getReturnType().getName());
