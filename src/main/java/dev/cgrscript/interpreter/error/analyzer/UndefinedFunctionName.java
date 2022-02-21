@@ -24,17 +24,29 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.error.analyzer;
 
+import dev.cgrscript.interpreter.ast.AstNode;
+import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
+import dev.cgrscript.interpreter.ast.eval.expr.FunctionCallExpr;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
+import dev.cgrscript.interpreter.error.CgrScriptActionTypeEnum;
 
 public class UndefinedFunctionName extends AnalyzerError {
+
+    private static final CgrScriptActionTypeEnum[] actions = new CgrScriptActionTypeEnum[]{
+            CgrScriptActionTypeEnum.AUTO_IMPORT,
+            CgrScriptActionTypeEnum.CREATE_FUNCTION
+    };
+
+    private final FunctionCallExpr functionCallExpr;
 
     private final String moduleId;
 
     private final String functionName;
 
-    public UndefinedFunctionName(SourceCodeRef sourceCodeRef, String moduleId, String functionName) {
-        super(sourceCodeRef);
+    public UndefinedFunctionName(FunctionCallExpr functionCallExpr, String moduleId, String functionName) {
+        super(functionCallExpr.getSourceCodeRef());
+        this.functionCallExpr = functionCallExpr;
         this.moduleId = moduleId;
         this.functionName = functionName;
     }
@@ -46,5 +58,20 @@ public class UndefinedFunctionName extends AnalyzerError {
         } else {
             return "'" + functionName + "' is not defined";
         }
+    }
+
+    @Override
+    public CgrScriptActionTypeEnum[] actions() {
+        return actions;
+    }
+
+    @Override
+    public AstNode getAstNode() {
+        return functionCallExpr;
+    }
+
+    @Override
+    public SymbolTypeEnum getSymbolType() {
+        return SymbolTypeEnum.FUNCTION;
     }
 }

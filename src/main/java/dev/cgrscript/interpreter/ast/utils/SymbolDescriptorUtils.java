@@ -32,8 +32,6 @@ import java.util.List;
 public class SymbolDescriptorUtils {
 
     private static final List<SymbolDescriptor> globalKeywords = List.of(
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "module", "", "module definition"),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "import", "", "import another module"),
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "def", "", "define a new type or rule"),
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "fun", "", "define a new function")
     );

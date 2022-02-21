@@ -87,7 +87,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
             var functionSymbol = context.getModuleScope().resolve(functionName);
             if (!(functionSymbol instanceof FunctionType)) {
-                context.getModuleScope().addError(new UndefinedFunctionName(sourceCodeRef, null, functionName));
+                context.getModuleScope().addError(new UndefinedFunctionName(this, null, functionName));
                 this.type = UnknownType.INSTANCE;
                 return;
             }
@@ -111,7 +111,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
             if (methodType == null) {
                 if (typeScope instanceof ModuleRefSymbol) {
                     var moduleId = ((ModuleRefSymbol)typeScope).getModuleScope().getModuleId();
-                    context.getModuleScope().addError(new UndefinedFunctionName(sourceCodeRef, moduleId, functionName));
+                    context.getModuleScope().addError(new UndefinedFunctionName(this, moduleId, functionName));
                 } else {
                     context.getModuleScope().addError(new UndefinedMethodError(sourceCodeRef, typeScope, functionName));
                 }

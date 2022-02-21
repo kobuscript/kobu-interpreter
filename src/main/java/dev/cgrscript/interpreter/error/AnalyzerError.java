@@ -24,6 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.error;
 
+import dev.cgrscript.interpreter.ast.AstNode;
+import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.file_system.CgrFile;
 
@@ -50,6 +52,18 @@ public abstract class AnalyzerError extends Exception {
         this.sourceCodeRefs.add(sourceCodeRef);
     }
 
+    public CgrScriptActionTypeEnum[] actions() {
+        return null;
+    }
+
+    public AstNode getAstNode() {
+        return null;
+    }
+
+    public SymbolTypeEnum getSymbolType() {
+        return null;
+    }
+
     public List<SourceCodeRef> getSourceCodeRefs() {
         return sourceCodeRefs;
     }
@@ -63,7 +77,8 @@ public abstract class AnalyzerError extends Exception {
 
         for (SourceCodeRef sourceCodeRef : sourceCodeRefs) {
             if (sourceCodeRef.getFile().getAbsolutePath().equals(file.getAbsolutePath())) {
-                errors.add(new CgrScriptErrorImpl(getDescription(), sourceCodeRef));
+                errors.add(new CgrScriptErrorImpl(getDescription(), sourceCodeRef,
+                        actions(), getAstNode(), getSymbolType()));
             }
         }
 
@@ -74,10 +89,18 @@ public abstract class AnalyzerError extends Exception {
 
         private final String description;
         private final SourceCodeRef sourceCodeRef;
+        private final CgrScriptActionTypeEnum[] actions;
+        private final AstNode astNode;
+        private final SymbolTypeEnum symbolType;
 
-        public CgrScriptErrorImpl(String description, SourceCodeRef sourceCodeRef) {
+        public CgrScriptErrorImpl(String description, SourceCodeRef sourceCodeRef,
+                                  CgrScriptActionTypeEnum[] actions, AstNode astNode,
+                                  SymbolTypeEnum symbolType) {
             this.description = description;
             this.sourceCodeRef = sourceCodeRef;
+            this.actions = actions;
+            this.astNode = astNode;
+            this.symbolType = symbolType;
         }
 
         @Override
@@ -89,5 +112,22 @@ public abstract class AnalyzerError extends Exception {
         public SourceCodeRef getSourceCodeRef() {
             return sourceCodeRef;
         }
+
+        @Override
+        public CgrScriptActionTypeEnum[] actions() {
+            return actions;
+        }
+
+        @Override
+        public AstNode getAstNode() {
+            return astNode;
+        }
+
+        @Override
+        public SymbolTypeEnum getSymbolType() {
+            return symbolType;
+        }
+
     }
+
 }

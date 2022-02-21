@@ -24,43 +24,9 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.error;
 
-import dev.cgrscript.interpreter.ast.AstNode;
-import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+public enum CgrScriptActionTypeEnum {
 
-public class ParserError extends Exception implements CgrScriptError {
-
-    private final SourceCodeRef sourceCodeRef;
-
-    public ParserError(SourceCodeRef sourceCodeRef, String message) {
-        super(message);
-        this.sourceCodeRef = sourceCodeRef;
-    }
-
-    @Override
-    public SourceCodeRef getSourceCodeRef() {
-        return sourceCodeRef;
-    }
-
-    @Override
-    public CgrScriptActionTypeEnum[] actions() {
-        return null;
-    }
-
-    @Override
-    public AstNode getAstNode() {
-        return null;
-    }
-
-    @Override
-    public SymbolTypeEnum getSymbolType() {
-        return null;
-    }
-
-
-    @Override
-    public String getDescription() {
-        return getMessage();
-    }
+    AUTO_IMPORT,
+    CREATE_FUNCTION,
 
 }

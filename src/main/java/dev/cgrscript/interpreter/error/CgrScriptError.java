@@ -24,6 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.error;
 
+import dev.cgrscript.interpreter.ast.AstNode;
+import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 
 public interface CgrScriptError {
@@ -31,5 +33,11 @@ public interface CgrScriptError {
     String getDescription();
 
     SourceCodeRef getSourceCodeRef();
+
+    CgrScriptActionTypeEnum[] actions();
+
+    AstNode getAstNode();
+
+    SymbolTypeEnum getSymbolType();
 
 }
