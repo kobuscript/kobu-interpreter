@@ -24,6 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.config;
 
+import dev.cgrscript.interpreter.file_system.CgrDirectory;
+
 import java.util.List;
 
 public class Project {
@@ -41,6 +43,10 @@ public class Project {
     private List<ProjectSourcePath> sourcePaths;
 
     private List<ProjectDependency> dependencies;
+
+    private CgrDirectory projectDirectory;
+
+    private List<CgrDirectory> srcDirs;
 
     public String getGroupId() {
         return groupId;
@@ -97,4 +103,21 @@ public class Project {
     public void setDependencies(List<ProjectDependency> dependencies) {
         this.dependencies = dependencies;
     }
+
+    public CgrDirectory getProjectDirectory() {
+        return projectDirectory;
+    }
+
+    public void setProjectDirectory(CgrDirectory projectDirectory) {
+        this.projectDirectory = projectDirectory;
+    }
+
+    public List<CgrDirectory> getSrcDirs() {
+        return srcDirs;
+    }
+
+    public void setSrcDirs(List<CgrDirectory> srcDirs) {
+        this.srcDirs = srcDirs;
+    }
+
 }

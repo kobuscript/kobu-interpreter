@@ -27,7 +27,12 @@ package dev.cgrscript.interpreter.file_system.local;
 import dev.cgrscript.interpreter.file_system.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
 public class LocalCgrFileSystem implements CgrFileSystem {
@@ -86,6 +91,32 @@ public class LocalCgrFileSystem implements CgrFileSystem {
             return null;
         }
         return new LocalCgrDirectory(dir);
+    }
+
+    @Override
+    public void walkFileTree(CgrDirectory dir, CgrFileVisitor visitor) {
+        try {
+            Files.walkFileTree(((LocalCgrDirectory)dir).getDir().toPath(), new SimpleFileVisitor<>() {
+
+                @Override
+                public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
+                    var file = path.toFile();
+                    if (file.isFile()) {
+                        if (file.getName().endsWith(SCRIPT_FILE_EXT)) {
+                            visitor.visit(new LocalCgrScriptFile(((LocalCgrDirectory)dir).getDir(), file));
+                        } else {
+                            visitor.visit(new LocalCgrFile(file));
+                        }
+                    } else if (file.isDirectory()) {
+                        visitor.visit(new LocalCgrDirectory(file));
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+            });
+        } catch (IOException e) {
+            throw new CgrFileSystemException(e);
+        }
     }
 
     private CgrFile findProjectRoot(CgrFileSystemEntry entry) {

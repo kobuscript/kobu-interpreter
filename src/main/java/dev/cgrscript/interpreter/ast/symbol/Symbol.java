@@ -62,7 +62,7 @@ public abstract class Symbol implements AutoCompletionSource {
     }
 
     @Override
-    public List<SymbolDescriptor> requestSuggestions() {
+    public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
         return EMPTY_LIST;
     }
 

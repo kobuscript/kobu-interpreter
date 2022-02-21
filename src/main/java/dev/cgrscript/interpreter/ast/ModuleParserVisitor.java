@@ -65,7 +65,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
                 .collect(Collectors.toList());
         String declaredModuleId = String.join(".", segments);
         String fileModuleId = script.extractModuleId();
-        moduleScope = new ModuleScope(declaredModuleId, script, moduleLoader.getProjectDir().getAbsolutePath(),
+        moduleScope = new ModuleScope(declaredModuleId, script, moduleLoader.getProject().getProjectDirectory().getAbsolutePath(),
                 moduleLoader.getProject().getProperties(), nativeFunctions);
         if (!declaredModuleId.equals(fileModuleId)) {
             moduleScope.addError(new InvalidModuleDeclarationError(getSourceCodeRef(ctx), declaredModuleId));

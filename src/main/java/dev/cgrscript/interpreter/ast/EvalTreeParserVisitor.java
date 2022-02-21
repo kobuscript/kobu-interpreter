@@ -79,7 +79,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         //add a reference element for auto-completion service
         moduleScope.registerAutoCompletionSource(ctx.ID().getSymbol().getStartIndex(), new AutoCompletionSource() {
             @Override
-            public List<SymbolDescriptor> requestSuggestions() {
+            public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
                 return SymbolDescriptorUtils.getGlobalKeywords();
             }
 
@@ -98,7 +98,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             //add a reference element for auto-completion service
             moduleScope.registerAutoCompletionSource(ctx.elem.getStartIndex(), new AutoCompletionSource() {
                 @Override
-                public List<SymbolDescriptor> requestSuggestions() {
+                public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
                     return SymbolDescriptorUtils.getDefKeywords();
                 }
 

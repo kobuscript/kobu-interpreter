@@ -26,7 +26,9 @@ package dev.cgrscript.config;
 
 import dev.cgrscript.config.error.*;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import dev.cgrscript.interpreter.file_system.CgrDirectory;
 import dev.cgrscript.interpreter.file_system.CgrFile;
+import dev.cgrscript.interpreter.file_system.CgrFileSystem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -43,6 +45,21 @@ import java.util.Set;
 public class ProjectReader {
 
     private final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+    private final CgrFileSystem fileSystem;
+
+    public ProjectReader(CgrFileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+
+    public Project loadDefaultProject(CgrFile scriptFile) {
+        var project = new Project();
+        project.setProjectDirectory(fileSystem.getParent(scriptFile));
+        var srcDirs = new ArrayList<CgrDirectory>();
+        srcDirs.add(project.getProjectDirectory());
+        project.setSrcDirs(srcDirs);
+        return project;
+    }
 
     public Project load(CgrFile projectFile) throws ProjectError {
 
@@ -113,6 +130,18 @@ public class ProjectReader {
             }
             project.setDependencies(dependencies);
         }
+
+        var projectDir = fileSystem.getParent(projectFile);
+        var srcDirs = new ArrayList<CgrDirectory>();
+        if (project.getSourcePaths() == null || project.getSourcePaths().isEmpty()) {
+           srcDirs.add(projectDir);
+        } else {
+            for (ProjectSourcePath sourcePath : project.getSourcePaths()) {
+                srcDirs.add((CgrDirectory) fileSystem.loadEntry(projectDir, sourcePath.getPath()));
+            }
+        }
+        project.setProjectDirectory(projectDir);
+        project.setSrcDirs(srcDirs);
 
         return project;
     }

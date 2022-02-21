@@ -243,11 +243,14 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     }
 
     @Override
-    public List<SymbolDescriptor> requestSuggestions() {
+    public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
         if (symbolsInScope == null) {
             return EMPTY_LIST;
         }
-        return new ArrayList<>(symbolsInScope);
+        var symbols = new ArrayList<>(symbolsInScope);
+        symbols.addAll(getExternalSymbols(externalModules,
+                SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE, SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE));
+        return symbols;
     }
 
     @Override

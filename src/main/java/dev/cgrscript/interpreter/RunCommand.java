@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter;
 
+import dev.cgrscript.config.Project;
 import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
@@ -77,11 +78,19 @@ public class RunCommand implements Callable<Integer> {
 
             LocalCgrFileSystem fileSystem = new LocalCgrFileSystem();
             ParserErrorListener parserErrorListener = new ParserErrorListener();
-            ModuleLoader moduleLoader = new ModuleLoader(fileSystem, new ProjectReader());
-            InputNativeFunctionRegistry.register(moduleLoader);
             LocalCgrFile localFile = new LocalCgrFile(this.file);
             CgrFile projectFile = fileSystem.findProjectDefinition(localFile);
-            ModuleScope moduleScope = moduleLoader.load(parserErrorListener, localFile, projectFile);
+            ProjectReader projectReader = new ProjectReader(fileSystem);
+            Project project;
+            if (projectFile != null) {
+                project = projectReader.load(projectFile);
+            } else {
+                project = projectReader.loadDefaultProject(localFile);
+            }
+
+            ModuleLoader moduleLoader = new ModuleLoader(fileSystem, project);
+            InputNativeFunctionRegistry.register(moduleLoader);
+            ModuleScope moduleScope = moduleLoader.load(parserErrorListener, localFile);
 
             parserErrorListener.checkErrors();
 

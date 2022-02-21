@@ -24,24 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.file_system;
 
-import java.util.List;
+public interface CgrFileVisitor {
 
-public interface CgrFileSystem {
-
-    String SCRIPT_FILE_EXT = ".cgr";
-
-    String PROJECT_CFG = "cgr.xml";
-
-    CgrFile findProjectDefinition(CgrFile file);
-
-    CgrFileSystemEntry loadEntry(CgrDirectory parent, String subPath);
-
-    CgrScriptFile loadScript(List<CgrDirectory> srcDirs, String moduleId);
-
-    CgrScriptFile loadScript(List<CgrDirectory> srcDirs, CgrFile file);
-
-    CgrDirectory getParent(CgrFileSystemEntry entry);
-
-    void walkFileTree(CgrDirectory dir, CgrFileVisitor fileWalker);
+    void visit(CgrFileSystemEntry entry);
 
 }

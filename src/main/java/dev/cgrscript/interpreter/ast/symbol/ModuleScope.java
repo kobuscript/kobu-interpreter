@@ -151,16 +151,16 @@ public class ModuleScope implements Scope {
         return elem;
     }
 
-    public List<SymbolDescriptor> getSuggestions(int offset) {
+    public List<SymbolDescriptor> getSuggestions(int offset, List<ModuleScope> externalModules) {
         var elem = autoCompletionSourceByOffset.get(offset);
         if (elem != null) {
-            return elem.requestSuggestions();
+            return elem.requestSuggestions(externalModules);
         }
         while (elem == null && offset <= maxAutoCompletionSourceOffset) {
             elem = autoCompletionSourceByOffset.get(++offset);
         }
         if (elem != null && !elem.hasOwnCompletionScope()) {
-            return elem.requestSuggestions();
+            return elem.requestSuggestions(externalModules);
         }
         return SymbolDescriptorUtils.getGlobalKeywords();
     }
@@ -281,6 +281,10 @@ public class ModuleScope implements Scope {
         }
         loadedModules.put(moduleScope.getModuleId(), moduleScope);
         return true;
+    }
+
+    public Set<String> getDependenciesIds() {
+        return new HashSet<>(loadedModules.keySet());
     }
 
     public AnalyzerStepEnum getStep() {

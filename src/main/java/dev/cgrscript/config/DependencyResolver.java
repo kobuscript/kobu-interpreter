@@ -24,12 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.config;
 
-import dev.cgrscript.config.error.ProjectDependencyError;
 import dev.cgrscript.config.error.ProjectError;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
-import dev.cgrscript.interpreter.file_system.CgrFileSystem;
 import dev.cgrscript.interpreter.file_system.CgrScriptFile;
-import dev.cgrscript.interpreter.file_system.local.LocalCgrFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,14 +40,12 @@ public class DependencyResolver {
     private static final String LIB_PATH = "libs";
 
     private final Project project;
-    private final ProjectReader projectReader;
 
     private final Pattern gitUrlRegex = Pattern.compile("([a-z0-9+.-]+)://(?:(?:[^@]+?@)?([^/]+?)(?::[0-9]*)?)?(/[^:]+)");
     private final Pattern gitScpRegex = Pattern.compile("(?:[^@]+?@)?(.+?):([^:]+)");
 
-    public DependencyResolver(Project project, ProjectReader projectReader) {
+    public DependencyResolver(Project project) {
         this.project = project;
-        this.projectReader = projectReader;
     }
 
     public void fetchDependencies() {
@@ -95,35 +89,35 @@ public class DependencyResolver {
     }
 
     private List<File> getDependenciesSrcDirs(ProjectDependency dependency, Set<String> libs) throws ProjectError {
-        var cleanUrl = cleanUrl(dependency.getUrl());
-        var dependencyDir = getDependencyDir(dependency, cleanUrl);
-        var dependencyProjectFile = new File(dependencyDir, CgrFileSystem.PROJECT_CFG);
-
-        Project dependencyProject;
-        try {
-            dependencyProject = projectReader.load(new LocalCgrFile(dependencyProjectFile));
-        } catch (ProjectError error) {
-            throw new ProjectDependencyError(new SourceCodeRef(new LocalCgrFile(dependencyProjectFile)), dependency, error);
-        }
+//        var cleanUrl = cleanUrl(dependency.getUrl());
+//        var dependencyDir = getDependencyDir(dependency, cleanUrl);
+//        var dependencyProjectFile = new File(dependencyDir, CgrFileSystem.PROJECT_CFG);
+//
+//        Project dependencyProject;
+//        try {
+//            dependencyProject = projectReader.load(new LocalCgrFile(dependencyProjectFile));
+//        } catch (ProjectError error) {
+//            throw new ProjectDependencyError(new SourceCodeRef(new LocalCgrFile(dependencyProjectFile)), dependency, error);
+//        }
 
         List<File> srcDirs = new ArrayList<>();
-        if (dependencyProject.getSourcePaths() != null) {
-
-            for (ProjectSourcePath sourcePath : dependencyProject.getSourcePaths()) {
-                srcDirs.add(new File(dependencyDir, sourcePath.getPath()));
-            }
-
-        }
-
-        if (dependencyProject.getDependencies() != null) {
-
-            for (ProjectDependency transitiveDependency: dependencyProject.getDependencies()) {
-                if (libs.add(cleanUrl(transitiveDependency.getUrl()))) {
-                    srcDirs.addAll(getDependenciesSrcDirs(transitiveDependency, libs));
-                }
-            }
-
-        }
+//        if (dependencyProject.getSourcePaths() != null) {
+//
+//            for (ProjectSourcePath sourcePath : dependencyProject.getSourcePaths()) {
+//                srcDirs.add(new File(dependencyDir, sourcePath.getPath()));
+//            }
+//
+//        }
+//
+//        if (dependencyProject.getDependencies() != null) {
+//
+//            for (ProjectDependency transitiveDependency: dependencyProject.getDependencies()) {
+//                if (libs.add(cleanUrl(transitiveDependency.getUrl()))) {
+//                    srcDirs.addAll(getDependenciesSrcDirs(transitiveDependency, libs));
+//                }
+//            }
+//
+//        }
 
         return srcDirs;
     }

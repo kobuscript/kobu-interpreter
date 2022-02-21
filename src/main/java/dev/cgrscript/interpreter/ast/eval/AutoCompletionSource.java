@@ -24,14 +24,31 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval;
 
-import java.util.List;
+import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
+import dev.cgrscript.interpreter.ast.symbol.Symbol;
+
+import java.util.*;
 
 public interface AutoCompletionSource {
 
     List<SymbolDescriptor> EMPTY_LIST = List.of();
 
-    List<SymbolDescriptor> requestSuggestions();
+    List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules);
 
     boolean hasOwnCompletionScope();
 
+    default List<SymbolDescriptor> getExternalSymbols(List<ModuleScope> externalModules, SymbolTypeEnum... types) {
+        Set<SymbolTypeEnum> typeSet = new HashSet<>(Arrays.asList(types));
+        List<SymbolDescriptor> symbols = new ArrayList<>();
+        for (ModuleScope externalModule : externalModules) {
+            for (Symbol symbol : externalModule.getSymbols()) {
+                var descriptor = new SymbolDescriptor(symbol, externalModule.getModuleId());
+                if (typeSet.contains(descriptor.getType())) {
+                    symbols.add(descriptor);
+                }
+            }
+        }
+
+        return symbols;
+    }
 }

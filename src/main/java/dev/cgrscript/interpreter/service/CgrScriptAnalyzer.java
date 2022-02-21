@@ -24,11 +24,11 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.service;
 
+import dev.cgrscript.config.Project;
 import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
 import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
-import dev.cgrscript.interpreter.ast.eval.AutoCompletionSource;
 import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.HasElementRef;
 import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
@@ -66,8 +66,6 @@ public class CgrScriptAnalyzer {
 
     private final InputReader inputReader = new InputReader(new FileFetcher());
 
-    private final ProjectReader projectReader = new ProjectReader();
-
     private final CgrFileSystem fileSystem;
 
     private final Map<String, ModuleLoader> modules = new HashMap<>();
@@ -89,18 +87,14 @@ public class CgrScriptAnalyzer {
         return analyze(file, EvalModeEnum.EXECUTION);
     }
 
-    public synchronized List<CgrScriptError> analyze(CgrFile file, EvalModeEnum evalMode) {
-
-        CgrFile projectFile = fileSystem.findProjectDefinition(file);
-        ModuleLoader moduleLoader = getModuleLoader(projectFile);
-
+    public synchronized List<CgrScriptError> analyze(ModuleLoader moduleLoader, CgrFile file, EvalModeEnum evalMode) {
         List<CgrScriptError> errors = new ArrayList<>();
 
         ParserErrorListener parserErrorListener = new ParserErrorListener();
 
         ModuleScope moduleScope;
         try {
-            moduleScope = moduleLoader.load(parserErrorListener, file, projectFile);
+            moduleScope = moduleLoader.load(parserErrorListener, file);
         } catch (AnalyzerError e) {
             errors.addAll(e.toCgrScriptError(file));
             return errors;
@@ -161,21 +155,34 @@ public class CgrScriptAnalyzer {
         return errors;
     }
 
-    public synchronized CgrFile findModuleFile(CgrFile refFile, String moduleId) throws AnalyzerError {
-        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
-        ModuleLoader moduleLoader = getModuleLoader(projectFile);
-        return moduleLoader.findModuleFile(projectFile, refFile, moduleId);
+    public synchronized List<CgrScriptError> analyze(CgrFile file, EvalModeEnum evalMode) {
+
+        CgrFile projectFile = fileSystem.findProjectDefinition(file);
+        ModuleLoader moduleLoader;
+        try {
+            moduleLoader = getModuleLoader(projectFile, file);
+        } catch (AnalyzerError e) {
+            return new ArrayList<>(e.toCgrScriptError(file));
+        }
+
+        return analyze(moduleLoader, file, evalMode);
     }
 
-    public synchronized CgrElementDescriptor getTypeDescriptor(CgrFile refFile, String typeName) {
+    public synchronized CgrFile findModuleFile(CgrFile refFile, String moduleId) throws AnalyzerError {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
-        ModuleLoader moduleLoader = getModuleLoader(projectFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
+        return moduleLoader.findModuleFile(moduleId);
+    }
+
+    public synchronized CgrElementDescriptor getTypeDescriptor(CgrFile refFile, String typeName) throws AnalyzerError {
+        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
         return moduleLoader.getTypeDescriptor(refFile, typeName);
     }
 
-    public synchronized SourceCodeRef getElementRef(CgrFile refFile, int offset) {
+    public synchronized SourceCodeRef getElementRef(CgrFile refFile, int offset) throws AnalyzerError {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
-        ModuleLoader moduleLoader = getModuleLoader(projectFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
         CgrScriptFile script = moduleLoader.loadScript(refFile);
         if (script != null) {
             ModuleScope module = moduleLoader.getScope(script.extractModuleId());
@@ -189,17 +196,23 @@ public class CgrScriptAnalyzer {
         return null;
     }
 
-    public synchronized List<SymbolDescriptor> getSuggestions(CgrFile refFile, int offset) {
-        analyze(refFile, EvalModeEnum.ANALYZER_SERVICE);
-
+    public synchronized List<SymbolDescriptor> getSuggestions(CgrFile refFile, int offset) throws AnalyzerError {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
-        ModuleLoader moduleLoader = getModuleLoader(projectFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
+
+        if (moduleLoader.indexBuilt()) {
+            analyze(moduleLoader, refFile, EvalModeEnum.ANALYZER_SERVICE);
+        } else {
+            moduleLoader.buildIndex(new ParserErrorListener());
+        }
 
         CgrScriptFile script = moduleLoader.loadScript(refFile);
         if (script != null) {
-            ModuleScope module = moduleLoader.getScope(script.extractModuleId());
+            String moduleId = script.extractModuleId();
+            ModuleScope module = moduleLoader.getScope(moduleId);
+            List<ModuleScope> externalModules = moduleLoader.getExternalModules(moduleId);
             if (module != null) {
-                return module.getSuggestions(offset);
+                return module.getSuggestions(offset, externalModules);
             }
         }
         return new ArrayList<>();
@@ -217,13 +230,24 @@ public class CgrScriptAnalyzer {
         }
     }
 
-    private ModuleLoader getModuleLoader(CgrFile projectFile) {
+    private ModuleLoader getModuleLoader(CgrFile projectFile, CgrFile scriptFile) throws AnalyzerError {
         String projectPath = projectFile != null ? projectFile.getAbsolutePath() : "-default-";
-        return modules.computeIfAbsent(projectPath, k -> {
-            var loader = new ModuleLoader(fileSystem, projectReader);
-            InputNativeFunctionRegistry.register(loader);
-            return loader;
-        });
+        var moduleLoader = modules.get(projectPath);
+        if (moduleLoader != null) {
+            return moduleLoader;
+        }
+
+        var projectReader = new ProjectReader(fileSystem);
+        Project project;
+        if (projectFile != null) {
+            project = projectReader.load(projectFile);
+        } else {
+            project = projectReader.loadDefaultProject(scriptFile);
+        }
+        moduleLoader = new ModuleLoader(fileSystem, project);
+        InputNativeFunctionRegistry.register(moduleLoader);
+        modules.put(projectPath, moduleLoader);
+        return moduleLoader;
     }
 
     private boolean addErrors(CgrFile file, List<CgrScriptError> errors, ParserErrorListener parserErrorListener) {

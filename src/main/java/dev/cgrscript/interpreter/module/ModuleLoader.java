@@ -54,12 +54,8 @@ public class ModuleLoader {
 
     private final CgrFileSystem fileSystem;
 
-    private final ProjectReader projectReader;
-
     private DependencyResolver dependencyResolver;
-    private Project project;
-    private CgrDirectory projectDir;
-    private final List<CgrDirectory> srcDirs = new ArrayList<>();
+    private final Project project;
 
     private final Map<String, ModuleScope> modules = new HashMap<>();
 
@@ -69,45 +65,59 @@ public class ModuleLoader {
 
     private final Map<NativeFunctionId, NativeFunction> nativeFunctions = new HashMap<>();
 
-    public ModuleLoader(CgrFileSystem fileSystem, ProjectReader projectReader) {
+    private boolean indexBuilt = false;
+
+    public ModuleLoader(CgrFileSystem fileSystem, Project project) {
         this.fileSystem = fileSystem;
-        this.projectReader = projectReader;
+        this.project = project;
+    }
+
+    public boolean indexBuilt() {
+        return indexBuilt;
+    }
+
+    public List<AnalyzerError> buildIndex(ParserErrorListener parserErrorListener) {
+        var errors = new ArrayList<AnalyzerError>();
+        for (CgrDirectory srcDir : project.getSrcDirs()) {
+            fileSystem.walkFileTree(srcDir, entry -> {
+                if (entry instanceof CgrScriptFile) {
+                    try {
+                        load(parserErrorListener, (CgrScriptFile) entry);
+                    } catch (AnalyzerError e) {
+                        errors.add(e);
+                    }
+                }
+            });
+        }
+        indexBuilt = true;
+        return errors;
     }
 
     public void addNativeFunction(NativeFunctionId nativeFunctionId, NativeFunction nativeFunction) {
         nativeFunctions.put(nativeFunctionId, nativeFunction);
     }
 
-    public ModuleScope load(ParserErrorListener parserErrorListener, CgrFile file, CgrFile projectFile) throws AnalyzerError {
-        loadProject(file, projectFile);
+    public ModuleScope load(ParserErrorListener parserErrorListener, CgrFile file) throws AnalyzerError {
+        return load(parserErrorListener, fileSystem.loadScript(project.getSrcDirs(), file));
+    }
 
-        ModuleScope module = loadModule(parserErrorListener, fileSystem.loadScript(srcDirs, file),
-                null, null);
+    public ModuleScope load(ParserErrorListener parserErrorListener, CgrScriptFile script) throws AnalyzerError {
+        ModuleScope module = loadModule(parserErrorListener, script, null, null);
         modules.put(module.getModuleId(), module);
 
         return module;
     }
 
-    public CgrFile findModuleFile(CgrFile projectFile, CgrFile refFile, String moduleId) throws AnalyzerError {
-        loadProject(refFile, projectFile);
-        return fileSystem.loadScript(srcDirs, moduleId);
+    public CgrFile findModuleFile(String moduleId) {
+        return fileSystem.loadScript(project.getSrcDirs(), moduleId);
     }
 
     public CgrScriptFile loadScript(CgrFile file) {
-        return fileSystem.loadScript(srcDirs, file);
-    }
-
-    private void loadProject(CgrFile file, CgrFile projectFile) throws ProjectError {
-        if (projectFile != null && project == null) {
-            loadProjectDefinition(projectFile);
-        }
-        if (project == null) {
-            createDefaultProject(file);
-        }
+        return fileSystem.loadScript(project.getSrcDirs(), file);
     }
 
     public CgrElementDescriptor getTypeDescriptor(CgrFile refFile, String typeName) {
-        var scriptFile = fileSystem.loadScript(srcDirs, refFile);
+        var scriptFile = fileSystem.loadScript(project.getSrcDirs(), refFile);
         if (scriptFile == null) {
             return null;
         }
@@ -141,6 +151,20 @@ public class ModuleLoader {
         return modules.get(moduleId);
     }
 
+    public List<ModuleScope> getExternalModules(String moduleId) {
+        Set<String> moduleSet = new HashSet<>();
+        moduleSet.add(moduleId);
+        ModuleScope module = modules.get(moduleId);
+        moduleSet.addAll(module.getDependenciesIds());
+        List<ModuleScope> externalModules = new ArrayList<>();
+        for (Map.Entry<String, ModuleScope> entry : modules.entrySet()) {
+            if (!moduleSet.contains(entry.getKey())) {
+                externalModules.add(entry.getValue());
+            }
+        }
+        return externalModules;
+    }
+
     public ModuleScope loadScope(ParserErrorListener parserErrorListener,
                                  String moduleId, SourceCodeRef sourceCodeRef) throws AnalyzerError {
 
@@ -154,7 +178,7 @@ public class ModuleLoader {
             module = loadModule(parserErrorListener, classpathRef, moduleId, sourceCodeRef);
         } else {
 
-            CgrScriptFile script = fileSystem.loadScript(srcDirs, moduleId);
+            CgrScriptFile script = fileSystem.loadScript(project.getSrcDirs(), moduleId);
             if (script == null) {
                 throw new ModuleNotFoundError(sourceCodeRef, moduleId);
             }
@@ -177,32 +201,8 @@ public class ModuleLoader {
         moduleScope.setStep(step);
     }
 
-    public CgrDirectory getProjectDir() {
-        return projectDir;
-    }
-
     public Project getProject() {
         return project;
-    }
-
-    private void createDefaultProject(CgrFile scriptFile) {
-        this.projectDir = fileSystem.getParent(scriptFile);
-        this.project = new Project();
-        srcDirs.add(this.projectDir);
-    }
-
-    private void loadProjectDefinition(CgrFile file) throws ProjectError {
-        this.project = projectReader.load(file);
-        if (project.getSourcePaths() == null || project.getSourcePaths().isEmpty()) {
-            srcDirs.add(fileSystem.getParent(file));
-        } else {
-            for (ProjectSourcePath sourcePath : project.getSourcePaths()) {
-                srcDirs.add((CgrDirectory) fileSystem.loadEntry(fileSystem.getParent(file), sourcePath.getPath()));
-            }
-        }
-
-        dependencyResolver = new DependencyResolver(project, projectReader);
-        this.projectDir = fileSystem.getParent(file);
     }
 
     private ClasspathScriptRef getModuleFromClasspath(String moduleId) {

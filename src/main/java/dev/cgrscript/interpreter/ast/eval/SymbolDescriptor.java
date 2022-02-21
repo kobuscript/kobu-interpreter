@@ -38,7 +38,14 @@ public class SymbolDescriptor {
 
     private String metadata = "";
 
+    private String externalModule;
+
     public SymbolDescriptor(Symbol symbol) {
+        this(symbol, null);
+    }
+
+    public SymbolDescriptor(Symbol symbol, String externalModule) {
+        this.externalModule = externalModule;
         this.name = symbol.getName();
         if (symbol instanceof FunctionType) {
             this.type = SymbolTypeEnum.FUNCTION;
@@ -108,6 +115,10 @@ public class SymbolDescriptor {
 
     public String getMetadata() {
         return metadata;
+    }
+
+    public String getExternalModule() {
+        return externalModule;
     }
 
     @Override
