@@ -52,6 +52,12 @@ import java.util.*;
 
 public class ModuleLoader {
 
+    //TODO: implement a better way to register built-in modules
+    private static final String[] BUILTIN_MODULES = new String[]{
+        "dev.cgrscript.core.types.Csv",
+        "dev.cgrscript.core.types.Json"
+    };
+
     private final CgrFileSystem fileSystem;
 
     private DependencyResolver dependencyResolver;
@@ -93,6 +99,17 @@ public class ModuleLoader {
                     }
                 }
             });
+        }
+        for (String builtinModule : BUILTIN_MODULES) {
+            if (!modules.containsKey(builtinModule)) {
+                try {
+                    ModuleScope moduleScope = loadModule(parserErrorListener,
+                            getModuleFromClasspath(builtinModule), null, null);
+                    modules.put(builtinModule, moduleScope);
+                } catch (AnalyzerError e) {
+                    errors.add(e);
+                }
+            }
         }
         indexBuilt = true;
         return errors;

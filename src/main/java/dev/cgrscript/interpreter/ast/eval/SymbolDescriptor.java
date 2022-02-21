@@ -42,13 +42,16 @@ public class SymbolDescriptor {
 
     private int newImportOffset;
 
+    private boolean hasImports;
+
     public SymbolDescriptor(Symbol symbol) {
-        this(symbol, null, 0);
+        this(symbol, null, 0, false);
     }
 
-    public SymbolDescriptor(Symbol symbol, String externalModule, int newImportOffset) {
+    public SymbolDescriptor(Symbol symbol, String externalModule, int newImportOffset, boolean hasImports) {
         this.externalModule = externalModule;
         this.newImportOffset = newImportOffset;
+        this.hasImports = hasImports;
         this.name = symbol.getName();
         if (symbol instanceof FunctionType) {
             this.type = SymbolTypeEnum.FUNCTION;
@@ -126,6 +129,10 @@ public class SymbolDescriptor {
 
     public int getNewImportOffset() {
         return newImportOffset;
+    }
+
+    public boolean hasImports() {
+        return hasImports;
     }
 
     @Override

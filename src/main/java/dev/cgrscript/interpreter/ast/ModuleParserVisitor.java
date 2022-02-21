@@ -104,6 +104,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         moduleScope.setNewImportOffset(ctx.SEMI() != null ?
                 ctx.SEMI().getSymbol().getStopIndex() + 1 :
                 endOffset + 1);
+        moduleScope.setHasImports(true);
         return null;
     }
 

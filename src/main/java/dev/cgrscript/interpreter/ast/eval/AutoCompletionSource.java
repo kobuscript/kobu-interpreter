@@ -42,7 +42,8 @@ public interface AutoCompletionSource {
         List<SymbolDescriptor> symbols = new ArrayList<>();
         for (ModuleScope externalModule : externalModules) {
             for (Symbol symbol : externalModule.getSymbols()) {
-                var descriptor = new SymbolDescriptor(symbol, externalModule.getModuleId(), moduleScope.getNewImportOffset());
+                var descriptor = new SymbolDescriptor(symbol, externalModule.getModuleId(),
+                        moduleScope.getNewImportOffset(), moduleScope.hasImports());
                 if (typeSet.contains(descriptor.getType())) {
                     symbols.add(descriptor);
                 }

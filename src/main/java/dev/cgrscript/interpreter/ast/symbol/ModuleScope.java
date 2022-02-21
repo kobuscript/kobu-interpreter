@@ -70,6 +70,8 @@ public class ModuleScope implements Scope {
 
     private final Map<Integer, AutoCompletionSource> autoCompletionSourceByOffset = new HashMap<>();
 
+    private boolean hasImports = false;
+
     private int newImportOffset;
 
     private int maxRefOffset = 0;
@@ -328,6 +330,14 @@ public class ModuleScope implements Scope {
 
     public void setNewImportOffset(int newImportOffset) {
         this.newImportOffset = newImportOffset;
+    }
+
+    public boolean hasImports() {
+        return hasImports;
+    }
+
+    public void setHasImports(boolean hasImports) {
+        this.hasImports = true;
     }
 
 }

@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module dev.cgrscript.types.Json;
+module dev.cgrscript.core.types.Json;
 
 def type JsonFile {
     fileName: string,
