@@ -41,7 +41,7 @@ public class Match {
 
     private final MatchStateEnum state;
 
-    private RecordValueExpr rootRecord;
+    private final RecordValueExpr rootRecord;
 
     public Match(EvalContext context, RecordValueExpr rootRecord, ValueExpr fact) {
         this.context = context;

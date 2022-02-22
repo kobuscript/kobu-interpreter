@@ -59,6 +59,12 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
 
     @Override
     public Void visitModule(CgrScriptParser.ModuleContext ctx) {
+        if (ctx.moduleId() == null) {
+            moduleScope = new ModuleScope(script.extractModuleId(), script, moduleLoader.getProject().getProjectDirectory().getAbsolutePath(),
+                    moduleLoader.getProject().getProperties(), nativeFunctions);
+            moduleScope.addError(new InvalidModuleDeclarationError(getSourceCodeRef(ctx), "null"));
+            return null;
+        }
         List<String> segments = ctx.moduleId().ID()
                 .stream()
                 .map(ParseTree::getText)
@@ -151,7 +157,8 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ruleExtends() != null) {
             parentRule = ctx.ruleExtends().ID().getText();
         }
-        var template = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), moduleScope, RuleTypeEnum.TEMPLATE, parentRule);
+        var template = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.TEMPLATE_END()),
+                moduleScope, RuleTypeEnum.TEMPLATE, parentRule);
         moduleScope.define(template);
         return null;
     }
@@ -165,7 +172,8 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ruleExtends() != null) {
             parentRule = ctx.ruleExtends().ID().getText();
         }
-        var rule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), moduleScope, RuleTypeEnum.RULE, parentRule);
+        var rule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.RCB()),
+                moduleScope, RuleTypeEnum.RULE, parentRule);
         moduleScope.define(rule);
         return null;
     }
@@ -179,7 +187,8 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ruleExtends() != null) {
             parentRule = ctx.ruleExtends().ID().getText();
         }
-        var fileRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), moduleScope, RuleTypeEnum.FILE, parentRule);
+        var fileRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.PATH_END()),
+                moduleScope, RuleTypeEnum.FILE, parentRule);
         moduleScope.define(fileRule);
         return null;
     }

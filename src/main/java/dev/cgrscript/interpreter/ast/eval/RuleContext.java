@@ -25,8 +25,11 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval;
 
 import dev.cgrscript.database.match.Match;
+import dev.cgrscript.interpreter.ast.symbol.RuleSymbol;
 
 public interface RuleContext {
+
+    RuleSymbol getRuleSymbol();
 
     Match getMatch();
 

@@ -119,7 +119,7 @@ public class RuleIndexNode extends OneInputIndexNode {
         var record = match.getRootRecord();
         if (record != null) {
             var ctx = contextMap.computeIfAbsent(record.getId(),
-                    key -> new RuleInstance(query.getWhenExpr(), block));
+                    key -> new RuleInstance(ruleSymbol, query.getWhenExpr(), block));
             ctx.run(match);
         }
     }

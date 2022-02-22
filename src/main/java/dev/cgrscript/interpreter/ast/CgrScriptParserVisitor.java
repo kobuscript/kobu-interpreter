@@ -42,6 +42,9 @@ public abstract class CgrScriptParserVisitor<T> extends CgrScriptParserBaseVisit
     }
 
     protected SourceCodeRef getSourceCodeRef(ParserRuleContext ctx) {
+        if (ctx == null) {
+            return null;
+        }
         return new SourceCodeRef(
                 moduleScope.getScript(),
                 moduleScope.getModuleId(),
@@ -54,6 +57,9 @@ public abstract class CgrScriptParserVisitor<T> extends CgrScriptParserBaseVisit
     }
 
     protected SourceCodeRef getSourceCodeRef(TerminalNode node) {
+        if (node == null) {
+            return null;
+        }
         return new SourceCodeRef(
                 moduleScope.getScript(),
                 moduleScope.getModuleId(),

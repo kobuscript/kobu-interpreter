@@ -27,11 +27,14 @@ package dev.cgrscript.database.index.impl;
 import dev.cgrscript.database.match.Match;
 import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.expr.value.BooleanValueExpr;
+import dev.cgrscript.interpreter.ast.symbol.RuleSymbol;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 
 import java.util.List;
 
 public class RuleInstance implements RuleContext {
+
+    private final RuleSymbol ruleSymbol;
 
     private final Expr whenExpr;
 
@@ -41,7 +44,8 @@ public class RuleInstance implements RuleContext {
 
     private Match currentMatch;
 
-    public RuleInstance(Expr whenExpr, List<Evaluable> block) {
+    public RuleInstance(RuleSymbol ruleSymbol, Expr whenExpr, List<Evaluable> block) {
+        this.ruleSymbol = ruleSymbol;
         this.whenExpr = whenExpr;
         this.block = block;
     }
@@ -73,6 +77,11 @@ public class RuleInstance implements RuleContext {
             return ((BooleanValueExpr) valueExpr).getValue();
         }
         return true;
+    }
+
+    @Override
+    public RuleSymbol getRuleSymbol() {
+        return ruleSymbol;
     }
 
     @Override

@@ -59,6 +59,8 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
     private Collection<SymbolDescriptor> symbolsInScope;
 
+    private int newFunctionOffset;
+
     public FunctionCallExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef,
                             String functionName, List<FunctionArgExpr> args) {
         this.moduleScope = moduleScope;
@@ -73,8 +75,14 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
     @Override
     public void analyze(EvalContext context) {
 
+        if (context.getFunction() != null) {
+            newFunctionOffset = context.getFunction().getCloseFunctionRef().getStartOffset() + 1;
+        } else if (context.getRuleContext() != null) {
+            newFunctionOffset = context.getRuleContext().getRuleSymbol().getCloseRuleRef().getStartOffset() + 1;
+        }
+
         if (typeScope == null) {
-            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            if (context.getEvalMode() != EvalModeEnum.EXECUTION) {
                 this.symbolsInScope = context.getCurrentScope()
                         .getSymbolDescriptors(
                                 SymbolTypeEnum.VARIABLE,
@@ -96,7 +104,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
             this.functionType = functionType;
 
         } else {
-            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            if (context.getEvalMode() != EvalModeEnum.EXECUTION) {
                 List<SymbolDescriptor> symbols = new ArrayList<>();
                 for (FieldDescriptor field : typeScope.getFields()) {
                     symbols.add(new SymbolDescriptor(field));
@@ -219,6 +227,10 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
     @Override
     public boolean hasOwnCompletionScope() {
         return false;
+    }
+
+    public int getNewFunctionOffset() {
+        return newFunctionOffset;
     }
 
 }

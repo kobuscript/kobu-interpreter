@@ -40,6 +40,8 @@ import java.util.List;
 
 public class RuleSymbol extends Symbol implements HasExpr {
 
+    private final SourceCodeRef closeRuleRef;
+
     private final ModuleScope moduleScope;
 
     private final RuleTypeEnum ruleType;
@@ -50,9 +52,10 @@ public class RuleSymbol extends Symbol implements HasExpr {
 
     private List<Evaluable> block;
 
-    public RuleSymbol(SourceCodeRef sourceCodeRef, String name, ModuleScope moduleScope,
-                      RuleTypeEnum ruleType, String parentRule) {
+    public RuleSymbol(SourceCodeRef sourceCodeRef, String name, SourceCodeRef closeRuleRef,
+                      ModuleScope moduleScope, RuleTypeEnum ruleType, String parentRule) {
         super(moduleScope, sourceCodeRef, name);
+        this.closeRuleRef = closeRuleRef;
         this.moduleScope = moduleScope;
         this.ruleType = ruleType;
         this.parentRule = parentRule;
@@ -84,6 +87,10 @@ public class RuleSymbol extends Symbol implements HasExpr {
 
     public void setBlock(List<Evaluable> block) {
         this.block = block;
+    }
+
+    public SourceCodeRef getCloseRuleRef() {
+        return closeRuleRef;
     }
 
     @Override

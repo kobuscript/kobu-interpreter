@@ -82,7 +82,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     @Override
     public void analyze(EvalContext context) {
         if (typeScope == null) {
-            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            if (context.getEvalMode() != EvalModeEnum.EXECUTION) {
                 this.symbolsInScope = context.getCurrentScope()
                         .getSymbolDescriptors(
                                 SymbolTypeEnum.VARIABLE,
@@ -127,7 +127,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             this.type = UnknownType.INSTANCE;
 
         } else {
-            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            if (context.getEvalMode() != EvalModeEnum.EXECUTION) {
                 List<SymbolDescriptor> symbols = new ArrayList<>();
                 for (FieldDescriptor field : typeScope.getFields()) {
                     symbols.add(new SymbolDescriptor(field));

@@ -91,6 +91,10 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
         this.exprList = exprList;
     }
 
+    public SourceCodeRef getCloseFunctionRef() {
+        return closeFunctionRef;
+    }
+
     @Override
     public void analyze(EvalModeEnum evalMode, Database database, InputReader inputReader, OutputWriter outputWriter) {
         var context = new EvalContext(evalMode, moduleScope, database, inputReader, outputWriter, this);

@@ -84,7 +84,7 @@ public class CgrScriptAnalyzer {
     }
 
     public synchronized List<CgrScriptError> analyze(CgrFile file) {
-        return analyze(file, EvalModeEnum.EXECUTION);
+        return analyze(file, EvalModeEnum.ANALYZER_SERVICE);
     }
 
     public synchronized List<CgrScriptError> analyze(ModuleLoader moduleLoader, CgrFile file, EvalModeEnum evalMode) {
