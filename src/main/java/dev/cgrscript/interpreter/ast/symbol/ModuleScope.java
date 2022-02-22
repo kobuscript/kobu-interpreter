@@ -41,6 +41,7 @@ import dev.cgrscript.interpreter.error.analyzer.SymbolConflictError;
 import dev.cgrscript.interpreter.file_system.ScriptRef;
 import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
+import dev.cgrscript.interpreter.module.ModuleIndex;
 import dev.cgrscript.interpreter.writer.OutputWriter;
 
 import java.util.*;
@@ -70,6 +71,8 @@ public class ModuleScope implements Scope {
 
     private final Map<Integer, AutoCompletionSource> autoCompletionSourceByOffset = new HashMap<>();
 
+    private final ModuleIndex moduleIndex;
+
     private boolean hasImports = false;
 
     private int newImportOffset;
@@ -85,12 +88,14 @@ public class ModuleScope implements Scope {
     private AnalyzerStepEnum step;
 
     public ModuleScope(String moduleId, ScriptRef script, String projectDir,
-                       List<ProjectProperty> properties, Map<NativeFunctionId, NativeFunction> nativeFunctions) {
+                       List<ProjectProperty> properties, Map<NativeFunctionId, NativeFunction> nativeFunctions,
+                       ModuleIndex moduleIndex) {
         this.moduleId = moduleId;
         this.script = script;
         this.properties = properties;
         this.projectDir = projectDir;
         this.nativeFunctions = nativeFunctions;
+        this.moduleIndex = moduleIndex;
     }
 
     @Override
@@ -344,6 +349,10 @@ public class ModuleScope implements Scope {
 
     public void setHasImports(boolean hasImports) {
         this.hasImports = true;
+    }
+
+    public ModuleIndex getModuleIndex() {
+        return moduleIndex;
     }
 
 }

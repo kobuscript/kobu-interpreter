@@ -24,38 +24,43 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.module;
 
-public class CgrElementDescriptor {
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-    public static CgrElementDescriptor builtinElement(String name) {
-        return new CgrElementDescriptor(true, null, name);
+public class ModuleIndexNode {
+
+    private final String segment;
+
+    private final Map<String, ModuleIndexNode> children = new LinkedHashMap<>();
+
+    public ModuleIndexNode(String segment) {
+        this.segment = segment;
     }
 
-    public static CgrElementDescriptor element(String moduleId, String name) {
-        return new CgrElementDescriptor(false, moduleId, name);
+    public String getSegment() {
+        return segment;
     }
 
-    private final boolean builtin;
-
-    private final String moduleId;
-
-    private final String name;
-
-    private CgrElementDescriptor(boolean builtin, String moduleId, String name) {
-        this.builtin = builtin;
-        this.moduleId = moduleId;
-        this.name = name;
+    public ModuleIndexNode getOrCreateChild(String segment) {
+        return children.computeIfAbsent(segment, ModuleIndexNode::new);
     }
 
-    public boolean isBuiltin() {
-        return builtin;
+    public ModuleIndexNode getChild(String segment) {
+        return children.get(segment);
     }
 
-    public String getModuleId() {
-        return moduleId;
+    public List<String> getChildren() {
+        return new ArrayList<>(children.keySet());
     }
 
-    public String getName() {
-        return name;
+    protected void addModule(String[] segments, int idx) {
+        String segment = segments[idx];
+        ModuleIndexNode node = getOrCreateChild(segment);
+        if (idx < segments.length - 1) {
+            node.addModule(segments, idx + 1);
+        }
     }
 
 }

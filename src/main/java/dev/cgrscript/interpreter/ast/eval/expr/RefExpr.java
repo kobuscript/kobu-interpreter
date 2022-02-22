@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementRef {
 
@@ -87,7 +86,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                         .getSymbolDescriptors(
                                 SymbolTypeEnum.VARIABLE,
                                 SymbolTypeEnum.FUNCTION,
-                                SymbolTypeEnum.MODULE,
+                                SymbolTypeEnum.MODULE_REF,
                                 SymbolTypeEnum.RULE,
                                 SymbolTypeEnum.TEMPLATE,
                                 SymbolTypeEnum.FILE,

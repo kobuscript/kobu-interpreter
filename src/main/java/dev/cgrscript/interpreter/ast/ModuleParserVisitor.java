@@ -61,7 +61,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
     public Void visitModule(CgrScriptParser.ModuleContext ctx) {
         if (ctx.moduleId() == null) {
             moduleScope = new ModuleScope(script.extractModuleId(), script, moduleLoader.getProject().getProjectDirectory().getAbsolutePath(),
-                    moduleLoader.getProject().getProperties(), nativeFunctions);
+                    moduleLoader.getProject().getProperties(), nativeFunctions, moduleLoader.getModuleIndex());
             moduleScope.addError(new InvalidModuleDeclarationError(getSourceCodeRef(ctx), "null"));
             return null;
         }
@@ -72,7 +72,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         String declaredModuleId = String.join(".", segments);
         String fileModuleId = script.extractModuleId();
         moduleScope = new ModuleScope(declaredModuleId, script, moduleLoader.getProject().getProjectDirectory().getAbsolutePath(),
-                moduleLoader.getProject().getProperties(), nativeFunctions);
+                moduleLoader.getProject().getProperties(), nativeFunctions, moduleLoader.getModuleIndex());
         if (!declaredModuleId.equals(fileModuleId)) {
             moduleScope.addError(new InvalidModuleDeclarationError(getSourceCodeRef(ctx), declaredModuleId));
         }

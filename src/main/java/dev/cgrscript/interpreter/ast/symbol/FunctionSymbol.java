@@ -102,7 +102,7 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
 
         symbolsModule = scope.getSymbolDescriptors(
                         SymbolTypeEnum.FUNCTION,
-                        SymbolTypeEnum.MODULE,
+                        SymbolTypeEnum.MODULE_REF,
                         SymbolTypeEnum.RULE,
                         SymbolTypeEnum.TEMPLATE,
                         SymbolTypeEnum.FILE,

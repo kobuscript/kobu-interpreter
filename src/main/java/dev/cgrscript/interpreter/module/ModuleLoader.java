@@ -24,11 +24,10 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.module;
 
+import dev.cgrscript.antlr.cgrscript.CgrScriptLexer;
+import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
 import dev.cgrscript.config.DependencyResolver;
 import dev.cgrscript.config.Project;
-import dev.cgrscript.config.ProjectReader;
-import dev.cgrscript.config.ProjectSourcePath;
-import dev.cgrscript.config.error.ProjectError;
 import dev.cgrscript.interpreter.ast.CgrScriptParserVisitor;
 import dev.cgrscript.interpreter.ast.ModuleParserVisitor;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
@@ -40,8 +39,6 @@ import dev.cgrscript.interpreter.error.analyzer.CyclicModuleReferenceError;
 import dev.cgrscript.interpreter.error.analyzer.InternalParserError;
 import dev.cgrscript.interpreter.error.analyzer.ModuleNotFoundError;
 import dev.cgrscript.interpreter.file_system.*;
-import dev.cgrscript.antlr.cgrscript.CgrScriptLexer;
-import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -70,6 +67,8 @@ public class ModuleLoader {
     private final LinkedHashSet<String> moduleLoaderStack = new LinkedHashSet<>();
 
     private final Map<NativeFunctionId, NativeFunction> nativeFunctions = new HashMap<>();
+
+    private final ModuleIndex moduleIndex = new ModuleIndex();
 
     private boolean indexBuilt = false;
 
@@ -110,6 +109,11 @@ public class ModuleLoader {
                 }
             }
         }
+
+        for (String moduleId : modules.keySet()) {
+            moduleIndex.addModule(moduleId);
+        }
+
         indexBuilt = true;
         return errors;
     }
@@ -125,6 +129,7 @@ public class ModuleLoader {
     public ModuleScope load(ParserErrorListener parserErrorListener, CgrScriptFile script) throws AnalyzerError {
         ModuleScope module = loadModule(parserErrorListener, script, null, null);
         modules.put(module.getModuleId(), module);
+        moduleIndex.addModule(module.getModuleId());
 
         return module;
     }
@@ -206,6 +211,7 @@ public class ModuleLoader {
             module = loadModule(parserErrorListener, script, moduleId, sourceCodeRef);
         }
         modules.put(module.getModuleId(), module);
+        moduleIndex.addModule(module.getModuleId());
         return module;
     }
 
@@ -224,6 +230,10 @@ public class ModuleLoader {
 
     public Project getProject() {
         return project;
+    }
+
+    public ModuleIndex getModuleIndex() {
+        return moduleIndex;
     }
 
     private ClasspathScriptRef getModuleFromClasspath(String moduleId) {

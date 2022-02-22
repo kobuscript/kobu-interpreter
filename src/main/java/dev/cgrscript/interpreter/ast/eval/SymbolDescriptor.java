@@ -64,7 +64,7 @@ public class SymbolDescriptor {
             this.metadata = ((VariableSymbol) symbol).getType().getName();
         } else if (symbol instanceof ModuleRefSymbol) {
             this.name = ((ModuleRefSymbol)symbol).getAlias();
-            this.type = SymbolTypeEnum.MODULE;
+            this.type = SymbolTypeEnum.MODULE_REF;
             this.metadata = ((ModuleRefSymbol)symbol).getModuleScope().getModuleId();
         } else if (symbol instanceof Type) {
             this.type = SymbolTypeEnum.TYPE;
