@@ -82,8 +82,7 @@ public class ModuleLoader {
         return indexBuilt;
     }
 
-    public List<AnalyzerError> buildIndex(ParserErrorListener parserErrorListener, CgrScriptFile refScript) {
-        var refModuleId = refScript.extractModuleId();
+    public List<AnalyzerError> buildIndex(ParserErrorListener parserErrorListener) {
         var errors = new ArrayList<AnalyzerError>();
         for (CgrDirectory srcDir : project.getSrcDirs()) {
             fileSystem.walkFileTree(srcDir, entry -> {
@@ -91,7 +90,7 @@ public class ModuleLoader {
                     try {
                         CgrScriptFile script = (CgrScriptFile) entry;
                         String moduleId = script.extractModuleId();
-                        if (refModuleId.equals(moduleId) || !modules.containsKey(moduleId)) {
+                        if (!modules.containsKey(moduleId)) {
                             load(parserErrorListener, script);
                         }
                     } catch (AnalyzerError e) {

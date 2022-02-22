@@ -128,8 +128,14 @@ public class ModuleScope implements Scope {
 
     @Override
     public Collection<Symbol> getSymbols() {
+        return getSymbols(true);
+    }
+
+    public Collection<Symbol> getSymbols(boolean includeBuiltin) {
         var result = new ArrayList<>(symbols.values());
-        result.addAll(builtinScope.getSymbols());
+        if (includeBuiltin) {
+            result.addAll(builtinScope.getSymbols());
+        }
         return result;
     }
 

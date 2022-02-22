@@ -41,7 +41,7 @@ public interface AutoCompletionSource {
         Set<SymbolTypeEnum> typeSet = new HashSet<>(Arrays.asList(types));
         List<SymbolDescriptor> symbols = new ArrayList<>();
         for (ModuleScope externalModule : externalModules) {
-            for (Symbol symbol : externalModule.getSymbols()) {
+            for (Symbol symbol : externalModule.getSymbols(false)) {
                 var descriptor = new SymbolDescriptor(symbol, externalModule.getModuleId(),
                         moduleScope.getNewImportOffset(), moduleScope.hasImports());
                 if (typeSet.contains(descriptor.getType())) {

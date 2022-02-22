@@ -30,6 +30,8 @@ import dev.cgrscript.interpreter.error.analyzer.FunctionMissingReturnStatError;
 import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.writer.OutputWriter;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
@@ -44,10 +46,24 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
 
     private List<Evaluable> exprList;
 
+    private Collection<SymbolDescriptor> symbolsModule;
+
     public FunctionSymbol(SourceCodeRef sourceCodeRef, SourceCodeRef closeFunctionRef, ModuleScope moduleScope, String name) {
         super(moduleScope, sourceCodeRef, name);
         this.closeFunctionRef = closeFunctionRef;
         this.moduleScope = moduleScope;
+
+        moduleScope.registerAutoCompletionSource(closeFunctionRef.getStartOffset(), new AutoCompletionSource() {
+            @Override
+            public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                return new ArrayList<>(symbolsModule);
+            }
+
+            @Override
+            public boolean hasOwnCompletionScope() {
+                return false;
+            }
+        });
     }
 
     @Override
@@ -79,6 +95,15 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
     public void analyze(EvalModeEnum evalMode, Database database, InputReader inputReader, OutputWriter outputWriter) {
         var context = new EvalContext(evalMode, moduleScope, database, inputReader, outputWriter, this);
         var scope = context.getCurrentScope();
+
+        symbolsModule = scope.getSymbolDescriptors(
+                        SymbolTypeEnum.FUNCTION,
+                        SymbolTypeEnum.MODULE,
+                        SymbolTypeEnum.RULE,
+                        SymbolTypeEnum.TEMPLATE,
+                        SymbolTypeEnum.FILE,
+                        SymbolTypeEnum.KEYWORD);
+
         for (FunctionParameter parameter : parameters) {
             VariableSymbol variableSymbol = new VariableSymbol(moduleScope, parameter.getSourceCodeRef(), parameter.getName(),
                     parameter.getType());

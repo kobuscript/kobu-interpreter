@@ -202,11 +202,10 @@ public class CgrScriptAnalyzer {
 
         CgrScriptFile script = moduleLoader.loadScript(refFile);
         if (script != null) {
-            if (moduleLoader.indexBuilt()) {
-                analyze(moduleLoader, refFile, EvalModeEnum.ANALYZER_SERVICE);
-            } else {
-                moduleLoader.buildIndex(new ParserErrorListener(), script);
+            if (!moduleLoader.indexBuilt()) {
+                moduleLoader.buildIndex(new ParserErrorListener());
             }
+            analyze(moduleLoader, refFile, EvalModeEnum.ANALYZER_SERVICE);
 
             String moduleId = script.extractModuleId();
             ModuleScope module = moduleLoader.getScope(moduleId);
