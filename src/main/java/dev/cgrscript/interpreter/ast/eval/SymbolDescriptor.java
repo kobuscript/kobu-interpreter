@@ -140,11 +140,11 @@ public class SymbolDescriptor {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SymbolDescriptor that = (SymbolDescriptor) o;
-        return type == that.type && Objects.equals(name, that.name);
+        return type == that.type && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(metadata, that.metadata);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, name);
+        return Objects.hash(type, name, description, metadata);
     }
 }
