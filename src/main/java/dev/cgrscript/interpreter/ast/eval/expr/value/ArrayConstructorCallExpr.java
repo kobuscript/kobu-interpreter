@@ -82,7 +82,7 @@ public class ArrayConstructorCallExpr implements Expr, HasTargetType {
                 } else {
                     var commonType = elementType.getCommonSuperType(inferType);
                     if (commonType == null) {
-                        context.getModuleScope().addError(new InvalidTypeError(element.getSourceCodeRef(),
+                        context.addAnalyzerError(new InvalidTypeError(element.getSourceCodeRef(),
                                 inferType, elementType));
                         this.type = new ArrayType(UnknownType.INSTANCE);
                         return;

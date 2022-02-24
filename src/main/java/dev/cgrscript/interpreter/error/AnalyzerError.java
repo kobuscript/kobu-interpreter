@@ -30,7 +30,9 @@ import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.file_system.CgrFile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class AnalyzerError extends Exception {
 
@@ -128,6 +130,21 @@ public abstract class AnalyzerError extends Exception {
             return symbolType;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CgrScriptErrorImpl that = (CgrScriptErrorImpl) o;
+            return Objects.equals(description, that.description) && Objects.equals(sourceCodeRef, that.sourceCodeRef)
+                    && Arrays.equals(actions, that.actions) && symbolType == that.symbolType;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(description, sourceCodeRef, symbolType);
+            result = 31 * result + Arrays.hashCode(actions);
+            return result;
+        }
     }
 
 }

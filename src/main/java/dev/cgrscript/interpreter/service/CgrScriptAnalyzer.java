@@ -27,6 +27,8 @@ package dev.cgrscript.interpreter.service;
 import dev.cgrscript.config.Project;
 import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.database.Database;
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
+import dev.cgrscript.interpreter.ast.AnalyzerErrorScope;
 import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
 import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
 import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
@@ -44,7 +46,6 @@ import dev.cgrscript.interpreter.file_system.CgrScriptFile;
 import dev.cgrscript.interpreter.input.FileFetcher;
 import dev.cgrscript.interpreter.input.InputNativeFunctionRegistry;
 import dev.cgrscript.interpreter.input.InputReader;
-import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
 import dev.cgrscript.interpreter.module.CgrElementDescriptor;
 import dev.cgrscript.interpreter.module.ModuleLoader;
 import dev.cgrscript.interpreter.writer.FileSystemWriterHandler;
@@ -83,79 +84,30 @@ public class CgrScriptAnalyzer {
         modules.remove(projectFile.getAbsolutePath());
     }
 
-    public synchronized List<CgrScriptError> analyze(CgrFile file) {
-        return analyze(file, EvalModeEnum.ANALYZER_SERVICE);
-    }
-
-    public synchronized List<CgrScriptError> analyze(ModuleLoader moduleLoader, CgrFile file, EvalModeEnum evalMode) {
+    public synchronized List<CgrScriptError> analyze(ModuleLoader moduleLoader, CgrFile file) {
         List<CgrScriptError> errors = new ArrayList<>();
 
-        ParserErrorListener parserErrorListener = new ParserErrorListener();
+        AnalyzerContext analyzerContext = new AnalyzerContext();
 
         ModuleScope moduleScope;
         try {
-            moduleScope = moduleLoader.load(parserErrorListener, file);
+            moduleScope = moduleLoader.load(analyzerContext, file);
         } catch (AnalyzerError e) {
             errors.addAll(e.toCgrScriptError(file));
             return errors;
         }
 
-        if (addErrors(file, errors, parserErrorListener)) {
-            if (evalMode == EvalModeEnum.EXECUTION) {
-                return errors;
-            }
-        }
+        addErrors(file, errors, analyzerContext.getParserErrorListener());
+        addErrors(file, errors, analyzerContext.getErrorScope());
 
-        if (addErrors(file, errors, moduleScope)) {
-            if (evalMode == EvalModeEnum.EXECUTION) {
-                return errors;
-            }
-        }
+        moduleScope.analyze(analyzerContext, database, inputReader, outputWriter);
 
-        EvalTreeParserVisitor evalTreeParserVisitor = new EvalTreeParserVisitor(moduleLoader, moduleScope, parserErrorListener);
-        try {
-            moduleLoader.visit(moduleScope.getModuleId(), evalTreeParserVisitor, AnalyzerStepEnum.EVAL_TREE);
-        } catch (AnalyzerError e) {
-            errors.addAll(e.toCgrScriptError(file));
-            if (evalMode == EvalModeEnum.EXECUTION) {
-                return errors;
-            }
-        }
-
-        if (addErrors(file, errors, moduleScope)) {
-            if (evalMode == EvalModeEnum.EXECUTION) {
-                return errors;
-            }
-        }
-
-        TypeHierarchyParserVisitor typeHierarchyParserVisitor = new TypeHierarchyParserVisitor(moduleLoader, moduleScope, parserErrorListener);
-        try {
-            moduleLoader.visit(moduleScope.getModuleId(), typeHierarchyParserVisitor, AnalyzerStepEnum.TYPE_HIERARCHY);
-        } catch (AnalyzerError e) {
-            errors.addAll(e.toCgrScriptError(file));
-            if (evalMode == EvalModeEnum.EXECUTION) {
-                return errors;
-            }
-        }
-
-        if (addErrors(file, errors, moduleScope)) {
-            if (evalMode == EvalModeEnum.EXECUTION) {
-                return errors;
-            }
-        }
-
-        moduleScope.analyze(evalMode, database, inputReader, outputWriter);
-
-        if (addErrors(file, errors, moduleScope)) {
-            if (evalMode == EvalModeEnum.EXECUTION) {
-                return errors;
-            }
-        }
+        addErrors(file, errors, analyzerContext.getErrorScope());
 
         return errors;
     }
 
-    public synchronized List<CgrScriptError> analyze(CgrFile file, EvalModeEnum evalMode) {
+    public synchronized List<CgrScriptError> analyze(CgrFile file) {
 
         CgrFile projectFile = fileSystem.findProjectDefinition(file);
         ModuleLoader moduleLoader;
@@ -165,7 +117,7 @@ public class CgrScriptAnalyzer {
             return new ArrayList<>(e.toCgrScriptError(file));
         }
 
-        return analyze(moduleLoader, file, evalMode);
+        return analyze(moduleLoader, file);
     }
 
     public synchronized CgrFile findModuleFile(CgrFile refFile, String moduleId) throws AnalyzerError {
@@ -203,9 +155,9 @@ public class CgrScriptAnalyzer {
         CgrScriptFile script = moduleLoader.loadScript(refFile);
         if (script != null) {
             if (!moduleLoader.indexBuilt()) {
-                moduleLoader.buildIndex(new ParserErrorListener());
+                moduleLoader.buildIndex(new AnalyzerContext());
             }
-            analyze(moduleLoader, refFile, EvalModeEnum.ANALYZER_SERVICE);
+            analyze(moduleLoader, refFile);
 
             String moduleId = script.extractModuleId();
             ModuleScope module = moduleLoader.getScope(moduleId);
@@ -243,7 +195,7 @@ public class CgrScriptAnalyzer {
         } else {
             project = projectReader.loadDefaultProject(scriptFile);
         }
-        moduleLoader = new ModuleLoader(fileSystem, project);
+        moduleLoader = new ModuleLoader(fileSystem, project, EvalModeEnum.ANALYZER_SERVICE);
         InputNativeFunctionRegistry.register(moduleLoader);
         modules.put(projectPath, moduleLoader);
         return moduleLoader;
@@ -263,8 +215,8 @@ public class CgrScriptAnalyzer {
         return hasErrors;
     }
 
-    private boolean addErrors(CgrFile file, List<CgrScriptError> errors, ModuleScope moduleScope) {
-        var analyzerErrors = moduleScope.getErrors();
+    private boolean addErrors(CgrFile file, List<CgrScriptError> errors, AnalyzerErrorScope errorScope) {
+        var analyzerErrors = errorScope.getErrors();
         if (analyzerErrors == null || analyzerErrors.isEmpty()) {
             return false;
         }

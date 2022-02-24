@@ -27,7 +27,9 @@ package dev.cgrscript.interpreter.ast.utils;
 import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
 import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SymbolDescriptorUtils {
 
@@ -60,5 +62,12 @@ public class SymbolDescriptorUtils {
 
     public static List<SymbolDescriptor> getGlobalKeywords() {
         return globalKeywords;
+    }
+
+    public static List<SymbolDescriptor> getSymbolsForImportSegments(String prefix, List<String> segments) {
+        return segments.stream()
+                .map(segment -> new SymbolDescriptor(SymbolTypeEnum.MODULE_SEGMENT, prefix + segment, segment,
+                        "", ""))
+                .collect(Collectors.toList());
     }
 }

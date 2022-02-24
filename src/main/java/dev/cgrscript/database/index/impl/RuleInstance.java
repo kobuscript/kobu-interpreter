@@ -53,7 +53,8 @@ public class RuleInstance implements RuleContext {
     public void run(Match match) {
         this.currentMatch = match;
         EvalContext matchCtx = match.getContext();
-        EvalContext evalContext = new EvalContext(matchCtx.getEvalMode(), matchCtx.getModuleScope(),
+        EvalContext evalContext = new EvalContext(matchCtx.getAnalyzerContext(),
+                matchCtx.getEvalMode(), matchCtx.getModuleScope(),
                 matchCtx.getDatabase(), matchCtx.getInputParser(),
                 matchCtx.getOutputWriter(), this);
         evalContext.getCurrentScope().addAll(matchCtx.getCurrentScope());

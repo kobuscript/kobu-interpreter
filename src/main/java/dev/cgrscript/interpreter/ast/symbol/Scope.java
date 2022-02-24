@@ -24,13 +24,15 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
+
 import java.util.Collection;
 
 public interface Scope {
 
     Scope getEnclosingScope();
 
-    void define(Symbol symbol);
+    void define(AnalyzerContext analyzerContext, Symbol symbol);
 
     Symbol resolve(String name);
 

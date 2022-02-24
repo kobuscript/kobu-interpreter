@@ -64,7 +64,7 @@ public class AddExpr implements Expr {
         } else if (leftExpr.getType() instanceof StringTypeSymbol || rightExpr.getType() instanceof StringTypeSymbol) {
             type = BuiltinScope.STRING_TYPE;
         } else {
-            context.getModuleScope().addError(new InvalidOperatorError(sourceCodeRef,
+            context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef,
                     leftExpr.getType(), "+", rightExpr.getType()));
             type = UnknownType.INSTANCE;
         }
@@ -78,10 +78,8 @@ public class AddExpr implements Expr {
         var rightValueExpr = rightExpr.evalExpr(context);
 
         if (leftValueExpr instanceof StringValueExpr || rightValueExpr instanceof StringValueExpr) {
-            StringBuilder strBuilder = new StringBuilder();
-            strBuilder.append(getString(leftValueExpr));
-            strBuilder.append(getString(rightValueExpr));
-            return new StringValueExpr(sourceCodeRef, strBuilder.toString());
+            String str = getString(leftValueExpr) + getString(rightValueExpr);
+            return new StringValueExpr(sourceCodeRef, str);
         }
 
         if (leftValueExpr instanceof NullValueExpr) {

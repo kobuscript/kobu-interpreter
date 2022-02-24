@@ -63,7 +63,7 @@ public class SubExpr implements Expr {
         if (leftExpr.getType() instanceof NumberTypeSymbol && rightExpr.getType() instanceof NumberTypeSymbol) {
             type = BuiltinScope.NUMBER_TYPE;
         } else {
-            context.getModuleScope().addError(new InvalidOperatorError(sourceCodeRef,
+            context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef,
                     leftExpr.getType(), "-", rightExpr.getType()));
             type = UnknownType.INSTANCE;
         }

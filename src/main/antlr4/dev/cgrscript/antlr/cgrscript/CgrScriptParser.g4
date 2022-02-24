@@ -28,13 +28,19 @@ options { tokenVocab=CgrScriptLexer; superClass=dev.cgrscript.antlr.CgrScriptPar
 
 prog : module importExpr* stat* EOF ;
 
-module : 'module' moduleId SEMI? ;
+module : 'module' moduleId MODULE_ID_END? MODULE_ID_BREAK
+         | 'module' MODULE_ID_END? MODULE_ID_BREAK {notifyErrorListenersPrevToken("module path expected");}
+         ;
 
-moduleId : ID ( DOT ID )* ;
+moduleId : MODULE_ID ( MODULE_SEPARATOR MODULE_ID )*
+           | MODULE_ID MODULE_SEPARATOR {notifyErrorListenersPrevToken("invalid module path");}
+           ;
 
-importExpr : 'import' moduleId moduleScope? SEMI? ;
+importExpr : 'import' moduleId moduleScope? MODULE_ID_END? MODULE_ID_BREAK
+             | 'import' MODULE_ID_END? MODULE_ID_BREAK {notifyErrorListenersPrevToken("module path expected");}
+             ;
 
-moduleScope : 'as' ID ;
+moduleScope : MODULE_AS MODULE_ID  ;
 
 execStat : singleStat
            | blockStat
@@ -203,8 +209,8 @@ queryExpr : 'any'? type queryExprAlias? queryExprSegment?
             | 'any' {notifyErrorListenersPrevToken("type expected");}
             ;
 
-queryExprAlias : 'as' ID
-                 | 'as' {notifyErrorListenersPrevToken("alias expected");}
+queryExprAlias : AS ID
+                 | AS {notifyErrorListenersPrevToken("alias expected");}
                  ;
 
 queryExprSegment : DIV queryPipeExpr queryExprAlias? queryExprSegment?

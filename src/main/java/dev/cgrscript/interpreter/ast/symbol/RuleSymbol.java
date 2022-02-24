@@ -25,8 +25,9 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.database.Database;
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
+import dev.cgrscript.interpreter.ast.AnalyzerErrorScope;
 import dev.cgrscript.interpreter.ast.eval.EvalContext;
-import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.Evaluable;
 import dev.cgrscript.interpreter.ast.query.Query;
 import dev.cgrscript.interpreter.error.analyzer.CyclicRuleReferenceError;
@@ -94,44 +95,45 @@ public class RuleSymbol extends Symbol implements HasExpr {
     }
 
     @Override
-    public void analyze(EvalModeEnum evalMode, Database database, InputReader inputReader, OutputWriter outputWriter) {
+    public void analyze(AnalyzerContext context, Database database, InputReader inputReader, OutputWriter outputWriter) {
+        AnalyzerErrorScope errorScope = context.getErrorScope();
         if (parentRule != null) {
             Symbol parentRuleSym = moduleScope.resolve(parentRule);
             if (!(parentRuleSym instanceof RuleSymbol)) {
-                moduleScope.addError(new InvalidParentRuleError(getSourceCodeRef(), parentRule));
+                errorScope.addError(new InvalidParentRuleError(getSourceCodeRef(), parentRule));
             } else {
                 List<String> path = new ArrayList<>();
                 path.add(getName());
-                analyzePath(this, path);
+                analyzePath(context, this, path);
 
                 if (!query.getTypeClause().compatibleWith(((RuleSymbol)parentRuleSym).getQuery().getTypeClause())) {
-                    moduleScope.addError(new IncompatibleRulesError(getSourceCodeRef(),
+                    errorScope.addError(new IncompatibleRulesError(getSourceCodeRef(),
                             this, (RuleSymbol) parentRuleSym));
                 }
             }
         }
-        var context = new EvalContext(evalMode, moduleScope, database, inputReader, outputWriter);
-        int errors = moduleScope.getErrors() != null ? moduleScope.getErrors().size() : 0;
+        var evalContext = new EvalContext(context, moduleScope.getEvalMode(), moduleScope, database, inputReader, outputWriter);
+        int errors = errorScope.getErrors() != null ? errorScope.getErrors().size() : 0;
         if (query != null) {
-            query.analyze(context);
-            if (moduleScope.getErrors() == null || errors == moduleScope.getErrors().size()) {
+            query.analyze(evalContext);
+            if (errorScope.getErrors() == null || errors == errorScope.getErrors().size()) {
                 //analyze block if the query has no errors
-                context.analyzeBlock(block);
+                evalContext.analyzeBlock(block);
             }
         }
     }
 
-    private void analyzePath(RuleSymbol rule, List<String> path) {
+    private void analyzePath(AnalyzerContext context, RuleSymbol rule, List<String> path) {
         if (rule.getParentRule() == null) {
             return;
         }
 
         if (getName().equals(rule.getParentRule())) {
-            moduleScope.addError(new CyclicRuleReferenceError(getSourceCodeRef(), path));
+            context.getErrorScope().addError(new CyclicRuleReferenceError(getSourceCodeRef(), path));
             return;
         }
         path.add(rule.getParentRule());
         RuleSymbol parent = (RuleSymbol) moduleScope.resolve(rule.getParentRule());
-        analyzePath(parent, path);
+        analyzePath(context, parent, path);
     }
 }

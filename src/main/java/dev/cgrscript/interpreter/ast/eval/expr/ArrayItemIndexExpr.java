@@ -58,7 +58,7 @@ public class ArrayItemIndexExpr implements ArrayIndexExpr {
     public void analyze(EvalContext context) {
         expr.analyze(context);
         if (!(expr.getType() instanceof NumberTypeSymbol)) {
-            context.getModuleScope().addError(new InvalidTypeError(expr.getSourceCodeRef(),
+            context.addAnalyzerError(new InvalidTypeError(expr.getSourceCodeRef(),
                     BuiltinScope.NUMBER_TYPE, expr.getType()));
         }
     }

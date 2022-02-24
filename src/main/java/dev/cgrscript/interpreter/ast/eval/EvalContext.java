@@ -25,7 +25,9 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval;
 
 import dev.cgrscript.config.ProjectProperty;
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.symbol.*;
+import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.analyzer.UnreachableCodeError;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.input.InputReader;
@@ -36,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 
 public class EvalContext {
+
+    private final AnalyzerContext analyzerContext;
 
     private final EvalModeEnum evalMode;
 
@@ -59,10 +63,11 @@ public class EvalContext {
 
     private ValueExpr returnValue;
 
-    public EvalContext(EvalModeEnum evalMode,
+    public EvalContext(AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                        ModuleScope moduleScope, Database database,
                        InputReader inputReader, OutputWriter outputWriter,
                        FunctionSymbol function) {
+        this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
         this.moduleScope = moduleScope;
         this.database = database;
@@ -73,10 +78,11 @@ public class EvalContext {
         pushNewScope();
     }
 
-    public EvalContext(EvalModeEnum evalMode,
+    public EvalContext(AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                        ModuleScope moduleScope, Database database,
                        InputReader inputReader, OutputWriter outputWriter,
                        RuleContext ruleContext) {
+        this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
         this.moduleScope = moduleScope;
         this.database = database;
@@ -87,9 +93,10 @@ public class EvalContext {
         pushNewScope();
     }
 
-    public EvalContext(EvalModeEnum evalMode,
+    public EvalContext(AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                        ModuleScope moduleScope, Database database,
                        InputReader inputReader, OutputWriter outputWriter) {
+        this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
         this.moduleScope = moduleScope;
         this.database = database;
@@ -153,7 +160,7 @@ public class EvalContext {
     public ValueExpr evalFunction(FunctionType functionType, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
         if (functionType instanceof FunctionSymbol) {
             FunctionSymbol functionSymbol = (FunctionSymbol) functionType;
-            return functionSymbol.eval(EvalModeEnum.EXECUTION, args, database, inputReader, outputWriter);
+            return functionSymbol.eval(analyzerContext, args, database, inputReader, outputWriter);
         } else if (functionType instanceof BuiltinFunctionSymbol) {
             BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) functionType;
             return builtinFunctionSymbol.getFunctionImpl().run(this, args, sourceCodeRef);
@@ -179,7 +186,7 @@ public class EvalContext {
         for (Evaluable evaluable : block) {
             if (branch.hasReturnStatement()) {
                 branch.setHasUnreachableCode(true);
-                getModuleScope().addError(new UnreachableCodeError(evaluable.getSourceCodeRef()));
+                analyzerContext.getErrorScope().addError(new UnreachableCodeError(evaluable.getSourceCodeRef()));
                 break;
             }
             evaluable.analyze(this);
@@ -238,6 +245,14 @@ public class EvalContext {
 
     public String getProperty(String name) {
         return properties.get(name);
+    }
+
+    public AnalyzerContext getAnalyzerContext() {
+        return analyzerContext;
+    }
+
+    public void addAnalyzerError(AnalyzerError error) {
+        analyzerContext.getErrorScope().addError(error);
     }
 
     private void loadProperties() {

@@ -65,14 +65,14 @@ public class QueryFieldClause implements QueryPipeClause {
     public void analyze(EvalContext context) {
         var fieldType = typeScope.resolveField(field);
         if (fieldType == null) {
-            context.getModuleScope().addError(new UndefinedFieldError(sourceCodeRef, typeScope, field));
+            context.addAnalyzerError(new UndefinedFieldError(sourceCodeRef, typeScope, field));
             return;
         }
 
         Type type = fieldType;
         if (arrayItemClause != null) {
             if (!(fieldType instanceof ArrayType)) {
-                context.getModuleScope().addError(new NotArrayTypeError(sourceCodeRef, fieldType));
+                context.addAnalyzerError(new NotArrayTypeError(sourceCodeRef, fieldType));
                 return;
             }
             arrayItemClause.setTypeScope(fieldType);
@@ -81,14 +81,14 @@ public class QueryFieldClause implements QueryPipeClause {
         }
 
         if (alias != null) {
-            context.getCurrentScope().define(new VariableSymbol(alias, type));
+            context.getCurrentScope().define(context.getAnalyzerContext(), new VariableSymbol(alias, type));
         }
 
         if (next != null) {
             next.setTypeScope(type);
             next.analyze(context);
         } else if (!(type instanceof RecordTypeSymbol)) {
-            context.getModuleScope().addError(new InvalidQueryType(sourceCodeRef, type));
+            context.addAnalyzerError(new InvalidQueryType(sourceCodeRef, type));
         }
     }
 

@@ -62,14 +62,14 @@ public class ArraySliceIndexExpr implements ArrayIndexExpr {
         if (begin != null) {
             begin.analyze(context);
             if (!(begin.getType() instanceof NumberTypeSymbol)) {
-                context.getModuleScope().addError(new InvalidTypeError(begin.getSourceCodeRef(),
+                context.addAnalyzerError(new InvalidTypeError(begin.getSourceCodeRef(),
                         BuiltinScope.NUMBER_TYPE, begin.getType()));
             }
         }
         if (end != null) {
             end.analyze(context);
             if (!(end.getType() instanceof NumberTypeSymbol)) {
-                context.getModuleScope().addError(new InvalidTypeError(end.getSourceCodeRef(),
+                context.addAnalyzerError(new InvalidTypeError(end.getSourceCodeRef(),
                         BuiltinScope.NUMBER_TYPE, end.getType()));
             }
         }

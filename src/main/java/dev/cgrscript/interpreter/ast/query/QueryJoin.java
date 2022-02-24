@@ -72,7 +72,7 @@ public class QueryJoin implements Evaluable {
                         .isAssignableFrom(((ArrayType) ofExpr.getType()).getElementType())) {
                     joinArray = true;
                 } else {
-                    context.getModuleScope().addError(new InvalidTypeError(ofExpr.getSourceCodeRef(),
+                    context.addAnalyzerError(new InvalidTypeError(ofExpr.getSourceCodeRef(),
                             BuiltinScope.ANY_RECORD_TYPE, ofExpr.getType()));
                     return;
                 }
@@ -89,7 +89,7 @@ public class QueryJoin implements Evaluable {
             for (String key : scope.getKeys()) {
                 Symbol symbol = scope.resolve(key);
                 if (symbol instanceof VariableSymbol) {
-                    context.getCurrentScope().define(new VariableSymbol(symbol.getName(),
+                    context.getCurrentScope().define(context.getAnalyzerContext(), new VariableSymbol(symbol.getName(),
                             new ArrayType(((VariableSymbol)symbol).getType())));
                 }
             }

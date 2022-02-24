@@ -67,7 +67,7 @@ public class LogicExpr implements Expr {
         if (leftExpr.getType() instanceof BooleanTypeSymbol && rightExpr.getType() instanceof BooleanTypeSymbol) {
             type = booleanType;
         } else {
-            context.getModuleScope().addError(new InvalidOperatorError(sourceCodeRef,
+            context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef,
                     leftExpr.getType(), operator.getSymbol(), rightExpr.getType()));
             type = UnknownType.INSTANCE;
         }

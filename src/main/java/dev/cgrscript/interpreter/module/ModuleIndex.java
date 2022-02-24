@@ -21,7 +21,7 @@ public class ModuleIndex {
         }
     }
 
-    public List<String> getModules() {
+    public List<String> getRootSegments() {
         return new ArrayList<>(children.keySet());
     }
 

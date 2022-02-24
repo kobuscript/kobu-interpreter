@@ -83,7 +83,8 @@ public class JoinIndexNode extends TwoInputsIndexNode {
             }
 
             EvalContext context = accContextMap.computeIfAbsent(left.getMatchId(), key -> {
-                var ctx = new EvalContext(left.getContext().getEvalMode(), left.getContext().getModuleScope(),
+                var ctx = new EvalContext(left.getContext().getAnalyzerContext(),
+                        left.getContext().getEvalMode(), left.getContext().getModuleScope(),
                         left.getContext().getDatabase(), left.getContext().getInputParser(),
                         left.getContext().getOutputWriter());
                 ctx.getCurrentScope().addAll(left.getContext().getCurrentScope());
@@ -105,7 +106,7 @@ public class JoinIndexNode extends TwoInputsIndexNode {
                         ArrayType type = new ArrayType(varSymbol.getType());
                         currentSymbol = new VariableSymbol(varSymbol.getName(),
                                 type);
-                        context.getCurrentScope().define(currentSymbol);
+                        context.getCurrentScope().define(context.getAnalyzerContext(), currentSymbol);
                         List<ValueExpr> listValue = new ArrayList<>();
                         listValue.add(right.getContext().getCurrentScope().getValue(key));
 

@@ -67,14 +67,16 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
         this.sourceCodeRef = sourceCodeRef;
         this.varName = varName;
 
-        if (varName.equals("")) {
-            int offset = sourceCodeRef.getStartOffset()
-                    + (sourceCodeRef.getEndOffset() - sourceCodeRef.getStartOffset()) + 1;
-            moduleScope.registerRef(offset, this);
-            moduleScope.registerAutoCompletionSource(offset, this);
-        } else {
-            moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
-            moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
+        if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            if (varName.equals("")) {
+                int offset = sourceCodeRef.getStartOffset()
+                        + (sourceCodeRef.getEndOffset() - sourceCodeRef.getStartOffset()) + 1;
+                moduleScope.registerRef(offset, this);
+                moduleScope.registerAutoCompletionSource(offset, this);
+            } else {
+                moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
+                moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
+            }
         }
     }
 
@@ -99,7 +101,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
 
             var symbol = context.getCurrentScope().resolve(varName);
             if (symbol == null) {
-                context.getModuleScope().addError(new UndefinedVariableError(sourceCodeRef, varName));
+                context.addAnalyzerError(new UndefinedVariableError(sourceCodeRef, varName));
                 this.type = UnknownType.INSTANCE;
                 return;
             }
@@ -122,7 +124,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                 }
             }
 
-            context.getModuleScope().addError(new InvalidVariableError(sourceCodeRef, varName, symbol));
+            context.addAnalyzerError(new InvalidVariableError(sourceCodeRef, varName, symbol));
             this.type = UnknownType.INSTANCE;
 
         } else {
@@ -143,7 +145,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
 
             var field = typeScope.resolveField(varName);
             if (field == null) {
-                context.getModuleScope().addError(new UndefinedFieldError(sourceCodeRef, typeScope, varName));
+                context.addAnalyzerError(new UndefinedFieldError(sourceCodeRef, typeScope, varName));
                 this.type = UnknownType.INSTANCE;
                 return;
             }

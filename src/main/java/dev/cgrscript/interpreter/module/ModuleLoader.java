@@ -28,16 +28,16 @@ import dev.cgrscript.antlr.cgrscript.CgrScriptLexer;
 import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
 import dev.cgrscript.config.DependencyResolver;
 import dev.cgrscript.config.Project;
-import dev.cgrscript.interpreter.ast.CgrScriptParserVisitor;
-import dev.cgrscript.interpreter.ast.ModuleParserVisitor;
+import dev.cgrscript.interpreter.ast.*;
+import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunctionId;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.ParserErrorListener;
-import dev.cgrscript.interpreter.error.analyzer.CyclicModuleReferenceError;
 import dev.cgrscript.interpreter.error.analyzer.InternalParserError;
 import dev.cgrscript.interpreter.error.analyzer.ModuleNotFoundError;
+import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 import dev.cgrscript.interpreter.file_system.*;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -58,54 +58,63 @@ public class ModuleLoader {
     private final CgrFileSystem fileSystem;
 
     private DependencyResolver dependencyResolver;
+
     private final Project project;
+
+    private final EvalModeEnum evalMode;
 
     private final Map<String, ModuleScope> modules = new HashMap<>();
 
     private final Map<String, ParseTree> modulesParseTree = new HashMap<>();
 
-    private final LinkedHashSet<String> moduleLoaderStack = new LinkedHashSet<>();
-
     private final Map<NativeFunctionId, NativeFunction> nativeFunctions = new HashMap<>();
 
     private final ModuleIndex moduleIndex = new ModuleIndex();
 
+
     private boolean indexBuilt = false;
 
-    public ModuleLoader(CgrFileSystem fileSystem, Project project) {
+    public ModuleLoader(CgrFileSystem fileSystem, Project project, EvalModeEnum evalMode) {
         this.fileSystem = fileSystem;
         this.project = project;
+        this.evalMode = evalMode;
     }
 
     public boolean indexBuilt() {
         return indexBuilt;
     }
 
-    public List<AnalyzerError> buildIndex(ParserErrorListener parserErrorListener) {
-        var errors = new ArrayList<AnalyzerError>();
+    public void buildIndex(AnalyzerContext context) {
+        if (evalMode == EvalModeEnum.EXECUTION) {
+            return;
+        }
         for (CgrDirectory srcDir : project.getSrcDirs()) {
             fileSystem.walkFileTree(srcDir, entry -> {
-                if (entry instanceof CgrScriptFile) {
+                if (entry instanceof ScriptRef) {
                     try {
-                        CgrScriptFile script = (CgrScriptFile) entry;
+                        ScriptRef script = (ScriptRef) entry;
                         String moduleId = script.extractModuleId();
                         if (!modules.containsKey(moduleId)) {
-                            load(parserErrorListener, script);
+                            load(context, script);
                         }
                     } catch (AnalyzerError e) {
-                        errors.add(e);
+                        context.getErrorScope().addError(e);
                     }
                 }
             });
         }
-        for (String builtinModule : BUILTIN_MODULES) {
-            if (!modules.containsKey(builtinModule)) {
+        for (String builtinModuleId : BUILTIN_MODULES) {
+            if (!modules.containsKey(builtinModuleId)) {
                 try {
-                    ModuleScope moduleScope = loadModule(parserErrorListener,
-                            getModuleFromClasspath(builtinModule), null, null);
-                    modules.put(builtinModule, moduleScope);
+                    ClasspathScriptRef builtinModule = getModuleFromClasspath(builtinModuleId);
+                    if (builtinModule == null) {
+                        context.getErrorScope().addError(new InternalParserError("Builtin-module not found: " + builtinModuleId));
+                    } else {
+                        ModuleScope moduleScope = load(context, builtinModule);
+                        modules.put(builtinModuleId, moduleScope);
+                    }
                 } catch (AnalyzerError e) {
-                    errors.add(e);
+                    context.getErrorScope().addError(e);
                 }
             }
         }
@@ -115,23 +124,29 @@ public class ModuleLoader {
         }
 
         indexBuilt = true;
-        return errors;
     }
 
     public void addNativeFunction(NativeFunctionId nativeFunctionId, NativeFunction nativeFunction) {
         nativeFunctions.put(nativeFunctionId, nativeFunction);
     }
 
-    public ModuleScope load(ParserErrorListener parserErrorListener, CgrFile file) throws AnalyzerError {
-        return load(parserErrorListener, fileSystem.loadScript(project.getSrcDirs(), file));
+    public ModuleScope load(AnalyzerContext context, CgrFile file) throws AnalyzerError {
+        return load(context, (ScriptRef) fileSystem.loadScript(project.getSrcDirs(), file));
     }
 
-    public ModuleScope load(ParserErrorListener parserErrorListener, CgrScriptFile script) throws AnalyzerError {
-        ModuleScope module = loadModule(parserErrorListener, script, null, null);
-        modules.put(module.getModuleId(), module);
-        moduleIndex.addModule(module.getModuleId());
+    public ModuleScope load(AnalyzerContext context, ScriptRef script) throws AnalyzerError {
+        String moduleId = script.extractModuleId();
+        context.addModule(null, moduleId);
+        try {
+            ModuleScope module = loadModule(context, script, moduleId, null);
+            if (evalMode == EvalModeEnum.ANALYZER_SERVICE) {
+                moduleIndex.addModule(module.getModuleId());
+            }
 
-        return module;
+            return module;
+        } finally {
+            context.removeModule(moduleId);
+        }
     }
 
     public CgrFile findModuleFile(String moduleId) {
@@ -191,41 +206,42 @@ public class ModuleLoader {
         return externalModules;
     }
 
-    public ModuleScope loadScope(ParserErrorListener parserErrorListener,
-                                 String moduleId, SourceCodeRef sourceCodeRef) throws AnalyzerError {
+    public ModuleScope loadScope(AnalyzerContext context,
+                                 String moduleId,
+                                 SourceCodeRef sourceCodeRef) throws AnalyzerError {
 
-        ModuleScope module = modules.get(moduleId);
-        if (module != null) {
-            return module;
-        }
-
-        var classpathRef = getModuleFromClasspath(moduleId);
-        if (classpathRef != null) {
-            module = loadModule(parserErrorListener, classpathRef, moduleId, sourceCodeRef);
-        } else {
-
-            CgrScriptFile script = fileSystem.loadScript(project.getSrcDirs(), moduleId);
-            if (script == null) {
-                throw new ModuleNotFoundError(sourceCodeRef, moduleId);
+        context.addModule(sourceCodeRef, moduleId);
+        try {
+            ModuleScope module = modules.get(moduleId);
+            if (module != null) {
+                return module;
             }
-            module = loadModule(parserErrorListener, script, moduleId, sourceCodeRef);
+
+            var classpathRef = getModuleFromClasspath(moduleId);
+            if (classpathRef != null) {
+                module = loadModule(context, classpathRef, moduleId, sourceCodeRef);
+            } else {
+                CgrScriptFile script = fileSystem.loadScript(project.getSrcDirs(), moduleId);
+                if (script == null) {
+                    throw new ModuleNotFoundError(sourceCodeRef, moduleId);
+                }
+                module = loadModule(context, script, moduleId, sourceCodeRef);
+            }
+            if (evalMode == EvalModeEnum.ANALYZER_SERVICE) {
+                moduleIndex.addModule(module.getModuleId());
+            }
+            return module;
+        } finally {
+            context.removeModule(moduleId);
         }
-        modules.put(module.getModuleId(), module);
-        moduleIndex.addModule(module.getModuleId());
-        return module;
     }
 
-    public void visit(String moduleId, CgrScriptParserVisitor<?> visitor, AnalyzerStepEnum step) throws AnalyzerError {
-        var moduleScope = modules.get(moduleId);
+    private void visit(String moduleId, CgrScriptParserVisitor<?> visitor) throws AnalyzerError {
         var parserTree = modulesParseTree.get(moduleId);
         if (parserTree == null) {
             throw new InternalParserError("ParserTree not found for " + moduleId);
         }
-        if (step.equals(moduleScope.getStep())) {
-            return;
-        }
         visitor.visit(parserTree);
-        moduleScope.setStep(step);
     }
 
     public Project getProject() {
@@ -236,6 +252,10 @@ public class ModuleLoader {
         return moduleIndex;
     }
 
+    public EvalModeEnum getEvalMode() {
+        return evalMode;
+    }
+
     private ClasspathScriptRef getModuleFromClasspath(String moduleId) {
         String path = "/" + moduleId.replaceAll("\\.", "/") + CgrFileSystem.SCRIPT_FILE_EXT;
         if (ModuleLoader.class.getResource(path) != null) {
@@ -244,17 +264,9 @@ public class ModuleLoader {
         return null;
     }
 
-    private ModuleScope loadModule(ParserErrorListener parserErrorListener,
+    private ModuleScope loadModule(AnalyzerContext context,
                                    ScriptRef script, String moduleId,
                                    SourceCodeRef sourceCodeRef) throws AnalyzerError {
-
-        String scriptModule = moduleId != null ? moduleId : script.extractModuleId();
-
-        if (!moduleLoaderStack.add(scriptModule)) {
-            ArrayList<String> dependencyPath = new ArrayList<>(moduleLoaderStack);
-            dependencyPath.add(scriptModule);
-            throw new CyclicModuleReferenceError(sourceCodeRef, dependencyPath);
-        }
 
         try (InputStream fileStream = script.newInputStream()) {
 
@@ -263,24 +275,37 @@ public class ModuleLoader {
             var tokens = new CommonTokenStream(lexer);
             var parser = new CgrScriptParser(tokens);
             parser.removeErrorListeners();
-            parserErrorListener.setCurrentScript(script);
-            parser.addErrorListener(parserErrorListener);
+            context.getParserErrorListener().setCurrentScript(script);
+            parser.addErrorListener(context.getParserErrorListener());
             var tree = parser.prog();
 
-            var visitor = new ModuleParserVisitor(this, parserErrorListener, script, nativeFunctions);
+            modulesParseTree.put(moduleId, tree);
+
+            ModuleScope moduleScope = new ModuleScope(moduleId,
+                    script,
+                    getProject().getProjectDirectory().getAbsolutePath(),
+                    getProject().getProperties(),
+                    nativeFunctions,
+                    getModuleIndex(),
+                    getEvalMode());
+
+            modules.put(moduleId, moduleScope);
+
+            var visitor = new ModuleParserVisitor(this, moduleScope, context, script, nativeFunctions);
             visitor.visit(tree);
 
-            var moduleScope = visitor.getModuleScope();
-            moduleScope.setStep(AnalyzerStepEnum.MODULE);
+            EvalTreeParserVisitor evalTreeParserVisitor = new EvalTreeParserVisitor(this,
+                    moduleScope, context);
+            visit(moduleScope.getModuleId(), evalTreeParserVisitor);
 
-            modulesParseTree.put(moduleScope.getModuleId(), tree);
+            TypeHierarchyParserVisitor typeHierarchyParserVisitor = new TypeHierarchyParserVisitor(this,
+                    moduleScope, context);
+            visit(moduleScope.getModuleId(), typeHierarchyParserVisitor);
 
             return moduleScope;
 
         } catch (IOException ex) {
-            throw new ModuleNotFoundError(sourceCodeRef, scriptModule);
-        } finally {
-            moduleLoaderStack.remove(scriptModule);
+            throw new ModuleNotFoundError(sourceCodeRef, moduleId);
         }
 
     }

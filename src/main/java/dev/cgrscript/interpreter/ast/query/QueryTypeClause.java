@@ -81,11 +81,11 @@ public class QueryTypeClause implements Evaluable {
     @Override
     public void analyze(EvalContext context) {
         if (!(type instanceof RecordTypeSymbol) && !(type instanceof TemplateTypeSymbol)) {
-            context.getModuleScope().addError(new InvalidQueryType(sourceCodeRef, type));
+            context.addAnalyzerError(new InvalidQueryType(sourceCodeRef, type));
             return;
         }
         VariableSymbol variableSymbol = new VariableSymbol(bind, type);
-        context.getCurrentScope().define(variableSymbol);
+        context.getCurrentScope().define(context.getAnalyzerContext(), variableSymbol);
 
         if (pipeClause != null) {
             pipeClause.setTypeScope(type);
@@ -100,7 +100,7 @@ public class QueryTypeClause implements Evaluable {
     public void createEmptyArray(EvalContext context) {
 
         VariableSymbol variableSymbol = new VariableSymbol(bind, type);
-        context.getCurrentScope().define(variableSymbol);
+        context.getCurrentScope().define(context.getAnalyzerContext(), variableSymbol);
         context.getCurrentScope().setValue(bind, new ArrayValueExpr(new ArrayType(type), new ArrayList<>()));
 
         if (pipeClause != null) {

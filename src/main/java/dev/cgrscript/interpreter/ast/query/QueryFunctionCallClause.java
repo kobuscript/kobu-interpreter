@@ -81,7 +81,7 @@ public class QueryFunctionCallClause implements QueryPipeClause {
         functionCallExpr.analyze(context);
 
         if (functionCallExpr.getType() == null) {
-            context.getModuleScope().addError(new InvalidFunctionClauseError(functionCallExpr.getSourceCodeRef(),
+            context.addAnalyzerError(new InvalidFunctionClauseError(functionCallExpr.getSourceCodeRef(),
                     functionCallExpr.getFunctionType()));
             return;
         }
@@ -93,7 +93,7 @@ public class QueryFunctionCallClause implements QueryPipeClause {
         Type type = functionCallExpr.getType();
         if (arrayItemClause != null) {
             if (!(functionCallExpr.getType() instanceof ArrayType)) {
-                context.getModuleScope().addError(new NotArrayTypeError(sourceCodeRef, typeScope));
+                context.addAnalyzerError(new NotArrayTypeError(sourceCodeRef, typeScope));
                 return;
             }
             arrayItemClause.setTypeScope(functionCallExpr.getType());
@@ -102,14 +102,14 @@ public class QueryFunctionCallClause implements QueryPipeClause {
         }
 
         if (alias != null) {
-            context.getCurrentScope().define(new VariableSymbol(alias, type));
+            context.getCurrentScope().define(context.getAnalyzerContext(), new VariableSymbol(alias, type));
         }
 
         if (next != null) {
             next.setTypeScope(type);
             next.analyze(context);
         } else if (!(type instanceof RecordTypeSymbol)) {
-            context.getModuleScope().addError(new InvalidQueryType(sourceCodeRef, type));
+            context.addAnalyzerError(new InvalidQueryType(sourceCodeRef, type));
         }
 
     }

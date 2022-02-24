@@ -58,7 +58,7 @@ public class NotExpr implements Expr {
         if (expr.getType() instanceof BooleanTypeSymbol) {
             type = booleanType;
         } else {
-            context.getModuleScope().addError(new InvalidOperatorError(sourceCodeRef, "not", expr.getType()));
+            context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef, "not", expr.getType()));
             type = UnknownType.INSTANCE;
         }
     }

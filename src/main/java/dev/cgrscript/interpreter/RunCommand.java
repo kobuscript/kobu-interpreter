@@ -27,6 +27,7 @@ package dev.cgrscript.interpreter;
 import dev.cgrscript.config.Project;
 import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.database.Database;
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
 import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
 import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
@@ -39,7 +40,6 @@ import dev.cgrscript.interpreter.file_system.local.LocalCgrFileSystem;
 import dev.cgrscript.interpreter.input.FileFetcher;
 import dev.cgrscript.interpreter.input.InputNativeFunctionRegistry;
 import dev.cgrscript.interpreter.input.InputReader;
-import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
 import dev.cgrscript.interpreter.module.ModuleLoader;
 import dev.cgrscript.interpreter.writer.FileSystemWriterHandler;
 import dev.cgrscript.interpreter.writer.OutputWriter;
@@ -77,7 +77,7 @@ public class RunCommand implements Callable<Integer> {
             }
 
             LocalCgrFileSystem fileSystem = new LocalCgrFileSystem();
-            ParserErrorListener parserErrorListener = new ParserErrorListener();
+            AnalyzerContext analyzerContext = new AnalyzerContext();
             LocalCgrFile localFile = new LocalCgrFile(this.file);
             CgrFile projectFile = fileSystem.findProjectDefinition(localFile);
             ProjectReader projectReader = new ProjectReader(fileSystem);
@@ -88,23 +88,11 @@ public class RunCommand implements Callable<Integer> {
                 project = projectReader.loadDefaultProject(localFile);
             }
 
-            ModuleLoader moduleLoader = new ModuleLoader(fileSystem, project);
+            ModuleLoader moduleLoader = new ModuleLoader(fileSystem, project, EvalModeEnum.EXECUTION);
             InputNativeFunctionRegistry.register(moduleLoader);
-            ModuleScope moduleScope = moduleLoader.load(parserErrorListener, localFile);
+            ModuleScope moduleScope = moduleLoader.load(analyzerContext, localFile);
 
-            parserErrorListener.checkErrors();
-
-            moduleScope.checkErrors();
-
-            EvalTreeParserVisitor evalTreeParserVisitor = new EvalTreeParserVisitor(moduleLoader, moduleScope, parserErrorListener);
-            moduleLoader.visit(moduleScope.getModuleId(), evalTreeParserVisitor, AnalyzerStepEnum.EVAL_TREE);
-
-            moduleScope.checkErrors();
-
-            TypeHierarchyParserVisitor typeHierarchyParserVisitor = new TypeHierarchyParserVisitor(moduleLoader, moduleScope, parserErrorListener);
-            moduleLoader.visit(moduleScope.getModuleId(), typeHierarchyParserVisitor, AnalyzerStepEnum.TYPE_HIERARCHY);
-
-            moduleScope.checkErrors();
+            analyzerContext.getParserErrorListener().checkErrors();
 
             Database database = new Database();
             InputReader inputReader = new InputReader(new FileFetcher());
@@ -113,14 +101,17 @@ public class RunCommand implements Callable<Integer> {
                     verbose ? OutputWriterLogTypeEnum.VERBOSE : OutputWriterLogTypeEnum.NORMAL,
                     new FileSystemWriterHandler(moduleScope.getProjectDir()));
 
-            moduleScope.analyze(EvalModeEnum.EXECUTION, database, inputReader, outputWriter);
+            moduleScope.analyze(analyzerContext, database, inputReader, outputWriter);
 
-            moduleScope.checkErrors();
+            List<AnalyzerError> errors = analyzerContext.getAllErrors();
+            if (!errors.isEmpty()) {
+                throw new AnalyzerErrorList(errors);
+            }
 
             if (scriptArgs == null) {
                 scriptArgs = new ArrayList<>();
             }
-            moduleScope.runMainFunction(scriptArgs, database, inputReader, outputWriter);
+            moduleScope.runMainFunction(analyzerContext, scriptArgs, database, inputReader, outputWriter);
 
         } catch (ParserErrorList e) {
             for (ParserError error : e.getErrors()) {

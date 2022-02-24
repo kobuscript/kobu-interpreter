@@ -91,7 +91,7 @@ public class IfStatement implements Statement {
         }
         if (!(condExpr.getType() instanceof BooleanTypeSymbol)) {
             BooleanTypeSymbol booleanType = BuiltinScope.BOOLEAN_TYPE;
-            context.getModuleScope().addError(new InvalidTypeError(condExpr.getSourceCodeRef(),
+            context.addAnalyzerError(new InvalidTypeError(condExpr.getSourceCodeRef(),
                     booleanType, condExpr.getType()));
         }
 

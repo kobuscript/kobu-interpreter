@@ -38,6 +38,8 @@ public class SymbolDescriptor {
 
     private String metadata = "";
 
+    private String label;
+
     private String externalModule;
 
     private int newImportOffset;
@@ -53,6 +55,7 @@ public class SymbolDescriptor {
         this.newImportOffset = newImportOffset;
         this.hasImports = hasImports;
         this.name = symbol.getName();
+        this.label = name;
         if (symbol instanceof FunctionType) {
             this.type = SymbolTypeEnum.FUNCTION;
             this.description = ((FunctionType)symbol).getDescription();
@@ -101,8 +104,13 @@ public class SymbolDescriptor {
     }
 
     public SymbolDescriptor(SymbolTypeEnum type, String name, String description, String metadata) {
+        this(type, name, name, description, metadata);
+    }
+
+    public SymbolDescriptor(SymbolTypeEnum type, String name, String label, String description, String metadata) {
         this.type = type;
         this.name = name;
+        this.label = label;
         this.description = description;
         this.metadata = metadata;
     }
@@ -113,6 +121,10 @@ public class SymbolDescriptor {
 
     public String getName() {
         return name;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     public String getDescription() {

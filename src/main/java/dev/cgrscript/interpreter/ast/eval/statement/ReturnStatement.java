@@ -49,10 +49,10 @@ public class ReturnStatement implements Statement {
         context.getCurrentBranch().setHasReturnStatement(true);
         var functionType = context.getFunction();
         if ((functionType == null || functionType.getReturnType() == null) && expr != null) {
-            context.getModuleScope().addError(new ReturnStatOnFunctionVoidError(sourceCodeRef, functionType));
+            context.addAnalyzerError(new ReturnStatOnFunctionVoidError(sourceCodeRef, functionType));
             return;
         } else if (functionType != null && functionType.getReturnType() != null && expr == null) {
-            context.getModuleScope().addError(new FunctionMissingReturnValueError(sourceCodeRef, functionType));
+            context.addAnalyzerError(new FunctionMissingReturnValueError(sourceCodeRef, functionType));
             return;
         }
         if (expr == null) {
@@ -63,7 +63,7 @@ public class ReturnStatement implements Statement {
         }
         expr.analyze(context);
         if (expr.getType() != null && !functionType.getReturnType().isAssignableFrom(expr.getType())) {
-            context.getModuleScope().addError(new InvalidReturnTypeError(sourceCodeRef, functionType, expr.getType()));
+            context.addAnalyzerError(new InvalidReturnTypeError(sourceCodeRef, functionType, expr.getType()));
         }
     }
 

@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.error.analyzer.FunctionMissingReturnStatError;
@@ -53,17 +54,19 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
         this.closeFunctionRef = closeFunctionRef;
         this.moduleScope = moduleScope;
 
-        moduleScope.registerAutoCompletionSource(closeFunctionRef.getStartOffset(), new AutoCompletionSource() {
-            @Override
-            public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
-                return new ArrayList<>(symbolsModule);
-            }
+        if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            moduleScope.registerAutoCompletionSource(closeFunctionRef.getStartOffset(), new AutoCompletionSource() {
+                @Override
+                public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                    return new ArrayList<>(symbolsModule);
+                }
 
-            @Override
-            public boolean hasOwnCompletionScope() {
-                return false;
-            }
-        });
+                @Override
+                public boolean hasOwnCompletionScope() {
+                    return false;
+                }
+            });
+        }
     }
 
     @Override
@@ -96,8 +99,8 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
     }
 
     @Override
-    public void analyze(EvalModeEnum evalMode, Database database, InputReader inputReader, OutputWriter outputWriter) {
-        var context = new EvalContext(evalMode, moduleScope, database, inputReader, outputWriter, this);
+    public void analyze(AnalyzerContext analyzerContext, Database database, InputReader inputReader, OutputWriter outputWriter) {
+        var context = new EvalContext(analyzerContext, moduleScope.getEvalMode(), moduleScope, database, inputReader, outputWriter, this);
         var scope = context.getCurrentScope();
 
         symbolsModule = scope.getSymbolDescriptors(
@@ -111,20 +114,20 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
         for (FunctionParameter parameter : parameters) {
             VariableSymbol variableSymbol = new VariableSymbol(moduleScope, parameter.getSourceCodeRef(), parameter.getName(),
                     parameter.getType());
-            scope.define(variableSymbol);
+            scope.define(analyzerContext, variableSymbol);
         }
         var branch = context.pushNewBranch();
         context.analyzeBlock(exprList);
 
         if (returnType != null && !branch.hasReturnStatement()) {
-            context.getModuleScope().addError(new FunctionMissingReturnStatError(closeFunctionRef));
+            analyzerContext.getErrorScope().addError(new FunctionMissingReturnStatError(closeFunctionRef));
         }
 
         context.popBranch();
     }
 
-    public ValueExpr eval(EvalModeEnum evalMode, List<ValueExpr> args, Database database, InputReader inputReader, OutputWriter outputWriter) {
-        var context = new EvalContext(evalMode, moduleScope, database, inputReader, outputWriter, this);
+    public ValueExpr eval(AnalyzerContext analyzerContext, List<ValueExpr> args, Database database, InputReader inputReader, OutputWriter outputWriter) {
+        var context = new EvalContext(analyzerContext, moduleScope.getEvalMode(), moduleScope, database, inputReader, outputWriter, this);
         var scope = context.getCurrentScope();
         for (int i = 0; i < parameters.size(); i++) {
             FunctionParameter parameter = parameters.get(i);
@@ -132,7 +135,7 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
 
             VariableSymbol variableSymbol = new VariableSymbol(moduleScope, parameter.getSourceCodeRef(), parameter.getName(),
                     parameter.getType());
-            scope.define(variableSymbol);
+            scope.define(analyzerContext, variableSymbol);
             if (arg != null) {
                 scope.setValue(parameter.getName(), arg);
             }

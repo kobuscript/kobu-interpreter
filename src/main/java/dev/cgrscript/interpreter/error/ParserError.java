@@ -28,6 +28,8 @@ import dev.cgrscript.interpreter.ast.AstNode;
 import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 
+import java.util.Objects;
+
 public class ParserError extends Exception implements CgrScriptError {
 
     private final SourceCodeRef sourceCodeRef;
@@ -63,4 +65,16 @@ public class ParserError extends Exception implements CgrScriptError {
         return getMessage();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ParserError that = (ParserError) o;
+        return Objects.equals(sourceCodeRef, that.sourceCodeRef);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sourceCodeRef);
+    }
 }

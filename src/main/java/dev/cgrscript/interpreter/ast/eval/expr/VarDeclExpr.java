@@ -54,7 +54,7 @@ public class VarDeclExpr implements Statement {
                 valueExpr.analyze(context);
                 if (valueExpr.getType() == null) {
                     varSymbol.setType(BuiltinScope.ANY_TYPE);
-                    context.getModuleScope().addError(new InvalidVariableDeclError(varSymbol.getSourceCodeRef()));
+                    context.addAnalyzerError(new InvalidVariableDeclError(varSymbol.getSourceCodeRef()));
                 } else if (valueExpr.getType() instanceof UnknownType) {
                     varSymbol.setType(BuiltinScope.ANY_TYPE);
                 } else {
@@ -68,12 +68,12 @@ public class VarDeclExpr implements Statement {
             }
         } else if (varSymbol.getType() == null) {
             varSymbol.setType(BuiltinScope.ANY_TYPE);
-            context.getModuleScope().addError(new InvalidVariableDeclError(varSymbol.getSourceCodeRef()));
+            context.addAnalyzerError(new InvalidVariableDeclError(varSymbol.getSourceCodeRef()));
         }
 
         var scope = context.getCurrentScope();
 
-        scope.define(varSymbol);
+        scope.define(context.getAnalyzerContext(), varSymbol);
 
         if (valueExpr != null) {
             Type valueType = valueExpr.getType();
@@ -82,10 +82,10 @@ public class VarDeclExpr implements Statement {
                 return;
             }
             if (!varSymbol.getType().isAssignableFrom(valueType)) {
-                context.getModuleScope().addError(new InvalidAssignExprTypeError(valueExpr.getSourceCodeRef(),
+                context.addAnalyzerError(new InvalidAssignExprTypeError(valueExpr.getSourceCodeRef(),
                         varSymbol.getType(), valueType));
             } else if (varSymbol.getType() instanceof ModuleRefSymbol) {
-                context.getModuleScope().addError(new InvalidAssignExprTypeError(valueExpr.getSourceCodeRef(),
+                context.addAnalyzerError(new InvalidAssignExprTypeError(valueExpr.getSourceCodeRef(),
                         varSymbol.getType(), valueType));
                 varSymbol.setType(BuiltinScope.ANY_TYPE);
             }
@@ -95,7 +95,7 @@ public class VarDeclExpr implements Statement {
     @Override
     public void evalStat(EvalContext context) {
         var scope = context.getCurrentScope();
-        scope.define(varSymbol);
+        scope.define(context.getAnalyzerContext(), varSymbol);
         if (valueExpr != null) {
             scope.setValue(varSymbol.getName(), valueExpr.evalExpr(context));
         }

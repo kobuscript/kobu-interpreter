@@ -64,13 +64,13 @@ public class ArrayAccessExpr implements Expr, HasTypeScope, MemoryReference {
         indexExpr.analyze(context);
 
         if (!(arrayExpr.getType() instanceof ArrayType)) {
-            context.getModuleScope().addError(new NotArrayTypeError(arrayExpr.getSourceCodeRef(), arrayExpr.getType()));
+            context.addAnalyzerError(new NotArrayTypeError(arrayExpr.getSourceCodeRef(), arrayExpr.getType()));
             this.type = UnknownType.INSTANCE;
             return;
         }
 
         if (assignMode && !(indexExpr instanceof ArrayItemIndexExpr)) {
-            context.getModuleScope().addError(new InvalidArrayIndexAssignmentError(indexExpr.getSourceCodeRef()));
+            context.addAnalyzerError(new InvalidArrayIndexAssignmentError(indexExpr.getSourceCodeRef()));
             this.type = UnknownType.INSTANCE;
             return;
         }

@@ -30,9 +30,9 @@ options { superClass=dev.cgrscript.antlr.CgrScriptLexerBase; }
 
 fragment NEW_LINE : '\n' ;
 
-MODULE : 'module' ;
+MODULE : 'module' -> pushMode(MODULE_MODE) ;
 
-IMPORT : 'import' ;
+IMPORT : 'import' -> pushMode(MODULE_MODE) ;
 
 DEF : 'def' -> pushMode(DEF_MODE) ;
 
@@ -118,6 +118,15 @@ STRING_CONTENT : (ESC | ~[\n"\\])+ ;
 fragment ESC : '\\' ["\\/bfnrt] ;
 STRING_BREAK : NEW_LINE -> popMode ;
 CLOSE_QUOTE : '"' -> popMode ;
+
+mode MODULE_MODE;
+
+MODULE_AS : 'as' ;
+MODULE_ID : [a-zA-Z_][a-zA-Z0-9_]* ;
+MODULE_SEPARATOR : '.' ;
+MODULE_ID_BREAK : NEW_LINE -> popMode ;
+MODULE_ID_END : ';' ;
+MODULEWS : [ \t\r]+ -> channel(WSCHANNEL) ;
 
 mode DEF_MODE;
 

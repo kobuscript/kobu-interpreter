@@ -46,7 +46,7 @@ public class BreakStatement implements Statement {
     @Override
     public void analyze(EvalContext context) {
         if (!context.getCurrentBranch().canInterrupt()) {
-            context.getModuleScope().addError(new BreakOutsideLoopError(sourceCodeRef));
+            context.addAnalyzerError(new BreakOutsideLoopError(sourceCodeRef));
         }
     }
 

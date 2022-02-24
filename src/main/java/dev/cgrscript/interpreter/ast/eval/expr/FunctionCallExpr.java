@@ -68,8 +68,10 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
         this.functionName = functionName;
         this.args = args;
 
-        moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
-        moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
+        if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
+            moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
+        }
     }
 
     @Override
@@ -95,7 +97,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
             var functionSymbol = context.getModuleScope().resolve(functionName);
             if (!(functionSymbol instanceof FunctionType)) {
-                context.getModuleScope().addError(new UndefinedFunctionName(this, null, functionName));
+                context.addAnalyzerError(new UndefinedFunctionName(this, null, functionName));
                 this.type = UnknownType.INSTANCE;
                 return;
             }
@@ -119,9 +121,9 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
             if (methodType == null) {
                 if (typeScope instanceof ModuleRefSymbol) {
                     var moduleId = ((ModuleRefSymbol)typeScope).getModuleScope().getModuleId();
-                    context.getModuleScope().addError(new UndefinedFunctionName(this, moduleId, functionName));
+                    context.addAnalyzerError(new UndefinedFunctionName(this, moduleId, functionName));
                 } else {
-                    context.getModuleScope().addError(new UndefinedMethodError(sourceCodeRef, typeScope, functionName));
+                    context.addAnalyzerError(new UndefinedMethodError(sourceCodeRef, typeScope, functionName));
                 }
                 this.type = UnknownType.INSTANCE;
                 return;
@@ -141,7 +143,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
             var parameter = functionType.getParameters().get(i);
             if (i >= args.size()) {
                 if (!parameter.isOptional()) {
-                    context.getModuleScope().addError(new InvalidFunctionCallError(sourceCodeRef, functionType, args));
+                    context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, functionType, args));
                     return UnknownType.INSTANCE;
                 }
                 break;
@@ -153,13 +155,13 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
                 return UnknownType.INSTANCE;
             }
             if (!parameter.getType().isAssignableFrom(arg.getType())) {
-                context.getModuleScope().addError(new InvalidTypeError(arg.getSourceCodeRef(),
+                context.addAnalyzerError(new InvalidTypeError(arg.getSourceCodeRef(),
                         parameter.getType(), arg.getType()));
                 return UnknownType.INSTANCE;
             }
         }
         if (args.size() > functionType.getParameters().size()) {
-            context.getModuleScope().addError(new InvalidFunctionCallError(sourceCodeRef, functionType, args));
+            context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, functionType, args));
             return UnknownType.INSTANCE;
         }
         return functionType.getReturnType();

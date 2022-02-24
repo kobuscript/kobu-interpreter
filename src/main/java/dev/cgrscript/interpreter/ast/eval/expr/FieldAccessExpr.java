@@ -71,7 +71,7 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope {
         if (rightExpr instanceof HasTypeScope) {
             ((HasTypeScope)rightExpr).setTypeScope(typeRef);
         } else {
-            context.getModuleScope().addError(new InvalidExpressionError(rightExpr.getSourceCodeRef()));
+            context.addAnalyzerError(new InvalidExpressionError(rightExpr.getSourceCodeRef()));
             this.type = UnknownType.INSTANCE;
             return;
         }
@@ -79,7 +79,7 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope {
             if (rightExpr instanceof MemoryReference) {
                 ((MemoryReference)rightExpr).setAssignMode();
             } else {
-                context.getModuleScope().addError(new InvalidAssignmentError(sourceCodeRef, rightExpr));
+                context.addAnalyzerError(new InvalidAssignmentError(sourceCodeRef, rightExpr));
                 this.type = UnknownType.INSTANCE;
                 return;
             }

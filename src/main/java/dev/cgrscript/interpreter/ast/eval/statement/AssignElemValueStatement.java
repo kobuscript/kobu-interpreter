@@ -49,7 +49,7 @@ public class AssignElemValueStatement implements Statement, Assignment {
     @Override
     public void analyze(EvalContext context) {
         if (!(exprLeft instanceof MemoryReference)) {
-            context.getModuleScope().addError(new InvalidAssignmentError(sourceCodeRef, exprLeft));
+            context.addAnalyzerError(new InvalidAssignmentError(sourceCodeRef, exprLeft));
             return;
         }
         ((MemoryReference)exprLeft).setAssignMode();
@@ -64,7 +64,7 @@ public class AssignElemValueStatement implements Statement, Assignment {
         exprRight.analyze(context);
 
         if (exprRight.getType() instanceof ModuleRefSymbol || !type.isAssignableFrom(exprRight.getType())) {
-            context.getModuleScope().addError(new InvalidAssignExprTypeError(exprRight.getSourceCodeRef(),
+            context.addAnalyzerError(new InvalidAssignExprTypeError(exprRight.getSourceCodeRef(),
                     type, exprRight.getType()));
         }
     }

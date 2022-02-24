@@ -39,10 +39,7 @@ import dev.cgrscript.interpreter.ast.template.TemplateStatement;
 import dev.cgrscript.interpreter.ast.template.TemplateStaticContentStatement;
 import dev.cgrscript.interpreter.ast.utils.NumberParser;
 import dev.cgrscript.interpreter.ast.utils.SymbolDescriptorUtils;
-import dev.cgrscript.interpreter.error.AnalyzerError;
-import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.error.analyzer.*;
-import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
 import dev.cgrscript.interpreter.module.ModuleLoader;
 
 import java.util.ArrayList;
@@ -52,49 +49,39 @@ import java.util.Map;
 
 public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
-    private final ParserErrorListener parserErrorListener;
+    private final AnalyzerContext context;
 
     private boolean topLevelExpression = true;
 
-    public EvalTreeParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, ParserErrorListener parserErrorListener) {
+    public EvalTreeParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, AnalyzerContext context) {
         super(moduleLoader);
-        this.parserErrorListener = parserErrorListener;
+        this.context = context;
         this.moduleScope = moduleScope;
-    }
-
-    @Override
-    public AstNode visitImportExpr(CgrScriptParser.ImportExprContext ctx) {
-        var moduleId = ctx.moduleId().getText();
-        try {
-            var module = moduleLoader.loadScope(parserErrorListener, moduleId, getSourceCodeRef(ctx));
-            moduleLoader.visit(moduleId, new EvalTreeParserVisitor(moduleLoader, module, parserErrorListener), AnalyzerStepEnum.EVAL_TREE);
-        } catch (AnalyzerError e) {
-            moduleScope.addError(e);
-        }
-        return null;
     }
 
     @Override
     public AstNode visitInvalidStat(CgrScriptParser.InvalidStatContext ctx) {
         //add a reference element for auto-completion service
-        moduleScope.registerAutoCompletionSource(ctx.ID().getSymbol().getStartIndex(), new AutoCompletionSource() {
-            @Override
-            public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
-                return SymbolDescriptorUtils.getGlobalKeywords();
-            }
+        if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            moduleScope.registerAutoCompletionSource(ctx.ID().getSymbol().getStartIndex(), new AutoCompletionSource() {
+                @Override
+                public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                    return SymbolDescriptorUtils.getGlobalKeywords();
+                }
 
-            @Override
-            public boolean hasOwnCompletionScope() {
-                return true;
-            }
-        });
+                @Override
+                public boolean hasOwnCompletionScope() {
+                    return true;
+                }
+            });
+        }
         return null;
     }
 
     @Override
     public AstNode visitInvalidDef(CgrScriptParser.InvalidDefContext ctx) {
-        moduleScope.addError(new InvalidDefinitionError(getSourceCodeRef(ctx.DEF())));
-        if (ctx.elem != null) {
+        context.getErrorScope().addError(new InvalidDefinitionError(getSourceCodeRef(ctx.DEF())));
+        if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && ctx.elem != null) {
             //add a reference element for auto-completion service
             moduleScope.registerAutoCompletionSource(ctx.elem.getStartIndex(), new AutoCompletionSource() {
                 @Override
@@ -114,6 +101,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitDeftype(CgrScriptParser.DeftypeContext ctx) {
         RecordTypeSymbol recordType = (RecordTypeSymbol) moduleScope.resolve(ctx.ID().getText());
+        if (recordType == null) {
+            return null;
+        }
         if (ctx.attributes() != null) {
 
             CgrScriptParser.AttributesContext attrCtx = ctx.attributes();
@@ -121,9 +111,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
                 var type = (Type) visit(attrCtx.type());
                 if (attrCtx.ID() != null) {
                     var attr = new RecordTypeAttribute(getSourceCodeRef(attrCtx.ID()), attrCtx.ID().getText(), type);
-                    recordType.addAttribute(attr);
+                    recordType.addAttribute(context, attr);
                 } else {
-                    recordType.setUnknownAttributes(new RecordTypeUnknownAttributes(getSourceCodeRef(attrCtx), type));
+                    recordType.setUnknownAttributes(context, new RecordTypeUnknownAttributes(getSourceCodeRef(attrCtx), type));
                 }
                 attrCtx = attrCtx.attributes();
             }
@@ -156,7 +146,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             }
         }
         if (ctx.functionDeclRet().VOID() == null && exprList.isEmpty()) {
-            moduleScope.addError(new FunctionMissingReturnStatError(getSourceCodeRef(ctx.RCB())));
+            context.getErrorScope().addError(new FunctionMissingReturnStatError(getSourceCodeRef(ctx.RCB())));
         }
 
         function.setParameters(parameters);
@@ -171,6 +161,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitNativeDecl(CgrScriptParser.NativeDeclContext ctx) {
         var function = (NativeFunctionSymbol) moduleScope.resolve(ctx.ID().getText());
+        if (function == null) {
+            return null;
+        }
         List<FunctionParameter> parameters = new ArrayList<>();
         if (ctx.functionDeclParam() != null) {
             CgrScriptParser.FunctionDeclParamContext paramCtx = ctx.functionDeclParam();
@@ -244,7 +237,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitTemplateContentExpr(CgrScriptParser.TemplateContentExprContext ctx) {
         if (ctx.expr() == null) {
-            moduleScope.addError(new MissingExpressionError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new MissingExpressionError(getSourceCodeRef(ctx)));
             return new TemplateStaticContentStatement(getSourceCodeRef(ctx), "");
         }
 
@@ -361,7 +354,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitInvalidKeyword(CgrScriptParser.InvalidKeywordContext ctx) {
-        moduleScope.addError(new InvalidKeywordError(getSourceCodeRef(ctx), ctx.keyword.getText()));
+        context.getErrorScope().addError(new InvalidKeywordError(getSourceCodeRef(ctx), ctx.keyword.getText()));
         return null;
     }
 
@@ -447,7 +440,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitIfStat(CgrScriptParser.IfStatContext ctx) {
         if (ctx.LP() != null && ctx.RP() != null && ctx.expr() == null) {
-            moduleScope.addError(new MissingExpressionError(getSourceCodeRef(ctx.LP())));
+            context.getErrorScope().addError(new MissingExpressionError(getSourceCodeRef(ctx.LP())));
         }
 
         topLevelExpression = false;
@@ -584,7 +577,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitRecord(CgrScriptParser.RecordContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -616,7 +609,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitArrayExpr(CgrScriptParser.ArrayExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -638,7 +631,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitPairExpr(CgrScriptParser.PairExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -673,7 +666,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitArrayAccessExpr(CgrScriptParser.ArrayAccessExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -714,7 +707,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitNotExpr(CgrScriptParser.NotExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -728,12 +721,12 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitNotErr(CgrScriptParser.NotErrContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
         var exprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.NOT()), "");
-        moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.NOT())));
+        context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.NOT())));
 
         topLevelExpression = exprStatus;
         return new NotExpr(getSourceCodeRef(ctx), exprNode);
@@ -743,7 +736,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitFactorExpr(CgrScriptParser.FactorExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -764,7 +757,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitFactorErr(CgrScriptParser.FactorErrContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -772,11 +765,11 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         Expr expr;
         if (ctx.STAR() != null) {
             var rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.STAR()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.STAR())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.STAR())));
             expr = new MultExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, rightExprNode);
         } else {
             var rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.DIV()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.DIV())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.DIV())));
             expr = new DivExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, rightExprNode);
         }
 
@@ -788,7 +781,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitAddSubExpr(CgrScriptParser.AddSubExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -809,7 +802,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitAddSubErr(CgrScriptParser.AddSubErrContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -817,11 +810,11 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         Expr expr;
         if (ctx.PLUS() != null) {
             var rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.PLUS()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.PLUS())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.PLUS())));
             expr = new AddExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, rightExprNode);
         } else {
             var rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.MINUS()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.MINUS())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.MINUS())));
             expr = new SubExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, rightExprNode);
         }
 
@@ -833,7 +826,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitEqExpr(CgrScriptParser.EqExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -864,7 +857,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitEqErr(CgrScriptParser.EqErrContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -874,27 +867,27 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         Expr rightExprNode = null;
         if (ctx.EQUALS() != null) {
             rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.EQUALS()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.EQUALS())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.EQUALS())));
             operator = EqOperatorEnum.EQUALS;
         } else if (ctx.NOT_EQUALS() != null) {
             rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.NOT_EQUALS()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.NOT_EQUALS())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.NOT_EQUALS())));
             operator = EqOperatorEnum.NOT_EQUALS;
         } else if (ctx.LESS() != null) {
             rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.LESS()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.LESS())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.LESS())));
             operator = EqOperatorEnum.LESS;
         } else if (ctx.LESS_OR_EQUALS() != null) {
             rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.LESS_OR_EQUALS()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.LESS_OR_EQUALS())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.LESS_OR_EQUALS())));
             operator = EqOperatorEnum.LESS_OR_EQUALS;
         } else if (ctx.GREATER() != null) {
             rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.GREATER()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.GREATER())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.GREATER())));
             operator = EqOperatorEnum.GREATER;
         } else if (ctx.GREATER_OR_EQUALS() != null) {
             rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.GREATER_OR_EQUALS()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.GREATER_OR_EQUALS())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.GREATER_OR_EQUALS())));
             operator = EqOperatorEnum.GREATER_OR_EQUALS;
         }
 
@@ -907,7 +900,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitLogicExpr(CgrScriptParser.LogicExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -930,7 +923,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     public AstNode visitLogicErr(CgrScriptParser.LogicErrContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
@@ -940,11 +933,11 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         Expr rightExprNode = null;
         if (ctx.AND() != null) {
             rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.AND()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.AND())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.AND())));
             operator = LogicOperatorEnum.AND;
         } else if (ctx.OR() != null) {
             rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.OR()), "");
-            moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.OR())));
+            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.OR())));
             operator = LogicOperatorEnum.OR;
         }
 
@@ -962,7 +955,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         var rightExprNode = visit(ctx.expr(1));
 
         if (exprStatus && !(rightExprNode instanceof FunctionCallExpr)) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
         }
         topLevelExpression = exprStatus;
 
@@ -977,7 +970,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
         var leftExprNode = visit(ctx.expr());
         var rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.DOT()), "");
-        moduleScope.addError(new IdentifierExpectedError(getSourceCodeRef(ctx.DOT())));
+        context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.DOT())));
 
         topLevelExpression = exprStatus;
 
@@ -993,7 +986,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitIdExpr(CgrScriptParser.IdExprContext ctx) {
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
         }
         return new RefExpr(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText());
     }
@@ -1001,7 +994,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitStringExpr(CgrScriptParser.StringExprContext ctx) {
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
         }
 
         StringBuilder str = new StringBuilder();
@@ -1044,7 +1037,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitNumberExpr(CgrScriptParser.NumberExprContext ctx) {
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
         }
         String numberText = ctx.NUMBER().getText();
         return NumberParser.getNumberValueExpr(numberText, getSourceCodeRef(ctx.NUMBER()));
@@ -1053,7 +1046,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitTrueExpr(CgrScriptParser.TrueExprContext ctx) {
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
         }
         return new BooleanValueExpr(getSourceCodeRef(ctx.TRUE()), true);
     }
@@ -1061,7 +1054,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitFalseExpr(CgrScriptParser.FalseExprContext ctx) {
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
         }
         return new BooleanValueExpr(getSourceCodeRef(ctx.FALSE()), false);
     }
@@ -1069,7 +1062,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitNullExpr(CgrScriptParser.NullExprContext ctx) {
         if (topLevelExpression) {
-            moduleScope.addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
         }
         return new NullValueExpr(getSourceCodeRef(ctx.NULL()));
     }
@@ -1172,7 +1165,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             var symbol = moduleScope.resolve(typeName);
 
             if (!(symbol instanceof Type)) {
-                moduleScope.addError(new UndefinedTypeError(getSourceCodeRef(ctx.ID(0)), typeName));
+                context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx.ID(0)), typeName));
                 return UnknownType.INSTANCE;
             }
 
@@ -1184,14 +1177,14 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             ModuleRefSymbol moduleRefSymbol = (ModuleRefSymbol) moduleScope.resolveLocal(moduleAlias);
 
             if (moduleRefSymbol == null) {
-                moduleScope.addError(new UndefinedTypeError(getSourceCodeRef(ctx), typeName));
+                context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx), typeName));
                 return UnknownType.INSTANCE;
             }
 
             var symbol = moduleRefSymbol.getModuleScope().resolve(typeName);
 
             if (!(symbol instanceof Type)) {
-                moduleScope.addError(new UndefinedTypeError(getSourceCodeRef(ctx), moduleAlias + "." + typeName));
+                context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx), moduleAlias + "." + typeName));
                 return UnknownType.INSTANCE;
             }
 
@@ -1221,14 +1214,14 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
             FunctionParameter currentParam = paramsMap.get(param.getName());
             if (currentParam != null) {
-                moduleScope.addError(new DuplicatedFunctionParamError(currentParam, param));
+                context.getErrorScope().addError(new DuplicatedFunctionParamError(currentParam, param));
                 continue;
             }
             if (param.isOptional()) {
                 lastOptionalParam = param;
             } else {
                 if (lastOptionalParam != null) {
-                    moduleScope.addError(new InvalidRequiredFunctionParamError(param));
+                    context.getErrorScope().addError(new InvalidRequiredFunctionParamError(param));
                 }
             }
             paramsMap.put(param.getName(), param);

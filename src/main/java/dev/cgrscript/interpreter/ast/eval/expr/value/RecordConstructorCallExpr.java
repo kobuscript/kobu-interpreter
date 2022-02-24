@@ -79,7 +79,7 @@ public class RecordConstructorCallExpr implements Expr {
         } else {
             ModuleRefSymbol moduleRefSymbol = (ModuleRefSymbol) context.getModuleScope().resolveLocal(moduleAlias);
             if (moduleRefSymbol == null) {
-                context.getModuleScope().addError(new UndefinedTypeError(sourceCodeRef, moduleAlias + "." + recordTypeName));
+                context.addAnalyzerError(new UndefinedTypeError(sourceCodeRef, moduleAlias + "." + recordTypeName));
                 type = UnknownType.INSTANCE;
                 return;
             }
@@ -87,7 +87,7 @@ public class RecordConstructorCallExpr implements Expr {
         }
 
         if (!(symbolType instanceof RecordTypeSymbol)) {
-            context.getModuleScope().addError(new UndefinedTypeError(sourceCodeRef, recordTypeName));
+            context.addAnalyzerError(new UndefinedTypeError(sourceCodeRef, recordTypeName));
             type = UnknownType.INSTANCE;
             return;
         } else {
@@ -104,12 +104,12 @@ public class RecordConstructorCallExpr implements Expr {
             fieldExpr.analyze(context);
             var exprType = fieldExpr.getType();
             if (fieldType == null) {
-                context.getModuleScope().addError(new InvalidRecordFieldError(fieldExpr.getSourceCodeRef(),
+                context.addAnalyzerError(new InvalidRecordFieldError(fieldExpr.getSourceCodeRef(),
                         recordType, fieldExpr.getFieldName()));
                 continue;
             }
             if (!(exprType instanceof UnknownType) && !fieldType.isAssignableFrom(fieldExpr.getType())) {
-                context.getModuleScope().addError(new InvalidRecordFieldTypeError(fieldExpr.getSourceCodeRef(),
+                context.addAnalyzerError(new InvalidRecordFieldTypeError(fieldExpr.getSourceCodeRef(),
                         recordType, fieldExpr.getFieldName(), fieldExpr.getType()));
             }
         }

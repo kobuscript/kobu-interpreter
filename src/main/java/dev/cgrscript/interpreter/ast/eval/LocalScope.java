@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval;
 
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.symbol.Scope;
 import dev.cgrscript.interpreter.ast.symbol.Symbol;
@@ -58,11 +59,11 @@ public class LocalScope implements Scope {
     }
 
     @Override
-    public void define(Symbol symbol) {
+    public void define(AnalyzerContext analyzerContext, Symbol symbol) {
         symbol.setScope(this);
         var currentSymbol = this.symbols.get(symbol.getName());
         if (currentSymbol != null) {
-            moduleScope.addError(new SymbolConflictError(currentSymbol, symbol));
+            analyzerContext.getErrorScope().addError(new SymbolConflictError(currentSymbol, symbol));
         }
         this.symbols.put(symbol.getName(), symbol);
 

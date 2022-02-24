@@ -60,7 +60,7 @@ public class PostIncDecExpr implements Statement, Expr, HasTypeScope, Assignment
     @Override
     public void analyze(EvalContext context) {
         if (!(refExpr instanceof MemoryReference)) {
-            context.getModuleScope().addError(new InvalidExpressionError(sourceCodeRef));
+            context.addAnalyzerError(new InvalidExpressionError(sourceCodeRef));
             this.type = UnknownType.INSTANCE;
             return;
         }
@@ -74,7 +74,7 @@ public class PostIncDecExpr implements Statement, Expr, HasTypeScope, Assignment
         }
         if (!(refExpr.getType() instanceof NumberTypeSymbol)) {
             var numberType = BuiltinScope.NUMBER_TYPE;
-            context.getModuleScope().addError(new InvalidTypeError(sourceCodeRef, numberType, refExpr.getType()));
+            context.addAnalyzerError(new InvalidTypeError(sourceCodeRef, numberType, refExpr.getType()));
             this.type = UnknownType.INSTANCE;
             return;
         }

@@ -46,7 +46,7 @@ public class ContinueStatement implements Statement {
     @Override
     public void analyze(EvalContext context) {
         if (!context.getCurrentBranch().canInterrupt()) {
-            context.getModuleScope().addError(new ContinueOutsideLoopError(sourceCodeRef));
+            context.addAnalyzerError(new ContinueOutsideLoopError(sourceCodeRef));
         }
     }
 

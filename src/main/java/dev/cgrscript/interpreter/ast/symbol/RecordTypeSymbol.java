@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.database.Database;
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
@@ -80,26 +81,26 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         this.superType = superType.getType();
     }
 
-    public void addAttribute(RecordTypeAttribute attribute) {
+    public void addAttribute(AnalyzerContext context, RecordTypeAttribute attribute) {
         if (attribute.getType() instanceof RuleRefTypeSymbol) {
-            module.addError(new InvalidTypeError(getSourceCodeRef(), BuiltinScope.ANY_TYPE, BuiltinScope.RULE_REF_TYPE));
+            context.getErrorScope().addError(new InvalidTypeError(getSourceCodeRef(), BuiltinScope.ANY_TYPE, BuiltinScope.RULE_REF_TYPE));
             return;
         }
         if (attribute.getType() instanceof ArrayType && ((ArrayType)attribute.getType()).getElementType() instanceof RuleRefTypeSymbol) {
-            module.addError(new InvalidTypeError(getSourceCodeRef(), new ArrayType(BuiltinScope.ANY_TYPE),
+            context.getErrorScope().addError(new InvalidTypeError(getSourceCodeRef(), new ArrayType(BuiltinScope.ANY_TYPE),
                             new ArrayType(BuiltinScope.RULE_REF_TYPE)));
             return;
         }
         if (attribute.getType() instanceof PairType) {
             PairType pairType = (PairType) attribute.getType();
             if (pairType.getLeftType() instanceof RuleRefTypeSymbol) {
-                module.addError(new InvalidTypeError(((RuleRefTypeSymbol) pairType.getLeftType()).getSourceCodeRef(),
+                context.getErrorScope().addError(new InvalidTypeError(((RuleRefTypeSymbol) pairType.getLeftType()).getSourceCodeRef(),
                                 BuiltinScope.ANY_TYPE,
                                 BuiltinScope.RULE_REF_TYPE));
                 return;
             }
             if (pairType.getRightType() instanceof RuleRefTypeSymbol) {
-                module.addError(new InvalidTypeError(((RuleRefTypeSymbol) pairType.getRightType()).getSourceCodeRef(),
+                context.getErrorScope().addError(new InvalidTypeError(((RuleRefTypeSymbol) pairType.getRightType()).getSourceCodeRef(),
                                 BuiltinScope.ANY_TYPE,
                                 BuiltinScope.RULE_REF_TYPE));
                 return;
@@ -109,14 +110,15 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         attribute.setRecordType(this);
         RecordTypeAttribute currentDef = attributes.get(attribute.getName());
         if (currentDef != null && !currentDef.getType().equals(attribute.getType())) {
-            module.addError(new RecordTypeAttributeConflictError(currentDef, attribute));
+            context.getErrorScope().addError(new RecordTypeAttributeConflictError(currentDef, attribute));
         }
         attributes.put(attribute.getName(), attribute);
     }
 
-    public void setUnknownAttributes(RecordTypeUnknownAttributes attributes) {
+    public void setUnknownAttributes(AnalyzerContext context, RecordTypeUnknownAttributes attributes) {
         if (unknownAttributes != null) {
-            module.addError(new RecordTypeUnknownAttributesError(attributes.getSourceCodeRef(), this));
+            context.getErrorScope()
+                    .addError(new RecordTypeUnknownAttributesError(attributes.getSourceCodeRef(), this));
         }
         unknownAttributes = attributes;
     }
@@ -299,22 +301,22 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     @Override
-    public void analyze(EvalModeEnum evalMode, Database database, InputReader inputReader, OutputWriter outputWriter) {
+    public void analyze(AnalyzerContext context, Database database, InputReader inputReader, OutputWriter outputWriter) {
         if (superType != null) {
             if (superType.hasSuperType(this)) {
-                module.addError(new CyclicRecordInheritanceError(superType.getSourceCodeRef(), this, superType));
+                context.getErrorScope().addError(new CyclicRecordInheritanceError(superType.getSourceCodeRef(), this, superType));
             } else if (unknownAttributes != null && superType.hasUnknownAttributes()) {
                 List<SourceCodeRef> sourceCodeRefList = new ArrayList<>();
                 sourceCodeRefList.add(superType.getSourceCodeRef());
                 sourceCodeRefList.add(getSourceCodeRef());
-                module.addError(new RecordSuperTypeConflictError(sourceCodeRefList, this,
+                context.getErrorScope().addError(new RecordSuperTypeConflictError(sourceCodeRefList, this,
                         superType, unknownAttributes));
             }
 
             for (RecordTypeAttribute attr : attributes.values()) {
                 var attrSuperType = resolveSuperTypeAttribute(attr.getName());
                 if (attrSuperType != null && !attr.getType().getName().equals(attrSuperType.getType().getName())) {
-                    module.addError(new RecordTypeAttributeConflictError(attr, attrSuperType));
+                    context.getErrorScope().addError(new RecordTypeAttributeConflictError(attr, attrSuperType));
                 }
             }
         }

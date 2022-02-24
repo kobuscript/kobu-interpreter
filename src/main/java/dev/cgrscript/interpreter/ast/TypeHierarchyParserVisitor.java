@@ -27,7 +27,6 @@ package dev.cgrscript.interpreter.ast;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.error.analyzer.RecordInvalidSuperTypeError;
-import dev.cgrscript.interpreter.module.AnalyzerStepEnum;
 import dev.cgrscript.interpreter.module.ModuleLoader;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
@@ -35,24 +34,12 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class TypeHierarchyParserVisitor extends CgrScriptParserVisitor<Void> {
 
-    private final ParserErrorListener parserErrorListener;
+    private final AnalyzerContext context;
 
-    public TypeHierarchyParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, ParserErrorListener parserErrorListener) {
+    public TypeHierarchyParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, AnalyzerContext context) {
         super(moduleLoader);
-        this.parserErrorListener = parserErrorListener;
+        this.context = context;
         this.moduleScope = moduleScope;
-    }
-
-    @Override
-    public Void visitImportExpr(CgrScriptParser.ImportExprContext ctx) {
-        var moduleId = ctx.moduleId().getText();
-        try {
-            var module = moduleLoader.loadScope(parserErrorListener, moduleId, getSourceCodeRef(ctx));
-            moduleLoader.visit(moduleId, new TypeHierarchyParserVisitor(moduleLoader, module, parserErrorListener), AnalyzerStepEnum.TYPE_HIERARCHY);
-        } catch (AnalyzerError e) {
-            moduleScope.addError(e);
-        }
-        return null;
     }
 
     @Override
@@ -68,7 +55,7 @@ public class TypeHierarchyParserVisitor extends CgrScriptParserVisitor<Void> {
                     return null;
                 }
                 if (!(type instanceof RecordTypeSymbol)) {
-                    moduleScope.addError(new RecordInvalidSuperTypeError(getSourceCodeRef(typeSymbol), recordType,
+                    context.getErrorScope().addError(new RecordInvalidSuperTypeError(getSourceCodeRef(typeSymbol), recordType,
                             typeSymbol.getText()));
                 } else {
                     recordType.setSuperType(new RecordSuperType(getSourceCodeRef(typeSymbol), (RecordTypeSymbol) type));

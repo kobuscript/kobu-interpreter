@@ -26,6 +26,8 @@ package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.file_system.ResourceRef;
 
+import java.util.Objects;
+
 public class SourceCodeRef {
 
     private final ResourceRef file;
@@ -97,4 +99,18 @@ public class SourceCodeRef {
     public int getEndOffset() {
         return endOffset;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SourceCodeRef that = (SourceCodeRef) o;
+        return startOffset == that.startOffset && endOffset == that.endOffset && Objects.equals(moduleId, that.moduleId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(moduleId, startOffset, endOffset);
+    }
+
 }

@@ -75,14 +75,14 @@ public class ForStatement implements Statement {
         for (Expr expr : condExprList) {
             expr.analyze(context);
             if (!(expr.getType() instanceof BooleanTypeSymbol)) {
-                context.getModuleScope().addError(new InvalidTypeError(expr.getSourceCodeRef(),
+                context.addAnalyzerError(new InvalidTypeError(expr.getSourceCodeRef(),
                         booleanType, expr.getType()));
             }
         }
 
         for (Statement stepStat : stepStatList) {
             if (!(stepStat instanceof Assignment)) {
-                context.getModuleScope().addError(new InvalidExpressionError(stepStat.getSourceCodeRef()));
+                context.addAnalyzerError(new InvalidExpressionError(stepStat.getSourceCodeRef()));
             } else {
                 stepStat.analyze(context);
             }

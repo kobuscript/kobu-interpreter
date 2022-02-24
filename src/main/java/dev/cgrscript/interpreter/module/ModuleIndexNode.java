@@ -51,7 +51,7 @@ public class ModuleIndexNode {
         return children.get(segment);
     }
 
-    public List<String> getChildren() {
+    public List<String> getSegments() {
         return new ArrayList<>(children.keySet());
     }
 

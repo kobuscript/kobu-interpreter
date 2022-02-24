@@ -64,21 +64,21 @@ public class EqExpr implements Expr {
 
         type = UnknownType.INSTANCE;
         if (notComparable(leftExpr.getType()) || notComparable(rightExpr.getType())) {
-            context.getModuleScope().addError(new InvalidOperatorError(sourceCodeRef,
+            context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef,
                     leftExpr.getType(), operator.getSymbol(), rightExpr.getType()));
         } else if (leftExpr.getType() != null && rightExpr.getType() != null) {
             if (!leftExpr.getType().getName().equals(rightExpr.getType().getName())) {
-                context.getModuleScope().addError(new InvalidOperatorError(sourceCodeRef,
+                context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef,
                         leftExpr.getType(), operator.getSymbol(), rightExpr.getType()));
             } else if (leftExpr.getType() instanceof BooleanTypeSymbol &&
                     operator != EqOperatorEnum.EQUALS && operator != EqOperatorEnum.NOT_EQUALS) {
-                context.getModuleScope().addError(new InvalidOperatorError(sourceCodeRef,
+                context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef,
                         leftExpr.getType(), operator.getSymbol(), rightExpr.getType()));
             } else {
                 type = BuiltinScope.BOOLEAN_TYPE;
             }
         } else if (operator != EqOperatorEnum.EQUALS && operator != EqOperatorEnum.NOT_EQUALS) {
-            context.getModuleScope().addError(new InvalidOperatorError(sourceCodeRef,
+            context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef,
                     leftExpr.getType(), operator.getSymbol(), rightExpr.getType()));
         } else {
             type = BuiltinScope.BOOLEAN_TYPE;

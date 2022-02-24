@@ -66,18 +66,19 @@ public class Match {
     }
 
     public Match setFact(RecordValueExpr rootRecord, ValueExpr fact, String bind) {
-        EvalContext matchCtx = new EvalContext(context.getEvalMode(), context.getModuleScope(), context.getDatabase(),
+        EvalContext matchCtx = new EvalContext(context.getAnalyzerContext(), context.getEvalMode(), context.getModuleScope(), context.getDatabase(),
                 context.getInputParser(), context.getOutputWriter());
         matchCtx.getCurrentScope().addAll(context.getCurrentScope());
         if (bind != null) {
-            matchCtx.getCurrentScope().define(new VariableSymbol(bind, fact.getType()));
+            matchCtx.getCurrentScope().define(context.getAnalyzerContext(), new VariableSymbol(bind, fact.getType()));
             matchCtx.getCurrentScope().setValue(bind, fact);
         }
         return new Match(matchGroupId, matchCtx, rootRecord, fact, state);
     }
 
     public Match merge(Match match) {
-        EvalContext matchCtx = new EvalContext(context.getEvalMode(), context.getModuleScope(), context.getDatabase(),
+        EvalContext matchCtx = new EvalContext(context.getAnalyzerContext(), context.getEvalMode(),
+                context.getModuleScope(), context.getDatabase(),
                 context.getInputParser(), context.getOutputWriter());
         matchCtx.getCurrentScope().addAll(context.getCurrentScope());
         matchCtx.getCurrentScope().addAll(match.context.getCurrentScope());

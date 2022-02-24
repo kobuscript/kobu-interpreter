@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.eval.function.global.NewRecordFunctionImpl;
 import dev.cgrscript.interpreter.ast.eval.function.global.PrintFunctionImpl;
 import dev.cgrscript.interpreter.ast.eval.function.global.conf.*;
@@ -64,7 +65,7 @@ public class BuiltinScope implements Scope {
     }
 
     @Override
-    public void define(Symbol symbol) {
+    public void define(AnalyzerContext context, Symbol symbol) {
         throw new UnsupportedOperationException("Can't change builtin scope.");
     }
 
