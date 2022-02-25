@@ -98,7 +98,6 @@ public class CgrScriptAnalyzer {
         }
 
         addErrors(file, errors, analyzerContext.getParserErrorListener());
-        addErrors(file, errors, analyzerContext.getErrorScope());
 
         moduleScope.analyze(analyzerContext, database, inputReader, outputWriter);
 
