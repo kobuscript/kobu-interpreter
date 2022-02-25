@@ -52,4 +52,23 @@ public interface AutoCompletionSource {
 
         return symbols;
     }
+
+    default List<SymbolDescriptor> getGlobalSymbols(ModuleScope moduleScope, SymbolTypeEnum... types) {
+        Set<SymbolTypeEnum> typeSet = new HashSet<>(Arrays.asList(types));
+        List<SymbolDescriptor> symbols = new ArrayList<>();
+        for (Symbol symbol : moduleScope.getSymbols()) {
+            var descriptor = new SymbolDescriptor(symbol);
+            if (typeSet.contains(descriptor.getType())) {
+                symbols.add(descriptor);
+            }
+        }
+        for (Symbol symbol : moduleScope.getDependenciesSymbols()) {
+            var descriptor = new SymbolDescriptor(symbol);
+            if (typeSet.contains(descriptor.getType())) {
+                symbols.add(descriptor);
+            }
+        }
+
+        return symbols;
+    }
 }

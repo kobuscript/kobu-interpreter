@@ -221,8 +221,10 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
     @Override
     public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
         var symbols = new ArrayList<>(symbolsInScope);
-        symbols.addAll(getExternalSymbols(moduleScope, externalModules,
-                SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE, SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE));
+        if (symbolsInScope.isEmpty()) {
+            symbols.addAll(getExternalSymbols(moduleScope, externalModules,
+                    SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE, SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE));
+        }
         return symbols;
     }
 

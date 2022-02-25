@@ -29,8 +29,6 @@ import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.AnalyzerErrorScope;
-import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
-import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
 import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.HasElementRef;
 import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
@@ -200,29 +198,25 @@ public class CgrScriptAnalyzer {
         return moduleLoader;
     }
 
-    private boolean addErrors(CgrFile file, List<CgrScriptError> errors, ParserErrorListener parserErrorListener) {
+    private void addErrors(CgrFile file, List<CgrScriptError> errors, ParserErrorListener parserErrorListener) {
         var parseErrors = parserErrorListener.getErrors();
-        var hasErrors = false;
 
         for (ParserError parseError : parseErrors) {
             if (parseError.getSourceCodeRef().getFile().getAbsolutePath().equals(file.getAbsolutePath())) {
                 errors.add(parseError);
-                hasErrors = true;
             }
         }
 
-        return hasErrors;
     }
 
-    private boolean addErrors(CgrFile file, List<CgrScriptError> errors, AnalyzerErrorScope errorScope) {
+    private void addErrors(CgrFile file, List<CgrScriptError> errors, AnalyzerErrorScope errorScope) {
         var analyzerErrors = errorScope.getErrors();
         if (analyzerErrors == null || analyzerErrors.isEmpty()) {
-            return false;
+            return;
         }
         for (AnalyzerError analyzerError : analyzerErrors) {
             errors.addAll(analyzerError.toCgrScriptError(file));
         }
-        return true;
     }
 
 }

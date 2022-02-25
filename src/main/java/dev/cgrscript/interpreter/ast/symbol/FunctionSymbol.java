@@ -54,7 +54,7 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
         this.closeFunctionRef = closeFunctionRef;
         this.moduleScope = moduleScope;
 
-        if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+        if (closeFunctionRef != null && moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
             moduleScope.registerAutoCompletionSource(closeFunctionRef.getStartOffset(), new AutoCompletionSource() {
                 @Override
                 public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
@@ -119,7 +119,7 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
         var branch = context.pushNewBranch();
         context.analyzeBlock(exprList);
 
-        if (returnType != null && !branch.hasReturnStatement()) {
+        if (closeFunctionRef != null && returnType != null && !branch.hasReturnStatement()) {
             analyzerContext.getErrorScope().addError(new FunctionMissingReturnStatError(closeFunctionRef));
         }
 

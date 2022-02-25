@@ -87,6 +87,7 @@ invalidStat : ID {notifyErrorListenersPrevToken("'def' or 'fun' expected");} ;
 functionDecl : 'fun' ID LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB
                | 'fun' ID LP functionDeclParam? RP LCB {notifyMissingFunctionReturnType();}
                | 'fun' ID LP functionDeclParam? RP COLON functionDeclRet LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+               | 'fun' ID LP functionDeclParam? RP COLON functionDeclRet {notifyErrorListenersPrevToken("'{' expected");}
                | 'fun' ID LP functionDeclParam? RP COLON {notifyErrorListenersPrevToken("return type expected");}
                | 'fun' ID LP functionDeclParam? RP {notifyErrorListenersPrevToken("':' expected");}
                | 'fun' ID LP functionDeclParam? {notifyErrorListenersPrevToken("')' expected");}
@@ -152,7 +153,7 @@ deftype : 'def' 'type' ID inheritance? LCB attributes? RCB
 
 inheritance : 'extends' ID ;
 
-attributes : ( STAR | ID ) COLON type ( COMMA attributes )?
+attributes : ( STAR | ID ) COLON type ( COMMA? attributes )?
              | ( STAR | ID ) COLON type COMMA
              | ( STAR | ID ) COLON? {notifyErrorListenersPrevToken("attribute type expected");}
              ;
@@ -161,7 +162,7 @@ record : typeName LCB recordField? RCB
          | typeName LCB recordField? {notifyErrorListenersPrevToken("'}' expected");}
          ;
 
-recordField : ID COLON exprWrapper ( COMMA recordField )?
+recordField : ID COLON exprWrapper ( COMMA? recordField )?
               | ID COLON exprWrapper COMMA
               | ID COLON? {notifyErrorListenersPrevToken("value expected");};
 

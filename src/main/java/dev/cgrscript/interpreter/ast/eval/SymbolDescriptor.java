@@ -152,7 +152,8 @@ public class SymbolDescriptor {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SymbolDescriptor that = (SymbolDescriptor) o;
-        return type == that.type && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(metadata, that.metadata);
+        return type == that.type && Objects.equals(name, that.name) && Objects.equals(description, that.description)
+                && Objects.equals(metadata, that.metadata);
     }
 
     @Override

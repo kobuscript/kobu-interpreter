@@ -53,6 +53,8 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     private boolean topLevelExpression = true;
 
+    private boolean functionReturnType = false;
+
     public EvalTreeParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, AnalyzerContext context) {
         super(moduleLoader);
         this.context = context;
@@ -108,12 +110,14 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
             CgrScriptParser.AttributesContext attrCtx = ctx.attributes();
             while (attrCtx != null) {
-                var type = (Type) visit(attrCtx.type());
-                if (attrCtx.ID() != null) {
-                    var attr = new RecordTypeAttribute(getSourceCodeRef(attrCtx.ID()), attrCtx.ID().getText(), type);
-                    recordType.addAttribute(context, attr);
-                } else {
-                    recordType.setUnknownAttributes(context, new RecordTypeUnknownAttributes(getSourceCodeRef(attrCtx), type));
+                if (attrCtx.type() != null) {
+                    var type = (Type) visit(attrCtx.type());
+                    if (attrCtx.ID() != null) {
+                        var attr = new RecordTypeAttribute(getSourceCodeRef(attrCtx.ID()), attrCtx.ID().getText(), type);
+                        recordType.addAttribute(context, attr);
+                    } else if (attrCtx.STAR() != null) {
+                        recordType.setUnknownAttributes(context, new RecordTypeUnknownAttributes(getSourceCodeRef(attrCtx), type));
+                    }
                 }
                 attrCtx = attrCtx.attributes();
             }
@@ -126,6 +130,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitFunctionDecl(CgrScriptParser.FunctionDeclContext ctx) {
+        if (ctx.ID() == null) {
+            return null;
+        }
         var function = (FunctionSymbol) moduleScope.resolve(ctx.ID().getText());
         if (function == null) {
             return null;
@@ -145,13 +152,15 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
                 }
             }
         }
-        if (ctx.functionDeclRet().VOID() == null && exprList.isEmpty()) {
-            context.getErrorScope().addError(new FunctionMissingReturnStatError(getSourceCodeRef(ctx.RCB())));
-        }
 
         function.setParameters(parameters);
-        if (ctx.functionDeclRet().type() != null) {
-            function.setReturnType((Type) visit(ctx.functionDeclRet().type()));
+        if (ctx.functionDeclRet() != null && ctx.functionDeclRet().type() != null) {
+            functionReturnType = true;
+            try {
+                function.setReturnType((Type) visit(ctx.functionDeclRet().type()));
+            } finally {
+                functionReturnType = false;
+            }
         }
         function.setExprList(exprList);
 
@@ -410,7 +419,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         boolean exprStatus = topLevelExpression;
         topLevelExpression = false;
 
-        IncDecOperatorEnum operator = null;
+        IncDecOperatorEnum operator;
         if (ctx.INC() != null) {
             operator = IncDecOperatorEnum.INC;
         } else {
@@ -1164,6 +1173,26 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             var typeName = ctx.ID(0).getText();
             var symbol = moduleScope.resolve(typeName);
 
+            if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+                moduleScope.registerAutoCompletionSource(ctx.ID(0).getSymbol().getStartIndex(), new AutoCompletionSource() {
+                    @Override
+                    public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                        List<SymbolDescriptor> symbols = new ArrayList<>();
+                        symbols.addAll(getGlobalSymbols(moduleScope, SymbolTypeEnum.TYPE));
+                        symbols.addAll(getExternalSymbols(moduleScope, externalModules, SymbolTypeEnum.TYPE));
+                        if (functionReturnType) {
+                            symbols.add(SymbolDescriptorUtils.voidKeyword);
+                        }
+                        return symbols;
+                    }
+
+                    @Override
+                    public boolean hasOwnCompletionScope() {
+                        return false;
+                    }
+                });
+            }
+
             if (!(symbol instanceof Type)) {
                 context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx.ID(0)), typeName));
                 return UnknownType.INSTANCE;
@@ -1173,6 +1202,25 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         } else {
             var moduleAlias = ctx.ID(0).getText();
             var typeName = ctx.ID(1).getText();
+
+            if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+                moduleScope.registerAutoCompletionSource(ctx.ID(0).getSymbol().getStartIndex(), new AutoCompletionSource() {
+                    @Override
+                    public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                        var symbol = moduleScope.resolve(moduleAlias);
+                        if (symbol instanceof ModuleRefSymbol) {
+                            var otherModule = ((ModuleRefSymbol)symbol).getModuleScope();
+                            return getGlobalSymbols(otherModule, SymbolTypeEnum.TYPE);
+                        }
+                        return EMPTY_LIST;
+                    }
+
+                    @Override
+                    public boolean hasOwnCompletionScope() {
+                        return false;
+                    }
+                });
+            }
 
             ModuleRefSymbol moduleRefSymbol = (ModuleRefSymbol) moduleScope.resolveLocal(moduleAlias);
 

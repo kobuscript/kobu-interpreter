@@ -52,6 +52,8 @@ public class SymbolDescriptorUtils {
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "var", "", "")
     );
 
+    public static final SymbolDescriptor voidKeyword = new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "void", "", "");
+
     public static List<SymbolDescriptor> getStatKeywords() {
         return statKeywords;
     }
