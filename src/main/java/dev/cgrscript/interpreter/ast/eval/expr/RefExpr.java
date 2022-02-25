@@ -252,10 +252,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             return EMPTY_LIST;
         }
         var symbols = new ArrayList<>(symbolsInScope);
-        if (symbolsInScope.isEmpty()) {
-            symbols.addAll(getExternalSymbols(moduleScope, externalModules,
-                    SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE, SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE));
-        }
+        symbols.addAll(getExternalSymbols(moduleScope, externalModules,
+                SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE, SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE));
         return symbols;
     }
 

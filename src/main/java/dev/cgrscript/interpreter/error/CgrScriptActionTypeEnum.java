@@ -28,5 +28,6 @@ public enum CgrScriptActionTypeEnum {
 
     AUTO_IMPORT,
     CREATE_FUNCTION,
+    CREATE_TYPE
 
 }

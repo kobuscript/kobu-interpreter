@@ -40,4 +40,8 @@ public interface CgrScriptError {
 
     SymbolTypeEnum getSymbolType();
 
+    String getTokenText();
+
+    int getNewDefInsertionPoint();
+
 }

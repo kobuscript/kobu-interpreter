@@ -55,10 +55,24 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     private boolean functionReturnType = false;
 
+    private int scopeEndOffset = 0;
+
     public EvalTreeParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, AnalyzerContext context) {
         super(moduleLoader);
         this.context = context;
         this.moduleScope = moduleScope;
+    }
+
+    @Override
+    public AstNode visitModule(CgrScriptParser.ModuleContext ctx) {
+        scopeEndOffset = ctx.getStop().getStopIndex() + 1;
+        return null;
+    }
+
+    @Override
+    public AstNode visitImportExpr(CgrScriptParser.ImportExprContext ctx) {
+        scopeEndOffset = ctx.getStop().getStopIndex() + 1;
+        return null;
     }
 
     @Override
@@ -106,6 +120,11 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         if (recordType == null) {
             return null;
         }
+
+        if (ctx.RCB() != null) {
+            scopeEndOffset = ctx.RCB().getSymbol().getStopIndex() + 1;
+        }
+
         if (ctx.attributes() != null) {
 
             CgrScriptParser.AttributesContext attrCtx = ctx.attributes();
@@ -137,6 +156,11 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         if (function == null) {
             return null;
         }
+
+        if (ctx.RCB() != null) {
+            scopeEndOffset = ctx.RCB().getSymbol().getStopIndex() + 1;
+        }
+
         List<FunctionParameter> parameters = new ArrayList<>();
         if (ctx.functionDeclParam() != null) {
             CgrScriptParser.FunctionDeclParamContext paramCtx = ctx.functionDeclParam();
@@ -197,6 +221,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             return null;
         }
 
+        if (ctx.TEMPLATE_END() != null) {
+            scopeEndOffset = ctx.TEMPLATE_END().getSymbol().getStopIndex() + 1;
+        }
 
         if (ctx.queryExpr() != null) {
             topLevelExpression = false;
@@ -294,6 +321,10 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             return null;
         }
 
+        if (ctx.RCB() != null) {
+            scopeEndOffset = ctx.RCB().getSymbol().getStopIndex() + 1;
+        }
+
         topLevelExpression = false;
         var query = (Query) visit(ctx.queryExpr());
 
@@ -330,6 +361,10 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         var rule = (RuleSymbol) moduleScope.resolve(ctx.ID().getText());
         if (rule == null) {
             return null;
+        }
+
+        if (ctx.PATH_END() != null) {
+            scopeEndOffset = ctx.PATH_END().getSymbol().getStopIndex() + 1;
         }
 
         topLevelExpression = false;
@@ -1194,7 +1229,8 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             }
 
             if (!(symbol instanceof Type)) {
-                context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx.ID(0)), typeName));
+                context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx.ID(0)),
+                        typeName, scopeEndOffset));
                 return UnknownType.INSTANCE;
             }
 
@@ -1225,14 +1261,16 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             ModuleRefSymbol moduleRefSymbol = (ModuleRefSymbol) moduleScope.resolveLocal(moduleAlias);
 
             if (moduleRefSymbol == null) {
-                context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx), typeName));
+                context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx),
+                        typeName, scopeEndOffset));
                 return UnknownType.INSTANCE;
             }
 
             var symbol = moduleRefSymbol.getModuleScope().resolve(typeName);
 
             if (!(symbol instanceof Type)) {
-                context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx), moduleAlias + "." + typeName));
+                context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx),
+                        moduleAlias + "." + typeName, scopeEndOffset));
                 return UnknownType.INSTANCE;
             }
 

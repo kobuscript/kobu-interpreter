@@ -30,6 +30,7 @@ import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.analyzer.UnreachableCodeError;
 import dev.cgrscript.database.Database;
+import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.writer.OutputWriter;
 
@@ -253,6 +254,16 @@ public class EvalContext {
 
     public void addAnalyzerError(AnalyzerError error) {
         analyzerContext.getErrorScope().addError(error);
+    }
+
+    public int getNewGlobalDefinitionOffset() {
+        if (getFunction() != null) {
+            return getFunction().getCloseFunctionRef().getStartOffset() + 1;
+        } else if (getRuleContext() != null) {
+            return getRuleContext().getRuleSymbol().getCloseRuleRef().getStartOffset() + 1;
+        }
+
+        throw new UnsupportedOperationException("getNewGlobalDefinitionOffset() must be invoked from a function or rule context");
     }
 
     private void loadProperties() {

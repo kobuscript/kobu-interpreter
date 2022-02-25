@@ -70,6 +70,14 @@ public abstract class AnalyzerError extends Exception {
         return sourceCodeRefs;
     }
 
+    public String getTokenText() {
+        return null;
+    }
+
+    public int getNewDefInsertionPoint() {
+        return 0;
+    }
+
     public String getDescription() {
         return getClass().getSimpleName();
     }
@@ -80,7 +88,7 @@ public abstract class AnalyzerError extends Exception {
         for (SourceCodeRef sourceCodeRef : sourceCodeRefs) {
             if (sourceCodeRef.getFile().getAbsolutePath().equals(file.getAbsolutePath())) {
                 errors.add(new CgrScriptErrorImpl(getDescription(), sourceCodeRef,
-                        actions(), getAstNode(), getSymbolType()));
+                        actions(), getAstNode(), getSymbolType(), getTokenText(), getNewDefInsertionPoint()));
             }
         }
 
@@ -94,15 +102,20 @@ public abstract class AnalyzerError extends Exception {
         private final CgrScriptActionTypeEnum[] actions;
         private final AstNode astNode;
         private final SymbolTypeEnum symbolType;
+        private final String tokenText;
+        private final int newDefInsertionPoint;
 
         public CgrScriptErrorImpl(String description, SourceCodeRef sourceCodeRef,
                                   CgrScriptActionTypeEnum[] actions, AstNode astNode,
-                                  SymbolTypeEnum symbolType) {
+                                  SymbolTypeEnum symbolType, String tokenText,
+                                  int newDefInsertionPoint) {
             this.description = description;
             this.sourceCodeRef = sourceCodeRef;
             this.actions = actions;
             this.astNode = astNode;
             this.symbolType = symbolType;
+            this.tokenText = tokenText;
+            this.newDefInsertionPoint = newDefInsertionPoint;
         }
 
         @Override
@@ -128,6 +141,16 @@ public abstract class AnalyzerError extends Exception {
         @Override
         public SymbolTypeEnum getSymbolType() {
             return symbolType;
+        }
+
+        @Override
+        public String getTokenText() {
+            return tokenText;
+        }
+
+        @Override
+        public int getNewDefInsertionPoint() {
+            return newDefInsertionPoint;
         }
 
         @Override

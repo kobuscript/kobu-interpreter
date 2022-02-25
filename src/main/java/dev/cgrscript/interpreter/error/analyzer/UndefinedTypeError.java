@@ -24,20 +24,50 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.error.analyzer;
 
+import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
+import dev.cgrscript.interpreter.error.CgrScriptActionTypeEnum;
 
 public class UndefinedTypeError extends AnalyzerError {
 
-    private final String type;
+    private static final CgrScriptActionTypeEnum[] actions = new CgrScriptActionTypeEnum[]{
+            CgrScriptActionTypeEnum.AUTO_IMPORT,
+            CgrScriptActionTypeEnum.CREATE_TYPE
+    };
 
-    public UndefinedTypeError(SourceCodeRef sourceCodeRef, String type) {
+    private final String type;
+    private final int newDefInsertionPoint;
+
+    public UndefinedTypeError(SourceCodeRef sourceCodeRef, String type, int newDefInsertionPoint) {
         super(sourceCodeRef);
         this.type = type;
+        this.newDefInsertionPoint = newDefInsertionPoint;
     }
 
     @Override
     public String getDescription() {
         return "type '" + type + "' is not defined";
     }
+
+    @Override
+    public CgrScriptActionTypeEnum[] actions() {
+        return actions;
+    }
+
+    @Override
+    public String getTokenText() {
+        return type;
+    }
+
+    @Override
+    public SymbolTypeEnum getSymbolType() {
+        return SymbolTypeEnum.TYPE;
+    }
+
+    @Override
+    public int getNewDefInsertionPoint() {
+        return newDefInsertionPoint;
+    }
+
 }

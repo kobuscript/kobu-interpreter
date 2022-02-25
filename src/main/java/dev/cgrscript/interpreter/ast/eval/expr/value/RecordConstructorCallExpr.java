@@ -79,7 +79,8 @@ public class RecordConstructorCallExpr implements Expr {
         } else {
             ModuleRefSymbol moduleRefSymbol = (ModuleRefSymbol) context.getModuleScope().resolveLocal(moduleAlias);
             if (moduleRefSymbol == null) {
-                context.addAnalyzerError(new UndefinedTypeError(sourceCodeRef, moduleAlias + "." + recordTypeName));
+                context.addAnalyzerError(new UndefinedTypeError(sourceCodeRef, moduleAlias + "." + recordTypeName,
+                        context.getNewGlobalDefinitionOffset()));
                 type = UnknownType.INSTANCE;
                 return;
             }
@@ -87,7 +88,8 @@ public class RecordConstructorCallExpr implements Expr {
         }
 
         if (!(symbolType instanceof RecordTypeSymbol)) {
-            context.addAnalyzerError(new UndefinedTypeError(sourceCodeRef, recordTypeName));
+            context.addAnalyzerError(new UndefinedTypeError(sourceCodeRef, recordTypeName,
+                    context.getNewGlobalDefinitionOffset()));
             type = UnknownType.INSTANCE;
             return;
         } else {

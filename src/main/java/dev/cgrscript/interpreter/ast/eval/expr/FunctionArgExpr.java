@@ -79,4 +79,11 @@ public class FunctionArgExpr implements Expr, HasTargetType {
     public void setTargetType(Type targetType) {
         this.targetType = targetType;
     }
+
+    public Type getExprType() {
+        if (expr == null) {
+            return null;
+        }
+        return expr.getType();
+    }
 }

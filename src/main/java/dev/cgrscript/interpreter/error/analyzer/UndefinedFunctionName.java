@@ -27,7 +27,6 @@ package dev.cgrscript.interpreter.error.analyzer;
 import dev.cgrscript.interpreter.ast.AstNode;
 import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 import dev.cgrscript.interpreter.ast.eval.expr.FunctionCallExpr;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.CgrScriptActionTypeEnum;
 
@@ -44,11 +43,15 @@ public class UndefinedFunctionName extends AnalyzerError {
 
     private final String functionName;
 
-    public UndefinedFunctionName(FunctionCallExpr functionCallExpr, String moduleId, String functionName) {
+    private final int newDefInsertionPoint;
+
+    public UndefinedFunctionName(FunctionCallExpr functionCallExpr, String moduleId, String functionName,
+                                 int newDefInsertionPoint) {
         super(functionCallExpr.getSourceCodeRef());
         this.functionCallExpr = functionCallExpr;
         this.moduleId = moduleId;
         this.functionName = functionName;
+        this.newDefInsertionPoint = newDefInsertionPoint;
     }
 
     @Override
@@ -73,5 +76,10 @@ public class UndefinedFunctionName extends AnalyzerError {
     @Override
     public SymbolTypeEnum getSymbolType() {
         return SymbolTypeEnum.FUNCTION;
+    }
+
+    @Override
+    public int getNewDefInsertionPoint() {
+        return newDefInsertionPoint;
     }
 }

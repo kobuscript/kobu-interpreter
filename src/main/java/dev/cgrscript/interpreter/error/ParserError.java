@@ -59,6 +59,15 @@ public class ParserError extends Exception implements CgrScriptError {
         return null;
     }
 
+    @Override
+    public String getTokenText() {
+        return null;
+    }
+
+    @Override
+    public int getNewDefInsertionPoint() {
+        return 0;
+    }
 
     @Override
     public String getDescription() {

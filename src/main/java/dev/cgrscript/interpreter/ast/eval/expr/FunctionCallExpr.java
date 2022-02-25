@@ -59,8 +59,6 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
     private Collection<SymbolDescriptor> symbolsInScope;
 
-    private int newFunctionOffset;
-
     public FunctionCallExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef,
                             String functionName, List<FunctionArgExpr> args) {
         this.moduleScope = moduleScope;
@@ -77,12 +75,6 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
     @Override
     public void analyze(EvalContext context) {
 
-        if (context.getFunction() != null) {
-            newFunctionOffset = context.getFunction().getCloseFunctionRef().getStartOffset() + 1;
-        } else if (context.getRuleContext() != null) {
-            newFunctionOffset = context.getRuleContext().getRuleSymbol().getCloseRuleRef().getStartOffset() + 1;
-        }
-
         if (typeScope == null) {
             if (context.getEvalMode() != EvalModeEnum.EXECUTION) {
                 this.symbolsInScope = context.getCurrentScope()
@@ -97,7 +89,8 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
             var functionSymbol = context.getModuleScope().resolve(functionName);
             if (!(functionSymbol instanceof FunctionType)) {
-                context.addAnalyzerError(new UndefinedFunctionName(this, null, functionName));
+                context.addAnalyzerError(new UndefinedFunctionName(this, null, functionName,
+                        context.getNewGlobalDefinitionOffset()));
                 this.type = UnknownType.INSTANCE;
                 return;
             }
@@ -121,7 +114,8 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
             if (methodType == null) {
                 if (typeScope instanceof ModuleRefSymbol) {
                     var moduleId = ((ModuleRefSymbol)typeScope).getModuleScope().getModuleId();
-                    context.addAnalyzerError(new UndefinedFunctionName(this, moduleId, functionName));
+                    context.addAnalyzerError(new UndefinedFunctionName(this, moduleId, functionName,
+                            context.getNewGlobalDefinitionOffset()));
                 } else {
                     context.addAnalyzerError(new UndefinedMethodError(sourceCodeRef, typeScope, functionName));
                 }
@@ -221,20 +215,14 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
     @Override
     public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
         var symbols = new ArrayList<>(symbolsInScope);
-        if (symbolsInScope.isEmpty()) {
-            symbols.addAll(getExternalSymbols(moduleScope, externalModules,
-                    SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE, SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE));
-        }
+        symbols.addAll(getExternalSymbols(moduleScope, externalModules,
+                SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE, SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE));
         return symbols;
     }
 
     @Override
     public boolean hasOwnCompletionScope() {
         return false;
-    }
-
-    public int getNewFunctionOffset() {
-        return newFunctionOffset;
     }
 
 }
