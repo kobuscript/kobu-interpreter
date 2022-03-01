@@ -24,10 +24,16 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.error.analyzer;
 
+import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
+import dev.cgrscript.interpreter.error.CgrScriptActionTypeEnum;
 
 public class UndefinedVariableError extends AnalyzerError {
+
+    private static final CgrScriptActionTypeEnum[] actions = new CgrScriptActionTypeEnum[]{
+            CgrScriptActionTypeEnum.AUTO_IMPORT
+    };
 
     private final String varName;
 
@@ -43,5 +49,27 @@ public class UndefinedVariableError extends AnalyzerError {
     @Override
     public String getDescription() {
         return "undefined variable: " + varName;
+    }
+
+    @Override
+    public CgrScriptActionTypeEnum[] actions() {
+        if (isRuleRef()) {
+            return actions;
+        }
+        return null;
+    }
+
+    private boolean isRuleRef() {
+        return varName.length() > 1 && Character.isUpperCase(varName.charAt(0));
+    }
+
+    @Override
+    public String getTokenText() {
+        return varName;
+    }
+
+    @Override
+    public SymbolTypeEnum getSymbolType() {
+        return SymbolTypeEnum.VARIABLE;
     }
 }
