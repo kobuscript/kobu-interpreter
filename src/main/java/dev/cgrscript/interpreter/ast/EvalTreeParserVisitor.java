@@ -377,7 +377,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         String bind = query.getTypeClause().getBind();
 
         SourceCodeRef sourceCodeRef = getSourceCodeRef(ctx);
-        QueryTypeClause templateClause = new QueryTypeClause(sourceCodeRef, BuiltinScope.TEMPLATE_TYPE,
+        QueryTypeClause templateClause = new QueryTypeClause(sourceCodeRef, null, BuiltinScope.TEMPLATE_TYPE,
                 false, "$_templateRef");
         QueryJoin templateJoin = new QueryJoin(sourceCodeRef, templateClause, new RefExpr(moduleScope, sourceCodeRef, bind));
         query.addJoin(templateJoin);
@@ -1114,10 +1114,12 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitQueryExpr(CgrScriptParser.QueryExprContext ctx) {
         String bind = null;
+        SourceCodeRef bindSourceCodeRef = null;
         if (ctx.queryExprAlias() != null) {
             bind = ctx.queryExprAlias().ID().getText();
+            bindSourceCodeRef = getSourceCodeRef(ctx.queryExprAlias().ID());
         }
-        QueryTypeClause queryTypeClause = new QueryTypeClause(getSourceCodeRef(ctx), (Type) visit(ctx.type()),
+        QueryTypeClause queryTypeClause = new QueryTypeClause(getSourceCodeRef(ctx), bindSourceCodeRef, (Type) visit(ctx.type()),
                 ctx.ANY() != null, bind);
 
         if (ctx.queryExprSegment() != null) {

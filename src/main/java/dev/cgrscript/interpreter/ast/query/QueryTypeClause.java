@@ -38,6 +38,8 @@ public class QueryTypeClause implements Evaluable {
 
     private final SourceCodeRef sourceCodeRef;
 
+    private final SourceCodeRef bindSourceCodeRef;
+
     private final Type type;
 
     private final boolean includeSubtypes;
@@ -46,8 +48,10 @@ public class QueryTypeClause implements Evaluable {
 
     private QueryPipeClause pipeClause;
 
-    public QueryTypeClause(SourceCodeRef sourceCodeRef, Type type, boolean includeSubtypes, String bind) {
+    public QueryTypeClause(SourceCodeRef sourceCodeRef, SourceCodeRef bindSourceCodeRef,
+                           Type type, boolean includeSubtypes, String bind) {
         this.sourceCodeRef = sourceCodeRef;
+        this.bindSourceCodeRef = bindSourceCodeRef;
         this.type = type;
         this.includeSubtypes = includeSubtypes;
         this.bind = bind != null ? bind : DEFAULT_BIND;
@@ -84,7 +88,12 @@ public class QueryTypeClause implements Evaluable {
             context.addAnalyzerError(new InvalidQueryType(sourceCodeRef, type));
             return;
         }
-        VariableSymbol variableSymbol = new VariableSymbol(bind, type);
+        VariableSymbol variableSymbol;
+        if (bindSourceCodeRef != null) {
+            variableSymbol = new VariableSymbol(context.getModuleScope(), bindSourceCodeRef, bind, type);
+        } else {
+            variableSymbol = new VariableSymbol(bind, type);
+        }
         context.getCurrentScope().define(context.getAnalyzerContext(), variableSymbol);
 
         if (pipeClause != null) {
@@ -99,7 +108,12 @@ public class QueryTypeClause implements Evaluable {
 
     public void createEmptyArray(EvalContext context) {
 
-        VariableSymbol variableSymbol = new VariableSymbol(bind, type);
+        VariableSymbol variableSymbol;
+        if (bindSourceCodeRef != null) {
+            variableSymbol = new VariableSymbol(context.getModuleScope(), bindSourceCodeRef, bind, type);
+        } else {
+            variableSymbol = new VariableSymbol(bind, type);
+        }
         context.getCurrentScope().define(context.getAnalyzerContext(), variableSymbol);
         context.getCurrentScope().setValue(bind, new ArrayValueExpr(new ArrayType(type), new ArrayList<>()));
 
