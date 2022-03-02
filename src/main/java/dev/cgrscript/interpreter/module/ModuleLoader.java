@@ -28,6 +28,7 @@ import dev.cgrscript.antlr.cgrscript.CgrScriptLexer;
 import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
 import dev.cgrscript.config.DependencyResolver;
 import dev.cgrscript.config.Project;
+import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.*;
 import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
@@ -39,6 +40,8 @@ import dev.cgrscript.interpreter.error.analyzer.InternalParserError;
 import dev.cgrscript.interpreter.error.analyzer.ModuleNotFoundError;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 import dev.cgrscript.interpreter.file_system.*;
+import dev.cgrscript.interpreter.input.InputReader;
+import dev.cgrscript.interpreter.writer.OutputWriter;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -84,10 +87,7 @@ public class ModuleLoader {
         return indexBuilt;
     }
 
-    public void buildIndex(AnalyzerContext context) {
-        if (evalMode == EvalModeEnum.EXECUTION) {
-            return;
-        }
+    public void buildIndex(AnalyzerContext context, Database database, InputReader inputReader, OutputWriter outputWriter) {
         for (CgrDirectory srcDir : project.getSrcDirs()) {
             fileSystem.walkFileTree(srcDir, entry -> {
                 if (entry instanceof ScriptRef) {
@@ -95,7 +95,8 @@ public class ModuleLoader {
                         ScriptRef script = (ScriptRef) entry;
                         String moduleId = script.extractModuleId();
                         if (!modules.containsKey(moduleId)) {
-                            load(context, script);
+                            var module = load(context, script);
+                            module.analyze(context, database, inputReader, outputWriter);
                         }
                     } catch (AnalyzerError e) {
                         context.getErrorScope().addError(e);
@@ -153,7 +154,10 @@ public class ModuleLoader {
         return fileSystem.loadScript(project.getSrcDirs(), moduleId);
     }
 
-    public CgrScriptFile loadScript(CgrFile file) {
+    public CgrScriptFile loadScript(CgrFile file, Database database, InputReader inputReader, OutputWriter outputWriter) {
+        if (evalMode == EvalModeEnum.ANALYZER_SERVICE && !indexBuilt()) {
+            buildIndex(new AnalyzerContext(), database, inputReader, outputWriter);
+        }
         return fileSystem.loadScript(project.getSrcDirs(), file);
     }
 

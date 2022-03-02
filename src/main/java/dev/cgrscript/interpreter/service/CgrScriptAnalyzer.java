@@ -132,7 +132,7 @@ public class CgrScriptAnalyzer {
     public synchronized SourceCodeRef getElementRef(CgrFile refFile, int offset) throws AnalyzerError {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
-        CgrScriptFile script = moduleLoader.loadScript(refFile);
+        CgrScriptFile script = moduleLoader.loadScript(refFile, database, inputReader, outputWriter);
         if (script != null) {
             ModuleScope module = moduleLoader.getScope(script.extractModuleId());
             if (module != null) {
@@ -149,11 +149,8 @@ public class CgrScriptAnalyzer {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
 
-        CgrScriptFile script = moduleLoader.loadScript(refFile);
+        CgrScriptFile script = moduleLoader.loadScript(refFile, database, inputReader, outputWriter);
         if (script != null) {
-            if (!moduleLoader.indexBuilt()) {
-                moduleLoader.buildIndex(new AnalyzerContext());
-            }
             analyze(moduleLoader, refFile);
 
             String moduleId = script.extractModuleId();
