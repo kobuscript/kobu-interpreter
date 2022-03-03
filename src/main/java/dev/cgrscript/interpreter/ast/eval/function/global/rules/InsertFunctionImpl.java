@@ -51,4 +51,9 @@ public class InsertFunctionImpl extends BuiltinGlobalFunction {
         return null;
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

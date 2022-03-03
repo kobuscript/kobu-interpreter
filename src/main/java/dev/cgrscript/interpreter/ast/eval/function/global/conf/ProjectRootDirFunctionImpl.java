@@ -39,4 +39,9 @@ public class ProjectRootDirFunctionImpl extends BuiltinGlobalFunction {
         return new StringValueExpr(context.getModuleScope().getProjectDir());
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

@@ -42,4 +42,9 @@ public class LowercaseMethodImpl extends BuiltinMethod {
         return new StringValueExpr(stringExpr.getValue().toLowerCase(Locale.ROOT));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

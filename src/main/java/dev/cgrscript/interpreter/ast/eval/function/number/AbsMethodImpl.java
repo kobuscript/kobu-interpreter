@@ -45,4 +45,9 @@ public class AbsMethodImpl extends BuiltinMethod {
         return new NumberValueExpr(Math.abs(numberExpr.getValue().doubleValue()));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

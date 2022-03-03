@@ -53,4 +53,9 @@ public class PropertyFunctionImpl extends BuiltinGlobalFunction {
         }
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

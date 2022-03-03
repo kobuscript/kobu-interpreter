@@ -52,4 +52,9 @@ public class CastMethodImpl extends BuiltinMethod {
         return object;
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

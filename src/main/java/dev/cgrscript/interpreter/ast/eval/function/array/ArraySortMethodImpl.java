@@ -103,4 +103,9 @@ public class ArraySortMethodImpl extends BuiltinMethod {
         return null;
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

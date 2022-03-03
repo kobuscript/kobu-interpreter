@@ -32,6 +32,7 @@ import dev.cgrscript.interpreter.ast.AnalyzerErrorScope;
 import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.HasElementRef;
 import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
+import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
@@ -161,6 +162,12 @@ public class CgrScriptAnalyzer {
             }
         }
         return new ArrayList<>();
+    }
+
+    public synchronized SymbolDocumentation getDocumentation(CgrFile refFile, int offset) throws AnalyzerError {
+        CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
+        ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
+        return moduleLoader.getSymbolDocumentation(refFile, offset);
     }
 
     public String loadBuiltinModule(String moduleId) {

@@ -33,9 +33,16 @@ import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import java.util.Map;
 
 public class PairLeftMethodImpl extends BuiltinMethod {
+
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         PairValueExpr pairExpr = (PairValueExpr) object;
         return pairExpr.getLeftValue();
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

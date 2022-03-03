@@ -43,4 +43,9 @@ public class NewRecordFunctionImpl extends BuiltinGlobalFunction {
 
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

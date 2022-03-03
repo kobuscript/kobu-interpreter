@@ -44,4 +44,9 @@ public class RecordHasFieldMethodImpl extends BuiltinMethod {
         return new BooleanValueExpr(fieldType != null);
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

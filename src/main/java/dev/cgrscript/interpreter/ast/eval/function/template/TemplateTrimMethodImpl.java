@@ -40,4 +40,9 @@ public class TemplateTrimMethodImpl extends BuiltinMethod {
         return templateValueExpr.trim();
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

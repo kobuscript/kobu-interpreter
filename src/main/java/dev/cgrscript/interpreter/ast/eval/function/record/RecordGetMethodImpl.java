@@ -47,4 +47,9 @@ public class RecordGetMethodImpl extends BuiltinMethod {
         return fieldValue;
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

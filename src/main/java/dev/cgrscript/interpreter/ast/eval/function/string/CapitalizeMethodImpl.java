@@ -43,4 +43,9 @@ public class CapitalizeMethodImpl extends BuiltinMethod {
         return new StringValueExpr(StringFunctions.capitalize(value));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

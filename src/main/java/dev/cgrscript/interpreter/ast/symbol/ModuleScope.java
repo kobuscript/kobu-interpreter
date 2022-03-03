@@ -66,6 +66,10 @@ public class ModuleScope implements Scope {
 
     private final Map<String, Symbol> dependenciesSymbols = new HashMap<>();
 
+    private final Map<Integer, Symbol> symbolsByOffset = new HashMap<>();
+
+    private final Map<Integer, Symbol> builtinSymbolRefByOffset = new HashMap<>();
+
     private final Map<Integer, HasElementRef> refsByOffset = new HashMap<>();
 
     private final Map<Integer, AutoCompletionSource> autoCompletionSourceByOffset = new HashMap<>();
@@ -109,6 +113,9 @@ public class ModuleScope implements Scope {
         }
 
         symbols.put(symbol.getName(), symbol);
+        if (symbol.getSourceCodeRef() != null) {
+            symbolsByOffset.put(symbol.getSourceCodeRef().getStartOffset(), symbol);
+        }
     }
 
     @Override
@@ -154,6 +161,10 @@ public class ModuleScope implements Scope {
         autoCompletionSourceByOffset.put(offset, autoCompletionSource);
     }
 
+    public void registerBuiltinSymbolRef(int offset, Symbol symbol) {
+        builtinSymbolRefByOffset.put(offset, symbol);
+    }
+
     public HasElementRef getRef(int offset) {
         var elem = refsByOffset.get(offset);
         while (elem == null && offset <= maxRefOffset) {
@@ -174,6 +185,18 @@ public class ModuleScope implements Scope {
             return elem.requestSuggestions(externalModules);
         }
         return SymbolDescriptorUtils.getGlobalKeywords();
+    }
+
+    public SymbolDocumentation getDocumentation(int offset) {
+        var symbol = symbolsByOffset.get(offset);
+        if (symbol != null) {
+            return symbol.getDocumentation();
+        }
+        symbol = builtinSymbolRefByOffset.get(offset);
+        if (symbol != null) {
+            return symbol.getDocumentation();
+        }
+        return null;
     }
 
     public Symbol resolveLocal(String name) {

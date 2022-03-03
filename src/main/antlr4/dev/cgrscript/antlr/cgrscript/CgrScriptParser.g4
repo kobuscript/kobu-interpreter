@@ -238,7 +238,9 @@ varDecl : VAR varDeclBody
           | VAR {notifyErrorListenersPrevToken("identifier expected");}
           ;
 
-varDeclBody : ID ( COLON type )? ( '=' exprWrapper )? ;
+varDeclBody : ID ( COLON type )? ( '=' exprWrapper )?
+              | ID ( COLON type )? '=' {notifyErrorListenersPrevToken("value expected");}
+              ;
 
 varDeclList : VAR varDeclBody ( COMMA varDeclBody )* ;
 

@@ -43,4 +43,9 @@ public class RecordGetFieldTypeNameMethodImpl extends BuiltinMethod {
         return new StringValueExpr(fieldType.getName());
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

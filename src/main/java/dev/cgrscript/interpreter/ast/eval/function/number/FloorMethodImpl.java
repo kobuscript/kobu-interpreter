@@ -45,4 +45,9 @@ public class FloorMethodImpl extends BuiltinMethod {
         return new NumberValueExpr(Math.floor(value.getValue().doubleValue()));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

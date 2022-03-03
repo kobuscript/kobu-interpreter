@@ -42,4 +42,9 @@ public class UppercaseMethodImpl extends BuiltinMethod {
         return new StringValueExpr(stringExpr.getValue().toUpperCase(Locale.ROOT));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

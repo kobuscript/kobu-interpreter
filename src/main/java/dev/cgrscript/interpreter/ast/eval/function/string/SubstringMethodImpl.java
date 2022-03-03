@@ -49,4 +49,9 @@ public class SubstringMethodImpl extends BuiltinMethod {
                 .substring(beginIndex.getValue().intValue(), endIndex.getValue().intValue()));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

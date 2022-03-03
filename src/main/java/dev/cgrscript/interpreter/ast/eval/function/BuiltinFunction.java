@@ -74,6 +74,8 @@ public abstract class BuiltinFunction {
 
     protected abstract ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef);
 
+    public abstract String getDocumentation();
+
     private Map<String, ValueExpr> toMap(List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
         Map<String, ValueExpr> mapArgs = new HashMap<>();
         for (int i = 0; i < funcDef.getParameters().size() && i < args.size(); i++) {

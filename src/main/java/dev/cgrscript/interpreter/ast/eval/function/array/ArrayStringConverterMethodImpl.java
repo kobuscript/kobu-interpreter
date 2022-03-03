@@ -54,4 +54,9 @@ public class ArrayStringConverterMethodImpl extends BuiltinMethod {
         return new ArrayValueExpr(arrayValueExpr.getType(), values);
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

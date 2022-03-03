@@ -41,4 +41,9 @@ public class StringLengthMethodImpl extends BuiltinMethod {
         return new NumberValueExpr(value.getValue().length());
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

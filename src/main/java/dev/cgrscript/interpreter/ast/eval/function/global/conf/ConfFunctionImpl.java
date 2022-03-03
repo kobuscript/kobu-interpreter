@@ -62,4 +62,9 @@ public class ConfFunctionImpl extends BuiltinGlobalFunction {
         return new NullValueExpr();
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

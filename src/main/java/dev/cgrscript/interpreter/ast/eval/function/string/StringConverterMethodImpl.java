@@ -47,4 +47,9 @@ public class StringConverterMethodImpl extends BuiltinMethod {
         return new StringValueExpr(converter.convert(valueExpr.getValue()));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

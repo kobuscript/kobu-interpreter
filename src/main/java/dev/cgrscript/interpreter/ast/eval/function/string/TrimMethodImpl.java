@@ -41,4 +41,9 @@ public class TrimMethodImpl extends BuiltinMethod {
         return new StringValueExpr(stringExpr.getValue().trim());
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

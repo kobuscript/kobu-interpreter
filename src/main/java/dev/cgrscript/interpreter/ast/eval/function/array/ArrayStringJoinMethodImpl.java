@@ -58,4 +58,9 @@ public class ArrayStringJoinMethodImpl extends BuiltinMethod {
         return new StringValueExpr(String.join(delimiter, values));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

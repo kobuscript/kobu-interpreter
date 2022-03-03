@@ -45,4 +45,9 @@ public class PrintFunctionImpl extends BuiltinGlobalFunction {
         return null;
     }
 
+    @Override
+    public String getDocumentation() {
+        return "Prints a object to the standard output";
+    }
+
 }

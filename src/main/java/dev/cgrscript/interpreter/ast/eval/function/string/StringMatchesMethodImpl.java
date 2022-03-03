@@ -43,4 +43,9 @@ public class StringMatchesMethodImpl extends BuiltinMethod {
         return new BooleanValueExpr(value.getValue().matches(regex.getValue()));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

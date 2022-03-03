@@ -46,4 +46,9 @@ public class MainScriptDirFunctionImpl extends BuiltinGlobalFunction {
         return new NullValueExpr();
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

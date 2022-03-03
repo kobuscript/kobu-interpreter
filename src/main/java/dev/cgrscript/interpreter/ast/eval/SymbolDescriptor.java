@@ -94,12 +94,14 @@ public class SymbolDescriptor {
     public SymbolDescriptor(FieldDescriptor fieldDescriptor) {
         this.type = SymbolTypeEnum.FIELD;
         this.name = fieldDescriptor.getName();
+        this.label = name;
         this.metadata = fieldDescriptor.getTypeName();
     }
 
     public SymbolDescriptor(FunctionType functionType) {
         this.type = SymbolTypeEnum.FUNCTION;
         this.name = functionType.getName();
+        this.label = name;
         this.description = functionType.getDescription();
     }
 

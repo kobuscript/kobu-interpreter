@@ -53,4 +53,9 @@ public class ArrayTemplateJoinMethodImpl extends BuiltinMethod {
         return new StringValueExpr(join);
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

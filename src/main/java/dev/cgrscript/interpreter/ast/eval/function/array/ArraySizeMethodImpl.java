@@ -42,4 +42,9 @@ public class ArraySizeMethodImpl extends BuiltinMethod {
         return new NumberValueExpr(arrayExpr.getValue().size());
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

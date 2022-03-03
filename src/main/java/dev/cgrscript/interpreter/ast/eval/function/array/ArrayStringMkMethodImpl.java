@@ -43,4 +43,9 @@ public class ArrayStringMkMethodImpl extends BuiltinMethod {
 
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

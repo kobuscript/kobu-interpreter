@@ -60,4 +60,9 @@ public class StringSplitMethodImpl extends BuiltinMethod {
         return new ArrayValueExpr(new ArrayType(BuiltinScope.STRING_TYPE), resultExpr);
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

@@ -49,4 +49,9 @@ public class ArrayDistinctMethodImpl extends BuiltinMethod {
         return new ArrayValueExpr(value.getType(), distinctValues);
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

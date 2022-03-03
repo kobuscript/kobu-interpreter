@@ -46,4 +46,9 @@ public class ArrayTemplateTrimMethodImpl extends BuiltinMethod {
         return new ArrayValueExpr(arrayValueExpr.getType(), values);
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

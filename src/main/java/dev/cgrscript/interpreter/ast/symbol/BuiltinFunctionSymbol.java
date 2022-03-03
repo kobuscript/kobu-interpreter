@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
 import dev.cgrscript.interpreter.ast.eval.function.BuiltinFunction;
 
 import java.util.ArrayList;
@@ -38,10 +39,14 @@ public class BuiltinFunctionSymbol extends Symbol implements FunctionType {
 
     private Type returnType;
 
+    private final SymbolDocumentation symbolDocumentation;
+
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl) {
         super(null,null, name);
         this.functionImpl = functionImpl;
         this.functionImpl.setFuncDef(this);
+        String description = name + functionImpl.getFuncDef().getDescription();
+        this.symbolDocumentation = new SymbolDocumentation(BuiltinScope.MODULE_ID, description, functionImpl.getDocumentation());
     }
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl,
@@ -71,6 +76,11 @@ public class BuiltinFunctionSymbol extends Symbol implements FunctionType {
     @Override
     public Type getReturnType() {
         return returnType;
+    }
+
+    @Override
+    public SymbolDocumentation getDocumentation() {
+        return symbolDocumentation;
     }
 
     public void setReturnType(Type returnType) {

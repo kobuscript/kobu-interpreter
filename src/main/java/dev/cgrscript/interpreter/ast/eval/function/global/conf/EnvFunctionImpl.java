@@ -54,4 +54,9 @@ public class EnvFunctionImpl extends BuiltinGlobalFunction {
 
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

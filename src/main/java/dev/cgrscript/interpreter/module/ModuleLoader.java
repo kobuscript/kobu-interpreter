@@ -31,6 +31,7 @@ import dev.cgrscript.config.Project;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.*;
 import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
+import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunctionId;
 import dev.cgrscript.interpreter.ast.symbol.*;
@@ -188,6 +189,19 @@ public class ModuleLoader {
                     return CgrElementDescriptor.builtinElement(canonicalName);
                 }
             }
+        }
+        return null;
+    }
+
+    public SymbolDocumentation getSymbolDocumentation(CgrFile refFile, int offset) {
+        var scriptFile = fileSystem.loadScript(project.getSrcDirs(), refFile);
+        if (scriptFile == null) {
+            return null;
+        }
+
+        var refModule = modules.get(scriptFile.extractModuleId());
+        if (refModule != null) {
+            return refModule.getDocumentation(offset);
         }
         return null;
     }

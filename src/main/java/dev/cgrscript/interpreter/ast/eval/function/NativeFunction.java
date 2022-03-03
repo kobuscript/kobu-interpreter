@@ -26,4 +26,9 @@ package dev.cgrscript.interpreter.ast.eval.function;
 
 public abstract class NativeFunction extends BuiltinGlobalFunction {
 
+    @Override
+    public String getDocumentation() {
+        return null;
+    }
+
 }

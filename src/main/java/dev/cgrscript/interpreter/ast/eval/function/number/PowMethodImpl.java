@@ -42,4 +42,9 @@ public class PowMethodImpl extends BuiltinMethod {
         return new NumberValueExpr(Math.pow(value.toDouble(), exp.toDouble()));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

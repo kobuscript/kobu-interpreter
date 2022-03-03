@@ -57,4 +57,10 @@ public class RecordValuesMethodImpl extends BuiltinMethod {
 
         return new ArrayValueExpr(new ArrayType(type), result);
     }
+
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

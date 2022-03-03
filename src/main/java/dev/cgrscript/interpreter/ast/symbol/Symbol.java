@@ -26,6 +26,7 @@ package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.ast.eval.AutoCompletionSource;
 import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
+import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
 
 import java.util.List;
 
@@ -59,6 +60,10 @@ public abstract class Symbol implements AutoCompletionSource {
 
     public void setScope(Scope scope) {
         this.scope = scope;
+    }
+
+    public SymbolDocumentation getDocumentation() {
+        return null;
     }
 
     @Override

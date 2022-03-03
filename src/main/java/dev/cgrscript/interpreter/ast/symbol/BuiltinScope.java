@@ -39,6 +39,8 @@ import java.util.Map;
 
 public class BuiltinScope implements Scope {
 
+    public static final String MODULE_ID = "dev.cgrscript.lang";
+
     public static final AnyTypeSymbol ANY_TYPE = new AnyTypeSymbol();
 
     public static final NumberTypeSymbol NUMBER_TYPE = new NumberTypeSymbol();

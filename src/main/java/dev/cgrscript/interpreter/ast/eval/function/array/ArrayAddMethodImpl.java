@@ -44,4 +44,9 @@ public class ArrayAddMethodImpl extends BuiltinMethod {
         return null;
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

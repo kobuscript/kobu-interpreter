@@ -45,4 +45,9 @@ public class CeilMethodImpl extends BuiltinMethod {
         return new NumberValueExpr(Math.ceil(value.getValue().doubleValue()));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

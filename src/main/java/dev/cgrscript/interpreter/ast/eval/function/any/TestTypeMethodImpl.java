@@ -48,4 +48,9 @@ public class TestTypeMethodImpl extends BuiltinMethod {
 
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

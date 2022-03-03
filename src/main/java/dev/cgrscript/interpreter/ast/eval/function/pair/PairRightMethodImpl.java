@@ -40,4 +40,9 @@ public class PairRightMethodImpl extends BuiltinMethod {
         return pairExpr.getRightValue();
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

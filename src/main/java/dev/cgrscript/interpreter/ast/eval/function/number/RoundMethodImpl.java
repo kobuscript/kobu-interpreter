@@ -45,4 +45,9 @@ public class RoundMethodImpl extends BuiltinMethod {
         return new NumberValueExpr(Math.round(value.getValue().doubleValue()));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

@@ -43,4 +43,9 @@ public class StringReplaceMethodImpl extends BuiltinMethod {
         return new StringValueExpr(value.getValue().replaceAll(regex.getValue(), replacement.getValue()));
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

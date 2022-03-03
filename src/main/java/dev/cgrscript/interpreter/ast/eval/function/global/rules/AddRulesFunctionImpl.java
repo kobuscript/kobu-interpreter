@@ -46,4 +46,9 @@ public class AddRulesFunctionImpl extends BuiltinGlobalFunction {
         return null;
     }
 
+    @Override
+    public String getDocumentation() {
+        return "";
+    }
+
 }

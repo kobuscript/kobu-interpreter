@@ -1086,6 +1086,23 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         if (topLevelExpression) {
             context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
         }
+
+        if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            AutoCompletionSource autoCompletionSource = new AutoCompletionSource() {
+                @Override
+                public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                    return EMPTY_LIST;
+                }
+
+                @Override
+                public boolean hasOwnCompletionScope() {
+                    return false;
+                }
+            };
+            moduleScope.registerAutoCompletionSource(ctx.NUMBER().getSymbol().getStartIndex(), autoCompletionSource);
+            moduleScope.registerAutoCompletionSource(ctx.NUMBER().getSymbol().getStopIndex() + 1, autoCompletionSource);
+        }
+
         String numberText = ctx.NUMBER().getText();
         return NumberParser.getNumberValueExpr(numberText, getSourceCodeRef(ctx.NUMBER()));
     }
