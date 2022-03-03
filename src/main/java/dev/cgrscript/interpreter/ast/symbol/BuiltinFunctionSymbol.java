@@ -39,14 +39,12 @@ public class BuiltinFunctionSymbol extends Symbol implements FunctionType {
 
     private Type returnType;
 
-    private final SymbolDocumentation symbolDocumentation;
+    private SymbolDocumentation symbolDocumentation;
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl) {
         super(null,null, name);
         this.functionImpl = functionImpl;
         this.functionImpl.setFuncDef(this);
-        String description = name + functionImpl.getFuncDef().getDescription();
-        this.symbolDocumentation = new SymbolDocumentation(BuiltinScope.MODULE_ID, description, functionImpl.getDocumentation());
     }
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl,
@@ -80,6 +78,10 @@ public class BuiltinFunctionSymbol extends Symbol implements FunctionType {
 
     @Override
     public SymbolDocumentation getDocumentation() {
+        if (symbolDocumentation == null) {
+            String description = getName() + functionImpl.getFuncDef().getDescription();
+            this.symbolDocumentation = new SymbolDocumentation(BuiltinScope.MODULE_ID, description, functionImpl.getDocumentation());
+        }
         return symbolDocumentation;
     }
 
