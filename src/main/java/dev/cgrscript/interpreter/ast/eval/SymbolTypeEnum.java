@@ -28,7 +28,7 @@ public enum SymbolTypeEnum {
 
     KEYWORD,
     VARIABLE,
-    FIELD,
+    ATTRIBUTE,
     FUNCTION,
     TYPE,
     MODULE_SEGMENT,

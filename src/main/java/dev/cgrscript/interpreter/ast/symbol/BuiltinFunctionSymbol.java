@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
+import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 import dev.cgrscript.interpreter.ast.eval.function.BuiltinFunction;
 
 import java.util.ArrayList;
@@ -80,7 +81,8 @@ public class BuiltinFunctionSymbol extends Symbol implements FunctionType {
     public SymbolDocumentation getDocumentation() {
         if (symbolDocumentation == null) {
             String description = getName() + functionImpl.getFuncDef().getDescription();
-            this.symbolDocumentation = new SymbolDocumentation(BuiltinScope.MODULE_ID, description, functionImpl.getDocumentation());
+            this.symbolDocumentation = new SymbolDocumentation(BuiltinScope.MODULE_ID, SymbolTypeEnum.FUNCTION,
+                    description, functionImpl.getDocumentation());
         }
         return symbolDocumentation;
     }

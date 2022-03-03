@@ -127,7 +127,7 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
 
         if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
             String description = getName() + getDescription();
-            documentation = new SymbolDocumentation(moduleScope.getModuleId(), description);
+            documentation = new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.FUNCTION, description);
         }
 
         context.popBranch();

@@ -92,7 +92,7 @@ public class SymbolDescriptor {
     }
 
     public SymbolDescriptor(FieldDescriptor fieldDescriptor) {
-        this.type = SymbolTypeEnum.FIELD;
+        this.type = SymbolTypeEnum.ATTRIBUTE;
         this.name = fieldDescriptor.getName();
         this.label = name;
         this.metadata = fieldDescriptor.getTypeName();
