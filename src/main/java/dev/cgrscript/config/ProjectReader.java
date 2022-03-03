@@ -153,7 +153,7 @@ public class ProjectReader {
         } else if (nodes.getLength() > 1) {
             throw new ProjectDuplicatedFieldError(sourceCodeRef, element.getTagName(), fieldName);
         }
-        return nodes.item(0).getNodeValue();
+        return nodes.item(0).getFirstChild().getNodeValue();
     }
 
     private Integer getRequiredIntField(Element element, String fieldName, SourceCodeRef sourceCodeRef) throws ProjectError {
@@ -170,7 +170,7 @@ public class ProjectReader {
         if (nodes.getLength() > 1) {
             throw new ProjectDuplicatedFieldError(sourceCodeRef, element.getTagName(), fieldName);
         } else if (nodes.getLength() == 1) {
-            return nodes.item(0).getNodeValue();
+            return nodes.item(0).getFirstChild().getNodeValue();
         }
         return null;
     }

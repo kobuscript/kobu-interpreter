@@ -119,6 +119,11 @@ public class LocalCgrFileSystem implements CgrFileSystem {
         }
     }
 
+    @Override
+    public boolean isBuiltinFile(CgrFile file) {
+        return false;
+    }
+
     private CgrFile findProjectRoot(CgrFileSystemEntry entry) {
         if (entry instanceof CgrFile) {
             if (entry.getName().equals(PROJECT_CFG)) {

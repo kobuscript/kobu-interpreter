@@ -116,6 +116,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitDeftype(CgrScriptParser.DeftypeContext ctx) {
+        if (ctx.ID() == null) {
+            return null;
+        }
         RecordTypeSymbol recordType = (RecordTypeSymbol) moduleScope.resolve(ctx.ID().getText());
         if (recordType == null) {
             return null;

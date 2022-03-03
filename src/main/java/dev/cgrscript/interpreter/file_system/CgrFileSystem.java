@@ -44,4 +44,6 @@ public interface CgrFileSystem {
 
     void walkFileTree(CgrDirectory dir, CgrFileVisitor fileWalker);
 
+    boolean isBuiltinFile(CgrFile file);
+
 }

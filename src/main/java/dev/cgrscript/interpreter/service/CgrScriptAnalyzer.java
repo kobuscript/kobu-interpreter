@@ -176,7 +176,18 @@ public class CgrScriptAnalyzer {
     }
 
     private ModuleLoader getModuleLoader(CgrFile projectFile, CgrFile scriptFile) throws AnalyzerError {
-        String projectPath = projectFile != null ? projectFile.getAbsolutePath() : "-default-";
+        String projectPath;
+        if (projectFile != null) {
+            projectPath = projectFile.getAbsolutePath();
+        } else {
+            if (fileSystem.isBuiltinFile(scriptFile)) {
+                return modules.values().stream()
+                        .filter(m -> m.getProject().getName() != null)
+                        .findFirst()
+                        .orElse(null);
+            }
+            projectPath = "-default-";
+        }
         var moduleLoader = modules.get(projectPath);
         if (moduleLoader != null) {
             return moduleLoader;
