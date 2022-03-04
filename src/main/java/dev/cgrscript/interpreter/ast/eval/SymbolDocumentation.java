@@ -10,11 +10,23 @@ public class SymbolDocumentation {
 
     private final String documentation;
 
+    private final String containingType;
+
     public SymbolDocumentation(String moduleId, SymbolTypeEnum symbolType, String description, String documentation) {
         this.moduleId = moduleId;
         this.symbolType = symbolType;
         this.description = description;
         this.documentation = documentation;
+        this.containingType = null;
+    }
+
+    public SymbolDocumentation(String moduleId, SymbolTypeEnum symbolType, String description,
+                               String documentation, String containingType) {
+        this.moduleId = moduleId;
+        this.symbolType = symbolType;
+        this.description = description;
+        this.documentation = documentation;
+        this.containingType = containingType;
     }
 
     public SymbolDocumentation(String moduleId, SymbolTypeEnum symbolType, String description) {
@@ -22,6 +34,7 @@ public class SymbolDocumentation {
         this.symbolType = symbolType;
         this.description = description;
         this.documentation = null;
+        this.containingType = null;
     }
 
     public String getModuleId() {
@@ -39,4 +52,9 @@ public class SymbolDocumentation {
     public SymbolTypeEnum getSymbolType() {
         return symbolType;
     }
+
+    public String getContainingType() {
+        return containingType;
+    }
+
 }

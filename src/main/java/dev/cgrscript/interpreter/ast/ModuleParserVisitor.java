@@ -24,13 +24,14 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast;
 
+import dev.cgrscript.antlr.cgrscript.CgrScriptLexer;
 import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
 import dev.cgrscript.interpreter.ast.eval.AutoCompletionSource;
 import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
-import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunctionId;
 import dev.cgrscript.interpreter.ast.symbol.*;
+import dev.cgrscript.interpreter.ast.utils.DocumentationUtils;
 import dev.cgrscript.interpreter.ast.utils.SymbolDescriptorUtils;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.analyzer.CyclicModuleReferenceError;
@@ -40,10 +41,10 @@ import dev.cgrscript.interpreter.error.analyzer.NativeFunctionNotFoundError;
 import dev.cgrscript.interpreter.file_system.ScriptRef;
 import dev.cgrscript.interpreter.module.ModuleIndexNode;
 import dev.cgrscript.interpreter.module.ModuleLoader;
+import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
@@ -52,15 +53,16 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
 
     private final ScriptRef script;
 
-    private final Map<NativeFunctionId, NativeFunction> nativeFunctions;
+    private final BufferedTokenStream tokens;
 
-    public ModuleParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, AnalyzerContext context, ScriptRef script,
-                               Map<NativeFunctionId, NativeFunction> nativeFunctions) {
+    public ModuleParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope,
+                               AnalyzerContext context, ScriptRef script,
+                               BufferedTokenStream tokens) {
         super(moduleLoader);
+        this.tokens = tokens;
         this.moduleScope = moduleScope;
         this.context = context;
         this.script = script;
-        this.nativeFunctions = nativeFunctions;
     }
 
     @Override
@@ -175,8 +177,17 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
     @Override
     public Void visitFunctionDecl(CgrScriptParser.FunctionDeclContext ctx) {
         if (ctx.ID() != null) {
+
+            String docText = null;
+            if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+                var docChannel = tokens.getHiddenTokensToLeft(ctx.start.getTokenIndex(), CgrScriptLexer.BLOCKCOMMENTCHANNEL);
+                if (docChannel != null) {
+                    docText = DocumentationUtils.removeCommentDelimiters(docChannel.get(0).getText());
+                }
+            }
+
             var function = new FunctionSymbol(getSourceCodeRef(ctx.ID()), getSourceCodeRef(ctx.RCB()),
-                    moduleScope, ctx.ID().getText());
+                    moduleScope, ctx.ID().getText(), docText);
             moduleScope.define(context, function);
         }
         return null;
@@ -184,6 +195,18 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
 
     @Override
     public Void visitNativeDecl(CgrScriptParser.NativeDeclContext ctx) {
+        if (ctx.ID() == null) {
+            return null;
+        }
+
+        String docText = null;
+        if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            var docChannel = tokens.getHiddenTokensToLeft(ctx.start.getTokenIndex(), CgrScriptLexer.BLOCKCOMMENTCHANNEL);
+            if (docChannel != null) {
+                docText = DocumentationUtils.removeCommentDelimiters(docChannel.get(0).getText());
+            }
+        }
+
         var nativeFunctionId = new NativeFunctionId(moduleScope.getModuleId(), ctx.ID().getText());
         var nativeFunction = moduleScope.getNativeFunction(nativeFunctionId);
         if (nativeFunction == null) {
@@ -191,7 +214,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
             return null;
         }
 
-        var function = new NativeFunctionSymbol(getSourceCodeRef(ctx.ID()), moduleScope, ctx.ID().getText(), nativeFunction);
+        var function = new NativeFunctionSymbol(getSourceCodeRef(ctx.ID()), moduleScope, ctx.ID().getText(), nativeFunction, docText);
         moduleScope.define(context, function);
 
         return null;

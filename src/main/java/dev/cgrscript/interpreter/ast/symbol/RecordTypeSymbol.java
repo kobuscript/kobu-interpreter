@@ -280,11 +280,11 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     private void buildDynamicMethods(Type type) {
         var valMethodName = "get" + type.getIdentifier() + "Values";
-        methods.put(valMethodName, new BuiltinFunctionSymbol(valMethodName,
+        methods.put(valMethodName, new BuiltinFunctionSymbol(this, valMethodName,
                 new RecordValuesMethodImpl(type), new ArrayType(type)));
 
         var entryMethodName = "get" + type.getIdentifier() + "Entries";
-        methods.put(entryMethodName, new BuiltinFunctionSymbol(entryMethodName,
+        methods.put(entryMethodName, new BuiltinFunctionSymbol(this, entryMethodName,
                 new RecordEntriesMethodImpl(type),
                 new ArrayType(new PairType(BuiltinScope.STRING_TYPE, type))));
     }

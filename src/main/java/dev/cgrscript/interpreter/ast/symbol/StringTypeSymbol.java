@@ -63,57 +63,57 @@ public class StringTypeSymbol extends BuiltinTypeSymbol {
     private void buildMethods() {
         var stringArrayType = new ArrayType(this);
 
-        addMethod(new BuiltinFunctionSymbol("trim", new TrimMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol("capitalize", new CapitalizeMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol("uppercase", new UppercaseMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol("lowercase", new LowercaseMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol("substring", new SubstringMethodImpl(), stringArrayType,
+        addMethod(new BuiltinFunctionSymbol(this,"trim", new TrimMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"capitalize", new CapitalizeMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"uppercase", new UppercaseMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"lowercase", new LowercaseMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"substring", new SubstringMethodImpl(), stringArrayType,
                 new FunctionParameter("beginIndex", BuiltinScope.NUMBER_TYPE, false),
                 new FunctionParameter("endIndex", BuiltinScope.NUMBER_TYPE, true)));
-        addMethod(new BuiltinFunctionSymbol("split", new StringSplitMethodImpl(), stringArrayType,
+        addMethod(new BuiltinFunctionSymbol(this,"split", new StringSplitMethodImpl(), stringArrayType,
                 new FunctionParameter("regex", this, false),
                 new FunctionParameter("limit", BuiltinScope.NUMBER_TYPE, true)));
-        addMethod(new BuiltinFunctionSymbol("length", new StringLengthMethodImpl(), BuiltinScope.NUMBER_TYPE));
-        addMethod(new BuiltinFunctionSymbol("matches", new StringMatchesMethodImpl(), BuiltinScope.BOOLEAN_TYPE,
+        addMethod(new BuiltinFunctionSymbol(this,"length", new StringLengthMethodImpl(), BuiltinScope.NUMBER_TYPE));
+        addMethod(new BuiltinFunctionSymbol(this,"matches", new StringMatchesMethodImpl(), BuiltinScope.BOOLEAN_TYPE,
                 new FunctionParameter("regex", this, false)));
-        addMethod(new BuiltinFunctionSymbol("replace", new StringReplaceMethodImpl(), BuiltinScope.STRING_TYPE,
+        addMethod(new BuiltinFunctionSymbol(this,"replace", new StringReplaceMethodImpl(), BuiltinScope.STRING_TYPE,
                 new FunctionParameter("regex", this, false),
                 new FunctionParameter("replacement", this, false)));
 
-        addMethod(new BuiltinFunctionSymbol("kebabToCamelCase",
+        addMethod(new BuiltinFunctionSymbol(this,"kebabToCamelCase",
                 new StringConverterMethodImpl(StringFunctions::kebabToCamelCase),
                 this));
-        addMethod(new BuiltinFunctionSymbol("kebabToPascalCase",
+        addMethod(new BuiltinFunctionSymbol(this,"kebabToPascalCase",
                 new StringConverterMethodImpl(StringFunctions::kebabToPascalCase),
                 this));
-        addMethod(new BuiltinFunctionSymbol("kebabToSnakeCase",
+        addMethod(new BuiltinFunctionSymbol(this,"kebabToSnakeCase",
                 new StringConverterMethodImpl(StringFunctions::kebabToSnakeCase),
                 this));
-        addMethod(new BuiltinFunctionSymbol("camelToKebabCase",
+        addMethod(new BuiltinFunctionSymbol(this,"camelToKebabCase",
                 new StringConverterMethodImpl(StringFunctions::camelToKebabCase),
                 this));
-        addMethod(new BuiltinFunctionSymbol("camelToPascalCase",
+        addMethod(new BuiltinFunctionSymbol(this,"camelToPascalCase",
                 new StringConverterMethodImpl(StringFunctions::camelToPascalCase),
                 this));
-        addMethod(new BuiltinFunctionSymbol("camelToSnakeCase",
+        addMethod(new BuiltinFunctionSymbol(this,"camelToSnakeCase",
                 new StringConverterMethodImpl(StringFunctions::camelToSnakeCase),
                 this));
-        addMethod(new BuiltinFunctionSymbol("pascalToKebabCase",
+        addMethod(new BuiltinFunctionSymbol(this,"pascalToKebabCase",
                 new StringConverterMethodImpl(StringFunctions::pascalToKebabCase),
                 this));
-        addMethod(new BuiltinFunctionSymbol("pascalToCamelCase",
+        addMethod(new BuiltinFunctionSymbol(this,"pascalToCamelCase",
                 new StringConverterMethodImpl(StringFunctions::pascalToCamelCase),
                 this));
-        addMethod(new BuiltinFunctionSymbol("pascalToSnakeCase",
+        addMethod(new BuiltinFunctionSymbol(this,"pascalToSnakeCase",
                 new StringConverterMethodImpl(StringFunctions::pascalToSnakeCase),
                 this));
-        addMethod(new BuiltinFunctionSymbol("snakeToKebabCase",
+        addMethod(new BuiltinFunctionSymbol(this,"snakeToKebabCase",
                 new StringConverterMethodImpl(StringFunctions::snakeToKebabCase),
                 this));
-        addMethod(new BuiltinFunctionSymbol("snakeToCamelCase",
+        addMethod(new BuiltinFunctionSymbol(this,"snakeToCamelCase",
                 new StringConverterMethodImpl(StringFunctions::snakeToCamelCase),
                 this));
-        addMethod(new BuiltinFunctionSymbol("snakeToPascalCase",
+        addMethod(new BuiltinFunctionSymbol(this,"snakeToPascalCase",
                 new StringConverterMethodImpl(StringFunctions::snakeToPascalCase),
                 this));
 

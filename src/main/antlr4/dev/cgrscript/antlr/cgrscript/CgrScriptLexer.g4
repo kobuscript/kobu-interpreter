@@ -24,7 +24,7 @@ SOFTWARE.
 
 lexer grammar CgrScriptLexer;
 
-channels { WSCHANNEL, COMMENTCHANNEL }
+channels { WSCHANNEL, COMMENTCHANNEL, BLOCKCOMMENTCHANNEL }
 
 options { superClass=dev.cgrscript.antlr.CgrScriptLexerBase; }
 
@@ -91,7 +91,7 @@ RP : ')' ;
 LSB : '[' ;
 RSB : ']' ;
 
-COMMENT_BLOCK : '/*' .*? '*/' -> channel(COMMENTCHANNEL) ;
+COMMENT_BLOCK : '/*' .*? '*/' -> channel(BLOCKCOMMENTCHANNEL) ;
 COMMENT_LINE : '//' .*? '\n' -> channel(COMMENTCHANNEL) ;
 
 LCB : '{' ;

@@ -114,8 +114,8 @@ public class PairType implements Type {
     }
 
     private void buildMethods() {
-        methods.put("left", new BuiltinFunctionSymbol("left", new PairLeftMethodImpl(), leftType));
-        methods.put("right", new BuiltinFunctionSymbol("right", new PairRightMethodImpl(), rightType));
+        methods.put("left", new BuiltinFunctionSymbol(this, "left", new PairLeftMethodImpl(), leftType));
+        methods.put("right", new BuiltinFunctionSymbol(this,"right", new PairRightMethodImpl(), rightType));
     }
 
 }

@@ -55,22 +55,22 @@ public class AnyTypeSymbol extends BuiltinTypeSymbol {
     }
 
     private void buildMethods() {
-        addMethod(new BuiltinFunctionSymbol("isString", new TestTypeMethodImpl(BuiltinScope.STRING_TYPE),
+        addMethod(new BuiltinFunctionSymbol(this,"isString", new TestTypeMethodImpl(BuiltinScope.STRING_TYPE),
                 BuiltinScope.BOOLEAN_TYPE));
-        addMethod(new BuiltinFunctionSymbol("isNumber", new TestTypeMethodImpl(BuiltinScope.NUMBER_TYPE),
+        addMethod(new BuiltinFunctionSymbol(this,"isNumber", new TestTypeMethodImpl(BuiltinScope.NUMBER_TYPE),
                 BuiltinScope.BOOLEAN_TYPE));
-        addMethod(new BuiltinFunctionSymbol("isBoolean", new TestTypeMethodImpl(BuiltinScope.BOOLEAN_TYPE),
+        addMethod(new BuiltinFunctionSymbol(this,"isBoolean", new TestTypeMethodImpl(BuiltinScope.BOOLEAN_TYPE),
                 BuiltinScope.BOOLEAN_TYPE));
-        addMethod(new BuiltinFunctionSymbol("isRecord", new TestTypeMethodImpl(BuiltinScope.ANY_RECORD_TYPE),
+        addMethod(new BuiltinFunctionSymbol(this,"isRecord", new TestTypeMethodImpl(BuiltinScope.ANY_RECORD_TYPE),
                 BuiltinScope.BOOLEAN_TYPE));
 
-        addMethod(new BuiltinFunctionSymbol("castToString", new CastMethodImpl(BuiltinScope.STRING_TYPE),
+        addMethod(new BuiltinFunctionSymbol(this,"castToString", new CastMethodImpl(BuiltinScope.STRING_TYPE),
                 BuiltinScope.STRING_TYPE));
-        addMethod(new BuiltinFunctionSymbol("castToNumber", new CastMethodImpl(BuiltinScope.NUMBER_TYPE),
+        addMethod(new BuiltinFunctionSymbol(this,"castToNumber", new CastMethodImpl(BuiltinScope.NUMBER_TYPE),
                 BuiltinScope.NUMBER_TYPE));
-        addMethod(new BuiltinFunctionSymbol("castToBoolean", new CastMethodImpl(BuiltinScope.BOOLEAN_TYPE),
+        addMethod(new BuiltinFunctionSymbol(this,"castToBoolean", new CastMethodImpl(BuiltinScope.BOOLEAN_TYPE),
                 BuiltinScope.BOOLEAN_TYPE));
-        addMethod(new BuiltinFunctionSymbol("castToRecord", new CastMethodImpl(BuiltinScope.ANY_RECORD_TYPE),
+        addMethod(new BuiltinFunctionSymbol(this,"castToRecord", new CastMethodImpl(BuiltinScope.ANY_RECORD_TYPE),
                 BuiltinScope.ANY_RECORD_TYPE));
     }
 }

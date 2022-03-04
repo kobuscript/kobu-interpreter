@@ -22,38 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.symbol;
+package dev.cgrscript.interpreter.ast.utils;
 
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-import dev.cgrscript.interpreter.ast.eval.function.template.TemplateTrimMethodImpl;
+public class DocumentationUtils {
 
-import java.util.Comparator;
-
-public class TemplateTypeSymbol extends BuiltinTypeSymbol {
-
-    private static final String TYPE_NAME = "Template";
-
-    public TemplateTypeSymbol() {
-        super(TYPE_NAME);
-    }
-
-    @Override
-    public boolean isAssignableFrom(Type type) {
-        return type instanceof TemplateTypeSymbol;
-    }
-
-    @Override
-    public Type getCommonSuperType(Type type) {
-        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
-    }
-
-    private void buildMethods() {
-        addMethod(new BuiltinFunctionSymbol(this, "trim", new TemplateTrimMethodImpl(), BuiltinScope.STRING_TYPE));
+    public static String removeCommentDelimiters(String docText) {
+        return docText
+                .replaceAll("^/\\*(\\s*\\n)?", "")
+                .replaceAll("(\\s*\\n\\s*)?\\*/$", "")
+                .replaceAll("\\n\\s*\\*", "\n")
+                .replaceAll("^\\s*\\*", "");
     }
 
 }

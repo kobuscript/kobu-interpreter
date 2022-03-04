@@ -24,9 +24,13 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
+
 public class VariableSymbol extends Symbol {
 
     private Type type;
+
+    private SymbolDocumentation documentation;
 
     public VariableSymbol(String name, Type type) {
         super(null, null, name);
@@ -44,6 +48,11 @@ public class VariableSymbol extends Symbol {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    @Override
+    public SymbolDocumentation getDocumentation() {
+        return documentation;
     }
 
 }

@@ -24,6 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
+import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
 
 import java.util.ArrayList;
@@ -33,15 +35,22 @@ public class NativeFunctionSymbol extends Symbol implements FunctionType {
 
     private final NativeFunction functionImpl;
 
+    private final String docText;
+
     private List<FunctionParameter> parameters = new ArrayList<>();
 
     private Type returnType;
 
+    private SymbolDocumentation documentation;
+
     public NativeFunctionSymbol(SourceCodeRef sourceCodeRef, ModuleScope moduleScope, String name,
-                                NativeFunction functionImpl) {
+                                NativeFunction functionImpl, String docText) {
         super(moduleScope, sourceCodeRef, name);
         this.functionImpl = functionImpl;
+        this.docText = docText;
         this.functionImpl.setFuncDef(this);
+        this.documentation = new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.FUNCTION,
+                getName() + getDescription(), docText);
     }
 
     @Override
@@ -66,4 +75,8 @@ public class NativeFunctionSymbol extends Symbol implements FunctionType {
         return functionImpl;
     }
 
+    @Override
+    public SymbolDocumentation getDocumentation() {
+        return documentation;
+    }
 }

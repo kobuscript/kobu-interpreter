@@ -60,11 +60,11 @@ public class NumberTypeSymbol extends BuiltinTypeSymbol {
     }
 
     private void buildMethods() {
-        addMethod(new BuiltinFunctionSymbol("abs", new AbsMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol("round", new RoundMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol("floor", new FloorMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol("ceil", new CeilMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol("pow", new PowMethodImpl(), this,
+        addMethod(new BuiltinFunctionSymbol(this,"abs", new AbsMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"round", new RoundMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"floor", new FloorMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"ceil", new CeilMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"pow", new PowMethodImpl(), this,
                 new FunctionParameter("exp", this, false)));
     }
 }

@@ -42,6 +42,9 @@ def type CsvColumn {
     value: string
 }
 
+/*
+ * Read CSV files from disk
+ */
 def native readCsv(dir: string, pattern: string, recursive?: boolean): CsvFile[];
 
 def native fetchCsv(url: string): CsvFile;

@@ -34,6 +34,8 @@ import java.util.List;
 
 public class BuiltinFunctionSymbol extends Symbol implements FunctionType {
 
+    private final Type enclosingType;
+
     private final BuiltinFunction functionImpl;
 
     private final List<FunctionParameter> parameters = new ArrayList<>();
@@ -42,29 +44,49 @@ public class BuiltinFunctionSymbol extends Symbol implements FunctionType {
 
     private SymbolDocumentation symbolDocumentation;
 
-    public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl) {
+    public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl) {
         super(null,null, name);
+        this.enclosingType = enclosingType;
         this.functionImpl = functionImpl;
         this.functionImpl.setFuncDef(this);
     }
 
+    public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
+                                 Type returnType) {
+        this(enclosingType, name, functionImpl);
+        this.returnType = returnType;
+    }
+
+    public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
+                                 Type returnType, FunctionParameter... args) {
+        this(enclosingType, name, functionImpl);
+        this.returnType = returnType;
+        this.parameters.addAll(Arrays.asList(args));
+    }
+
+    public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
+                                 FunctionParameter... args) {
+        this(enclosingType, name, functionImpl);
+        this.parameters.addAll(Arrays.asList(args));
+    }
+
+    public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl) {
+        this(null, name, functionImpl);
+    }
+
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl,
                                  Type returnType) {
-        this(name, functionImpl);
-        this.returnType = returnType;
+        this(null, name, functionImpl, returnType);
     }
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl,
                                  Type returnType, FunctionParameter... args) {
-        this(name, functionImpl);
-        this.returnType = returnType;
-        this.parameters.addAll(Arrays.asList(args));
+        this(null, name, functionImpl, returnType, args);
     }
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl,
                                  FunctionParameter... args) {
-        this(name, functionImpl);
-        this.parameters.addAll(Arrays.asList(args));
+        this(null, name, functionImpl, args);
     }
 
     @Override
@@ -81,8 +103,13 @@ public class BuiltinFunctionSymbol extends Symbol implements FunctionType {
     public SymbolDocumentation getDocumentation() {
         if (symbolDocumentation == null) {
             String description = getName() + functionImpl.getFuncDef().getDescription();
-            this.symbolDocumentation = new SymbolDocumentation(BuiltinScope.MODULE_ID, SymbolTypeEnum.FUNCTION,
-                    description, functionImpl.getDocumentation());
+            if (enclosingType != null) {
+                this.symbolDocumentation = new SymbolDocumentation(BuiltinScope.MODULE_ID, SymbolTypeEnum.FUNCTION,
+                        description, functionImpl.getDocumentation(), enclosingType.getName());
+            } else {
+                this.symbolDocumentation = new SymbolDocumentation(BuiltinScope.MODULE_ID, SymbolTypeEnum.FUNCTION,
+                        description, functionImpl.getDocumentation());
+            }
         }
         return symbolDocumentation;
     }

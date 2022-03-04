@@ -41,6 +41,8 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
 
     private final SourceCodeRef closeFunctionRef;
 
+    private final String docText;
+
     private List<FunctionParameter> parameters;
 
     private Type returnType;
@@ -51,10 +53,12 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
 
     private SymbolDocumentation documentation;
 
-    public FunctionSymbol(SourceCodeRef sourceCodeRef, SourceCodeRef closeFunctionRef, ModuleScope moduleScope, String name) {
+    public FunctionSymbol(SourceCodeRef sourceCodeRef, SourceCodeRef closeFunctionRef, ModuleScope moduleScope,
+                          String name, String docText) {
         super(moduleScope, sourceCodeRef, name);
         this.closeFunctionRef = closeFunctionRef;
         this.moduleScope = moduleScope;
+        this.docText = docText;
 
         if (closeFunctionRef != null && moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
             moduleScope.registerAutoCompletionSource(closeFunctionRef.getStartOffset(), new AutoCompletionSource() {
@@ -127,7 +131,7 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
 
         if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
             String description = getName() + getDescription();
-            documentation = new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.FUNCTION, description);
+            documentation = new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.FUNCTION, description, docText);
         }
 
         context.popBranch();

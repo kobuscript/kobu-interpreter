@@ -36,10 +36,8 @@ import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunctionId;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.AnalyzerError;
-import dev.cgrscript.interpreter.error.ParserErrorListener;
 import dev.cgrscript.interpreter.error.analyzer.InternalParserError;
 import dev.cgrscript.interpreter.error.analyzer.ModuleNotFoundError;
-import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 import dev.cgrscript.interpreter.file_system.*;
 import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.writer.OutputWriter;
@@ -309,7 +307,7 @@ public class ModuleLoader {
 
             modules.put(moduleId, moduleScope);
 
-            var visitor = new ModuleParserVisitor(this, moduleScope, context, script, nativeFunctions);
+            var visitor = new ModuleParserVisitor(this, moduleScope, context, script, tokens);
             visitor.visit(tree);
 
             EvalTreeParserVisitor evalTreeParserVisitor = new EvalTreeParserVisitor(this,
