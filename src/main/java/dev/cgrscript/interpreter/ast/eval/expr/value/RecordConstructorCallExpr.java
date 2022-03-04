@@ -84,7 +84,7 @@ public class RecordConstructorCallExpr implements Expr {
                 type = UnknownType.INSTANCE;
                 return;
             }
-            symbolType = moduleRefSymbol.getModuleScope().resolve(recordTypeName);
+            symbolType = moduleRefSymbol.getModuleScopeRef().resolve(recordTypeName);
         }
 
         if (!(symbolType instanceof RecordTypeSymbol)) {

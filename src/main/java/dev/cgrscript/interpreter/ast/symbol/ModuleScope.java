@@ -106,13 +106,16 @@ public class ModuleScope implements Scope {
     @Override
     public void define(AnalyzerContext analyzerContext, Symbol symbol) {
         symbol.setScope(this);
-        Symbol currentDef = resolve(symbol.getName());
+        Symbol currentDef = resolve(symbol.getNameInModule());
 
         if (currentDef != null) {
             analyzerContext.getErrorScope().addError(new SymbolConflictError(currentDef, symbol));
         }
 
-        symbols.put(symbol.getName(), symbol);
+        symbols.put(symbol.getNameInModule(), symbol);
+    }
+
+    public void registerSymbol(Symbol symbol) {
         if (symbol.getSourceCodeRef() != null) {
             symbolsByOffset.put(symbol.getSourceCodeRef().getStartOffset(), symbol);
         }
@@ -209,7 +212,7 @@ public class ModuleScope implements Scope {
 
     public void merge(AnalyzerContext context, ModuleScope dependency, String alias, SourceCodeRef sourceCodeRef) {
         if (alias != null) {
-            ModuleRefSymbol moduleRefSymbol = new ModuleRefSymbol(sourceCodeRef, alias, dependency);
+            ModuleRefSymbol moduleRefSymbol = new ModuleRefSymbol(this, sourceCodeRef, alias, dependency);
             Symbol currentDef = symbols.get(alias);
             if (currentDef != null) {
                 context.getErrorScope().addError(new SymbolConflictError(currentDef, moduleRefSymbol));

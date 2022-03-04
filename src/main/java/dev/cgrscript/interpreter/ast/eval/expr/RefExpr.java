@@ -171,7 +171,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             }
             if (symbol instanceof ModuleRefSymbol) {
                 ModuleRefSymbol moduleRefSymbol = (ModuleRefSymbol) symbol;
-                return new ModuleRefValueExpr(moduleRefSymbol, moduleRefSymbol.getModuleScope());
+                return new ModuleRefValueExpr(moduleRefSymbol, moduleRefSymbol.getModuleScopeRef());
             }
 
             throw new InternalInterpreterError("Expected: Variable. Found: " + symbol.getClass().getName(),

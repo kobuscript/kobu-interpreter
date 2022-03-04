@@ -46,6 +46,8 @@ public class QueryFieldClause implements QueryPipeClause {
 
     private String alias;
 
+    private SourceCodeRef aliasSourceCodeRef;
+
     private QueryArrayItemClause arrayItemClause;
 
     private QueryPipeClause next;
@@ -81,7 +83,8 @@ public class QueryFieldClause implements QueryPipeClause {
         }
 
         if (alias != null) {
-            context.getCurrentScope().define(context.getAnalyzerContext(), new VariableSymbol(alias, type));
+            context.getCurrentScope().define(context.getAnalyzerContext(),
+                    new VariableSymbol(context.getModuleScope(), aliasSourceCodeRef, alias, type));
         }
 
         if (next != null) {
@@ -158,6 +161,11 @@ public class QueryFieldClause implements QueryPipeClause {
     @Override
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+
+    @Override
+    public void setAliasSourceCodeRef(SourceCodeRef aliasSourceCodeRef) {
+        this.aliasSourceCodeRef = aliasSourceCodeRef;
     }
 
     public QueryArrayItemClause getArrayItemClause() {

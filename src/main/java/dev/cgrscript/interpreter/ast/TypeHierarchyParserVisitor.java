@@ -24,13 +24,10 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast;
 
-import dev.cgrscript.interpreter.error.AnalyzerError;
-import dev.cgrscript.interpreter.error.ParserErrorListener;
+import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
+import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.RecordInvalidSuperTypeError;
 import dev.cgrscript.interpreter.module.ModuleLoader;
-import dev.cgrscript.interpreter.ast.symbol.*;
-import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class TypeHierarchyParserVisitor extends CgrScriptParserVisitor<Void> {
 
@@ -43,22 +40,64 @@ public class TypeHierarchyParserVisitor extends CgrScriptParserVisitor<Void> {
     }
 
     @Override
+    public Void visitModule(CgrScriptParser.ModuleContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitImportExpr(CgrScriptParser.ImportExprContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitFunctionDecl(CgrScriptParser.FunctionDeclContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitDefrule(CgrScriptParser.DefruleContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitDeftemplate(CgrScriptParser.DeftemplateContext ctx) {
+        return null;
+    }
+
+    @Override
+    public Void visitDeffile(CgrScriptParser.DeffileContext ctx) {
+        return null;
+    }
+
+    @Override
     public Void visitDeftype(CgrScriptParser.DeftypeContext ctx) {
 
         if (ctx.inheritance() != null) {
             RecordTypeSymbol recordType = (RecordTypeSymbol) moduleScope.resolve(ctx.ID().getText());
 
-            if (ctx.inheritance() != null) {
-                TerminalNode typeSymbol = ctx.inheritance().ID();
-                var type = moduleScope.resolve(typeSymbol.getText());
+            if (ctx.inheritance() != null && ctx.inheritance().typeName() != null) {
+                var typeNameExpr = ctx.inheritance().typeName();
+                Symbol type = null;
+                if (typeNameExpr.ID().size() == 2) {
+                    var aliasSymbol = typeNameExpr.ID(0);
+                    var typeSymbol = typeNameExpr.ID(1);
+                    var moduleSymbol = moduleScope.resolve(aliasSymbol.getText());
+                    if (moduleSymbol instanceof ModuleRefSymbol) {
+                        type = ((ModuleRefSymbol)moduleSymbol).getModuleScopeRef().resolve(typeSymbol.getText());
+                    }
+                } else {
+                    var typeSymbol = typeNameExpr.ID(0);
+                    type = moduleScope.resolve(typeSymbol.getText());
+                }
+
                 if (type instanceof AnyRecordTypeSymbol) {
                     return null;
                 }
                 if (!(type instanceof RecordTypeSymbol)) {
-                    context.getErrorScope().addError(new RecordInvalidSuperTypeError(getSourceCodeRef(typeSymbol), recordType,
-                            typeSymbol.getText()));
+                    context.getErrorScope().addError(new RecordInvalidSuperTypeError(getSourceCodeRef(typeNameExpr), recordType,
+                            typeNameExpr.getText()));
                 } else {
-                    recordType.setSuperType(new RecordSuperType(getSourceCodeRef(typeSymbol), (RecordTypeSymbol) type));
+                    recordType.setSuperType(new RecordSuperType(getSourceCodeRef(typeNameExpr), (RecordTypeSymbol) type));
                 }
             }
 

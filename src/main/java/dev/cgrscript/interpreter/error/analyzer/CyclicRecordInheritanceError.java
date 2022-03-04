@@ -28,29 +28,19 @@ import dev.cgrscript.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 
+import java.util.List;
+
 public class CyclicRecordInheritanceError extends AnalyzerError {
 
-    private final RecordTypeSymbol recordType;
+    private final List<String> path;
 
-    private final RecordTypeSymbol superType;
-
-    public CyclicRecordInheritanceError(SourceCodeRef sourceCodeRef, RecordTypeSymbol recordType,
-                                        RecordTypeSymbol superType) {
+    public CyclicRecordInheritanceError(SourceCodeRef sourceCodeRef, List<String> path) {
         super(sourceCodeRef);
-        this.recordType = recordType;
-        this.superType = superType;
-    }
-
-    public RecordTypeSymbol getRecordType() {
-        return recordType;
-    }
-
-    public RecordTypeSymbol getSuperType() {
-        return superType;
+        this.path = path;
     }
 
     @Override
     public String getDescription() {
-        return "Circular inheritance is not allowed: " + recordType.getName() + " -> " + superType.getName();
+        return "Circular inheritance is not allowed: " + String.join(" -> ", path);
     }
 }

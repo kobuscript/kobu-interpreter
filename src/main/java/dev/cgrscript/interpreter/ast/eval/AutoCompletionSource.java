@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval;
 
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
+import dev.cgrscript.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.cgrscript.interpreter.ast.symbol.Symbol;
 
 import java.util.*;
@@ -69,6 +70,16 @@ public interface AutoCompletionSource {
             }
         }
 
+        return symbols;
+    }
+
+    default List<SymbolDescriptor> getTypeSymbols(ModuleScope moduleScope, String prefix) {
+        List<SymbolDescriptor> symbols = new ArrayList<>();
+        for (Symbol symbol : moduleScope.getSymbols()) {
+            if (symbol instanceof RecordTypeSymbol) {
+                symbols.add(new SymbolDescriptor(prefix, (RecordTypeSymbol) symbol));
+            }
+        }
         return symbols;
     }
 }

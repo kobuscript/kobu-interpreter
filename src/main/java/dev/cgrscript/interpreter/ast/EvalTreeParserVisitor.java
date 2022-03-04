@@ -250,6 +250,8 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             rule.setBlock(exprList);
         }
 
+        rule.resolveParentRule();
+
         return null;
     }
 
@@ -328,19 +330,20 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             scopeEndOffset = ctx.RCB().getSymbol().getStopIndex() + 1;
         }
 
-        topLevelExpression = false;
-        var query = (Query) visit(ctx.queryExpr());
+        if (ctx.queryExpr() != null) {
+            topLevelExpression = false;
+            var query = (Query) visit(ctx.queryExpr());
 
-        for (CgrScriptParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
-            query.addJoin((QueryJoin) visit(joinExprContext));
+            for (CgrScriptParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
+                query.addJoin((QueryJoin) visit(joinExprContext));
+            }
+
+            if (ctx.expr() != null) {
+                query.setWhenExpr((Expr) visit(ctx.expr()));
+            }
+            rule.setQuery(query);
+            topLevelExpression = true;
         }
-
-        if (ctx.expr() != null) {
-            query.setWhenExpr((Expr) visit(ctx.expr()));
-        }
-        topLevelExpression = true;
-
-        rule.setQuery(query);
 
         List<Evaluable> exprList = new ArrayList<>();
         if (ctx.block() != null && ctx.block().execStat() != null) {
@@ -352,6 +355,8 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             }
         }
         rule.setBlock(exprList);
+
+        rule.resolveParentRule();
 
         return null;
     }
@@ -370,31 +375,34 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             scopeEndOffset = ctx.PATH_END().getSymbol().getStopIndex() + 1;
         }
 
-        topLevelExpression = false;
-        var query = (Query) visit(ctx.queryExpr());
+        if (ctx.queryExpr() != null) {
+            topLevelExpression = false;
+            var query = (Query) visit(ctx.queryExpr());
 
-        for (CgrScriptParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
-            query.addJoin((QueryJoin) visit(joinExprContext));
+            for (CgrScriptParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
+                query.addJoin((QueryJoin) visit(joinExprContext));
+            }
+
+            String bind = query.getTypeClause().getBind();
+
+            SourceCodeRef sourceCodeRef = getSourceCodeRef(ctx);
+            QueryTypeClause templateClause = new QueryTypeClause(sourceCodeRef, null, BuiltinScope.TEMPLATE_TYPE,
+                    false, "$_templateRef");
+            QueryJoin templateJoin = new QueryJoin(sourceCodeRef, templateClause, new RefExpr(moduleScope, sourceCodeRef, bind));
+            query.addJoin(templateJoin);
+
+            if (ctx.expr() != null) {
+                query.setWhenExpr((Expr) visit(ctx.expr()));
+            }
+            rule.setQuery(query);
+            topLevelExpression = true;
         }
-
-        String bind = query.getTypeClause().getBind();
-
-        SourceCodeRef sourceCodeRef = getSourceCodeRef(ctx);
-        QueryTypeClause templateClause = new QueryTypeClause(sourceCodeRef, null, BuiltinScope.TEMPLATE_TYPE,
-                false, "$_templateRef");
-        QueryJoin templateJoin = new QueryJoin(sourceCodeRef, templateClause, new RefExpr(moduleScope, sourceCodeRef, bind));
-        query.addJoin(templateJoin);
-
-        if (ctx.expr() != null) {
-            query.setWhenExpr((Expr) visit(ctx.expr()));
-        }
-        topLevelExpression = true;
-
-        rule.setQuery(query);
 
         List<Evaluable> exprList = new ArrayList<>();
         exprList.add((Evaluable) visit(ctx.pathExpr()));
         rule.setBlock(exprList);
+
+        rule.resolveParentRule();
 
         return null;
     }
@@ -1235,7 +1243,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
                     @Override
                     public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
                         List<SymbolDescriptor> symbols = new ArrayList<>();
-                        symbols.addAll(getGlobalSymbols(moduleScope, SymbolTypeEnum.TYPE));
+                        symbols.addAll(getGlobalSymbols(moduleScope, SymbolTypeEnum.TYPE, SymbolTypeEnum.MODULE_REF));
                         symbols.addAll(getExternalSymbols(moduleScope, externalModules, SymbolTypeEnum.TYPE));
                         if (functionReturnType) {
                             symbols.add(SymbolDescriptorUtils.voidKeyword);
@@ -1262,13 +1270,13 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             var typeName = ctx.ID(1).getText();
 
             if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
-                moduleScope.registerAutoCompletionSource(ctx.ID(0).getSymbol().getStartIndex(), new AutoCompletionSource() {
+                moduleScope.registerAutoCompletionSource(ctx.ID(1).getSymbol().getStartIndex(), new AutoCompletionSource() {
                     @Override
                     public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
                         var symbol = moduleScope.resolve(moduleAlias);
                         if (symbol instanceof ModuleRefSymbol) {
-                            var otherModule = ((ModuleRefSymbol)symbol).getModuleScope();
-                            return getGlobalSymbols(otherModule, SymbolTypeEnum.TYPE);
+                            var otherModule = ((ModuleRefSymbol)symbol).getModuleScopeRef();
+                            return getTypeSymbols(otherModule, moduleAlias);
                         }
                         return EMPTY_LIST;
                     }
@@ -1288,7 +1296,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
                 return UnknownType.INSTANCE;
             }
 
-            var symbol = moduleRefSymbol.getModuleScope().resolve(typeName);
+            var symbol = moduleRefSymbol.getModuleScopeRef().resolve(typeName);
 
             if (!(symbol instanceof Type)) {
                 context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx),

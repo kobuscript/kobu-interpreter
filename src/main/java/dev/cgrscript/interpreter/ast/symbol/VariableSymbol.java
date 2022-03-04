@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
+import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 
 public class VariableSymbol extends Symbol {
 
@@ -32,8 +33,8 @@ public class VariableSymbol extends Symbol {
 
     private SymbolDocumentation documentation;
 
-    public VariableSymbol(String name, Type type) {
-        super(null, null, name);
+    public VariableSymbol(ModuleScope moduleScope, String name, Type type) {
+        super(moduleScope, null, name);
         this.type = type;
     }
 
@@ -52,6 +53,11 @@ public class VariableSymbol extends Symbol {
 
     @Override
     public SymbolDocumentation getDocumentation() {
+        if (documentation == null) {
+            String description = "var " + getName() + ": " + getType().getName();
+            documentation = new SymbolDocumentation(getModuleScope().getModuleId(),
+                    SymbolTypeEnum.VARIABLE, description);
+        }
         return documentation;
     }
 

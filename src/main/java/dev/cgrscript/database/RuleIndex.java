@@ -78,24 +78,24 @@ public class RuleIndex {
 
         RuleIndexNode ruleNode = new RuleIndexNode(rule, query, rule.getBlock());
         node.addChild(ruleNode);
-        ruleNodeMap.put(rule.getName(), ruleNode);
+        ruleNodeMap.put(rule.getFullName(), ruleNode);
     }
 
     public void linkRules() {
         for (RuleSymbol rule : rules) {
-            if (rule.getParentRule() != null) {
-                RuleIndexNode parentNode = ruleNodeMap.get(rule.getParentRule());
-                RuleIndexNode node = ruleNodeMap.get(rule.getName());
+            if (rule.getParentRuleSymbol() != null) {
+                RuleIndexNode parentNode = ruleNodeMap.get(rule.getParentRuleSymbol().getFullName());
+                RuleIndexNode node = ruleNodeMap.get(rule.getFullName());
                 parentNode.addChild(node);
             }
         }
         for (RuleSymbol rule : rules) {
             int priority = 0;
-            String parent = rule.getParentRule();
-            RuleIndexNode node = ruleNodeMap.get(rule.getName());
+            RuleSymbol parent = rule.getParentRuleSymbol();
+            RuleIndexNode node = ruleNodeMap.get(rule.getFullName());
             while (parent != null) {
                 priority += 1;
-                parent = ruleNodeMap.get(parent).getRuleSymbol().getParentRule();
+                parent = parent.getParentRuleSymbol();
             }
             node.setPriority(priority);
         }

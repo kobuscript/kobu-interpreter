@@ -104,7 +104,8 @@ public class JoinIndexNode extends TwoInputsIndexNode {
                     Symbol currentSymbol = context.getCurrentScope().resolve(key);
                     if (currentSymbol == null) {
                         ArrayType type = new ArrayType(varSymbol.getType());
-                        currentSymbol = new VariableSymbol(varSymbol.getName(),
+                        currentSymbol = new VariableSymbol(left.getContext().getModuleScope(),
+                                varSymbol.getName(),
                                 type);
                         context.getCurrentScope().define(context.getAnalyzerContext(), currentSymbol);
                         List<ValueExpr> listValue = new ArrayList<>();

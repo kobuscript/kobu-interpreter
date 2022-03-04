@@ -86,7 +86,9 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
     @Override
     public Void visitImportExpr(CgrScriptParser.ImportExprContext ctx) {
         if (ctx.moduleId() == null) {
-            addImportAutoCompletionSource(ctx.IMPORT().getSymbol().getStopIndex() + 2, "");
+            if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+                addImportAutoCompletionSource(ctx.IMPORT().getSymbol().getStopIndex() + 2, "");
+            }
             return null;
         }
         try {
@@ -168,7 +170,15 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
     @Override
     public Void visitDeftype(CgrScriptParser.DeftypeContext ctx) {
         if (ctx.ID() != null) {
-            var recordType = new RecordTypeSymbol(getSourceCodeRef(ctx), ctx.ID().getText(), moduleScope);
+            String docText = null;
+            if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+                var docChannel = tokens.getHiddenTokensToLeft(ctx.start.getTokenIndex(), CgrScriptLexer.BLOCKCOMMENTCHANNEL);
+                if (docChannel != null) {
+                    docText = DocumentationUtils.removeCommentDelimiters(docChannel.get(0).getText());
+                }
+            }
+
+            var recordType = new RecordTypeSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), moduleScope, docText);
             moduleScope.define(context, recordType);
         }
         return null;
@@ -225,12 +235,28 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ID() == null) {
             return null;
         }
+        String parentRuleModuleAlias = null;
         String parentRule = null;
-        if (ctx.ruleExtends() != null) {
-            parentRule = ctx.ruleExtends().ID().getText();
+        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
+            var typeNameExpr = ctx.ruleExtends().typeName();
+            if (typeNameExpr.ID().size() == 2) {
+                parentRuleModuleAlias = typeNameExpr.ID(0).getText();
+                parentRule = typeNameExpr.ID(1).getText();
+            } else {
+                parentRule = typeNameExpr.ID(0).getText();
+            }
         }
+
+        String docText = null;
+        if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            var docChannel = tokens.getHiddenTokensToLeft(ctx.start.getTokenIndex(), CgrScriptLexer.BLOCKCOMMENTCHANNEL);
+            if (docChannel != null) {
+                docText = DocumentationUtils.removeCommentDelimiters(docChannel.get(0).getText());
+            }
+        }
+
         var template = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.TEMPLATE_END()),
-                moduleScope, RuleTypeEnum.TEMPLATE, parentRule);
+                moduleScope, RuleTypeEnum.TEMPLATE, parentRuleModuleAlias, parentRule, docText);
         moduleScope.define(context, template);
         return null;
     }
@@ -240,12 +266,28 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ID() == null) {
             return null;
         }
+        String parentRuleModuleAlias = null;
         String parentRule = null;
-        if (ctx.ruleExtends() != null) {
-            parentRule = ctx.ruleExtends().ID().getText();
+        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
+            var typeNameExpr = ctx.ruleExtends().typeName();
+            if (typeNameExpr.ID().size() == 2) {
+                parentRuleModuleAlias = typeNameExpr.ID(0).getText();
+                parentRule = typeNameExpr.ID(1).getText();
+            } else {
+                parentRule = typeNameExpr.ID(0).getText();
+            }
         }
+
+        String docText = null;
+        if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            var docChannel = tokens.getHiddenTokensToLeft(ctx.start.getTokenIndex(), CgrScriptLexer.BLOCKCOMMENTCHANNEL);
+            if (docChannel != null) {
+                docText = DocumentationUtils.removeCommentDelimiters(docChannel.get(0).getText());
+            }
+        }
+
         var rule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.RCB()),
-                moduleScope, RuleTypeEnum.RULE, parentRule);
+                moduleScope, RuleTypeEnum.RULE, parentRuleModuleAlias, parentRule, docText);
         moduleScope.define(context, rule);
         return null;
     }
@@ -255,12 +297,28 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ID() == null) {
             return null;
         }
+        String parentRuleModuleAlias = null;
         String parentRule = null;
-        if (ctx.ruleExtends() != null) {
-            parentRule = ctx.ruleExtends().ID().getText();
+        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
+            var typeNameExpr = ctx.ruleExtends().typeName();
+            if (typeNameExpr.ID().size() == 2) {
+                parentRuleModuleAlias = typeNameExpr.ID(0).getText();
+                parentRule = typeNameExpr.ID(1).getText();
+            } else {
+                parentRule = typeNameExpr.ID(0).getText();
+            }
         }
+
+        String docText = null;
+        if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            var docChannel = tokens.getHiddenTokensToLeft(ctx.start.getTokenIndex(), CgrScriptLexer.BLOCKCOMMENTCHANNEL);
+            if (docChannel != null) {
+                docText = DocumentationUtils.removeCommentDelimiters(docChannel.get(0).getText());
+            }
+        }
+
         var fileRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.PATH_END()),
-                moduleScope, RuleTypeEnum.FILE, parentRule);
+                moduleScope, RuleTypeEnum.FILE, parentRuleModuleAlias, parentRule, docText);
         moduleScope.define(context, fileRule);
         return null;
     }

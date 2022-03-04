@@ -54,7 +54,7 @@ public class SymbolDescriptor {
         this.externalModule = externalModule;
         this.newImportOffset = newImportOffset;
         this.hasImports = hasImports;
-        this.name = symbol.getName();
+        this.name = symbol.getNameInModule();
         this.label = name;
         if (symbol instanceof FunctionType) {
             this.type = SymbolTypeEnum.FUNCTION;
@@ -68,7 +68,7 @@ public class SymbolDescriptor {
         } else if (symbol instanceof ModuleRefSymbol) {
             this.name = ((ModuleRefSymbol)symbol).getAlias();
             this.type = SymbolTypeEnum.MODULE_REF;
-            this.metadata = ((ModuleRefSymbol)symbol).getModuleScope().getModuleId();
+            this.metadata = ((ModuleRefSymbol)symbol).getModuleScopeRef().getModuleId();
         } else if (symbol instanceof Type) {
             this.type = SymbolTypeEnum.TYPE;
             if (symbol.getSourceCodeRef() != null) {
@@ -115,6 +115,15 @@ public class SymbolDescriptor {
         this.label = label;
         this.description = description;
         this.metadata = metadata;
+    }
+
+    public SymbolDescriptor(String prefix, RecordTypeSymbol symbol) {
+        this.type = SymbolTypeEnum.TYPE;
+        this.name = prefix + "." + symbol.getNameInModule();
+        this.label = symbol.getNameInModule();
+        if (symbol.getSourceCodeRef() != null) {
+            this.metadata = symbol.getSourceCodeRef().getModuleId();
+        }
     }
 
     public SymbolTypeEnum getType() {

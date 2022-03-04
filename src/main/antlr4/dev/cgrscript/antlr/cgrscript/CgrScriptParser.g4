@@ -151,7 +151,7 @@ deftype : 'def' 'type' ID inheritance? LCB attributes? RCB
           | 'def' 'type' {notifyErrorListenersPrevToken("type name expected");}
           ;
 
-inheritance : 'extends' ID ;
+inheritance : 'extends' typeName ;
 
 attributes : ( STAR | ID ) COLON type ( COMMA? attributes )?
              | ( STAR | ID ) COLON type COMMA
@@ -204,7 +204,7 @@ defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )
           | 'def' 'rule' {notifyErrorListenersPrevToken("rule name expected");}
           ;
 
-ruleExtends : EXTENDS ID ;
+ruleExtends : EXTENDS typeName ;
 
 queryExpr : 'any'? type queryExprAlias? queryExprSegment?
             | 'any' {notifyErrorListenersPrevToken("type expected");}

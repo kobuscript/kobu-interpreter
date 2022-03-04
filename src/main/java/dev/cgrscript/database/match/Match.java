@@ -70,7 +70,8 @@ public class Match {
                 context.getInputParser(), context.getOutputWriter());
         matchCtx.getCurrentScope().addAll(context.getCurrentScope());
         if (bind != null) {
-            matchCtx.getCurrentScope().define(context.getAnalyzerContext(), new VariableSymbol(bind, fact.getType()));
+            matchCtx.getCurrentScope().define(context.getAnalyzerContext(), new VariableSymbol(context.getModuleScope(),
+                    bind, fact.getType()));
             matchCtx.getCurrentScope().setValue(bind, fact);
         }
         return new Match(matchGroupId, matchCtx, rootRecord, fact, state);

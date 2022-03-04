@@ -92,7 +92,7 @@ public class QueryTypeClause implements Evaluable {
         if (bindSourceCodeRef != null) {
             variableSymbol = new VariableSymbol(context.getModuleScope(), bindSourceCodeRef, bind, type);
         } else {
-            variableSymbol = new VariableSymbol(bind, type);
+            variableSymbol = new VariableSymbol(context.getModuleScope(), bind, type);
         }
         context.getCurrentScope().define(context.getAnalyzerContext(), variableSymbol);
 
@@ -112,7 +112,7 @@ public class QueryTypeClause implements Evaluable {
         if (bindSourceCodeRef != null) {
             variableSymbol = new VariableSymbol(context.getModuleScope(), bindSourceCodeRef, bind, type);
         } else {
-            variableSymbol = new VariableSymbol(bind, type);
+            variableSymbol = new VariableSymbol(context.getModuleScope(), bind, type);
         }
         context.getCurrentScope().define(context.getAnalyzerContext(), variableSymbol);
         context.getCurrentScope().setValue(bind, new ArrayValueExpr(new ArrayType(type), new ArrayList<>()));

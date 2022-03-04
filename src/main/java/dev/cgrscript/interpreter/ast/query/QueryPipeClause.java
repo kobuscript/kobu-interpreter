@@ -28,6 +28,7 @@ import dev.cgrscript.database.match.Match;
 import dev.cgrscript.interpreter.ast.eval.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Evaluable;
 import dev.cgrscript.interpreter.ast.eval.HasTypeScope;
+import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 
 import java.util.List;
 
@@ -38,6 +39,8 @@ public interface QueryPipeClause extends Evaluable, HasTypeScope {
     void setNext(QueryPipeClause next);
 
     void setAlias(String alias);
+
+    void setAliasSourceCodeRef(SourceCodeRef aliasSourceCodeRef);
 
     List<Match> eval(Match match);
 

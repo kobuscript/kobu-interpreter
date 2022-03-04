@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.ast.eval.AutoCompletionSource;
+import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
 import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
 
@@ -34,15 +35,19 @@ public abstract class Symbol implements AutoCompletionSource {
 
     private final SourceCodeRef sourceCodeRef;
 
+    private final ModuleScope moduleScope;
+
     private final String name;
 
     private Scope scope;
 
     public Symbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String name) {
+        this.moduleScope = moduleScope;
         this.sourceCodeRef = sourceCodeRef;
         this.name = name;
-        if (moduleScope != null) {
+        if (moduleScope != null && moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && sourceCodeRef != null) {
             moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
+            moduleScope.registerSymbol(this);
         }
     }
 
@@ -51,6 +56,10 @@ public abstract class Symbol implements AutoCompletionSource {
     }
 
     public String getName() {
+        return name;
+    }
+
+    public String getNameInModule() {
         return name;
     }
 
@@ -64,6 +73,10 @@ public abstract class Symbol implements AutoCompletionSource {
 
     public SymbolDocumentation getDocumentation() {
         return null;
+    }
+
+    public ModuleScope getModuleScope() {
+        return moduleScope;
     }
 
     @Override

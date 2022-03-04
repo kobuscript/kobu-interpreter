@@ -176,7 +176,7 @@ public class ModuleLoader {
                 canonicalName = typeName.substring(idx + 1);
                 var otherModule = refModule.resolve(typeName.substring(0, idx));
                 if (otherModule instanceof ModuleRefSymbol) {
-                    symbol = ((ModuleRefSymbol)otherModule).getModuleScope().resolve(canonicalName);
+                    symbol = ((ModuleRefSymbol)otherModule).getModuleScopeRef().resolve(canonicalName);
                 }
             }
 

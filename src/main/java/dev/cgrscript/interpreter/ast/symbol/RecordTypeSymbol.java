@@ -26,9 +26,7 @@ package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
-import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
-import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.function.record.RecordEntriesMethodImpl;
 import dev.cgrscript.interpreter.ast.eval.function.record.RecordValuesMethodImpl;
 import dev.cgrscript.interpreter.error.analyzer.*;
@@ -47,11 +45,26 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     private final Map<String, FunctionType> methods = new HashMap<>();
 
+    private final String docText;
+
     private RecordTypeUnknownAttributes unknownAttributes;
 
-    public RecordTypeSymbol(SourceCodeRef sourceCodeRef, String name, ModuleScope module) {
+    private SymbolDocumentation documentation;
+
+    public RecordTypeSymbol(SourceCodeRef sourceCodeRef, String name, ModuleScope module, String docText) {
         super(module, sourceCodeRef, name);
         this.module = module;
+        this.docText = docText;
+    }
+
+    @Override
+    public String getName() {
+        return module.getModuleId() + "." + super.getName();
+    }
+
+    @Override
+    public String getNameInModule() {
+        return super.getName();
     }
 
     public ModuleScope getModule() {
@@ -178,13 +191,23 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     public boolean hasSuperType(RecordTypeSymbol recordTypeSymbol) {
+        return hasSuperType(recordTypeSymbol, null);
+    }
+
+    public boolean hasSuperType(RecordTypeSymbol recordTypeSymbol, List<String> path) {
+        if (path != null) {
+            path.add(recordTypeSymbol.getName());
+        }
         if (superType == null) {
             return false;
         }
         if (superType.getName().equals(recordTypeSymbol.getName())) {
+            if (path != null) {
+                path.add(superType.getName());
+            }
             return true;
         }
-        return superType.hasSuperType(recordTypeSymbol);
+        return superType.hasSuperType(recordTypeSymbol, path);
     }
 
     public boolean hasUnknownAttributes() {
@@ -303,8 +326,9 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     @Override
     public void analyze(AnalyzerContext context, Database database, InputReader inputReader, OutputWriter outputWriter) {
         if (superType != null) {
-            if (superType.hasSuperType(this)) {
-                context.getErrorScope().addError(new CyclicRecordInheritanceError(superType.getSourceCodeRef(), this, superType));
+            List<String> path = new ArrayList<>();
+            if (hasSuperType(this, path)) {
+                context.getErrorScope().addError(new CyclicRecordInheritanceError(superType.getSourceCodeRef(), path));
             } else if (unknownAttributes != null && superType.hasUnknownAttributes()) {
                 List<SourceCodeRef> sourceCodeRefList = new ArrayList<>();
                 sourceCodeRefList.add(superType.getSourceCodeRef());
@@ -320,5 +344,19 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
                 }
             }
         }
+
+        if (module.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            String description = "def type " + super.getName();
+            if (superType != null) {
+                description += " extends " + superType.getName();
+            }
+            this.documentation = new SymbolDocumentation(module.getModuleId(), SymbolTypeEnum.TYPE,
+                    description, docText);
+        }
+    }
+
+    @Override
+    public SymbolDocumentation getDocumentation() {
+        return documentation;
     }
 }

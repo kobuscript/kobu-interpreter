@@ -113,7 +113,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
             var methodType = typeScope.resolveMethod(functionName);
             if (methodType == null) {
                 if (typeScope instanceof ModuleRefSymbol) {
-                    var moduleId = ((ModuleRefSymbol)typeScope).getModuleScope().getModuleId();
+                    var moduleId = ((ModuleRefSymbol)typeScope).getModuleScopeRef().getModuleId();
                     context.addAnalyzerError(new UndefinedFunctionName(this, moduleId, functionName,
                             context.getNewGlobalDefinitionOffset()));
                 } else {

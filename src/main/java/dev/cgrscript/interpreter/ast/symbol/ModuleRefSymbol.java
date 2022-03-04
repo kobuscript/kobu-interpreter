@@ -35,20 +35,20 @@ public class ModuleRefSymbol extends Symbol implements Type {
 
     private final String alias;
 
-    private final ModuleScope moduleScope;
+    private final ModuleScope moduleScopeRef;
 
-    public ModuleRefSymbol(SourceCodeRef sourceCodeRef, String alias, ModuleScope moduleScope) {
-        super(moduleScope, sourceCodeRef, "$" + moduleScope.getModuleId());
+    public ModuleRefSymbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String alias, ModuleScope moduleScopeRef) {
+        super(moduleScope, sourceCodeRef, "$" + moduleScopeRef.getModuleId());
         this.alias = alias;
-        this.moduleScope = moduleScope;
+        this.moduleScopeRef = moduleScopeRef;
     }
 
     public String getAlias() {
         return alias;
     }
 
-    public ModuleScope getModuleScope() {
-        return moduleScope;
+    public ModuleScope getModuleScopeRef() {
+        return moduleScopeRef;
     }
 
     @Override
@@ -57,9 +57,14 @@ public class ModuleRefSymbol extends Symbol implements Type {
     }
 
     @Override
+    public String getNameInModule() {
+        return alias;
+    }
+
+    @Override
     public List<FieldDescriptor> getFields() {
         List<FieldDescriptor> fields = new ArrayList<>();
-        for (Symbol symbol : moduleScope.getSymbols()) {
+        for (Symbol symbol : moduleScopeRef.getSymbols()) {
             if (symbol instanceof RuleSymbol) {
                 fields.add(new FieldDescriptor(symbol.getName(), ((RuleSymbol)symbol).getRuleType().name()));
             }
@@ -70,7 +75,7 @@ public class ModuleRefSymbol extends Symbol implements Type {
     @Override
     public List<FunctionType> getMethods() {
         List<FunctionType> functions = new ArrayList<>();
-        for (Symbol symbol : moduleScope.getSymbols()) {
+        for (Symbol symbol : moduleScopeRef.getSymbols()) {
             if (symbol instanceof FunctionSymbol) {
                 functions.add((FunctionType) symbol);
             }
@@ -80,7 +85,7 @@ public class ModuleRefSymbol extends Symbol implements Type {
 
     @Override
     public Type resolveField(String name) {
-        var symbol = moduleScope.resolveLocal(name);
+        var symbol = moduleScopeRef.resolveLocal(name);
         if (symbol instanceof RuleSymbol) {
             return BuiltinScope.RULE_REF_TYPE;
         }
@@ -89,7 +94,7 @@ public class ModuleRefSymbol extends Symbol implements Type {
 
     @Override
     public SourceCodeRef getFieldRef(String name) {
-        var symbol = moduleScope.resolveLocal(name);
+        var symbol = moduleScopeRef.resolveLocal(name);
         if (symbol instanceof RuleSymbol) {
             return symbol.getSourceCodeRef();
         }
@@ -98,7 +103,7 @@ public class ModuleRefSymbol extends Symbol implements Type {
 
     @Override
     public FunctionType resolveMethod(String name) {
-        var symbol = moduleScope.resolveLocal(name);
+        var symbol = moduleScopeRef.resolveLocal(name);
         if (symbol instanceof FunctionType) {
             return (FunctionType) symbol;
         }
