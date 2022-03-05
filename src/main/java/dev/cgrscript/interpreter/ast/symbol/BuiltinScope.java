@@ -53,6 +53,8 @@ public class BuiltinScope implements Scope {
 
     public static final RuleRefTypeSymbol RULE_REF_TYPE = new RuleRefTypeSymbol();
 
+    public static final RecordTypeRefTypeSymbol RECORD_TYPE_REF_TYPE = new RecordTypeRefTypeSymbol();
+
     public static final TemplateTypeSymbol TEMPLATE_TYPE = new TemplateTypeSymbol();
 
     private final Map<String, Symbol> symbols = new HashMap<>();
@@ -89,6 +91,7 @@ public class BuiltinScope implements Scope {
         symbols.put(BOOLEAN_TYPE.getName(), BOOLEAN_TYPE);
         symbols.put(ANY_RECORD_TYPE.getName(), ANY_RECORD_TYPE);
         symbols.put(RULE_REF_TYPE.getName(), RULE_REF_TYPE);
+        symbols.put(RECORD_TYPE_REF_TYPE.getName(), RECORD_TYPE_REF_TYPE);
         symbols.put(TEMPLATE_TYPE.getName(), TEMPLATE_TYPE);
 
         var recordArrayType = new ArrayType(BuiltinScope.ANY_RECORD_TYPE);
@@ -108,7 +111,7 @@ public class BuiltinScope implements Scope {
                 STRING_TYPE);
 
         var newRecordFunc = new BuiltinFunctionSymbol("newRecord", new NewRecordFunctionImpl(), ANY_RECORD_TYPE,
-                new FunctionParameter("type", STRING_TYPE, false));
+                new FunctionParameter("type", RECORD_TYPE_REF_TYPE, false));
 
         var addRulesFunc = new BuiltinFunctionSymbol("addRules", new AddRulesFunctionImpl(),
                 new FunctionParameter("rules", new ArrayType(BuiltinScope.RULE_REF_TYPE), false));

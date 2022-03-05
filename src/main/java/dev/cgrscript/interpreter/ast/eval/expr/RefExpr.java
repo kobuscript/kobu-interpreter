@@ -27,6 +27,7 @@ package dev.cgrscript.interpreter.ast.eval.expr;
 import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ModuleRefValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
+import dev.cgrscript.interpreter.ast.eval.expr.value.RecordTypeRefValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RuleRefValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.InvalidVariableError;
@@ -55,6 +56,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     private Type type;
 
     private RuleSymbol ruleSymbol;
+
+    private RecordTypeSymbol recordTypeSymbol;
 
     private boolean assignMode;
 
@@ -117,6 +120,12 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                     this.type = BuiltinScope.RULE_REF_TYPE;
                     return;
                 }
+                if (symbol instanceof RecordTypeSymbol) {
+                    this.recordTypeSymbol = (RecordTypeSymbol) symbol;
+                    this.elementRef = this.recordTypeSymbol.getSourceCodeRef();
+                    this.type = BuiltinScope.RECORD_TYPE_REF_TYPE;
+                    return;
+                }
                 if (symbol instanceof ModuleRefSymbol) {
                     this.elementRef = symbol.getSourceCodeRef();
                     this.type = (ModuleRefSymbol) symbol;
@@ -158,6 +167,9 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     public ValueExpr evalExpr(EvalContext context) {
         if (ruleSymbol != null) {
             return new RuleRefValueExpr(sourceCodeRef, ruleSymbol);
+        }
+        if (recordTypeSymbol != null) {
+            return new RecordTypeRefValueExpr(sourceCodeRef, recordTypeSymbol);
         }
         if (valueScope == null) {
             var symbol = context.getCurrentScope().resolve(varName);
@@ -254,7 +266,9 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
         var symbols = new ArrayList<>(symbolsInScope);
         if (typeScope == null) {
             symbols.addAll(getExternalSymbols(moduleScope, externalModules,
-                    SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE, SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE));
+                    SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE,
+                    SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE,
+                    SymbolTypeEnum.TYPE));
         }
         return symbols;
     }

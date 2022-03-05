@@ -25,20 +25,24 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.expr.value;
 
 import dev.cgrscript.interpreter.ast.eval.EvalContext;
-import dev.cgrscript.interpreter.ast.eval.Expr;
-import dev.cgrscript.interpreter.ast.eval.HasFields;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.*;
 
-public class ModuleRefValueExpr implements ValueExpr, HasFields {
+public class RecordTypeRefValueExpr implements ValueExpr {
 
-    private final ModuleRefSymbol moduleRefSymbol;
+    private SourceCodeRef sourceCodeRef;
 
-    private final ModuleScope moduleScope;
+    private final RecordTypeSymbol value;
 
-    public ModuleRefValueExpr(ModuleRefSymbol moduleRefSymbol, ModuleScope moduleScope) {
-        this.moduleRefSymbol = moduleRefSymbol;
-        this.moduleScope = moduleScope;
+    private final RecordTypeRefTypeSymbol type = BuiltinScope.RECORD_TYPE_REF_TYPE;
+
+    public RecordTypeRefValueExpr(SourceCodeRef sourceCodeRef, RecordTypeSymbol value) {
+        this.sourceCodeRef = sourceCodeRef;
+        this.value = value;
+    }
+
+    public RecordTypeRefValueExpr(RecordTypeSymbol value) {
+        this.value = value;
     }
 
     @Override
@@ -53,7 +57,7 @@ public class ModuleRefValueExpr implements ValueExpr, HasFields {
 
     @Override
     public Type getType() {
-        return moduleRefSymbol;
+        return type;
     }
 
     @Override
@@ -63,7 +67,7 @@ public class ModuleRefValueExpr implements ValueExpr, HasFields {
 
     @Override
     public String getStringValue() {
-        return moduleRefSymbol.getName();
+        return value.getName();
     }
 
     @Override
@@ -76,20 +80,8 @@ public class ModuleRefValueExpr implements ValueExpr, HasFields {
 
     }
 
-    @Override
-    public Expr resolveField(String fieldName) {
-        var symbol = moduleScope.resolveLocal(fieldName);
-        if (symbol instanceof RuleSymbol) {
-            return new RuleRefValueExpr((RuleSymbol) symbol);
-        }
-        if (symbol instanceof RecordTypeSymbol) {
-            return new RecordTypeRefValueExpr((RecordTypeSymbol) symbol);
-        }
-        return null;
+    public RecordTypeSymbol getValue() {
+        return value;
     }
 
-    @Override
-    public void updateFieldValue(EvalContext context, String fieldName, ValueExpr value) {
-
-    }
 }

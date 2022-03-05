@@ -22,31 +22,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.eval.function.global;
+package dev.cgrscript.interpreter.ast.symbol;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.RecordTypeRefValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.cgrscript.interpreter.ast.eval.function.BuiltinGlobalFunction;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
-import dev.cgrscript.interpreter.ast.utils.RecordFactory;
 
-import java.util.Map;
+import java.util.Comparator;
 
-public class NewRecordFunctionImpl extends BuiltinGlobalFunction {
+public class RecordTypeRefTypeSymbol extends BuiltinTypeSymbol {
 
-    @Override
-    protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        RecordTypeRefValueExpr type = (RecordTypeRefValueExpr) args.get("type");
+    private static final String TYPE_NAME = "RecordType";
 
-        return RecordFactory.create(context, type.getValue(), sourceCodeRef);
-
+    public RecordTypeRefTypeSymbol() {
+        super(TYPE_NAME);
     }
 
     @Override
-    public String getDocumentation() {
-        return "";
+    public boolean isAssignableFrom(Type type) {
+        return type instanceof RecordTypeRefTypeSymbol;
     }
 
+    @Override
+    public Type getCommonSuperType(Type type) {
+        return isAssignableFrom(type) ? this : null;
+    }
+
+    @Override
+    public Comparator<ValueExpr> getComparator() {
+        return null;
+    }
 }

@@ -95,31 +95,9 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     public void addAttribute(AnalyzerContext context, RecordTypeAttribute attribute) {
-        if (attribute.getType() instanceof RuleRefTypeSymbol) {
-            context.getErrorScope().addError(new InvalidTypeError(getSourceCodeRef(), BuiltinScope.ANY_TYPE, BuiltinScope.RULE_REF_TYPE));
+        if (!validateAttributeType(attribute.getSourceCodeRef(), context, attribute.getType())) {
             return;
         }
-        if (attribute.getType() instanceof ArrayType && ((ArrayType)attribute.getType()).getElementType() instanceof RuleRefTypeSymbol) {
-            context.getErrorScope().addError(new InvalidTypeError(getSourceCodeRef(), new ArrayType(BuiltinScope.ANY_TYPE),
-                            new ArrayType(BuiltinScope.RULE_REF_TYPE)));
-            return;
-        }
-        if (attribute.getType() instanceof PairType) {
-            PairType pairType = (PairType) attribute.getType();
-            if (pairType.getLeftType() instanceof RuleRefTypeSymbol) {
-                context.getErrorScope().addError(new InvalidTypeError(((RuleRefTypeSymbol) pairType.getLeftType()).getSourceCodeRef(),
-                                BuiltinScope.ANY_TYPE,
-                                BuiltinScope.RULE_REF_TYPE));
-                return;
-            }
-            if (pairType.getRightType() instanceof RuleRefTypeSymbol) {
-                context.getErrorScope().addError(new InvalidTypeError(((RuleRefTypeSymbol) pairType.getRightType()).getSourceCodeRef(),
-                                BuiltinScope.ANY_TYPE,
-                                BuiltinScope.RULE_REF_TYPE));
-                return;
-            }
-        }
-
         attribute.setRecordType(this);
         RecordTypeAttribute currentDef = attributes.get(attribute.getName());
         if (currentDef != null && !currentDef.getType().equals(attribute.getType())) {
@@ -358,5 +336,24 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     @Override
     public SymbolDocumentation getDocumentation() {
         return documentation;
+    }
+
+    private boolean validateAttributeType(SourceCodeRef sourceCodeRef, AnalyzerContext context, Type type) {
+        if (type instanceof RuleRefTypeSymbol || type instanceof RecordTypeRefTypeSymbol) {
+            context.getErrorScope().addError(new InvalidTypeError(sourceCodeRef, BuiltinScope.ANY_TYPE, type));
+            return false;
+        }
+
+        if (type instanceof ArrayType) {
+            return validateAttributeType(sourceCodeRef, context, ((ArrayType) type).getElementType());
+        } else if (type instanceof PairType) {
+            if (!validateAttributeType(sourceCodeRef, context, ((PairType)type).getLeftType())) {
+                return false;
+            }
+            return validateAttributeType(sourceCodeRef, context, ((PairType) type).getRightType());
+        }
+
+
+        return true;
     }
 }

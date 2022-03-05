@@ -41,12 +41,14 @@ public class RecordFactory {
 
     public static RecordValueExpr create(EvalContext context, String typeName, SourceCodeRef sourceCodeRef) {
         var typeSymbol = context.getModuleScope().resolve(typeName);
-
         if (!(typeSymbol instanceof RecordTypeSymbol)) {
             throw new InvalidCallError("Invalid record type: " + typeName, sourceCodeRef);
         }
+        return create(context, (RecordTypeSymbol) typeSymbol, sourceCodeRef);
+    }
 
-        return new RecordValueExpr((Type) typeSymbol, new HashMap<>(), context.getDatabase().generateRecordId());
+    public static RecordValueExpr create(EvalContext context, RecordTypeSymbol typeSymbol, SourceCodeRef sourceCodeRef) {
+        return new RecordValueExpr(typeSymbol, new HashMap<>(), context.getDatabase().generateRecordId());
     }
 
 }
