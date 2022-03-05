@@ -135,7 +135,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
                 if (attrCtx.type() != null) {
                     var type = (Type) visit(attrCtx.type());
                     if (attrCtx.ID() != null) {
-                        var attr = new RecordTypeAttribute(getSourceCodeRef(attrCtx.ID()), attrCtx.ID().getText(), type);
+                        var attr = new RecordTypeAttribute(moduleScope, getSourceCodeRef(attrCtx.ID()), attrCtx.ID().getText(), type);
                         recordType.addAttribute(context, attr);
                     } else if (attrCtx.STAR() != null) {
                         recordType.setUnknownAttributes(context, new RecordTypeUnknownAttributes(getSourceCodeRef(attrCtx), type));

@@ -24,7 +24,14 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
-public class RecordTypeAttribute {
+import dev.cgrscript.interpreter.ast.eval.DocumentationSource;
+import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
+import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
+import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
+
+public class RecordTypeAttribute implements DocumentationSource {
+
+    private final ModuleScope moduleScope;
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -34,10 +41,17 @@ public class RecordTypeAttribute {
 
     private RecordTypeSymbol recordType;
 
-    public RecordTypeAttribute(SourceCodeRef sourceCodeRef, String name, Type type) {
+    private SymbolDocumentation documentation;
+
+    public RecordTypeAttribute(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String name, Type type) {
+        this.moduleScope = moduleScope;
         this.sourceCodeRef = sourceCodeRef;
         this.name = name;
         this.type = type;
+
+        if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), this);
+        }
     }
 
     public SourceCodeRef getSourceCodeRef() {
@@ -58,6 +72,16 @@ public class RecordTypeAttribute {
 
     public void setRecordType(RecordTypeSymbol recordType) {
         this.recordType = recordType;
+    }
+
+    @Override
+    public SymbolDocumentation getDocumentation() {
+        if (documentation == null) {
+            String description = name + ": " + (type != null ? type.getName() : "Any");
+            documentation = new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.ATTRIBUTE, description,
+                    null, recordType.getName());
+        }
+        return documentation;
     }
 
 }

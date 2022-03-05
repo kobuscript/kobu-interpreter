@@ -128,7 +128,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
         }
 
         if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && functionType instanceof BuiltinFunctionSymbol) {
-            moduleScope.registerBuiltinSymbolRef(sourceCodeRef.getStartOffset(), (Symbol) functionType);
+            moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) functionType);
         }
     }
 

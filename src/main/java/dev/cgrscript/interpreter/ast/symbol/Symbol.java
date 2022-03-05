@@ -24,14 +24,11 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
-import dev.cgrscript.interpreter.ast.eval.AutoCompletionSource;
-import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
-import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
-import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
+import dev.cgrscript.interpreter.ast.eval.*;
 
 import java.util.List;
 
-public abstract class Symbol implements AutoCompletionSource {
+public abstract class Symbol implements AutoCompletionSource, DocumentationSource {
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -47,7 +44,7 @@ public abstract class Symbol implements AutoCompletionSource {
         this.name = name;
         if (moduleScope != null && moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && sourceCodeRef != null) {
             moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
-            moduleScope.registerSymbol(this);
+            moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), this);
         }
     }
 
@@ -71,6 +68,7 @@ public abstract class Symbol implements AutoCompletionSource {
         this.scope = scope;
     }
 
+    @Override
     public SymbolDocumentation getDocumentation() {
         return null;
     }
