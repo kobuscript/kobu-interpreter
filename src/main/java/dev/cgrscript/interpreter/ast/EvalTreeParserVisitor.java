@@ -1255,6 +1255,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
     @Override
     public AstNode visitTypeName(CgrScriptParser.TypeNameContext ctx) {
+        if (ctx.ID() == null || ctx.ID().isEmpty()) {
+            return UnknownType.INSTANCE;
+        }
         if (ctx.ID().size() == 1) {
             var typeName = ctx.ID(0).getText();
             var symbol = moduleScope.resolve(typeName);
