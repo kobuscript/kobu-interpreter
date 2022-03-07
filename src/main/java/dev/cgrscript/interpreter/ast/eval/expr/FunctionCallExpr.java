@@ -84,7 +84,8 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
                                 SymbolTypeEnum.RULE,
                                 SymbolTypeEnum.TEMPLATE,
                                 SymbolTypeEnum.FILE,
-                                SymbolTypeEnum.KEYWORD);
+                                SymbolTypeEnum.KEYWORD,
+                                SymbolTypeEnum.TYPE);
             }
 
             var functionSymbol = context.getModuleScope().resolve(functionName);

@@ -95,7 +95,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                                 SymbolTypeEnum.RULE,
                                 SymbolTypeEnum.TEMPLATE,
                                 SymbolTypeEnum.FILE,
-                                SymbolTypeEnum.KEYWORD);
+                                SymbolTypeEnum.KEYWORD,
+                                SymbolTypeEnum.TYPE);
             }
 
             if (varName.equals("")) {
