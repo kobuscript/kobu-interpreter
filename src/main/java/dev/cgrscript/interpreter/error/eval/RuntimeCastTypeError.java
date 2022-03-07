@@ -25,23 +25,24 @@ SOFTWARE.
 package dev.cgrscript.interpreter.error.eval;
 
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
-import dev.cgrscript.interpreter.ast.utils.ErrorMessageFormatter;
+import dev.cgrscript.interpreter.ast.symbol.Type;
 import dev.cgrscript.interpreter.error.EvalError;
 
-public class NullPointerError extends EvalError {
+public class RuntimeCastTypeError extends EvalError {
 
-    private final SourceCodeRef nullSubExprSourceCodeRef;
+    private final Type targetType;
 
-    public NullPointerError(SourceCodeRef sourceCodeRef, SourceCodeRef nullSubExprSourceCodeRef) {
+    private final Type origType;
+
+    public RuntimeCastTypeError(SourceCodeRef sourceCodeRef, Type targetType, Type origType) {
         super(sourceCodeRef);
-        this.nullSubExprSourceCodeRef = nullSubExprSourceCodeRef;
+        this.targetType = targetType;
+        this.origType = origType;
     }
 
     @Override
     public String getDescription() {
-        if (nullSubExprSourceCodeRef != null) {
-            return "expression evaluated to null: " + ErrorMessageFormatter.getText(nullSubExprSourceCodeRef);
-        }
-        return "NullPointerError";
+        return "Cannot cast '" + origType.getName() + "' to '" + targetType.getName() + "'";
     }
+
 }

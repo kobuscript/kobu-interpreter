@@ -31,6 +31,7 @@ import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.ast.symbol.Type;
 import dev.cgrscript.interpreter.ast.symbol.UnknownType;
 import dev.cgrscript.interpreter.error.analyzer.CastTypeError;
+import dev.cgrscript.interpreter.error.eval.RuntimeCastTypeError;
 
 public class CastExpr implements Expr {
 
@@ -58,7 +59,7 @@ public class CastExpr implements Expr {
     public void analyze(EvalContext context) {
         if (targetType != null && expr != null) {
             expr.analyze(context);
-            if (!targetType.isAssignableFrom(expr.getType())) {
+            if (!expr.getType().isAssignableFrom(targetType)) {
                 context.getAnalyzerContext().getErrorScope().addError(new CastTypeError(sourceCodeRef,
                         targetType, expr.getType()));
                 this.type = UnknownType.INSTANCE;
@@ -77,6 +78,12 @@ public class CastExpr implements Expr {
 
     @Override
     public ValueExpr evalExpr(EvalContext context) {
-        return expr.evalExpr(context);
+        ValueExpr value = expr.evalExpr(context);
+
+        if (!value.getType().isAssignableFrom(targetType)) {
+            throw new RuntimeCastTypeError(sourceCodeRef, targetType, value.getType());
+        }
+
+        return value;
     }
 }

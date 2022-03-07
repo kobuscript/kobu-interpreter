@@ -101,6 +101,45 @@ public class ErrorMessageFormatter {
         return out;
     }
 
+    public static String getText(SourceCodeRef sourceCodeRef) {
+        if (sourceCodeRef == null) {
+            return "";
+        }
+
+        StringBuilder source = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(sourceCodeRef.getFile().newInputStream()))) {
+            int lineIdx = 0;
+            String line = "";
+            while (lineIdx < sourceCodeRef.getLineStart()) {
+                line = reader.readLine();
+                lineIdx++;
+            }
+
+            if (lineIdx == sourceCodeRef.getLineEnd()) {
+                if (sourceCodeRef.getLineStart() == sourceCodeRef.getLineEnd()) {
+                    source.append(line, sourceCodeRef.getCharStart(), sourceCodeRef.getCharEnd() + 1);
+                    return source.toString();
+                } else {
+                    source.append(line.substring(sourceCodeRef.getCharStart()));
+                }
+                lineIdx++;
+            }
+
+            while (lineIdx < sourceCodeRef.getLineEnd()) {
+                source.append('\n');
+                source.append(line);
+                lineIdx++;
+            }
+            source.append('\n');
+            source.append(line, 0, sourceCodeRef.getCharEnd() + 1);
+        } catch (IOException e) {
+            return "";
+        }
+
+        return source.toString();
+    }
+
     public static StringBuilder getMessage(AnalyzerError analyzerError) throws IOException {
         StringBuilder message = new StringBuilder();
 
