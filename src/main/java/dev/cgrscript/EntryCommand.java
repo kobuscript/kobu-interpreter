@@ -25,9 +25,10 @@ SOFTWARE.
 package dev.cgrscript;
 
 import dev.cgrscript.config.NewCommand;
+import dev.cgrscript.interpreter.FormatCommand;
 import dev.cgrscript.interpreter.RunCommand;
 import picocli.CommandLine;
 
-@CommandLine.Command(mixinStandardHelpOptions = true, subcommands = {RunCommand.class, NewCommand.class})
+@CommandLine.Command(mixinStandardHelpOptions = true, subcommands = {RunCommand.class, NewCommand.class, FormatCommand.class})
 public class EntryCommand {
 }
