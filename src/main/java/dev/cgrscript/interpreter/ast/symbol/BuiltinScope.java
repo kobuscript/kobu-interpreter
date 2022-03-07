@@ -43,6 +43,8 @@ public class BuiltinScope implements Scope {
 
     public static final AnyTypeSymbol ANY_TYPE = new AnyTypeSymbol();
 
+    public static final AnyValTypeSymbol ANY_VAL_TYPE = new AnyValTypeSymbol();
+
     public static final NumberTypeSymbol NUMBER_TYPE = new NumberTypeSymbol();
 
     public static final StringTypeSymbol STRING_TYPE = new StringTypeSymbol();
@@ -86,6 +88,7 @@ public class BuiltinScope implements Scope {
     private void buildScope() {
 
         symbols.put(ANY_TYPE.getName(), ANY_TYPE);
+        symbols.put(ANY_VAL_TYPE.getName(), ANY_VAL_TYPE);
         symbols.put(NUMBER_TYPE.getName(), NUMBER_TYPE);
         symbols.put(STRING_TYPE.getName(), STRING_TYPE);
         symbols.put(BOOLEAN_TYPE.getName(), BOOLEAN_TYPE);

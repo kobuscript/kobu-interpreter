@@ -31,7 +31,7 @@ import dev.cgrscript.interpreter.ast.utils.StringFunctions;
 
 import java.util.Comparator;
 
-public class StringTypeSymbol extends BuiltinTypeSymbol {
+public class StringTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
     private static final String TYPE_NAME = "string";
 

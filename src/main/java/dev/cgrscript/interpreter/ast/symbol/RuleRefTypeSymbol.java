@@ -43,7 +43,7 @@ public class RuleRefTypeSymbol extends BuiltinTypeSymbol {
 
     @Override
     public Type getCommonSuperType(Type type) {
-        return isAssignableFrom(type) ? this : null;
+        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
     }
 
     @Override

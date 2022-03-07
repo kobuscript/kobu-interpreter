@@ -95,9 +95,6 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     public void addAttribute(AnalyzerContext context, RecordTypeAttribute attribute) {
-        if (!validateAttributeType(attribute.getSourceCodeRef(), context, attribute.getType())) {
-            return;
-        }
         attribute.setRecordType(this);
         RecordTypeAttribute currentDef = attributes.get(attribute.getName());
         if (currentDef != null && !currentDef.getType().equals(attribute.getType())) {
@@ -338,22 +335,4 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         return documentation;
     }
 
-    private boolean validateAttributeType(SourceCodeRef sourceCodeRef, AnalyzerContext context, Type type) {
-        if (type instanceof RuleRefTypeSymbol || type instanceof RecordTypeRefTypeSymbol) {
-            context.getErrorScope().addError(new InvalidTypeError(sourceCodeRef, BuiltinScope.ANY_TYPE, type));
-            return false;
-        }
-
-        if (type instanceof ArrayType) {
-            return validateAttributeType(sourceCodeRef, context, ((ArrayType) type).getElementType());
-        } else if (type instanceof PairType) {
-            if (!validateAttributeType(sourceCodeRef, context, ((PairType)type).getLeftType())) {
-                return false;
-            }
-            return validateAttributeType(sourceCodeRef, context, ((PairType) type).getRightType());
-        }
-
-
-        return true;
-    }
 }

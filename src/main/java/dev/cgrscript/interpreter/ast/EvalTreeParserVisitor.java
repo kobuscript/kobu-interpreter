@@ -718,6 +718,27 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     }
 
     @Override
+    public AstNode visitCastExpr(CgrScriptParser.CastExprContext ctx) {
+        boolean exprStatus = topLevelExpression;
+        if (topLevelExpression) {
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            topLevelExpression = false;
+        }
+
+        Type type = null;
+        Expr expr = null;
+        if (ctx.typeName() != null) {
+            type = (Type) visit(ctx.typeName());
+        }
+        if (ctx.expr() != null) {
+            expr = (Expr) visit(ctx.expr());
+        }
+
+        topLevelExpression = exprStatus;
+        return new CastExpr(getSourceCodeRef(ctx), type, expr);
+    }
+
+    @Override
     public AstNode visitArrayAccessExpr(CgrScriptParser.ArrayAccessExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {

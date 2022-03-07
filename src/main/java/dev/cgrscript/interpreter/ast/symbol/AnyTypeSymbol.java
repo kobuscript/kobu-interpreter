@@ -25,7 +25,6 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-import dev.cgrscript.interpreter.ast.eval.function.any.CastMethodImpl;
 import dev.cgrscript.interpreter.ast.eval.function.any.TestTypeMethodImpl;
 
 import java.util.Comparator;
@@ -63,14 +62,5 @@ public class AnyTypeSymbol extends BuiltinTypeSymbol {
                 BuiltinScope.BOOLEAN_TYPE));
         addMethod(new BuiltinFunctionSymbol(this,"isRecord", new TestTypeMethodImpl(BuiltinScope.ANY_RECORD_TYPE),
                 BuiltinScope.BOOLEAN_TYPE));
-
-        addMethod(new BuiltinFunctionSymbol(this,"castToString", new CastMethodImpl(BuiltinScope.STRING_TYPE),
-                BuiltinScope.STRING_TYPE));
-        addMethod(new BuiltinFunctionSymbol(this,"castToNumber", new CastMethodImpl(BuiltinScope.NUMBER_TYPE),
-                BuiltinScope.NUMBER_TYPE));
-        addMethod(new BuiltinFunctionSymbol(this,"castToBoolean", new CastMethodImpl(BuiltinScope.BOOLEAN_TYPE),
-                BuiltinScope.BOOLEAN_TYPE));
-        addMethod(new BuiltinFunctionSymbol(this,"castToRecord", new CastMethodImpl(BuiltinScope.ANY_RECORD_TYPE),
-                BuiltinScope.ANY_RECORD_TYPE));
     }
 }

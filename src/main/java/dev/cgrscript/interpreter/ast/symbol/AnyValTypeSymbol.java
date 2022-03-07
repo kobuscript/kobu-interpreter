@@ -28,22 +28,17 @@ import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 
 import java.util.Comparator;
 
-public class BooleanTypeSymbol extends BuiltinTypeSymbol implements ValType {
+public class AnyValTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
-    private static final String TYPE_NAME = "boolean";
+    private static final String ANY_VAL_TYPE = "AnyVal";
 
-    public BooleanTypeSymbol() {
-        super(TYPE_NAME);
-    }
-
-    @Override
-    public String getIdentifier() {
-        return "Boolean";
+    public AnyValTypeSymbol() {
+        super(ANY_VAL_TYPE);
     }
 
     @Override
     public boolean isAssignableFrom(Type type) {
-        return type instanceof BooleanTypeSymbol;
+        return type instanceof ValType;
     }
 
     @Override
@@ -55,5 +50,4 @@ public class BooleanTypeSymbol extends BuiltinTypeSymbol implements ValType {
     public Comparator<ValueExpr> getComparator() {
         return null;
     }
-
 }

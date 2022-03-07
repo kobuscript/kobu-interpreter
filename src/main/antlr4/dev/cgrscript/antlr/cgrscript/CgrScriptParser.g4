@@ -268,6 +268,8 @@ expr : record                                                                   
        | LP {notifyErrorListenersPrevToken("value expected");}                                      #pairErr4
        | LP exprWrapper COMMA exprWrapper COMMA
            {notifyErrorListenersPrevToken("Only tuples with two values are supported");}            #pairErr5
+       | expr AS typeName                                                                           #castExpr
+       | expr AS {notifyErrorListenersPrevToken("expression expected");}                            #castErr1
        | functionCallExpr                                                                           #functionCallProxyExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
@@ -317,7 +319,9 @@ type : typeName                 #typeNameExpr
        | LP type COMMA type RP  #pairType
        ;
 
-typeName : ID ( DOT ID )? ;
+typeName : ID ( DOT ID )?
+           | ANY {notifyErrorListenersPrevToken("keyword 'any' not allowed here. Did you mean 'Any'?");}
+           ;
 
 stringLiteral : OPEN_QUOTE STRING_CONTENT? CLOSE_QUOTE
                 | OPEN_QUOTE STRING_CONTENT? STRING_BREAK {notifyErrorListenersPrevToken("illegal line end in string literal");}

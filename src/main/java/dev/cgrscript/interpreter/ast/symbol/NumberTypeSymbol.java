@@ -30,7 +30,7 @@ import dev.cgrscript.interpreter.ast.eval.function.number.*;
 
 import java.util.Comparator;
 
-public class NumberTypeSymbol extends BuiltinTypeSymbol {
+public class NumberTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
     private static final String TYPE_NAME = "number";
 

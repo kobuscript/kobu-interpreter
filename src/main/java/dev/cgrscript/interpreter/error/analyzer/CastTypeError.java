@@ -22,39 +22,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.eval.function.any;
+package dev.cgrscript.interpreter.error.analyzer;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-import dev.cgrscript.interpreter.ast.eval.function.BuiltinMethod;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.ast.symbol.Type;
-import dev.cgrscript.interpreter.error.eval.InvalidCallError;
+import dev.cgrscript.interpreter.error.AnalyzerError;
 
-import java.util.Map;
+public class CastTypeError extends AnalyzerError {
 
-public class CastMethodImpl extends BuiltinMethod {
+    private final Type targetType;
 
-    private final Type type;
+    private final Type origType;
 
-    public CastMethodImpl(Type type) {
-        this.type = type;
+    public CastTypeError(SourceCodeRef sourceCodeRef, Type targetType, Type origType) {
+        super(sourceCodeRef);
+        this.targetType = targetType;
+        this.origType = origType;
     }
 
     @Override
-    protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-
-        if (!type.isAssignableFrom(object.getType())) {
-            throw new InvalidCallError("Can't cast " + object.getType().getName() + " to " + type.getName(),
-                    sourceCodeRef);
-        }
-
-        return object;
-    }
-
-    @Override
-    public String getDocumentation() {
-        return "";
+    public String getDescription() {
+        return "Cannot cast '" + origType.getName() + "' to '" + targetType.getName() + "'";
     }
 
 }

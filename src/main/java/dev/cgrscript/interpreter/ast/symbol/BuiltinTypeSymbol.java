@@ -60,7 +60,11 @@ public abstract class BuiltinTypeSymbol extends Symbol implements Type {
 
     @Override
     public List<FunctionType> getMethods() {
-        return new ArrayList<>(methods.values());
+        var methodList = new ArrayList<>(methods.values());
+        if (!(this instanceof AnyTypeSymbol)) {
+            methodList.addAll(BuiltinScope.ANY_TYPE.getMethods());
+        }
+        return methodList;
     }
 
     @Override

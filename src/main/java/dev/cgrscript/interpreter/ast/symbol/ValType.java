@@ -24,36 +24,5 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-
-import java.util.Comparator;
-
-public class BooleanTypeSymbol extends BuiltinTypeSymbol implements ValType {
-
-    private static final String TYPE_NAME = "boolean";
-
-    public BooleanTypeSymbol() {
-        super(TYPE_NAME);
-    }
-
-    @Override
-    public String getIdentifier() {
-        return "Boolean";
-    }
-
-    @Override
-    public boolean isAssignableFrom(Type type) {
-        return type instanceof BooleanTypeSymbol;
-    }
-
-    @Override
-    public Type getCommonSuperType(Type type) {
-        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
-    }
-
+public interface ValType {
 }
