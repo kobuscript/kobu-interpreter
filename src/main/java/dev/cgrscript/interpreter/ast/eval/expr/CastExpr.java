@@ -59,6 +59,10 @@ public class CastExpr implements Expr {
     public void analyze(EvalContext context) {
         if (targetType != null && expr != null) {
             expr.analyze(context);
+            if (expr.getType() instanceof UnknownType || targetType instanceof UnknownType) {
+                this.type = UnknownType.INSTANCE;
+                return;
+            }
             if (!expr.getType().isAssignableFrom(targetType)) {
                 context.getAnalyzerContext().getErrorScope().addError(new CastTypeError(sourceCodeRef,
                         targetType, expr.getType()));
