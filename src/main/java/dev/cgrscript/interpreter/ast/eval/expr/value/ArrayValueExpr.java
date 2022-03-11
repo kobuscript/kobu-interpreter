@@ -25,9 +25,12 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.expr.value;
 
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.eval.ArrayIndexOutOfBoundsError;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -37,8 +40,6 @@ public class ArrayValueExpr implements ValueExpr, HasMethods {
     private final ArrayType type;
 
     private final List<ValueExpr> value;
-
-    private int creatorId;
 
     public ArrayValueExpr(ArrayType type, List<ValueExpr> value) {
         this.type = type;
@@ -83,16 +84,6 @@ public class ArrayValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public int creatorId() {
-        return creatorId;
-    }
-
-    @Override
-    public void creatorId(int id) {
-        this.creatorId = id;
-    }
-
-    @Override
     public String getStringValue() {
         StringBuilder strBuilder = new StringBuilder("[");
 
@@ -100,6 +91,11 @@ public class ArrayValueExpr implements ValueExpr, HasMethods {
 
         strBuilder.append("]");
         return strBuilder.toString();
+    }
+
+    @Override
+    public SnapshotValue getSnapshotValue() {
+        return new ArraySnapshotValue(value);
     }
 
     @Override
@@ -115,4 +111,25 @@ public class ArrayValueExpr implements ValueExpr, HasMethods {
         return Objects.hash(value);
     }
 
+    private static class ArraySnapshotValue implements SnapshotValue {
+
+        private List<SnapshotValue> values = new ArrayList<>();
+
+        public ArraySnapshotValue(List<ValueExpr> values) {
+            values.forEach(v -> this.values.add(v.getSnapshotValue()));
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ArraySnapshotValue that = (ArraySnapshotValue) o;
+            return Objects.equals(values, that.values);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(values);
+        }
+    }
 }

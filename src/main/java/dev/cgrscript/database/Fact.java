@@ -22,9 +22,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.eval;
+package dev.cgrscript.database;
 
-public enum EvalModeEnum {
-    ANALYZER_SERVICE,
-    EXECUTION
+import dev.cgrscript.interpreter.ast.symbol.Type;
+
+public interface Fact {
+
+    int getId();
+
+    int getCreatorId();
+
+    void setCreatorId(int id);
+
+    int getIteration();
+
+    void setIteration(int iteration);
+
+    String getOriginRule();
+
+    void setOriginRule(String originRule);
+
+    Type getType();
+
+    default boolean overrides(Fact otherFact) {
+        return getOriginRule() != null && getOriginRule().equals(otherFact.getOriginRule()) &&
+                getCreatorId() == otherFact.getCreatorId() && getIteration() > otherFact.getIteration();
+    }
+
 }

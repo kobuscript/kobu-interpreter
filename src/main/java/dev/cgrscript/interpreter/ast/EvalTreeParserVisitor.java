@@ -26,6 +26,7 @@ package dev.cgrscript.interpreter.ast;
 
 import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.expr.*;
 import dev.cgrscript.interpreter.ast.eval.expr.value.*;
 import dev.cgrscript.interpreter.ast.eval.statement.*;
@@ -386,7 +387,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             String bind = query.getTypeClause().getBind();
 
             SourceCodeRef sourceCodeRef = getSourceCodeRef(ctx);
-            QueryTypeClause templateClause = new QueryTypeClause(sourceCodeRef, null, BuiltinScope.TEMPLATE_TYPE,
+            QueryTypeClause templateClause = new QueryTypeClause(moduleScope, sourceCodeRef, null, BuiltinScope.TEMPLATE_TYPE,
                     false, "$_templateRef");
             QueryJoin templateJoin = new QueryJoin(sourceCodeRef, templateClause, new RefExpr(moduleScope, sourceCodeRef, bind));
             query.addJoin(templateJoin);
@@ -1168,7 +1169,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             bind = ctx.queryExprAlias().ID().getText();
             bindSourceCodeRef = getSourceCodeRef(ctx.queryExprAlias().ID());
         }
-        QueryTypeClause queryTypeClause = new QueryTypeClause(getSourceCodeRef(ctx), bindSourceCodeRef, (Type) visit(ctx.type()),
+        QueryTypeClause queryTypeClause = new QueryTypeClause(moduleScope, getSourceCodeRef(ctx), bindSourceCodeRef, (Type) visit(ctx.type()),
                 ctx.ANY() != null, bind);
 
         if (ctx.queryExprSegment() != null) {
@@ -1188,7 +1189,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
         QueryPipeClause pipeClause = (QueryPipeClause) visit(ctx.queryPipeExpr());
         if (alias != null) {
-            pipeClause.setAlias(alias);
+            pipeClause.setBind(alias);
         }
 
         if (ctx.queryExprSegment() != null) {
@@ -1203,7 +1204,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
 
         var field = new QueryFieldClause(getSourceCodeRef(ctx), ctx.ID().getText());
         if (ctx.queryExprArraySelect() != null) {
-            field.setAlias(null);
+            field.setBind(null);
             QueryArrayItemClause arrayItemClause = (QueryArrayItemClause) visit(ctx.queryExprArraySelect());
             field.setArrayItemClause(arrayItemClause);
         }
@@ -1239,6 +1240,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     @Override
     public AstNode visitJoinExpr(CgrScriptParser.JoinExprContext ctx) {
         Query query = (Query) visit(ctx.queryExpr());
+        query.getTypeClause().setJoinMode(true);
 
         Expr ofExpr = null;
         if (ctx.joinOfExpr() != null) {

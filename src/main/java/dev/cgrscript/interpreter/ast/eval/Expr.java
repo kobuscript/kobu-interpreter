@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval;
 
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.symbol.Type;
 
 public interface Expr extends Evaluable {

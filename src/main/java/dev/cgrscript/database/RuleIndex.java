@@ -29,15 +29,13 @@ import dev.cgrscript.database.index.impl.JoinIndexNode;
 import dev.cgrscript.database.index.impl.PipeIndexNode;
 import dev.cgrscript.database.index.impl.RootTypeIndexNode;
 import dev.cgrscript.database.index.impl.RuleIndexNode;
-import dev.cgrscript.database.match.Match;
-import dev.cgrscript.database.match.MatchStateEnum;
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
-import dev.cgrscript.interpreter.ast.eval.ValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.RecordValueExpr;
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
 import dev.cgrscript.interpreter.ast.query.Query;
 import dev.cgrscript.interpreter.ast.query.QueryJoin;
 import dev.cgrscript.interpreter.ast.query.QueryPipeClause;
 import dev.cgrscript.interpreter.ast.query.QueryTypeClause;
+import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.symbol.RuleSymbol;
 
 import java.util.*;
@@ -58,21 +56,16 @@ public class RuleIndex {
         }
     }
 
-    public void clearMatchGroup(int matchGroupId) {
-        for (RootTypeIndexNode rootTypeIndexNode : index) {
-            rootTypeIndexNode.clearMatchGroup(matchGroupId);
-        }
-    }
-
-    public void addRule(RuleSymbol rule) {
+    public void addRule(EvalContextProvider evalContextProvider, AnalyzerContext analyzerContext, RuleSymbol rule) {
         rules.add(rule);
 
         Query query = rule.getQuery();
-        IndexNode node = addQueryTypeClause(query.getTypeClause());
+        IndexNode node = addQueryTypeClause(evalContextProvider, analyzerContext,
+                rule.getModuleScope(), query.getTypeClause());
 
         if (query.getJoins() != null) {
             for (QueryJoin join : query.getJoins()) {
-                node = addJoin(node, join);
+                node = addJoin(evalContextProvider, analyzerContext, node, join);
             }
         }
 
@@ -101,31 +94,36 @@ public class RuleIndex {
         }
     }
 
-    public void insertFact(EvalContext context, ValueExpr fact) {
-        RecordValueExpr record = null;
-        if (fact instanceof RecordValueExpr) {
-            record = (RecordValueExpr) fact;
-        }
-        Match match = new Match(context, record, fact);
+    public void insertFact(Fact fact) {
         for (RootTypeIndexNode indexNode : index) {
-            indexNode.receive(match);
+            indexNode.receive(fact);
         }
     }
 
-    public void run(MatchStateEnum mode) {
+    public void run() {
+        for (RootTypeIndexNode indexNode : index) {
+            indexNode.beforeRun();
+        }
         ruleNodeMap.values().stream()
             .sorted(Comparator.comparing(RuleIndexNode::getPriority).reversed())
-            .forEach(node -> node.run(mode));
+            .forEach(RuleIndexNode::run);
+        for (RootTypeIndexNode indexNode : index) {
+            indexNode.afterRun();
+        }
     }
 
-    private IndexNode addQueryTypeClause(QueryTypeClause queryTypeClause) {
+    private IndexNode addQueryTypeClause(EvalContextProvider evalContextProvider, AnalyzerContext analyzerContext,
+                                         ModuleScope moduleScope, QueryTypeClause queryTypeClause) {
 
-        RootTypeIndexNode rootNode = rootNodeMap.computeIfAbsent(queryTypeClause.getKey(),
-                k -> {
-                    RootTypeIndexNode node = new RootTypeIndexNode(queryTypeClause);
-                    this.index.add(node);
-                    return node;
-                });
+//        RootTypeIndexNode rootNode = rootNodeMap.computeIfAbsent(queryTypeClause.getKey(),
+//                k -> {
+//                    RootTypeIndexNode node = new RootTypeIndexNode(queryTypeClause);
+//                    this.index.add(node);
+//                    return node;
+//                });
+
+        RootTypeIndexNode rootNode = new RootTypeIndexNode(evalContextProvider, analyzerContext, moduleScope, queryTypeClause);
+        this.index.add(rootNode);
 
         QueryPipeClause clause = queryTypeClause.getPipeClause();
         IndexNode lastNode = rootNode;
@@ -139,11 +137,13 @@ public class RuleIndex {
         return lastNode;
     }
 
-    private IndexNode addJoin(IndexNode parent, QueryJoin queryJoin) {
+    private IndexNode addJoin(EvalContextProvider evalContextProvider, AnalyzerContext analyzerContext,
+                              IndexNode parent, QueryJoin queryJoin) {
         JoinIndexNode node = new JoinIndexNode(queryJoin);
 
         parent.addChild(node.getLeftSlot());
-        addQueryTypeClause(queryJoin.getTypeClause()).addChild(node.getRightSlot());
+        addQueryTypeClause(evalContextProvider, analyzerContext, queryJoin.getTypeClause().getModuleScope(),
+                queryJoin.getTypeClause()).addChild(node.getRightSlot());
         return node;
     }
 

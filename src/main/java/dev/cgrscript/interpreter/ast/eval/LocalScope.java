@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval;
 
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
+import dev.cgrscript.interpreter.ast.eval.context.ContextSnapshot;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.symbol.Scope;
 import dev.cgrscript.interpreter.ast.symbol.Symbol;
@@ -81,6 +82,16 @@ public class LocalScope implements Scope {
     @Override
     public Collection<Symbol> getSymbols() {
         return symbols.values();
+    }
+
+    @Override
+    public void getSnapshot(ContextSnapshot snapshot) {
+        if (enclosingScope != null) {
+            enclosingScope.getSnapshot(snapshot);
+        }
+        for (Map.Entry<String, ValueExpr> entry : memory.entrySet()) {
+            snapshot.add(entry.getKey(), entry.getValue());
+        }
     }
 
     public void setValue(String symbolName, ValueExpr value) {

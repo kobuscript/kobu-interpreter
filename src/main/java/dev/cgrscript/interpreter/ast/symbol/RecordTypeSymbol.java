@@ -24,14 +24,18 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
-import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
-import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
+import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
+import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
+import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.function.record.RecordEntriesMethodImpl;
 import dev.cgrscript.interpreter.ast.eval.function.record.RecordValuesMethodImpl;
-import dev.cgrscript.interpreter.error.analyzer.*;
-import dev.cgrscript.interpreter.input.InputReader;
-import dev.cgrscript.interpreter.writer.OutputWriter;
+import dev.cgrscript.interpreter.error.analyzer.CyclicRecordInheritanceError;
+import dev.cgrscript.interpreter.error.analyzer.RecordSuperTypeConflictError;
+import dev.cgrscript.interpreter.error.analyzer.RecordTypeAttributeConflictError;
+import dev.cgrscript.interpreter.error.analyzer.RecordTypeUnknownAttributesError;
 
 import java.util.*;
 
@@ -299,7 +303,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     @Override
-    public void analyze(AnalyzerContext context, Database database, InputReader inputReader, OutputWriter outputWriter) {
+    public void analyze(AnalyzerContext context) {
         if (superType != null) {
             List<String> path = new ArrayList<>();
             if (hasSuperType(this, path)) {

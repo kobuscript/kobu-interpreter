@@ -24,7 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.query;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Evaluable;
 import dev.cgrscript.interpreter.ast.eval.HasTypeScope;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;

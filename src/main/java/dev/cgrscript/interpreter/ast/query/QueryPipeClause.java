@@ -24,26 +24,28 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.query;
 
-import dev.cgrscript.database.match.Match;
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.database.index.Match;
 import dev.cgrscript.interpreter.ast.eval.Evaluable;
 import dev.cgrscript.interpreter.ast.eval.HasTypeScope;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
+import dev.cgrscript.interpreter.ast.symbol.Type;
 
 import java.util.List;
 
 public interface QueryPipeClause extends Evaluable, HasTypeScope {
 
+    Type getType();
+
+    String getBind();
+
     QueryPipeClause getNext();
 
     void setNext(QueryPipeClause next);
 
-    void setAlias(String alias);
+    void setBind(String bind);
 
     void setAliasSourceCodeRef(SourceCodeRef aliasSourceCodeRef);
 
     List<Match> eval(Match match);
-
-    void createEmptyArray(EvalContext context);
 
 }

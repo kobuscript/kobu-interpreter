@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
+import dev.cgrscript.interpreter.ast.eval.context.ContextSnapshot;
 
 import java.util.Collection;
 
@@ -37,5 +38,7 @@ public interface Scope {
     Symbol resolve(String name);
 
     Collection<Symbol> getSymbols();
+
+    void getSnapshot(ContextSnapshot snapshot);
 
 }

@@ -24,17 +24,17 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.query;
 
-import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.cgrscript.interpreter.ast.symbol.*;
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Evaluable;
+import dev.cgrscript.interpreter.ast.symbol.*;
+import dev.cgrscript.interpreter.error.analyzer.InvalidJoinQueryType;
 import dev.cgrscript.interpreter.error.analyzer.InvalidQueryType;
-
-import java.util.ArrayList;
 
 public class QueryTypeClause implements Evaluable {
 
     private static final String DEFAULT_BIND = "$_rootRecord";
+
+    private final ModuleScope moduleScope;
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -48,13 +48,27 @@ public class QueryTypeClause implements Evaluable {
 
     private QueryPipeClause pipeClause;
 
-    public QueryTypeClause(SourceCodeRef sourceCodeRef, SourceCodeRef bindSourceCodeRef,
+    private Type queryType;
+
+    private String mainRecordBind;
+
+    private boolean joinMode;
+
+    private boolean accumulator;
+
+    public QueryTypeClause(ModuleScope moduleScope,
+                           SourceCodeRef sourceCodeRef, SourceCodeRef bindSourceCodeRef,
                            Type type, boolean includeSubtypes, String bind) {
+        this.moduleScope = moduleScope;
         this.sourceCodeRef = sourceCodeRef;
         this.bindSourceCodeRef = bindSourceCodeRef;
         this.type = type;
         this.includeSubtypes = includeSubtypes;
         this.bind = bind != null ? bind : DEFAULT_BIND;
+    }
+
+    public ModuleScope getModuleScope() {
+        return moduleScope;
     }
 
     public Type getType() {
@@ -65,8 +79,28 @@ public class QueryTypeClause implements Evaluable {
         return bind;
     }
 
+    public Type getQueryType() {
+        return queryType;
+    }
+
+    public String getMainRecordBind() {
+        return mainRecordBind;
+    }
+
     public boolean includeSubtypes() {
         return includeSubtypes;
+    }
+
+    public boolean joinMode() {
+        return joinMode;
+    }
+
+    public void setJoinMode(boolean joinMode) {
+        this.joinMode = joinMode;
+    }
+
+    public boolean accumulator() {
+        return accumulator;
     }
 
     @Override
@@ -85,8 +119,21 @@ public class QueryTypeClause implements Evaluable {
     @Override
     public void analyze(EvalContext context) {
         if (!(type instanceof RecordTypeSymbol) && !(type instanceof TemplateTypeSymbol)) {
-            context.addAnalyzerError(new InvalidQueryType(sourceCodeRef, type));
-            return;
+            if (joinMode) {
+                if (!(type instanceof ArrayType)) {
+                    context.addAnalyzerError(new InvalidJoinQueryType(sourceCodeRef, type));
+                    return;
+                }
+                Type elemType = ((ArrayType)type).getElementType();
+                if (!(elemType instanceof RecordTypeSymbol) && !(elemType instanceof TemplateTypeSymbol)) {
+                    context.addAnalyzerError(new InvalidJoinQueryType(sourceCodeRef, type));
+                    return;
+                }
+                accumulator = true;
+            } else {
+                context.addAnalyzerError(new InvalidQueryType(sourceCodeRef, type));
+                return;
+            }
         }
         VariableSymbol variableSymbol;
         if (bindSourceCodeRef != null) {
@@ -99,27 +146,21 @@ public class QueryTypeClause implements Evaluable {
         if (pipeClause != null) {
             pipeClause.setTypeScope(type);
             pipeClause.analyze(context);
+
+            var clause = pipeClause;
+            while (clause != null) {
+                queryType = clause.getType();
+                mainRecordBind = clause.getBind();
+                clause = clause.getNext();
+            }
+        } else {
+            queryType = type;
+            mainRecordBind = bind;
         }
     }
 
     public boolean compatibleWith(QueryTypeClause typeClause) {
         return type.isAssignableFrom(typeClause.getType());
-    }
-
-    public void createEmptyArray(EvalContext context) {
-
-        VariableSymbol variableSymbol;
-        if (bindSourceCodeRef != null) {
-            variableSymbol = new VariableSymbol(context.getModuleScope(), bindSourceCodeRef, bind, type);
-        } else {
-            variableSymbol = new VariableSymbol(context.getModuleScope(), bind, type);
-        }
-        context.getCurrentScope().define(context.getAnalyzerContext(), variableSymbol);
-        context.getCurrentScope().setValue(bind, new ArrayValueExpr(new ArrayType(type), new ArrayList<>()));
-
-        if (pipeClause != null) {
-            pipeClause.createEmptyArray(context);
-        }
     }
 
     public String getKey() {

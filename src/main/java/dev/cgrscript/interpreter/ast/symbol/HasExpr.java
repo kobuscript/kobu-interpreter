@@ -24,14 +24,10 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
-import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
-import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
-import dev.cgrscript.interpreter.input.InputReader;
-import dev.cgrscript.interpreter.writer.OutputWriter;
 
 public interface HasExpr {
 
-    void analyze(AnalyzerContext context, Database database, InputReader inputReader, OutputWriter outputWriter);
+    void analyze(AnalyzerContext context);
 
 }

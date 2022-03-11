@@ -22,15 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.eval;
+package dev.cgrscript.interpreter.ast.eval.context;
 
 import dev.cgrscript.config.ProjectProperty;
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
+import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.analyzer.UnreachableCodeError;
 import dev.cgrscript.database.Database;
-import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.writer.OutputWriter;
 
@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 
 public class EvalContext {
+
+    private final EvalContextProvider provider;
 
     private final AnalyzerContext analyzerContext;
 
@@ -64,10 +66,11 @@ public class EvalContext {
 
     private ValueExpr returnValue;
 
-    public EvalContext(AnalyzerContext analyzerContext, EvalModeEnum evalMode,
-                       ModuleScope moduleScope, Database database,
-                       InputReader inputReader, OutputWriter outputWriter,
-                       FunctionSymbol function) {
+    protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
+                          ModuleScope moduleScope, Database database,
+                          InputReader inputReader, OutputWriter outputWriter,
+                          FunctionSymbol function) {
+        this.provider = provider;
         this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
         this.moduleScope = moduleScope;
@@ -79,10 +82,11 @@ public class EvalContext {
         pushNewScope();
     }
 
-    public EvalContext(AnalyzerContext analyzerContext, EvalModeEnum evalMode,
-                       ModuleScope moduleScope, Database database,
-                       InputReader inputReader, OutputWriter outputWriter,
-                       RuleContext ruleContext) {
+    protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
+                          ModuleScope moduleScope, Database database,
+                          InputReader inputReader, OutputWriter outputWriter,
+                          RuleContext ruleContext) {
+        this.provider = provider;
         this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
         this.moduleScope = moduleScope;
@@ -94,9 +98,10 @@ public class EvalContext {
         pushNewScope();
     }
 
-    public EvalContext(AnalyzerContext analyzerContext, EvalModeEnum evalMode,
-                       ModuleScope moduleScope, Database database,
-                       InputReader inputReader, OutputWriter outputWriter) {
+    protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
+                          ModuleScope moduleScope, Database database,
+                          InputReader inputReader, OutputWriter outputWriter) {
+        this.provider = provider;
         this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
         this.moduleScope = moduleScope;
@@ -105,6 +110,18 @@ public class EvalContext {
         this.outputWriter = outputWriter;
         loadProperties();
         pushNewScope();
+    }
+
+    public EvalContextProvider getProvider() {
+        return provider;
+    }
+
+    public EvalContext newEvalContext() {
+        return getProvider().newEvalContext(this);
+    }
+
+    public EvalContext newEvalContext(RuleContext ruleContext) {
+        return getProvider().newEvalContext(this, ruleContext);
     }
 
     public EvalModeEnum getEvalMode() {
@@ -161,7 +178,7 @@ public class EvalContext {
     public ValueExpr evalFunction(FunctionType functionType, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
         if (functionType instanceof FunctionSymbol) {
             FunctionSymbol functionSymbol = (FunctionSymbol) functionType;
-            return functionSymbol.eval(analyzerContext, args, database, inputReader, outputWriter);
+            return functionSymbol.eval(analyzerContext, args);
         } else if (functionType instanceof BuiltinFunctionSymbol) {
             BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) functionType;
             return builtinFunctionSymbol.getFunctionImpl().run(this, args, sourceCodeRef);
@@ -212,9 +229,9 @@ public class EvalContext {
                 break;
             }
             if (evaluable instanceof Statement) {
-                ((Statement)evaluable).evalStat(this);
+                ((Statement) evaluable).evalStat(this);
             } else if (evaluable instanceof Expr) {
-                ((Expr)evaluable).evalExpr(this);
+                ((Expr) evaluable).evalExpr(this);
             }
         }
 

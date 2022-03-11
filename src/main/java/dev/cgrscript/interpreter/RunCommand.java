@@ -28,9 +28,8 @@ import dev.cgrscript.config.Project;
 import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
-import dev.cgrscript.interpreter.ast.EvalTreeParserVisitor;
-import dev.cgrscript.interpreter.ast.TypeHierarchyParserVisitor;
-import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
+import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.utils.ErrorMessageFormatter;
 import dev.cgrscript.interpreter.error.*;
@@ -88,20 +87,21 @@ public class RunCommand implements Callable<Integer> {
                 project = projectReader.loadDefaultProject(localFile);
             }
 
-            ModuleLoader moduleLoader = new ModuleLoader(fileSystem, project, EvalModeEnum.EXECUTION);
-            InputNativeFunctionRegistry.register(moduleLoader);
-            ModuleScope moduleScope = moduleLoader.load(analyzerContext, localFile);
-
-            analyzerContext.getParserErrorListener().checkErrors();
-
             Database database = new Database();
             InputReader inputReader = new InputReader(new FileFetcher());
             OutputWriter outputWriter = new OutputWriter(
                     preview ? OutputWriterModeEnum.LOG_ONLY : OutputWriterModeEnum.WRITE_TO_DISK,
                     verbose ? OutputWriterLogTypeEnum.VERBOSE : OutputWriterLogTypeEnum.NORMAL,
-                    new FileSystemWriterHandler(moduleScope.getProjectDir()));
+                    new FileSystemWriterHandler(project.getProjectDirectory().getAbsolutePath()));
+            EvalContextProvider evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, database, inputReader, outputWriter);
 
-            moduleScope.analyze(analyzerContext, database, inputReader, outputWriter);
+            ModuleLoader moduleLoader = new ModuleLoader(evalContextProvider, fileSystem, project, EvalModeEnum.EXECUTION);
+            InputNativeFunctionRegistry.register(moduleLoader);
+            ModuleScope moduleScope = moduleLoader.load(analyzerContext, localFile);
+
+            analyzerContext.getParserErrorListener().checkErrors();
+
+            moduleScope.analyze(analyzerContext);
 
             List<AnalyzerError> errors = analyzerContext.getAllErrors();
             if (!errors.isEmpty()) {
@@ -111,7 +111,7 @@ public class RunCommand implements Callable<Integer> {
             if (scriptArgs == null) {
                 scriptArgs = new ArrayList<>();
             }
-            moduleScope.runMainFunction(analyzerContext, scriptArgs, database, inputReader, outputWriter);
+            moduleScope.runMainFunction(analyzerContext, scriptArgs);
 
         } catch (ParserErrorList e) {
             for (ParserError error : e.getErrors()) {

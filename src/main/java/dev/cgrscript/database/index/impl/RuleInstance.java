@@ -24,8 +24,13 @@ SOFTWARE.
 
 package dev.cgrscript.database.index.impl;
 
-import dev.cgrscript.database.match.Match;
-import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.database.index.Match;
+import dev.cgrscript.interpreter.ast.eval.Evaluable;
+import dev.cgrscript.interpreter.ast.eval.Expr;
+import dev.cgrscript.interpreter.ast.eval.RuleContext;
+import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.ContextSnapshot;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.RuleSymbol;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
@@ -44,6 +49,8 @@ public class RuleInstance implements RuleContext {
 
     private Match currentMatch;
 
+    private ContextSnapshot lastSnapshot;
+
     public RuleInstance(RuleSymbol ruleSymbol, Expr whenExpr, List<Evaluable> block) {
         this.ruleSymbol = ruleSymbol;
         this.whenExpr = whenExpr;
@@ -51,12 +58,14 @@ public class RuleInstance implements RuleContext {
     }
 
     public void run(Match match) {
+        ContextSnapshot snapshot = match.getSnapshot();
+        if (lastSnapshot != null && lastSnapshot.equals(snapshot)) {
+            return;
+        }
+        lastSnapshot = snapshot;
         this.currentMatch = match;
         EvalContext matchCtx = match.getContext();
-        EvalContext evalContext = new EvalContext(matchCtx.getAnalyzerContext(),
-                matchCtx.getEvalMode(), matchCtx.getModuleScope(),
-                matchCtx.getDatabase(), matchCtx.getInputParser(),
-                matchCtx.getOutputWriter(), this);
+        EvalContext evalContext = matchCtx.newEvalContext(this);
         evalContext.getCurrentScope().addAll(matchCtx.getCurrentScope());
         if (executeWhenExpression(evalContext)) {
             evalContext.evalBlock(block);

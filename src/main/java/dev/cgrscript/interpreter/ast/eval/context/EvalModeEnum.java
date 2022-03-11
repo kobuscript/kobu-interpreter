@@ -22,11 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.database.index.impl;
+package dev.cgrscript.interpreter.ast.eval.context;
 
-public enum RuleIndexNodeTypeEnum {
-
-    NO_DEPS,
-    WITH_DEPS
-
+public enum EvalModeEnum {
+    ANALYZER_SERVICE,
+    EXECUTION
 }

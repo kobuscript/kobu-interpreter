@@ -22,24 +22,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.database.match;
+package dev.cgrscript.interpreter.ast.eval.context;
 
-public class MatchRef {
+import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 
-    private Match match;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
-    public MatchRef() {
+public class ContextSnapshot {
+
+    private final Map<String, SnapshotValue> values = new HashMap<>();
+
+    public void add(String name, ValueExpr value) {
+        values.put(name, value.getSnapshotValue());
     }
 
-    public MatchRef(Match match) {
-        this.match = match;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ContextSnapshot that = (ContextSnapshot) o;
+        return Objects.equals(values, that.values);
     }
 
-    public Match getMatch() {
-        return match;
+    @Override
+    public int hashCode() {
+        return Objects.hash(values);
     }
 
-    public void setMatch(Match match) {
-        this.match = match;
-    }
 }

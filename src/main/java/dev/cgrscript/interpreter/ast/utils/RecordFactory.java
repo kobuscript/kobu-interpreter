@@ -24,11 +24,10 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.utils;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
-import dev.cgrscript.interpreter.ast.symbol.Type;
 import dev.cgrscript.interpreter.error.eval.InvalidCallError;
 
 import java.util.HashMap;

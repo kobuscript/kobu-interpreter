@@ -24,7 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.statement;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.InterruptTypeEnum;
 import dev.cgrscript.interpreter.ast.eval.Statement;
 import dev.cgrscript.interpreter.error.analyzer.BreakOutsideLoopError;

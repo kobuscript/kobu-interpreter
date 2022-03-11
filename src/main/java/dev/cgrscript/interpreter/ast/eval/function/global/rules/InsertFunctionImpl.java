@@ -24,15 +24,17 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.function.global.rules;
 
-import dev.cgrscript.database.match.Match;
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.database.index.Match;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.eval.InvalidCallError;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class InsertFunctionImpl extends BuiltinGlobalFunction {
 
@@ -46,14 +48,33 @@ public class InsertFunctionImpl extends BuiltinGlobalFunction {
         RecordValueExpr recordExpr = (RecordValueExpr) args.get("value");
         Match match = context.getRuleContext().getMatch();
         RecordValueExpr rootRecord = match.getRootRecord();
-        recordExpr.creatorId(rootRecord.getId());
-        context.getDatabase().addRecord(match, recordExpr);
+        addCreatorId(recordExpr, rootRecord.getId(), new HashSet<>());
+        recordExpr.setOriginRule(context.getRuleContext().getRuleSymbol().getFullName());
+        context.getDatabase().insertFact(recordExpr);
         return null;
+    }
+
+    private void addCreatorId(RecordValueExpr recordExpr, int creatorId, Set<Integer> recordIdSet) {
+        if (!recordIdSet.add(recordExpr.getId())) {
+            return;
+        }
+
+        if (!recordExpr.initialValue() && recordExpr.getCreatorId() == 0) {
+            recordExpr.setCreatorId(creatorId);
+        }
+
+        for (ValueExpr value : recordExpr.getValues()) {
+            if (value instanceof RecordValueExpr) {
+                addCreatorId((RecordValueExpr) value, creatorId, recordIdSet);
+            }
+        }
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Insert a new record in the working memory." +
+                "\n\nThis function can only be invoked from a rule. Use 'fireRules()' to configure the " +
+                "initial working memory and start the rule engine.";
     }
 
 }

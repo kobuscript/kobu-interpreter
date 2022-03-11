@@ -24,9 +24,10 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.expr.value;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.HasMethods;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
 import dev.cgrscript.interpreter.ast.symbol.*;
 
 import java.util.Objects;
@@ -83,13 +84,8 @@ public class BooleanValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public int creatorId() {
-        return 0;
-    }
-
-    @Override
-    public void creatorId(int id) {
-
+    public SnapshotValue getSnapshotValue() {
+        return new BooleanSnapshotValue(value);
     }
 
     @Override
@@ -104,4 +100,19 @@ public class BooleanValueExpr implements ValueExpr, HasMethods {
     public int hashCode() {
         return Objects.hash(value);
     }
+
+    private static class BooleanSnapshotValue implements SnapshotValue {
+
+        private final Boolean value;
+
+        private BooleanSnapshotValue(Boolean value) {
+            this.value = value;
+        }
+
+        public Boolean getValue() {
+            return value;
+        }
+
+    }
+
 }

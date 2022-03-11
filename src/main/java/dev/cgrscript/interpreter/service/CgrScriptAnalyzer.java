@@ -29,10 +29,11 @@ import dev.cgrscript.config.ProjectReader;
 import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.AnalyzerErrorScope;
-import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.HasElementRef;
 import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
 import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
+import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
@@ -75,8 +76,11 @@ public class CgrScriptAnalyzer {
             OutputWriterLogTypeEnum.NORMAL,
             new FileSystemWriterHandler());
 
+    private final EvalContextProvider evalContextProvider;
+
     public CgrScriptAnalyzer(CgrFileSystem fileSystem) {
         this.fileSystem = fileSystem;
+        evalContextProvider = new EvalContextProvider(EvalModeEnum.ANALYZER_SERVICE, database, inputReader, outputWriter);
     }
 
     public synchronized void removeModule(CgrFile projectFile) {
@@ -98,7 +102,7 @@ public class CgrScriptAnalyzer {
 
         addErrors(file, errors, analyzerContext.getParserErrorListener());
 
-        moduleScope.analyze(analyzerContext, database, inputReader, outputWriter);
+        moduleScope.analyze(analyzerContext);
 
         addErrors(file, errors, analyzerContext.getErrorScope());
 
@@ -133,7 +137,7 @@ public class CgrScriptAnalyzer {
     public synchronized SourceCodeRef getElementRef(CgrFile refFile, int offset) throws AnalyzerError {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
-        CgrScriptFile script = moduleLoader.loadScript(refFile, database, inputReader, outputWriter);
+        CgrScriptFile script = moduleLoader.loadScript(refFile);
         if (script != null) {
             ModuleScope module = moduleLoader.getScope(script.extractModuleId());
             if (module != null) {
@@ -150,7 +154,7 @@ public class CgrScriptAnalyzer {
         CgrFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
 
-        CgrScriptFile script = moduleLoader.loadScript(refFile, database, inputReader, outputWriter);
+        CgrScriptFile script = moduleLoader.loadScript(refFile);
         if (script != null) {
             analyze(moduleLoader, refFile);
 
@@ -207,7 +211,7 @@ public class CgrScriptAnalyzer {
         } else {
             project = projectReader.loadDefaultProject(scriptFile);
         }
-        moduleLoader = new ModuleLoader(fileSystem, project, EvalModeEnum.ANALYZER_SERVICE);
+        moduleLoader = new ModuleLoader(evalContextProvider, fileSystem, project, EvalModeEnum.ANALYZER_SERVICE);
         InputNativeFunctionRegistry.register(moduleLoader);
         modules.put(projectPath, moduleLoader);
         return moduleLoader;

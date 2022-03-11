@@ -25,9 +25,7 @@ SOFTWARE.
 package dev.cgrscript.database.index.impl;
 
 import dev.cgrscript.database.index.OneInputIndexNode;
-import dev.cgrscript.database.match.Match;
-import dev.cgrscript.database.match.MatchRef;
-import dev.cgrscript.database.match.MatchStateEnum;
+import dev.cgrscript.database.index.Match;
 import dev.cgrscript.interpreter.ast.eval.Evaluable;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.cgrscript.interpreter.ast.query.Query;
@@ -45,11 +43,7 @@ public class RuleIndexNode extends OneInputIndexNode {
 
     private final Map<Integer, RuleInstance> contextMap = new HashMap<>();
 
-    private final Map<Integer, MatchRef> matchMap = new HashMap<>();
-
-    private final Queue<MatchRef> matchQueue = new LinkedList<>();
-
-    private final RuleIndexNodeTypeEnum type;
+    private final Queue<Match> matchQueue = new LinkedList<>();
 
     private List<RuleIndexNode> children;
 
@@ -59,24 +53,11 @@ public class RuleIndexNode extends OneInputIndexNode {
         this.ruleSymbol = ruleSymbol;
         this.query = query;
         this.block = block;
-        if (query.hasDependencies()) {
-            type = RuleIndexNodeTypeEnum.WITH_DEPS;
-        } else {
-            type = RuleIndexNodeTypeEnum.NO_DEPS;
-        }
     }
 
     @Override
     public void receive(Match match) {
-        if (match.getMatchGroupId() != 0) {
-            var ref = matchMap.computeIfAbsent(match.getMatchGroupId(), k -> new MatchRef());
-            if (ref.getMatch() == null) {
-                matchQueue.add(ref);
-            }
-            ref.setMatch(match);
-        } else {
-            matchQueue.add(new MatchRef(match));
-        }
+        matchQueue.add(match);
     }
 
     @Override
@@ -86,33 +67,22 @@ public class RuleIndexNode extends OneInputIndexNode {
     }
 
     private void removeInstances() {
-        matchMap.clear();
         contextMap.clear();
         matchQueue.clear();
     }
 
-    public void run(MatchStateEnum state) {
-        MatchRef matchRef;
-        List<MatchRef> matchList = new ArrayList<>();
-        while ((matchRef = matchQueue.poll()) != null) {
-            var match = matchRef.getMatch();
-
-            if (match.getState().equals(state)) {
-                match.getContext().getDatabase().clearMatchGroup(match);
-                var record = match.getRootRecord();
-                if (children != null) {
-                    if (children.stream().noneMatch(child -> child.executed(record))) {
-                        runMatch(match);
-                    }
-                } else {
+    public void run() {
+        Match match;
+        while ((match = matchQueue.poll()) != null) {
+            var record = match.getRootRecord();
+            if (children != null) {
+                if (children.stream().noneMatch(child -> child.executed(record))) {
                     runMatch(match);
                 }
-                matchMap.remove(match.getMatchGroupId());
             } else {
-                matchList.add(matchRef);
+                runMatch(match);
             }
         }
-        matchQueue.addAll(matchList);
     }
 
     private void runMatch(Match match) {
@@ -137,10 +107,6 @@ public class RuleIndexNode extends OneInputIndexNode {
             return instance.executed();
         }
         return false;
-    }
-
-    public RuleIndexNodeTypeEnum getType() {
-        return type;
     }
 
     public RuleSymbol getRuleSymbol() {

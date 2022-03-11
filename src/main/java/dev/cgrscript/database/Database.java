@@ -24,10 +24,10 @@ SOFTWARE.
 
 package dev.cgrscript.database;
 
-import dev.cgrscript.database.match.Match;
-import dev.cgrscript.database.match.MatchStateEnum;
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.PairValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RecordValueExpr;
@@ -48,15 +48,13 @@ public class Database {
 
     private final RuleIndex fileIndex = new RuleIndex();
 
-    private final Queue<ValueExpr> buffer = new LinkedList<>();
+    private final Queue<Fact> buffer = new LinkedList<>();
 
-    private final Map<Integer, ValueExpr> facts = new LinkedHashMap<>();
+    private final Map<Integer, Fact> factMap = new LinkedHashMap<>();
 
-    private final Map<Integer, List<Integer>> matchGroupValuesMap = new HashMap<>();
+    private final List<Fact> facts = new ArrayList<>();
 
-    private final Map<Integer, Integer> valueMatchGroupMap = new HashMap<>();
-
-    private final Map<Integer, List<Integer>> creatorIdRecordMap = new HashMap<>();
+    private int iteration = 0;
 
     private RuleStepEnum currentStep;
 
@@ -72,24 +70,23 @@ public class Database {
 
     public void clear() {
         buffer.clear();
-        facts.clear();
+        factMap.clear();
         ruleIndex.clear();
         templateIndex.clear();
         fileIndex.clear();
-        matchGroupValuesMap.clear();
-        valueMatchGroupMap.clear();
+        iteration = 0;
     }
 
-    public void addRule(RuleSymbol ruleSymbol) {
+    public void addRule(EvalContextProvider evalContextProvider, AnalyzerContext analyzerContext, RuleSymbol ruleSymbol) {
         switch (ruleSymbol.getRuleType()) {
             case RULE:
-                ruleIndex.addRule(ruleSymbol);
+                ruleIndex.addRule(evalContextProvider, analyzerContext, ruleSymbol);
                 break;
             case TEMPLATE:
-                templateIndex.addRule(ruleSymbol);
+                templateIndex.addRule(evalContextProvider, analyzerContext, ruleSymbol);
                 break;
             case FILE:
-                fileIndex.addRule(ruleSymbol);
+                fileIndex.addRule(evalContextProvider, analyzerContext, ruleSymbol);
                 break;
         }
     }
@@ -100,68 +97,23 @@ public class Database {
         fileIndex.linkRules();
     }
 
-    public void addRecord(RecordValueExpr record) {
-        buffer.add(record);
-        if (record.creatorId() != 0) {
-            List<Integer> ids = creatorIdRecordMap.computeIfAbsent(record.creatorId(), k -> new ArrayList<>());
-            ids.add(record.creatorId());
-        }
-    }
-
-    public void addRecord(Match match, RecordValueExpr record) {
-        addRecord(record);
-        if (match.getMatchGroupId() != 0) {
-            List<Integer> values = matchGroupValuesMap.computeIfAbsent(match.getMatchGroupId(), k -> new ArrayList<>());
-            values.add(record.getId());
-            valueMatchGroupMap.put(record.getId(), match.getMatchGroupId());
-        }
-    }
-
-    public void addTemplateValue(Match match, TemplateValueExpr templateValue) {
-        buffer.add(templateValue);
-        if (templateValue.creatorId() != 0) {
-            List<Integer> ids = creatorIdRecordMap.computeIfAbsent(templateValue.creatorId(), k -> new ArrayList<>());
-            ids.add(templateValue.creatorId());
-        }
-        if (match.getMatchGroupId() != 0) {
-            List<Integer> values = matchGroupValuesMap.computeIfAbsent(match.getMatchGroupId(), k -> new ArrayList<>());
-            values.add(templateValue.getId());
-            valueMatchGroupMap.put(templateValue.getId(), match.getMatchGroupId());
+    public void insertFact(Fact newFact) {
+        buffer.add(newFact);
+        newFact.setIteration(iteration);
+        var it = facts.iterator();
+        while (it.hasNext()) {
+            var fact = it.next();
+            if (newFact.overrides(fact)) {
+                it.remove();
+                factMap.remove(fact.getId());
+            }
         }
     }
 
     public void updateRecord(RecordValueExpr record) {
-        if (facts.containsKey(record.getId())) {
+        record.incVersion();
+        if (factMap.containsKey(record.getId())) {
             buffer.add(record);
-        }
-    }
-
-    public void clearMatchGroup(Match match) {
-        if (match.getMatchGroupId() != 0) {
-            clearMatchGroup(match.getMatchGroupId());
-        }
-    }
-
-    private void clearMatchGroup(int matchGroupId) {
-        List<Integer> values = matchGroupValuesMap.get(matchGroupId);
-        if (values != null) {
-            for (Integer id : values) {
-                RuleIndex index = getCurrentIndex();
-                if (index != null) {
-                    index.clearMatchGroup(matchGroupId);
-                    facts.remove(id);
-
-                    List<Integer> children = creatorIdRecordMap.remove(id);
-                    if (children != null) {
-                        for (Integer child : children) {
-                            Integer valueMatchGroupId = valueMatchGroupMap.remove(child);
-                            if (valueMatchGroupId != null) {
-                                clearMatchGroup(valueMatchGroupId);
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -171,34 +123,26 @@ public class Database {
         currentStep = RuleStepEnum.RULE;
 
         while (currentStep != null) {
+            iteration++;
 
-            Queue<ValueExpr> queue = new LinkedList<>();
+            Queue<Fact> queue = new LinkedList<>();
             processBuffer(queue, buffer);
 
-            ValueExpr fact;
+            Fact fact;
             RuleIndex currentIndex = getCurrentIndex();
             if (currentIndex == null) return;
             while ((fact = queue.poll()) != null) {
-                EvalContext factCtx = new EvalContext(context.getAnalyzerContext(), context.getEvalMode(),
-                        context.getModuleScope(), context.getDatabase(),
-                        context.getInputParser(), context.getOutputWriter());
-                currentIndex.insertFact(factCtx, fact);
+                currentIndex.insertFact(fact);
             }
 
-            MatchStateEnum matchState = MatchStateEnum.NO_DEPS;
-            while (matchState != null) {
-                currentIndex.run(matchState);
-                if (!buffer.isEmpty()) {
-                    break;
-                }
-                matchState = matchState.next();
+            currentIndex.run();
+            if (!buffer.isEmpty()) {
+                continue;
             }
 
-            if (matchState == null) {
-                currentIndex.clear();
-                currentStep = currentStep.next();
-                buffer.addAll(facts.values());
-            }
+            currentIndex.clear();
+            currentStep = currentStep.next();
+            buffer.addAll(factMap.values());
         }
         running = false;
     }
@@ -220,27 +164,29 @@ public class Database {
         return running;
     }
 
-    private void processBuffer(Queue<ValueExpr> queue, Queue<ValueExpr> buffer) {
+    private void processBuffer(Queue<Fact> queue, Queue<Fact> buffer) {
         Set<Integer> insertedFacts = new HashSet<>();
-        ValueExpr fact;
+        Fact fact;
         while ((fact = buffer.poll()) != null) {
             if (fact instanceof RecordValueExpr) {
                 RecordValueExpr record = (RecordValueExpr) fact;
-                if (!facts.containsKey(record.getId())) {
-                    facts.put(record.getId(), record);
+                if (!factMap.containsKey(record.getId())) {
+                    factMap.put(record.getId(), record);
+                    facts.add(record);
                 }
                 processRecord(queue, record, insertedFacts);
             } else if (fact instanceof TemplateValueExpr) {
                 TemplateValueExpr templateValue = (TemplateValueExpr) fact;
-                if (!facts.containsKey(templateValue.getId())) {
-                    facts.put(templateValue.getId(), templateValue);
+                if (!factMap.containsKey(templateValue.getId())) {
+                    factMap.put(templateValue.getId(), templateValue);
+                    facts.add(templateValue);
                 }
                 processTemplate(queue, templateValue, insertedFacts);
             }
         }
     }
 
-    private void processRecord(Queue<ValueExpr> queue, RecordValueExpr record, Set<Integer> insertedFacts) {
+    private void processRecord(Queue<Fact> queue, RecordValueExpr record, Set<Integer> insertedFacts) {
         if (insertedFacts.add(record.getId())) {
             queue.add(record);
 
@@ -266,7 +212,7 @@ public class Database {
         }
     }
 
-    private void processTemplate(Queue<ValueExpr> queue, TemplateValueExpr template, Set<Integer> insertedFacts) {
+    private void processTemplate(Queue<Fact> queue, TemplateValueExpr template, Set<Integer> insertedFacts) {
         if (insertedFacts.add(template.getId())) {
             queue.add(template);
         }

@@ -24,7 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.input;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 
 import java.io.IOException;

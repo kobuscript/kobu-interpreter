@@ -22,18 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.database.match;
+package dev.cgrscript.interpreter.ast.eval.context;
 
-public enum MatchStateEnum {
-    NO_DEPS,
-    DEPS_RESOLVED,
-    DEPS_PARTIALLY_RESOLVED,
-    DEPS_NOT_RESOLVED;
-
-    public MatchStateEnum next() {
-        if (ordinal() < values().length - 1) {
-            return values()[ordinal() + 1];
-        }
-        return null;
-    }
+public interface SnapshotValue {
 }

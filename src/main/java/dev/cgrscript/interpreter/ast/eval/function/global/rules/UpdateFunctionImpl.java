@@ -24,7 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.function.global.rules;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.BuiltinGlobalFunction;
@@ -50,7 +50,9 @@ public class UpdateFunctionImpl extends BuiltinGlobalFunction {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Update a record in the working memory." +
+                "\n\nThis function can only be invoked from a rule. Use 'fireRules()' to configure the " +
+                "initial working memory and start the rule engine.";
     }
 
 }

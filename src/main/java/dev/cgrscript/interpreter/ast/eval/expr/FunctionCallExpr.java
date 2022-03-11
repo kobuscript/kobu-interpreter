@@ -25,6 +25,8 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.expr;
 
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ModuleRefValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.*;

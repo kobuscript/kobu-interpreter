@@ -24,10 +24,9 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.query;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Evaluable;
 import dev.cgrscript.interpreter.ast.eval.Expr;
-import dev.cgrscript.interpreter.ast.eval.LocalScope;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.InvalidTypeError;
 
@@ -38,8 +37,6 @@ public class QueryJoin implements Evaluable {
     private final QueryTypeClause typeClause;
 
     private final Expr ofExpr;
-
-    private boolean joinArray = false;
 
     public QueryJoin(SourceCodeRef sourceCodeRef, QueryTypeClause typeClause, Expr ofExpr) {
         this.sourceCodeRef = sourceCodeRef;
@@ -62,6 +59,7 @@ public class QueryJoin implements Evaluable {
 
     @Override
     public void analyze(EvalContext context) {
+        typeClause.analyze(context);
         if (ofExpr != null) {
             ofExpr.analyze(context);
             if (ofExpr.getType() instanceof UnknownType) {
@@ -70,35 +68,23 @@ public class QueryJoin implements Evaluable {
             if (!BuiltinScope.ANY_RECORD_TYPE.isAssignableFrom(ofExpr.getType())) {
                 if (ofExpr.getType() instanceof ArrayType && BuiltinScope.ANY_RECORD_TYPE
                         .isAssignableFrom(((ArrayType) ofExpr.getType()).getElementType())) {
-                    joinArray = true;
+
+                    if (!(typeClause.getQueryType() instanceof ArrayType)) {
+                        context.addAnalyzerError(new InvalidTypeError(ofExpr.getSourceCodeRef(),
+                                BuiltinScope.ANY_RECORD_TYPE, ofExpr.getType()));
+                    }
                 } else {
                     context.addAnalyzerError(new InvalidTypeError(ofExpr.getSourceCodeRef(),
                             BuiltinScope.ANY_RECORD_TYPE, ofExpr.getType()));
-                    return;
                 }
+            } else if (typeClause.getQueryType() instanceof ArrayType) {
+                context.addAnalyzerError(new InvalidTypeError(ofExpr.getSourceCodeRef(),
+                        new ArrayType(BuiltinScope.ANY_RECORD_TYPE), ofExpr.getType()));
             }
+
+
         }
 
-        if (!joinArray) {
-            typeClause.analyze(context);
-        } else {
-            context.pushNewScope();
-            typeClause.analyze(context);
-            LocalScope scope = context.getCurrentScope();
-            context.popScope();
-            for (String key : scope.getKeys()) {
-                Symbol symbol = scope.resolve(key);
-                if (symbol instanceof VariableSymbol) {
-                    context.getCurrentScope().define(context.getAnalyzerContext(),
-                            new VariableSymbol(context.getModuleScope(), symbol.getName(),
-                                new ArrayType(((VariableSymbol)symbol).getType())));
-                }
-            }
-        }
-    }
-
-    public boolean joinArray() {
-        return joinArray;
     }
 
 }

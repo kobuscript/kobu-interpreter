@@ -24,9 +24,12 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.expr.value;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
 import dev.cgrscript.interpreter.ast.symbol.*;
+
+import java.util.Objects;
 
 public class RecordTypeRefValueExpr implements ValueExpr {
 
@@ -71,17 +74,35 @@ public class RecordTypeRefValueExpr implements ValueExpr {
     }
 
     @Override
-    public int creatorId() {
-        return 0;
-    }
-
-    @Override
-    public void creatorId(int id) {
-
+    public SnapshotValue getSnapshotValue() {
+        return new RecordTypeSnapshotValue(value.getName());
     }
 
     public RecordTypeSymbol getValue() {
         return value;
+    }
+
+    private static class RecordTypeSnapshotValue implements SnapshotValue {
+
+        private final String name;
+
+        private RecordTypeSnapshotValue(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            RecordTypeSnapshotValue that = (RecordTypeSnapshotValue) o;
+            return Objects.equals(name, that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name);
+        }
+
     }
 
 }

@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.expr;
 
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NumberValueExpr;

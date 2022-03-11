@@ -24,8 +24,6 @@ SOFTWARE.
 
 package dev.cgrscript.database.index;
 
-import dev.cgrscript.database.match.Match;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,8 +52,4 @@ public abstract class OneInputIndexNode implements IndexNode, Slot {
         return this;
     }
 
-    @Override
-    public void clearMatchGroup(int matchGroupId) {
-        this.children.forEach(slot -> slot.clearMatchGroup(matchGroupId));
-    }
 }

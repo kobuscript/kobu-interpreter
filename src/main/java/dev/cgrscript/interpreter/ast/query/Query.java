@@ -25,7 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.query;
 
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Evaluable;
 import dev.cgrscript.interpreter.ast.eval.Expr;
 
@@ -89,13 +89,6 @@ public class Query implements Evaluable {
         if (whenExpr != null) {
             whenExpr.analyze(context);
         }
-    }
-
-    public boolean hasDependencies() {
-        if (joins != null) {
-            return joins.stream().anyMatch(join -> join.getOfExpr() != null);
-        }
-        return false;
     }
 
 }

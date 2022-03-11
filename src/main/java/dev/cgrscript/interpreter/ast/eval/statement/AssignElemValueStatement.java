@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.statement;
 
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.symbol.ModuleRefSymbol;
 import dev.cgrscript.interpreter.error.analyzer.InvalidAssignExprTypeError;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;

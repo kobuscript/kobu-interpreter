@@ -24,10 +24,11 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.expr.value;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Expr;
 import dev.cgrscript.interpreter.ast.eval.HasFields;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
 import dev.cgrscript.interpreter.ast.symbol.*;
 
 public class ModuleRefValueExpr implements ValueExpr, HasFields {
@@ -67,13 +68,8 @@ public class ModuleRefValueExpr implements ValueExpr, HasFields {
     }
 
     @Override
-    public int creatorId() {
-        return 0;
-    }
-
-    @Override
-    public void creatorId(int id) {
-
+    public SnapshotValue getSnapshotValue() {
+        return null;
     }
 
     @Override

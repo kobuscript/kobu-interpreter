@@ -24,15 +24,19 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.expr.value;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.database.Fact;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
 import dev.cgrscript.interpreter.ast.symbol.BuiltinScope;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.ast.symbol.TemplateTypeSymbol;
 import dev.cgrscript.interpreter.ast.symbol.Type;
 import dev.cgrscript.interpreter.ast.template.TemplateExecutor;
 
-public class TemplateValueExpr implements ValueExpr {
+import java.util.Objects;
+
+public class TemplateValueExpr implements ValueExpr, Fact {
 
     private final int id;
 
@@ -46,6 +50,10 @@ public class TemplateValueExpr implements ValueExpr {
 
     private String value;
 
+    private int iteration;
+
+    private String originRule;
+
     public TemplateValueExpr(int id, TemplateExecutor templateExecutor, RecordValueExpr rootRecord, int creatorId) {
         this.id = id;
         this.templateExecutor = templateExecutor;
@@ -53,6 +61,7 @@ public class TemplateValueExpr implements ValueExpr {
         this.creatorId = creatorId;
     }
 
+    @Override
     public int getId() {
         return id;
     }
@@ -94,17 +103,64 @@ public class TemplateValueExpr implements ValueExpr {
     }
 
     @Override
-    public int creatorId() {
+    public SnapshotValue getSnapshotValue() {
+        return new TemplateSnapshotValue(this.id);
+    }
+
+    @Override
+    public int getCreatorId() {
         return creatorId;
     }
 
     @Override
-    public void creatorId(int id) {
+    public void setCreatorId(int id) {
         this.creatorId = id;
+    }
+
+    @Override
+    public int getIteration() {
+        return iteration;
+    }
+
+    @Override
+    public void setIteration(int iteration) {
+        this.iteration = iteration;
+    }
+
+    @Override
+    public String getOriginRule() {
+        return originRule;
+    }
+
+    @Override
+    public void setOriginRule(String originRule) {
+        this.originRule = originRule;
     }
 
     public StringValueExpr trim() {
         return new StringValueExpr(getValue().trim());
     }
 
+    private static class TemplateSnapshotValue implements SnapshotValue {
+
+        private final int id;
+
+        public TemplateSnapshotValue(int id) {
+            this.id = id;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TemplateSnapshotValue that = (TemplateSnapshotValue) o;
+            return id == that.id;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id);
+        }
+
+    }
 }

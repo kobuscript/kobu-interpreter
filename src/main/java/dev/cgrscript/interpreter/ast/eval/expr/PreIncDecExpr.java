@@ -25,15 +25,12 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.expr;
 
 import dev.cgrscript.interpreter.ast.eval.*;
-import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.InvalidExpressionError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidTypeError;
-import dev.cgrscript.interpreter.error.analyzer.InvalidVariableError;
-import dev.cgrscript.interpreter.error.analyzer.UndefinedVariableError;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
-import dev.cgrscript.interpreter.error.eval.NullPointerError;
 
 public class PreIncDecExpr implements Statement, Expr, Assignment {
 

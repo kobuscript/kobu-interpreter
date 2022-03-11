@@ -24,14 +24,12 @@ SOFTWARE.
 
 package dev.cgrscript.database.index;
 
-import dev.cgrscript.database.match.Match;
-
 public interface IndexNode {
 
     void addChild(Slot child);
 
     void dispatch(Match match);
 
-    void  clear();
+    void clear();
 
 }

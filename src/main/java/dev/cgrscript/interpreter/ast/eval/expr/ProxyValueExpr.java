@@ -24,8 +24,9 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.expr;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.ast.symbol.Type;
@@ -37,8 +38,6 @@ public class ProxyValueExpr implements ValueExpr {
     private ValueExpr value;
 
     private Type type;
-
-    private int creatorId;
 
     public ProxyValueExpr(SourceCodeRef sourceCodeRef) {
         this.sourceCodeRef = sourceCodeRef;
@@ -73,13 +72,8 @@ public class ProxyValueExpr implements ValueExpr {
     }
 
     @Override
-    public int creatorId() {
-        return creatorId;
-    }
-
-    @Override
-    public void creatorId(int id) {
-        this.creatorId = id;
+    public SnapshotValue getSnapshotValue() {
+        return null;
     }
 
     public ValueExpr getValue() {

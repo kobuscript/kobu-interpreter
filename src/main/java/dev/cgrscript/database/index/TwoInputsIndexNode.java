@@ -24,60 +24,16 @@ SOFTWARE.
 
 package dev.cgrscript.database.index;
 
-import dev.cgrscript.database.match.Match;
-
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public abstract class TwoInputsIndexNode implements IndexNode {
 
     private final List<Slot> children = new ArrayList<>();
 
-    private final Slot leftSlot = new Slot() {
-        @Override
-        public void receive(Match match) {
-            receiveLeft(match);
-        }
+    private final Slot leftSlot = new LeftSlot();
 
-        @Override
-        public void clear() {
-            TwoInputsIndexNode.this.clear();
-        }
-
-        @Override
-        public void clearMatchGroup(int matchGroupId) {
-            if (leftGroups.remove(matchGroupId)) {
-                leftEntries.removeIf(m -> m.getMatchGroupId() != matchGroupId);
-            }
-            children.forEach(slot -> slot.clearMatchGroup(matchGroupId));
-        }
-    };
-
-    private final Slot rightSlot = new Slot() {
-        @Override
-        public void receive(Match match) {
-            receiveRight(match);
-        }
-
-        @Override
-        public void clear() {
-            TwoInputsIndexNode.this.clear();
-        }
-
-        @Override
-        public void clearMatchGroup(int matchGroupId) {
-            if (rightGroups.remove(matchGroupId)) {
-                rightEntries.removeIf(m -> m.getMatchGroupId() != matchGroupId);
-            }
-            children.forEach(slot -> slot.clearMatchGroup(matchGroupId));
-        }
-    };
-
-    private final Set<Integer> leftGroups = new HashSet<>();
-
-    private final Set<Integer> rightGroups = new HashSet<>();
+    private final Slot rightSlot = new RightSlot();
 
     private final List<Match> leftEntries = new ArrayList<>();
 
@@ -94,20 +50,13 @@ public abstract class TwoInputsIndexNode implements IndexNode {
     }
 
     private void receiveLeft(Match match) {
-        if (match.getMatchGroupId() != 0) {
-            leftGroups.add(match.getMatchGroupId());
-        }
         leftEntries.add(match);
-        receive(match, null);
         rightEntries.forEach(right -> {
             receive(match, right);
         });
     }
 
     private void receiveRight(Match match) {
-        if (match.getMatchGroupId() != 0) {
-            rightGroups.add(match.getMatchGroupId());
-        }
         rightEntries.add(match);
         leftEntries.forEach(left -> {
             receive(left, match);
@@ -128,5 +77,34 @@ public abstract class TwoInputsIndexNode implements IndexNode {
     public void clear() {
         leftEntries.clear();
         rightEntries.clear();
+        children.forEach(Slot::clear);
+    }
+
+    private class LeftSlot implements Slot {
+
+        @Override
+        public void receive(Match match) {
+            receiveLeft(match);
+        }
+
+        @Override
+        public void clear() {
+            TwoInputsIndexNode.this.clear();
+        }
+
+    }
+
+    private class RightSlot implements Slot {
+
+        @Override
+        public void receive(Match match) {
+            receiveRight(match);
+        }
+
+        @Override
+        public void clear() {
+            rightEntries.clear();
+        }
+
     }
 }

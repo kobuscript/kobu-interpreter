@@ -24,108 +24,66 @@ SOFTWARE.
 
 package dev.cgrscript.database.index.impl;
 
+import dev.cgrscript.database.Fact;
 import dev.cgrscript.database.index.TwoInputsIndexNode;
-import dev.cgrscript.database.match.Match;
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.database.index.Match;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.TemplateValueExpr;
 import dev.cgrscript.interpreter.ast.query.QueryJoin;
 import dev.cgrscript.interpreter.ast.symbol.ArrayType;
-import dev.cgrscript.interpreter.ast.symbol.Symbol;
-import dev.cgrscript.interpreter.ast.symbol.VariableSymbol;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class JoinIndexNode extends TwoInputsIndexNode {
 
     private final QueryJoin queryJoin;
 
-    private Map<Integer, EvalContext> accContextMap;
-
     public JoinIndexNode(QueryJoin queryJoin) {
         this.queryJoin = queryJoin;
-        if (queryJoin.joinArray()) {
-            accContextMap = new HashMap<>();
-        }
     }
 
     @Override
     protected void receive(Match left, Match right) {
-        if (accContextMap == null) {
-            if (right == null) {
-                return;
-            }
-            if (queryJoin.getOfExpr() == null) {
-                dispatch(left.merge(right));
-            } else {
-                RecordValueExpr recordValueExpr = (RecordValueExpr) queryJoin.getOfExpr().evalExpr(left.getContext());
 
-                if (right.getFact().creatorId() == recordValueExpr.getId()) {
-                    dispatch(left.merge(right));
-                }
-            }
+        if (queryJoin.getOfExpr() == null) {
+            dispatch(left.merge(right));
         } else {
 
-            ValueExpr fieldValueExpr = queryJoin.getOfExpr().evalExpr(left.getContext());
-            if (fieldValueExpr == null || fieldValueExpr instanceof NullValueExpr) {
-                fieldValueExpr = new ArrayValueExpr((ArrayType) queryJoin.getOfExpr().getType(), new ArrayList<>());
-            }
-            ArrayValueExpr arrayValueExpr = (ArrayValueExpr) fieldValueExpr;
-            if (right != null && arrayValueExpr.getValue().stream()
-                    .noneMatch(item -> right.getFact().creatorId() == ((RecordValueExpr)item).getId())) {
-                return;
-            }
+            var ofValueExpr = queryJoin.getOfExpr().evalExpr(left.getContext());
 
-            EvalContext context = accContextMap.computeIfAbsent(left.getMatchId(), key -> {
-                var ctx = new EvalContext(left.getContext().getAnalyzerContext(),
-                        left.getContext().getEvalMode(), left.getContext().getModuleScope(),
-                        left.getContext().getDatabase(), left.getContext().getInputParser(),
-                        left.getContext().getOutputWriter());
-                ctx.getCurrentScope().addAll(left.getContext().getCurrentScope());
-                return ctx;
-            });
+            if (ofValueExpr instanceof RecordValueExpr) {
+                RecordValueExpr recordValueExpr = (RecordValueExpr) ofValueExpr;
 
-            if (right == null) {
-                queryJoin.getTypeClause().createEmptyArray(context);
-                dispatch(left.merge(context, false));
-                return;
-            }
-
-            for (String key : right.getContext().getCurrentScope().getKeys()) {
-                Symbol symbol = right.getContext().getCurrentScope().resolve(key);
-                if (symbol instanceof VariableSymbol) {
-                    VariableSymbol varSymbol = (VariableSymbol) symbol;
-                    Symbol currentSymbol = context.getCurrentScope().resolve(key);
-                    if (currentSymbol == null) {
-                        ArrayType type = new ArrayType(varSymbol.getType());
-                        currentSymbol = new VariableSymbol(left.getContext().getModuleScope(),
-                                varSymbol.getName(),
-                                type);
-                        context.getCurrentScope().define(context.getAnalyzerContext(), currentSymbol);
-                        List<ValueExpr> listValue = new ArrayList<>();
-                        listValue.add(right.getContext().getCurrentScope().getValue(key));
-
-                        sort(arrayValueExpr.getValue(), listValue);
-
-                        ArrayValueExpr valueExpr = new ArrayValueExpr(type, listValue);
-                        context.getCurrentScope().setValue(key, valueExpr);
-                    } else {
-                        ArrayValueExpr valueExpr = (ArrayValueExpr) context.getCurrentScope().getValue(key);
-                        valueExpr.getValue().add(right.getContext().getCurrentScope().getValue(key));
-
-                        sort(arrayValueExpr.getValue(), valueExpr.getValue());
-                    }
+                if (((Fact)right.getValue()).getCreatorId() == recordValueExpr.getId()) {
+                    dispatch(left.merge(right));
                 }
+            } else if (ofValueExpr instanceof ArrayValueExpr) {
+
+                ArrayValueExpr arrayValueExpr = (ArrayValueExpr) ofValueExpr;
+                List<ValueExpr> recordList = arrayValueExpr.getValue();
+                Set<Integer> recordSet = recordList
+                        .stream()
+                        .map(v -> ((RecordValueExpr)v).getId())
+                        .collect(Collectors.toSet());
+
+                List<ValueExpr> values = ((ArrayValueExpr)right.getValue()).getValue();
+                values = values
+                        .stream()
+                        .filter(value -> recordSet.contains(((Fact)value).getCreatorId()))
+                        .collect(Collectors.toList());
+
+                sort(recordList, values);
+
+                dispatch(left.merge(right
+                        .setValue(new ArrayValueExpr((ArrayType) queryJoin.getTypeClause().getQueryType(), values),
+                                right.getBind())));
             }
 
-            dispatch(left.merge(context, true));
         }
+
     }
 
     private void sort(List<ValueExpr> source, List<ValueExpr> list) {
@@ -136,8 +94,8 @@ public class JoinIndexNode extends TwoInputsIndexNode {
             idxMap.put(id, i);
         }
         list.sort((v1, v2) -> {
-            int id1 = v1.creatorId();
-            int id2 = v2.creatorId();
+            int id1 = ((Fact)v1).getCreatorId();
+            int id2 = ((Fact)v2).getCreatorId();
 
             return idxMap.get(id1) - idxMap.get(id2);
         });

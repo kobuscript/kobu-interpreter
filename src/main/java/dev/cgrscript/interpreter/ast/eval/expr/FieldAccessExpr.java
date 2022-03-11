@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.expr;
 
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidAssignmentError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidExpressionError;

@@ -24,12 +24,12 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval;
 
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
+
 public interface ValueExpr extends Expr {
 
     String getStringValue();
 
-    int creatorId();
-
-    void creatorId(int id);
+    SnapshotValue getSnapshotValue();
 
 }

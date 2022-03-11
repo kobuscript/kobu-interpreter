@@ -27,7 +27,8 @@ package dev.cgrscript.interpreter.ast;
 import dev.cgrscript.antlr.cgrscript.CgrScriptLexer;
 import dev.cgrscript.antlr.cgrscript.CgrScriptParser;
 import dev.cgrscript.interpreter.ast.eval.AutoCompletionSource;
-import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
+import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.SymbolDescriptor;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunctionId;
 import dev.cgrscript.interpreter.ast.symbol.*;
@@ -49,6 +50,8 @@ import java.util.stream.Collectors;
 
 public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
 
+    private final EvalContextProvider evalContextProvider;
+
     private final AnalyzerContext context;
 
     private final ScriptRef script;
@@ -56,9 +59,10 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
     private final BufferedTokenStream tokens;
 
     public ModuleParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope,
-                               AnalyzerContext context, ScriptRef script,
+                               EvalContextProvider evalContextProvider, AnalyzerContext context, ScriptRef script,
                                BufferedTokenStream tokens) {
         super(moduleLoader);
+        this.evalContextProvider = evalContextProvider;
         this.tokens = tokens;
         this.moduleScope = moduleScope;
         this.context = context;
@@ -196,7 +200,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
                 }
             }
 
-            var function = new FunctionSymbol(getSourceCodeRef(ctx.ID()), getSourceCodeRef(ctx.RCB()),
+            var function = new FunctionSymbol(evalContextProvider, getSourceCodeRef(ctx.ID()), getSourceCodeRef(ctx.RCB()),
                     moduleScope, ctx.ID().getText(), docText);
             moduleScope.define(context, function);
         }
@@ -255,7 +259,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
             }
         }
 
-        var template = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.TEMPLATE_END()),
+        var template = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), evalContextProvider, getSourceCodeRef(ctx.TEMPLATE_END()),
                 moduleScope, RuleTypeEnum.TEMPLATE, parentRuleModuleAlias, parentRule, docText);
         moduleScope.define(context, template);
         return null;
@@ -286,7 +290,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
             }
         }
 
-        var rule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.RCB()),
+        var rule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), evalContextProvider, getSourceCodeRef(ctx.RCB()),
                 moduleScope, RuleTypeEnum.RULE, parentRuleModuleAlias, parentRule, docText);
         moduleScope.define(context, rule);
         return null;
@@ -317,7 +321,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
             }
         }
 
-        var fileRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.PATH_END()),
+        var fileRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), evalContextProvider, getSourceCodeRef(ctx.PATH_END()),
                 moduleScope, RuleTypeEnum.FILE, parentRuleModuleAlias, parentRule, docText);
         moduleScope.define(context, fileRule);
         return null;

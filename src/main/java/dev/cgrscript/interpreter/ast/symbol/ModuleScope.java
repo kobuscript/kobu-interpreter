@@ -25,9 +25,10 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.config.ProjectProperty;
-import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.ContextSnapshot;
+import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.NativeFunction;
@@ -39,9 +40,7 @@ import dev.cgrscript.interpreter.error.analyzer.InvalidTypeError;
 import dev.cgrscript.interpreter.error.analyzer.MainFunctionNotFoundError;
 import dev.cgrscript.interpreter.error.analyzer.SymbolConflictError;
 import dev.cgrscript.interpreter.file_system.ScriptRef;
-import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.module.ModuleIndex;
-import dev.cgrscript.interpreter.writer.OutputWriter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -138,6 +137,11 @@ public class ModuleScope implements Scope {
         return getSymbols(true);
     }
 
+    @Override
+    public void getSnapshot(ContextSnapshot snapshot) {
+
+    }
+
     public Collection<Symbol> getSymbols(boolean includeBuiltin) {
         var result = new ArrayList<>(symbols.values());
         if (includeBuiltin) {
@@ -219,18 +223,18 @@ public class ModuleScope implements Scope {
         }
     }
 
-    public void analyze(AnalyzerContext context, Database database, InputReader inputReader, OutputWriter outputWriter) {
+    public void analyze(AnalyzerContext context) {
         HashSet<String> modulesSet = new HashSet<>();
         modulesSet.add(moduleId);
-        analyze(modulesSet, context, database, inputReader, outputWriter);
+        analyze(modulesSet, context);
     }
 
-    private void analyze(Set<String> modulesSet, AnalyzerContext context, Database database, InputReader inputReader, OutputWriter outputWriter) {
+    private void analyze(Set<String> modulesSet, AnalyzerContext context) {
         for (ModuleScope module : loadedModules.values()) {
             if (modulesSet.add(module.getModuleId())) {
                 context.pushErrorScope();
                 try {
-                    module.analyze(modulesSet, context, database, inputReader, outputWriter);
+                    module.analyze(modulesSet, context);
                 } finally {
                     context.popErrorScope();
                 }
@@ -238,7 +242,7 @@ public class ModuleScope implements Scope {
         }
         for (Symbol sym : symbols.values()) {
             if (sym instanceof HasExpr) {
-                ((HasExpr) sym).analyze(context, database, inputReader, outputWriter);
+                ((HasExpr) sym).analyze(context);
             }
         }
     }
@@ -251,8 +255,7 @@ public class ModuleScope implements Scope {
         return moduleId;
     }
 
-    public void runMainFunction(AnalyzerContext analyzerContext, List<String> args, Database database,
-                                InputReader inputReader, OutputWriter outputWriter) throws AnalyzerError {
+    public void runMainFunction(AnalyzerContext analyzerContext, List<String> args) throws AnalyzerError {
         var symbol = symbols.get("main");
         if (!(symbol instanceof FunctionSymbol)) {
             throw new MainFunctionNotFoundError(script);
@@ -274,9 +277,9 @@ public class ModuleScope implements Scope {
             ArrayValueExpr argsArrayExpr = new ArrayValueExpr(new ArrayType(BuiltinScope.STRING_TYPE), values);
             List<ValueExpr> argList = new ArrayList<>();
             argList.add(argsArrayExpr);
-            function.eval(analyzerContext, argList, database, inputReader, outputWriter);
+            function.eval(analyzerContext, argList);
         } else {
-            function.eval(analyzerContext, new ArrayList<>(), database, inputReader, outputWriter);
+            function.eval(analyzerContext, new ArrayList<>());
         }
 
     }

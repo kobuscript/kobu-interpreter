@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.function.array;
 
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.BuiltinMethod;

@@ -24,8 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.query;
 
-import dev.cgrscript.database.match.Match;
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.database.index.Match;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.FunctionArgExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.FunctionCallExpr;
@@ -49,13 +49,15 @@ public class QueryFunctionCallClause implements QueryPipeClause {
 
     private QueryArrayItemClause arrayItemClause;
 
-    private String alias;
+    private String bind;
 
     private SourceCodeRef aliasSourceCodeRef;
 
     private QueryPipeClause next;
 
     private Type typeScope;
+
+    private Type type;
 
     private ProxyValueExpr proxyValueExpr;
 
@@ -92,7 +94,7 @@ public class QueryFunctionCallClause implements QueryPipeClause {
             return;
         }
 
-        Type type = functionCallExpr.getType();
+        type = functionCallExpr.getType();
         if (arrayItemClause != null) {
             if (!(functionCallExpr.getType() instanceof ArrayType)) {
                 context.addAnalyzerError(new NotArrayTypeError(sourceCodeRef, typeScope));
@@ -103,9 +105,9 @@ public class QueryFunctionCallClause implements QueryPipeClause {
             type = ((ArrayType)functionCallExpr.getType()).getElementType();
         }
 
-        if (alias != null) {
+        if (bind != null) {
             context.getCurrentScope().define(context.getAnalyzerContext(), new VariableSymbol(context.getModuleScope(),
-                    aliasSourceCodeRef, alias, type));
+                    aliasSourceCodeRef, bind, type));
         }
 
         if (next != null) {
@@ -120,7 +122,7 @@ public class QueryFunctionCallClause implements QueryPipeClause {
     @Override
     public List<Match> eval(Match match) {
 
-        var fact = match.getFact();
+        var fact = match.getValue();
         if (proxyValueExpr != null) {
             proxyValueExpr.setValue(fact);
         } else {
@@ -133,9 +135,9 @@ public class QueryFunctionCallClause implements QueryPipeClause {
         if (arrayItemClause == null) {
             if (valueExpr != null && !(valueExpr instanceof NullValueExpr)) {
                 if (valueExpr instanceof RecordValueExpr) {
-                    result.add(match.setFact((RecordValueExpr) valueExpr, valueExpr, alias));
+                    result.add(match.setValue((RecordValueExpr) valueExpr, valueExpr, bind));
                 } else {
-                    result.add(match.setFact(valueExpr, alias));
+                    result.add(match.setValue(valueExpr, bind));
                 }
             }
         } else {
@@ -143,35 +145,15 @@ public class QueryFunctionCallClause implements QueryPipeClause {
                 List<ValueExpr> values = arrayItemClause.eval(match.getContext(), (ArrayValueExpr) valueExpr);
                 for (ValueExpr value : values) {
                     if (value instanceof RecordValueExpr) {
-                        result.add(match.setFact((RecordValueExpr) value, value, alias));
+                        result.add(match.setValue((RecordValueExpr) value, value, bind));
                     } else {
-                        result.add(match.setFact(value, alias));
+                        result.add(match.setValue(value, bind));
                     }
                 }
             }
         }
 
         return result;
-    }
-
-    @Override
-    public void createEmptyArray(EvalContext context) {
-        if (alias == null) {
-            if (next != null) {
-                next.createEmptyArray(context);
-            }
-            return;
-        }
-        var returnType = functionCallExpr.getType();
-        if (arrayItemClause == null) {
-            context.getCurrentScope().setValue(alias, new ArrayValueExpr((ArrayType) returnType, new ArrayList<>()));
-        } else {
-            context.getCurrentScope().setValue(alias, new ArrayValueExpr(new ArrayType(returnType), new ArrayList<>()));
-        }
-
-        if (next != null) {
-            next.createEmptyArray(context);
-        }
     }
 
     public QueryArrayItemClause getArrayItemClause() {
@@ -193,6 +175,11 @@ public class QueryFunctionCallClause implements QueryPipeClause {
     }
 
     @Override
+    public Type getType() {
+        return type;
+    }
+
+    @Override
     public QueryPipeClause getNext() {
         return next;
     }
@@ -203,8 +190,13 @@ public class QueryFunctionCallClause implements QueryPipeClause {
     }
 
     @Override
-    public void setAlias(String alias) {
-        this.alias = alias;
+    public void setBind(String bind) {
+        this.bind = bind;
+    }
+
+    @Override
+    public String getBind() {
+        return bind;
     }
 
     @Override

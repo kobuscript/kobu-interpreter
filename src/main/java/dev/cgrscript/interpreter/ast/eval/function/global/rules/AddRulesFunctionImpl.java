@@ -24,7 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.function.global.rules;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RuleRefValueExpr;
@@ -40,7 +40,8 @@ public class AddRulesFunctionImpl extends BuiltinGlobalFunction {
         ArrayValueExpr rulesExpr = (ArrayValueExpr) args.get("rules");
 
         for (ValueExpr valueExpr : rulesExpr.getValue()) {
-            context.getDatabase().addRule(((RuleRefValueExpr)valueExpr).getValue());
+            context.getDatabase().addRule(context.getProvider(), context.getAnalyzerContext(),
+                    ((RuleRefValueExpr)valueExpr).getValue());
         }
 
         return null;
@@ -48,7 +49,7 @@ public class AddRulesFunctionImpl extends BuiltinGlobalFunction {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Add a rule to the production memory";
     }
 
 }

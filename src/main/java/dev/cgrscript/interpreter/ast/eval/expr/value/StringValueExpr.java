@@ -24,9 +24,10 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.expr.value;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.HasMethods;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
 import dev.cgrscript.interpreter.ast.symbol.*;
 
 import java.util.Objects;
@@ -83,13 +84,8 @@ public class StringValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public int creatorId() {
-        return 0;
-    }
-
-    @Override
-    public void creatorId(int id) {
-
+    public SnapshotValue getSnapshotValue() {
+        return new StringSnapshotValue(this.value);
     }
 
     @Override
@@ -103,5 +99,28 @@ public class StringValueExpr implements ValueExpr, HasMethods {
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }
+
+    private static class StringSnapshotValue implements SnapshotValue {
+
+        private final String value;
+
+        public StringSnapshotValue(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            StringSnapshotValue that = (StringSnapshotValue) o;
+            return Objects.equals(value, that.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
+
     }
 }

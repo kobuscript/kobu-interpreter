@@ -25,7 +25,7 @@ SOFTWARE.
 package dev.cgrscript.database.index.impl;
 
 import dev.cgrscript.database.index.OneInputIndexNode;
-import dev.cgrscript.database.match.Match;
+import dev.cgrscript.database.index.Match;
 import dev.cgrscript.interpreter.ast.query.QueryPipeClause;
 
 public class PipeIndexNode extends OneInputIndexNode {

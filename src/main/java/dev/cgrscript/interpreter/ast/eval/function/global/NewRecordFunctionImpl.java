@@ -24,10 +24,9 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.function.global;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RecordTypeRefValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.ast.utils.RecordFactory;
@@ -46,7 +45,7 @@ public class NewRecordFunctionImpl extends BuiltinGlobalFunction {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Create a new record of a given type";
     }
 
 }

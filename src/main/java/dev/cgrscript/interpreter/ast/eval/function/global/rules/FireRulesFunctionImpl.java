@@ -24,7 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.function.global.rules;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RecordValueExpr;
@@ -32,7 +32,9 @@ import dev.cgrscript.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.eval.InvalidCallError;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class FireRulesFunctionImpl extends BuiltinGlobalFunction {
 
@@ -46,9 +48,11 @@ public class FireRulesFunctionImpl extends BuiltinGlobalFunction {
         ArrayValueExpr recordsExpr = (ArrayValueExpr) args.get("records");
 
         context.getDatabase().clear();
+        var recordIdSet = new HashSet<Integer>();
         for (ValueExpr valueExpr : recordsExpr.getValue()) {
             RecordValueExpr recordExpr = (RecordValueExpr) valueExpr;
-            context.getDatabase().addRecord(recordExpr);
+            setInitialValue(recordExpr, recordIdSet);
+            context.getDatabase().insertFact(recordExpr);
         }
         context.getDatabase().linkRules();
         context.getDatabase().fireRules(context);
@@ -57,9 +61,23 @@ public class FireRulesFunctionImpl extends BuiltinGlobalFunction {
         return null;
     }
 
+    private void setInitialValue(RecordValueExpr recordExpr, Set<Integer> recordIdSet) {
+        if (!recordIdSet.add(recordExpr.getId())) {
+            return;
+        }
+
+        recordExpr.setInitialValue();
+
+        for (ValueExpr value : recordExpr.getValues()) {
+            if (value instanceof RecordValueExpr) {
+                setInitialValue((RecordValueExpr) value, recordIdSet);
+            }
+        }
+    }
+
     @Override
     public String getDocumentation() {
-        return "";
+        return "Configure the initial working memory and starts the rule engine";
     }
 
 }

@@ -24,13 +24,12 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.function.global.conf;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.cgrscript.interpreter.file_system.local.LocalCgrScriptFile;
-import dev.cgrscript.interpreter.file_system.CgrScriptFile;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 
 import java.util.Map;

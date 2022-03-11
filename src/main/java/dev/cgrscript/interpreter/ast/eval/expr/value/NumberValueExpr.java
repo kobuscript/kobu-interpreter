@@ -24,9 +24,10 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.expr.value;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.HasMethods;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
 import dev.cgrscript.interpreter.ast.symbol.*;
 
 import java.util.Objects;
@@ -106,13 +107,8 @@ public class NumberValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public int creatorId() {
-        return 0;
-    }
-
-    @Override
-    public void creatorId(int id) {
-
+    public SnapshotValue getSnapshotValue() {
+        return new NumberSnapshotValue(value);
     }
 
     @Override
@@ -126,5 +122,28 @@ public class NumberValueExpr implements ValueExpr, HasMethods {
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }
+
+    private static class NumberSnapshotValue implements SnapshotValue {
+
+        private final Number value;
+
+        public NumberSnapshotValue(Number value) {
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            NumberSnapshotValue that = (NumberSnapshotValue) o;
+            return Objects.equals(value, that.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
+
     }
 }

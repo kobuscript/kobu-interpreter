@@ -25,7 +25,7 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.ast.eval.DocumentationSource;
-import dev.cgrscript.interpreter.ast.eval.EvalModeEnum;
+import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
 import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 

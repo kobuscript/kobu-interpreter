@@ -22,14 +22,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.ast.eval;
+package dev.cgrscript.database.index;
 
-import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+import dev.cgrscript.database.Fact;
 
-public interface HasFields {
+import java.util.ArrayList;
+import java.util.List;
 
-    Expr resolveField(String fieldName);
+public abstract class RootIndexNode implements IndexNode {
 
-    void updateFieldValue(EvalContext context, String fieldName, ValueExpr value);
+    private final List<Slot> children = new ArrayList<>();
+
+    @Override
+    public void dispatch(Match match) {
+        children.forEach(slot -> slot.receive(match));
+    }
+
+    @Override
+    public void addChild(Slot child) {
+        children.add(child);
+    }
+
+    @Override
+    public void clear() {
+        for (Slot child : children) {
+            child.clear();
+        }
+    }
+
+    public abstract void receive(Fact fact);
+
+    public abstract void beforeRun();
+
+    public abstract void afterRun();
 
 }

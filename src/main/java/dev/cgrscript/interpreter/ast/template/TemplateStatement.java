@@ -24,8 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.template;
 
-import dev.cgrscript.database.match.Match;
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.database.index.Match;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Statement;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.TemplateValueExpr;
@@ -62,7 +62,8 @@ public abstract class TemplateStatement implements Statement {
         RecordValueExpr rootRecord = match.getRootRecord();
         TemplateValueExpr templateValue = new TemplateValueExpr(context.getDatabase().generateRecordId(),
                 executor, rootRecord, rootRecord.getId());
-        context.getDatabase().addTemplateValue(match, templateValue);
+        templateValue.setOriginRule(context.getRuleContext().getRuleSymbol().getFullName());
+        context.getDatabase().insertFact(templateValue);
 
     }
 

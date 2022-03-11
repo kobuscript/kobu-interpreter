@@ -25,10 +25,14 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.expr.value;
 
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
 import dev.cgrscript.interpreter.ast.symbol.FunctionType;
 import dev.cgrscript.interpreter.ast.symbol.PairType;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.ast.symbol.Type;
+
+import java.util.Objects;
 
 public class PairValueExpr implements ValueExpr, HasMethods {
 
@@ -37,8 +41,6 @@ public class PairValueExpr implements ValueExpr, HasMethods {
     private final ValueExpr leftValue;
 
     private final ValueExpr rightValue;
-
-    private int creatorId;
 
     public PairValueExpr(PairType type, ValueExpr leftValue, ValueExpr rightValue) {
         this.type = type;
@@ -71,16 +73,6 @@ public class PairValueExpr implements ValueExpr, HasMethods {
         return type.resolveMethod(methodName);
     }
 
-    @Override
-    public int creatorId() {
-        return creatorId;
-    }
-
-    @Override
-    public void creatorId(int id) {
-        this.creatorId = id;
-    }
-
     public ValueExpr getLeftValue() {
         return leftValue;
     }
@@ -92,6 +84,39 @@ public class PairValueExpr implements ValueExpr, HasMethods {
     @Override
     public String getStringValue() {
         return "(" + leftValue.getStringValue() + ", " + rightValue.getStringValue() + ")";
+    }
+
+    @Override
+    public SnapshotValue getSnapshotValue() {
+        SnapshotValue left = leftValue != null ? leftValue.getSnapshotValue() : null;
+        SnapshotValue right = rightValue != null ? rightValue.getSnapshotValue() : null;
+        return new PairSnapshotValue(left, right);
+    }
+
+    private static class PairSnapshotValue implements SnapshotValue {
+
+        private final SnapshotValue snapshotLeft;
+
+        private final SnapshotValue snapshotRight;
+
+        private PairSnapshotValue(SnapshotValue snapshotLeft, SnapshotValue snapshotRight) {
+            this.snapshotLeft = snapshotLeft;
+            this.snapshotRight = snapshotRight;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PairSnapshotValue that = (PairSnapshotValue) o;
+            return Objects.equals(snapshotLeft, that.snapshotLeft) && Objects.equals(snapshotRight, that.snapshotRight);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(snapshotLeft, snapshotRight);
+        }
+
     }
 
 }

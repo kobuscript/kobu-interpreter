@@ -24,6 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval;
 
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+
 public interface MemoryReference {
 
     void setAssignMode();

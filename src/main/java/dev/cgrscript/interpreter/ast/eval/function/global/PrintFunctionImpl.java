@@ -24,7 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.function.global;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.cgrscript.interpreter.ast.eval.function.BuiltinGlobalFunction;
@@ -47,7 +47,7 @@ public class PrintFunctionImpl extends BuiltinGlobalFunction {
 
     @Override
     public String getDocumentation() {
-        return "Prints a object to the standard output";
+        return "Prints an object to the standard output";
     }
 
 }

@@ -25,12 +25,11 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.eval.expr;
 
 import dev.cgrscript.interpreter.ast.eval.*;
-import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.*;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
-import dev.cgrscript.interpreter.error.eval.NullPointerError;
 
 public class PostIncDecExpr implements Statement, Expr, HasTypeScope, Assignment {
 

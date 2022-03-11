@@ -24,13 +24,16 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.expr.value;
 
+import dev.cgrscript.database.Fact;
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
 import dev.cgrscript.interpreter.ast.symbol.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class RecordValueExpr implements ValueExpr, HasFields, HasMethods {
+public class RecordValueExpr implements ValueExpr, HasFields, HasMethods, Fact {
 
     private final Type type;
 
@@ -38,7 +41,15 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods {
 
     private final int id;
 
+    private int version;
+
     private int creatorId;
+
+    private boolean initialValue;
+
+    private int iteration;
+
+    private String originRule;
 
     public RecordValueExpr(Type type, Map<String, ValueExpr> fieldValues, int id) {
         this.type = type;
@@ -83,7 +94,7 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods {
 
     @Override
     public String getStringValue() {
-        StringBuilder strBuilder = new StringBuilder(type.getName());
+        StringBuilder strBuilder = new StringBuilder(((RecordTypeSymbol)type).getNameInModule());
 
         strBuilder.append("{");
 
@@ -95,18 +106,60 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods {
         return strBuilder.toString();
     }
 
+    @Override
+    public SnapshotValue getSnapshotValue() {
+        return new RecordSnapshotValue(this.id, this.version);
+    }
+
+    @Override
     public int getId() {
         return id;
     }
 
     @Override
-    public int creatorId() {
+    public int getCreatorId() {
         return creatorId;
     }
 
     @Override
-    public void creatorId(int id) {
+    public void setCreatorId(int id) {
         this.creatorId = id;
+    }
+
+    @Override
+    public int getIteration() {
+        return iteration;
+    }
+
+    @Override
+    public void setIteration(int iteration) {
+        this.iteration = iteration;
+    }
+
+    @Override
+    public String getOriginRule() {
+        return originRule;
+    }
+
+    @Override
+    public void setOriginRule(String originRule) {
+        this.originRule = originRule;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void incVersion() {
+        this.version++;
+    }
+
+    public void setInitialValue() {
+        initialValue = true;
+    }
+
+    public boolean initialValue() {
+        return initialValue;
     }
 
     public List<ValueExpr> getValues() {
@@ -128,5 +181,31 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    private static class RecordSnapshotValue implements SnapshotValue {
+
+        private final int id;
+
+        private final int version;
+
+        public RecordSnapshotValue(int id, int version) {
+            this.id = id;
+            this.version = version;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            RecordSnapshotValue that = (RecordSnapshotValue) o;
+            return id == that.id && version == that.version;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, version);
+        }
+
     }
 }

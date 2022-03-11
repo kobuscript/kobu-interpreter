@@ -26,7 +26,7 @@ package dev.cgrscript.interpreter.input.parser;
 
 import dev.cgrscript.antlr.csv.CSVBaseVisitor;
 import dev.cgrscript.antlr.csv.CSVParser;
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.NumberValueExpr;

@@ -24,8 +24,9 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.eval.expr.value;
 
-import dev.cgrscript.interpreter.ast.eval.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.SnapshotValue;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.ast.symbol.Type;
 
@@ -67,13 +68,8 @@ public class NullValueExpr implements ValueExpr {
     }
 
     @Override
-    public int creatorId() {
-        return 0;
-    }
-
-    @Override
-    public void creatorId(int id) {
-
+    public SnapshotValue getSnapshotValue() {
+        return new NullSnapshotValue();
     }
 
     @Override
@@ -85,5 +81,9 @@ public class NullValueExpr implements ValueExpr {
     @Override
     public int hashCode() {
         return 0;
+    }
+
+    private static class NullSnapshotValue implements SnapshotValue {
+
     }
 }

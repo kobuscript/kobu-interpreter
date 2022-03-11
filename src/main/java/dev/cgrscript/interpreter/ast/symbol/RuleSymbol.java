@@ -24,21 +24,23 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
-import dev.cgrscript.database.Database;
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.AnalyzerErrorScope;
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
+import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.query.Query;
 import dev.cgrscript.interpreter.error.analyzer.CyclicRuleReferenceError;
 import dev.cgrscript.interpreter.error.analyzer.IncompatibleRulesError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidParentRuleError;
-import dev.cgrscript.interpreter.input.InputReader;
-import dev.cgrscript.interpreter.writer.OutputWriter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RuleSymbol extends Symbol implements HasExpr {
+
+    private final EvalContextProvider evalContextProvider;
 
     private final SourceCodeRef closeRuleRef;
 
@@ -60,10 +62,11 @@ public class RuleSymbol extends Symbol implements HasExpr {
 
     private SymbolDocumentation documentation;
 
-    public RuleSymbol(SourceCodeRef sourceCodeRef, String name, SourceCodeRef closeRuleRef,
-                      ModuleScope moduleScope, RuleTypeEnum ruleType, String parentRuleModuleAlias,
-                      String parentRule, String docText) {
+    public RuleSymbol(SourceCodeRef sourceCodeRef, String name, EvalContextProvider evalContextProvider,
+                      SourceCodeRef closeRuleRef, ModuleScope moduleScope, RuleTypeEnum ruleType,
+                      String parentRuleModuleAlias, String parentRule, String docText) {
         super(moduleScope, sourceCodeRef, name);
+        this.evalContextProvider = evalContextProvider;
         this.closeRuleRef = closeRuleRef;
         this.moduleScope = moduleScope;
         this.ruleType = ruleType;
@@ -109,7 +112,7 @@ public class RuleSymbol extends Symbol implements HasExpr {
     }
 
     @Override
-    public void analyze(AnalyzerContext context, Database database, InputReader inputReader, OutputWriter outputWriter) {
+    public void analyze(AnalyzerContext context) {
         AnalyzerErrorScope errorScope = context.getErrorScope();
         if (parentRule != null) {
             if (parentRuleSymbol == null) {
@@ -131,7 +134,7 @@ public class RuleSymbol extends Symbol implements HasExpr {
                 }
             }
         }
-        var evalContext = new EvalContext(context, moduleScope.getEvalMode(), moduleScope, database, inputReader, outputWriter);
+        var evalContext = evalContextProvider.newEvalContext(context, moduleScope);
         int errors = errorScope.getErrors() != null ? errorScope.getErrors().size() : 0;
         if (query != null) {
             query.analyze(evalContext);

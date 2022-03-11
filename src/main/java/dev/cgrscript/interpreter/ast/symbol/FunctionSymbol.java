@@ -26,16 +26,17 @@ package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.eval.*;
-import dev.cgrscript.database.Database;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
+import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.error.analyzer.FunctionMissingReturnStatError;
-import dev.cgrscript.interpreter.input.InputReader;
-import dev.cgrscript.interpreter.writer.OutputWriter;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
+
+    private final EvalContextProvider evalContextProvider;
 
     private final ModuleScope moduleScope;
 
@@ -53,9 +54,11 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
 
     private SymbolDocumentation documentation;
 
-    public FunctionSymbol(SourceCodeRef sourceCodeRef, SourceCodeRef closeFunctionRef, ModuleScope moduleScope,
+    public FunctionSymbol(EvalContextProvider evalContextProvider,
+                          SourceCodeRef sourceCodeRef, SourceCodeRef closeFunctionRef, ModuleScope moduleScope,
                           String name, String docText) {
         super(moduleScope, sourceCodeRef, name);
+        this.evalContextProvider = evalContextProvider;
         this.closeFunctionRef = closeFunctionRef;
         this.moduleScope = moduleScope;
         this.docText = docText;
@@ -105,8 +108,8 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
     }
 
     @Override
-    public void analyze(AnalyzerContext analyzerContext, Database database, InputReader inputReader, OutputWriter outputWriter) {
-        var context = new EvalContext(analyzerContext, moduleScope.getEvalMode(), moduleScope, database, inputReader, outputWriter, this);
+    public void analyze(AnalyzerContext analyzerContext) {
+        var context = evalContextProvider.newEvalContext(analyzerContext, moduleScope, this);
         var scope = context.getCurrentScope();
 
         symbolsModule = scope.getSymbolDescriptors(
@@ -137,8 +140,8 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
         context.popBranch();
     }
 
-    public ValueExpr eval(AnalyzerContext analyzerContext, List<ValueExpr> args, Database database, InputReader inputReader, OutputWriter outputWriter) {
-        var context = new EvalContext(analyzerContext, moduleScope.getEvalMode(), moduleScope, database, inputReader, outputWriter, this);
+    public ValueExpr eval(AnalyzerContext analyzerContext, List<ValueExpr> args) {
+        var context = evalContextProvider.newEvalContext(analyzerContext, moduleScope, this);
         var scope = context.getCurrentScope();
         for (int i = 0; i < parameters.size(); i++) {
             FunctionParameter parameter = parameters.get(i);

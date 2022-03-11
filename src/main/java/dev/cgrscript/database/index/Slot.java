@@ -24,14 +24,10 @@ SOFTWARE.
 
 package dev.cgrscript.database.index;
 
-import dev.cgrscript.database.match.Match;
-
 public interface Slot {
 
     void receive(Match match);
 
     void clear();
-
-    void clearMatchGroup(int matchGroupId);
 
 }
