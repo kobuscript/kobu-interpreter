@@ -316,10 +316,6 @@ public class ModuleLoader {
                     moduleScope, context);
             visit(moduleScope.getModuleId(), evalTreeParserVisitor);
 
-            TypeHierarchyParserVisitor typeHierarchyParserVisitor = new TypeHierarchyParserVisitor(this,
-                    moduleScope, context);
-            visit(moduleScope.getModuleId(), typeHierarchyParserVisitor);
-
             return moduleScope;
 
         } catch (IOException ex) {

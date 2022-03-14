@@ -25,31 +25,24 @@ SOFTWARE.
 package dev.cgrscript.interpreter.error.analyzer;
 
 import dev.cgrscript.interpreter.ast.symbol.RecordTypeSymbol;
-import dev.cgrscript.interpreter.ast.symbol.RecordTypeStarAttribute;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 
-import java.util.List;
+public class RecordTypeStarAttributeError extends AnalyzerError {
 
-public class RecordSuperTypeConflictError extends AnalyzerError {
+    private final RecordTypeSymbol recordTypeSymbol;
 
-    private final RecordTypeSymbol recordType;
+    public RecordTypeStarAttributeError(SourceCodeRef sourceCodeRef, RecordTypeSymbol recordTypeSymbol) {
+        super(sourceCodeRef);
+        this.recordTypeSymbol = recordTypeSymbol;
+    }
 
-    private final RecordTypeSymbol superType;
-
-    private final RecordTypeStarAttribute starAttribute;
-
-    public RecordSuperTypeConflictError(List<SourceCodeRef> sourceCodeRefList, RecordTypeSymbol recordType,
-                                        RecordTypeSymbol superType, RecordTypeStarAttribute starAttribute) {
-        super(sourceCodeRefList);
-        this.recordType = recordType;
-        this.superType = superType;
-        this.starAttribute = starAttribute;
+    public RecordTypeSymbol getRecordTypeSymbol() {
+        return recordTypeSymbol;
     }
 
     @Override
     public String getDescription() {
-        return "'" + recordType.getName() + "' incorrectly extends '" + superType.getName()
-                + "'. Both have unknown attributes with incompatible types";
+        return "unknown attributes are already defined for '" + recordTypeSymbol.getName() + "'";
     }
 }

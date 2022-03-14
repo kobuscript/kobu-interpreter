@@ -35,7 +35,6 @@ import dev.cgrscript.interpreter.ast.eval.function.record.RecordValuesMethodImpl
 import dev.cgrscript.interpreter.error.analyzer.CyclicRecordInheritanceError;
 import dev.cgrscript.interpreter.error.analyzer.RecordSuperTypeConflictError;
 import dev.cgrscript.interpreter.error.analyzer.RecordTypeAttributeConflictError;
-import dev.cgrscript.interpreter.error.analyzer.RecordTypeUnknownAttributesError;
 
 import java.util.*;
 
@@ -45,13 +44,15 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     private RecordTypeSymbol superType;
 
+    private SourceCodeRef superTypeSourceCodeRef;
+
     private final Map<String, RecordTypeAttribute> attributes = new HashMap<>();
 
     private final Map<String, FunctionType> methods = new HashMap<>();
 
     private final String docText;
 
-    private RecordTypeUnknownAttributes unknownAttributes;
+    private RecordTypeStarAttribute starAttribute;
 
     private SymbolDocumentation documentation;
 
@@ -96,23 +97,20 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     public void setSuperType(RecordSuperType superType) {
         this.superType = superType.getType();
+        this.superTypeSourceCodeRef = superType.getSourceCodeRef();
     }
 
-    public void addAttribute(AnalyzerContext context, RecordTypeAttribute attribute) {
+    public void addAttribute(RecordTypeAttribute attribute) {
         attribute.setRecordType(this);
-        RecordTypeAttribute currentDef = attributes.get(attribute.getName());
-        if (currentDef != null && !currentDef.getType().equals(attribute.getType())) {
-            context.getErrorScope().addError(new RecordTypeAttributeConflictError(currentDef, attribute));
-        }
         attributes.put(attribute.getName(), attribute);
     }
 
-    public void setUnknownAttributes(AnalyzerContext context, RecordTypeUnknownAttributes attributes) {
-        if (unknownAttributes != null) {
-            context.getErrorScope()
-                    .addError(new RecordTypeUnknownAttributesError(attributes.getSourceCodeRef(), this));
-        }
-        unknownAttributes = attributes;
+    public RecordTypeStarAttribute getStarAttribute() {
+        return starAttribute;
+    }
+
+    public void setStarAttribute(RecordTypeStarAttribute attribute) {
+        starAttribute = attribute;
     }
 
     public RecordTypeSymbol getSuperType() {
@@ -123,16 +121,8 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         return attributes;
     }
 
-    public List<String> getAttributeNames() {
-        List<String> names = new ArrayList<>(attributes.keySet());
-        if (superType != null) {
-            names.addAll(superType.getAttributeNames());
-        }
-        return names;
-    }
-
-    public RecordTypeUnknownAttributes getUnknownAttributes() {
-        return unknownAttributes;
+    public RecordTypeAttribute getAttribute(String name) {
+        return attributes.get(name);
     }
 
     @Override
@@ -145,8 +135,8 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         if (fieldType != null) {
             return fieldType;
         }
-        if (unknownAttributes != null) {
-            return unknownAttributes.getType();
+        if (starAttribute != null) {
+            return starAttribute.getType();
         }
         return null;
     }
@@ -163,8 +153,8 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
                 return ref;
             }
         }
-        if (unknownAttributes != null) {
-            return unknownAttributes.getSourceCodeRef();
+        if (starAttribute != null) {
+            return starAttribute.getSourceCodeRef();
         }
         return null;
     }
@@ -189,12 +179,12 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         return superType.hasSuperType(recordTypeSymbol, path);
     }
 
-    public boolean hasUnknownAttributes() {
-        if (unknownAttributes != null) {
+    public boolean hasStarAttribute() {
+        if (starAttribute != null) {
             return true;
         }
         if (superType != null) {
-            return superType.hasUnknownAttributes();
+            return superType.hasStarAttribute();
         }
         return false;
     }
@@ -275,8 +265,8 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
             }
         }
 
-        if (unknownAttributes != null && types.add(unknownAttributes.getType().getIdentifier())) {
-            buildDynamicMethods(unknownAttributes.getType());
+        if (starAttribute != null && types.add(starAttribute.getType().getIdentifier())) {
+            buildDynamicMethods(starAttribute.getType());
         }
     }
 
@@ -307,13 +297,13 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         if (superType != null) {
             List<String> path = new ArrayList<>();
             if (hasSuperType(this, path)) {
-                context.getErrorScope().addError(new CyclicRecordInheritanceError(superType.getSourceCodeRef(), path));
-            } else if (unknownAttributes != null && superType.hasUnknownAttributes()) {
+                context.getErrorScope().addError(new CyclicRecordInheritanceError(superTypeSourceCodeRef, path));
+            } else if (starAttribute != null && superType.hasStarAttribute()) {
                 List<SourceCodeRef> sourceCodeRefList = new ArrayList<>();
                 sourceCodeRefList.add(superType.getSourceCodeRef());
                 sourceCodeRefList.add(getSourceCodeRef());
                 context.getErrorScope().addError(new RecordSuperTypeConflictError(sourceCodeRefList, this,
-                        superType, unknownAttributes));
+                        superType, starAttribute));
             }
 
             for (RecordTypeAttribute attr : attributes.values()) {

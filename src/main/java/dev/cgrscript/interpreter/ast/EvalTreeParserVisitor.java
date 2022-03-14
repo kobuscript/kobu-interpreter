@@ -137,15 +137,40 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
                     var type = (Type) visit(attrCtx.type());
                     if (attrCtx.ID() != null) {
                         var attr = new RecordTypeAttribute(moduleScope, getSourceCodeRef(attrCtx.ID()), attrCtx.ID().getText(), type);
-                        recordType.addAttribute(context, attr);
+                        RecordTypeAttribute currentDef = recordType.getAttribute(attr.getName());
+                        if (currentDef != null) {
+                            context.getErrorScope().addError(new RecordTypeAttributeConflictError(currentDef, attr));
+                        }
+                        recordType.addAttribute(attr);
                     } else if (attrCtx.STAR() != null) {
-                        recordType.setUnknownAttributes(context, new RecordTypeUnknownAttributes(getSourceCodeRef(attrCtx), type));
+                        var starAttributes = recordType.getStarAttribute();
+                        var sourceCodeRef = getSourceCodeRef(attrCtx);
+                        if (starAttributes != null) {
+                            context.getErrorScope()
+                                    .addError(new RecordTypeStarAttributeError(sourceCodeRef, recordType));
+                        } else {
+                            recordType.setStarAttribute(new RecordTypeStarAttribute(sourceCodeRef, type));
+                        }
                     }
                 }
                 attrCtx = attrCtx.attributes();
             }
 
         }
+
+        if (ctx.inheritance() != null && ctx.inheritance().typeName() != null) {
+            var typeNameExpr = ctx.inheritance().typeName();
+            Type superType = (Type) visit(typeNameExpr);
+            if (!(superType instanceof RecordTypeSymbol)) {
+                if (!(superType instanceof AnyRecordTypeSymbol)) {
+                    context.getErrorScope().addError(new RecordInvalidSuperTypeError(getSourceCodeRef(typeNameExpr), recordType,
+                            typeNameExpr.getText()));
+                }
+            } else {
+                recordType.setSuperType(new RecordSuperType(getSourceCodeRef(typeNameExpr), (RecordTypeSymbol) superType));
+            }
+        }
+
         recordType.buildMethods();
 
         return null;
@@ -637,16 +662,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             topLevelExpression = false;
         }
 
-        String moduleAlias = null;
-        String recordType = null;
-        if (ctx.typeName().ID().size() == 1) {
-            recordType = ctx.typeName().ID(0).getText();
-        } else {
-            moduleAlias = ctx.typeName().ID(0).getText();
-            recordType = ctx.typeName().ID(1).getText();
-        }
-        RecordConstructorCallExpr recordConstructor = new RecordConstructorCallExpr(getSourceCodeRef(ctx.typeName()),
-                moduleAlias, recordType);
+        var sourceCodeRef = getSourceCodeRef(ctx.typeName());
+        Type type = (Type) visit(ctx.typeName());
+        RecordConstructorCallExpr recordConstructor = new RecordConstructorCallExpr(sourceCodeRef, type);
 
         CgrScriptParser.RecordFieldContext fieldCtx = ctx.recordField();
         while (fieldCtx != null && fieldCtx.exprWrapper() != null) {

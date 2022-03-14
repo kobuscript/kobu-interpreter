@@ -24,7 +24,7 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
-public class RecordTypeUnknownAttributes {
+public class RecordTypeStarAttribute {
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -32,7 +32,7 @@ public class RecordTypeUnknownAttributes {
 
     private RecordTypeSymbol recordType;
 
-    public RecordTypeUnknownAttributes(SourceCodeRef sourceCodeRef, Type type) {
+    public RecordTypeStarAttribute(SourceCodeRef sourceCodeRef, Type type) {
         this.sourceCodeRef = sourceCodeRef;
         this.type = type;
     }

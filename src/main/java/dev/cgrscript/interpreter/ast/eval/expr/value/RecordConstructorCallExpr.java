@@ -42,18 +42,13 @@ public class RecordConstructorCallExpr implements Expr {
 
     private final SourceCodeRef sourceCodeRef;
 
-    private final String moduleAlias;
-
-    private final String recordTypeName;
-
     private final List<RecordFieldExpr> fields = new ArrayList<>();
 
-    private Type type;
+    private final Type recordType;
 
-    public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, String moduleAlias, String recordTypeName) {
+    public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, Type recordType) {
         this.sourceCodeRef = sourceCodeRef;
-        this.moduleAlias = moduleAlias;
-        this.recordTypeName = recordTypeName;
+        this.recordType = recordType;
     }
 
     public void addField(RecordFieldExpr recordField) {
@@ -67,37 +62,16 @@ public class RecordConstructorCallExpr implements Expr {
 
     @Override
     public Type getType() {
-        return type;
+        return recordType;
     }
 
     @Override
     public void analyze(EvalContext context) {
-        Symbol symbolType;
-
-        if (moduleAlias == null) {
-            symbolType = context.getCurrentScope().resolve(recordTypeName);
-        } else {
-            ModuleRefSymbol moduleRefSymbol = (ModuleRefSymbol) context.getModuleScope().resolveLocal(moduleAlias);
-            if (moduleRefSymbol == null) {
-                context.addAnalyzerError(new UndefinedTypeError(sourceCodeRef, moduleAlias + "." + recordTypeName,
-                        context.getNewGlobalDefinitionOffset()));
-                type = UnknownType.INSTANCE;
-                return;
-            }
-            symbolType = moduleRefSymbol.getModuleScopeRef().resolve(recordTypeName);
-        }
-
-        if (!(symbolType instanceof RecordTypeSymbol)) {
-            context.addAnalyzerError(new UndefinedTypeError(sourceCodeRef, recordTypeName,
+        if (!(recordType instanceof RecordTypeSymbol)) {
+            context.addAnalyzerError(new UndefinedTypeError(sourceCodeRef, recordType.getName(),
                     context.getNewGlobalDefinitionOffset()));
-            type = UnknownType.INSTANCE;
             return;
-        } else {
-            type = (RecordTypeSymbol) symbolType;
         }
-
-        RecordTypeSymbol recordType = (RecordTypeSymbol) symbolType;
-
         for (RecordFieldExpr fieldExpr : fields) {
             Type fieldType = recordType.resolveField(fieldExpr.getFieldName());
             if (fieldType != null) {
@@ -107,12 +81,12 @@ public class RecordConstructorCallExpr implements Expr {
             var exprType = fieldExpr.getType();
             if (fieldType == null) {
                 context.addAnalyzerError(new InvalidRecordFieldError(fieldExpr.getSourceCodeRef(),
-                        recordType, fieldExpr.getFieldName()));
+                        (RecordTypeSymbol) recordType, fieldExpr.getFieldName()));
                 continue;
             }
             if (!(exprType instanceof UnknownType) && !fieldType.isAssignableFrom(fieldExpr.getType())) {
                 context.addAnalyzerError(new InvalidRecordFieldTypeError(fieldExpr.getSourceCodeRef(),
-                        recordType, fieldExpr.getFieldName(), fieldExpr.getType()));
+                        (RecordTypeSymbol) recordType, fieldExpr.getFieldName(), fieldExpr.getType()));
             }
         }
     }
@@ -129,7 +103,7 @@ public class RecordConstructorCallExpr implements Expr {
             fieldValues.put(fieldExpr.getFieldName(), fieldValueExpr);
         }
 
-        return new RecordValueExpr(type, fieldValues, id);
+        return new RecordValueExpr(recordType, fieldValues, id);
     }
 
 }

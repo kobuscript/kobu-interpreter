@@ -22,27 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter.error.analyzer;
+package dev.cgrscript.database;
 
-import dev.cgrscript.interpreter.ast.symbol.RecordTypeSymbol;
-import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
-import dev.cgrscript.interpreter.error.AnalyzerError;
-
-public class RecordTypeUnknownAttributesError extends AnalyzerError {
-
-    private final RecordTypeSymbol recordTypeSymbol;
-
-    public RecordTypeUnknownAttributesError(SourceCodeRef sourceCodeRef, RecordTypeSymbol recordTypeSymbol) {
-        super(sourceCodeRef);
-        this.recordTypeSymbol = recordTypeSymbol;
-    }
-
-    public RecordTypeSymbol getRecordTypeSymbol() {
-        return recordTypeSymbol;
-    }
-
-    @Override
-    public String getDescription() {
-        return "unknown attributes are already defined for '" + recordTypeSymbol.getName() + "'";
-    }
+public abstract class DatabaseTestBase {
 }
