@@ -50,8 +50,6 @@ import java.util.stream.Collectors;
 
 public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
 
-    private final EvalContextProvider evalContextProvider;
-
     private final AnalyzerContext context;
 
     private final ScriptRef script;
@@ -59,10 +57,9 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
     private final BufferedTokenStream tokens;
 
     public ModuleParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope,
-                               EvalContextProvider evalContextProvider, AnalyzerContext context, ScriptRef script,
+                               AnalyzerContext context, ScriptRef script,
                                BufferedTokenStream tokens) {
         super(moduleLoader);
-        this.evalContextProvider = evalContextProvider;
         this.tokens = tokens;
         this.moduleScope = moduleScope;
         this.context = context;
@@ -111,17 +108,15 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
             }
 
             ModuleScope dependency = moduleLoader.loadScope(context, dependencyModuleId, getSourceCodeRef(ctx));
-            if (!moduleScope.addModule(dependency)) {
-                context.getErrorScope().addError(new DuplicatedModuleReferenceError(getSourceCodeRef(ctx), dependencyModuleId));
+            if (!moduleScope.addModule(context, dependency, alias, sourceCodeRef)) {
+                context.getErrorScope().addError(new DuplicatedModuleReferenceError(getSourceCodeRef(ctx),
+                        moduleScope.getModuleId(), dependencyModuleId));
                 return null;
             } else if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
                 var path = moduleScope.findCyclicPath();
                 if (path != null) {
                     this.context.getErrorScope().addError(new CyclicModuleReferenceError(getSourceCodeRef(ctx.moduleId()), path));
                 }
-            }
-            if (!moduleScope.getModuleId().equals(dependencyModuleId)) {
-                moduleScope.merge(context, dependency, alias, sourceCodeRef);
             }
         } catch (AnalyzerError error) {
             context.getErrorScope().addError(error);
@@ -200,7 +195,7 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
                 }
             }
 
-            var function = new FunctionSymbol(evalContextProvider, getSourceCodeRef(ctx.ID()), getSourceCodeRef(ctx.RCB()),
+            var function = new FunctionSymbol(getSourceCodeRef(ctx.ID()), getSourceCodeRef(ctx.RCB()),
                     moduleScope, ctx.ID().getText(), docText);
             moduleScope.define(context, function);
         }
@@ -239,17 +234,6 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ID() == null) {
             return null;
         }
-        String parentRuleModuleAlias = null;
-        String parentRule = null;
-        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
-            var typeNameExpr = ctx.ruleExtends().typeName();
-            if (typeNameExpr.ID().size() == 2) {
-                parentRuleModuleAlias = typeNameExpr.ID(0).getText();
-                parentRule = typeNameExpr.ID(1).getText();
-            } else {
-                parentRule = typeNameExpr.ID(0).getText();
-            }
-        }
 
         String docText = null;
         if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
@@ -259,8 +243,8 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
             }
         }
 
-        var template = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), evalContextProvider, getSourceCodeRef(ctx.TEMPLATE_END()),
-                moduleScope, RuleTypeEnum.TEMPLATE, parentRuleModuleAlias, parentRule, docText);
+        var template = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.TEMPLATE_END()),
+                moduleScope, RuleTypeEnum.TEMPLATE, docText);
         moduleScope.define(context, template);
         return null;
     }
@@ -270,17 +254,6 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ID() == null) {
             return null;
         }
-        String parentRuleModuleAlias = null;
-        String parentRule = null;
-        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
-            var typeNameExpr = ctx.ruleExtends().typeName();
-            if (typeNameExpr.ID().size() == 2) {
-                parentRuleModuleAlias = typeNameExpr.ID(0).getText();
-                parentRule = typeNameExpr.ID(1).getText();
-            } else {
-                parentRule = typeNameExpr.ID(0).getText();
-            }
-        }
 
         String docText = null;
         if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
@@ -290,8 +263,8 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
             }
         }
 
-        var rule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), evalContextProvider, getSourceCodeRef(ctx.RCB()),
-                moduleScope, RuleTypeEnum.RULE, parentRuleModuleAlias, parentRule, docText);
+        var rule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.RCB()),
+                moduleScope, RuleTypeEnum.RULE, docText);
         moduleScope.define(context, rule);
         return null;
     }
@@ -301,17 +274,6 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
         if (ctx.ID() == null) {
             return null;
         }
-        String parentRuleModuleAlias = null;
-        String parentRule = null;
-        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
-            var typeNameExpr = ctx.ruleExtends().typeName();
-            if (typeNameExpr.ID().size() == 2) {
-                parentRuleModuleAlias = typeNameExpr.ID(0).getText();
-                parentRule = typeNameExpr.ID(1).getText();
-            } else {
-                parentRule = typeNameExpr.ID(0).getText();
-            }
-        }
 
         String docText = null;
         if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
@@ -321,8 +283,8 @@ public class ModuleParserVisitor extends CgrScriptParserVisitor<Void> {
             }
         }
 
-        var fileRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), evalContextProvider, getSourceCodeRef(ctx.PATH_END()),
-                moduleScope, RuleTypeEnum.FILE, parentRuleModuleAlias, parentRule, docText);
+        var fileRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.PATH_END()),
+                moduleScope, RuleTypeEnum.FILE, docText);
         moduleScope.define(context, fileRule);
         return null;
     }

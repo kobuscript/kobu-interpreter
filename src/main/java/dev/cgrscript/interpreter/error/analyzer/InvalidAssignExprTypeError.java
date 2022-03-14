@@ -42,6 +42,6 @@ public class InvalidAssignExprTypeError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "type '" + found.getName() + "' is not assignable to type '" + expected.getName() + "'";
+        return "Type '" + found.getName() + "' is not assignable to type '" + expected.getName() + "'";
     }
 }

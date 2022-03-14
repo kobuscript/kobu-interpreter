@@ -35,6 +35,6 @@ public class MissingExpressionError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "missing expression";
+        return "Missing expression";
     }
 }

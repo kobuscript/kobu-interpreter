@@ -29,6 +29,7 @@ import dev.cgrscript.interpreter.ast.eval.FieldDescriptor;
 import dev.cgrscript.interpreter.ast.eval.SymbolDocumentation;
 import dev.cgrscript.interpreter.ast.eval.SymbolTypeEnum;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
 import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.function.record.RecordEntriesMethodImpl;
 import dev.cgrscript.interpreter.ast.eval.function.record.RecordValuesMethodImpl;
@@ -293,7 +294,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     @Override
-    public void analyze(AnalyzerContext context) {
+    public void analyze(AnalyzerContext context, EvalContextProvider evalContextProvider) {
         if (superType != null) {
             List<String> path = new ArrayList<>();
             if (hasSuperType(this, path)) {

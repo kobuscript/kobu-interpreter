@@ -63,23 +63,20 @@ import java.util.Map;
 
 public class CgrScriptAnalyzer {
 
-    private final Database database = new Database();
-
-    private final InputReader inputReader = new InputReader(new FileFetcher());
-
     private final CgrFileSystem fileSystem;
 
     private final Map<String, ModuleLoader> modules = new HashMap<>();
-
-    private final OutputWriter outputWriter = new OutputWriter(
-            OutputWriterModeEnum.LOG_ONLY,
-            OutputWriterLogTypeEnum.NORMAL,
-            new FileSystemWriterHandler());
 
     private final EvalContextProvider evalContextProvider;
 
     public CgrScriptAnalyzer(CgrFileSystem fileSystem) {
         this.fileSystem = fileSystem;
+        Database database = new Database();
+        InputReader inputReader = new InputReader(new FileFetcher());
+        OutputWriter outputWriter = new OutputWriter(
+                OutputWriterModeEnum.LOG_ONLY,
+                OutputWriterLogTypeEnum.NORMAL,
+                new FileSystemWriterHandler());
         evalContextProvider = new EvalContextProvider(EvalModeEnum.ANALYZER_SERVICE, database, inputReader, outputWriter);
     }
 
@@ -102,7 +99,7 @@ public class CgrScriptAnalyzer {
 
         addErrors(file, errors, analyzerContext.getParserErrorListener());
 
-        moduleScope.analyze(analyzerContext);
+        moduleScope.analyze(analyzerContext, evalContextProvider);
 
         addErrors(file, errors, analyzerContext.getErrorScope());
 

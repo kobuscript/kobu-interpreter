@@ -178,7 +178,7 @@ public class EvalContext {
     public ValueExpr evalFunction(FunctionType functionType, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
         if (functionType instanceof FunctionSymbol) {
             FunctionSymbol functionSymbol = (FunctionSymbol) functionType;
-            return functionSymbol.eval(analyzerContext, args);
+            return functionSymbol.eval(analyzerContext, provider, args);
         } else if (functionType instanceof BuiltinFunctionSymbol) {
             BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) functionType;
             return builtinFunctionSymbol.getFunctionImpl().run(this, args, sourceCodeRef);

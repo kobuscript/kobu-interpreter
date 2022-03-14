@@ -24,33 +24,98 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter;
 
+import dev.cgrscript.database.Database;
+import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.eval.*;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
 import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.expr.*;
-import dev.cgrscript.interpreter.ast.eval.expr.value.BooleanValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.NumberValueExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.RecordConstructorCallExpr;
-import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
+import dev.cgrscript.interpreter.ast.eval.expr.value.*;
 import dev.cgrscript.interpreter.ast.eval.statement.ElseIfStatement;
 import dev.cgrscript.interpreter.ast.eval.statement.ForStatement;
 import dev.cgrscript.interpreter.ast.eval.statement.IfStatement;
 import dev.cgrscript.interpreter.ast.eval.statement.WhileStatement;
+import dev.cgrscript.interpreter.ast.query.Query;
+import dev.cgrscript.interpreter.ast.query.QueryTypeClause;
 import dev.cgrscript.interpreter.ast.symbol.*;
+import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.file_system.ScriptRef;
+import dev.cgrscript.interpreter.input.FileFetcher;
+import dev.cgrscript.interpreter.input.InputReader;
 import dev.cgrscript.interpreter.module.ModuleIndex;
+import dev.cgrscript.interpreter.writer.FileSystemWriterHandler;
+import dev.cgrscript.interpreter.writer.OutputWriter;
+import dev.cgrscript.interpreter.writer.OutputWriterLogTypeEnum;
+import dev.cgrscript.interpreter.writer.OutputWriterModeEnum;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AstTestBase {
 
     private int idGen;
 
+    private final AnalyzerContext analyzerContext = new AnalyzerContext();
+
+    private final EvalContextProvider evalContextProvider;
+
+    public AstTestBase() {
+        Database database = new Database();
+        InputReader inputReader = new InputReader(new FileFetcher());
+        OutputWriter outputWriter = new OutputWriter(
+                OutputWriterModeEnum.LOG_ONLY,
+                OutputWriterLogTypeEnum.NORMAL,
+                new FileSystemWriterHandler());
+        evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, database, inputReader, outputWriter);
+    }
+
+    void assertError(Class<? extends AnalyzerError> errorType, SourceCodeRef... sourceCodeRef) {
+        List<AnalyzerError> errors = new ArrayList<>();
+        for (AnalyzerError error : analyzerContext.getErrorScope().getErrors()) {
+            if (errorType.isInstance(errorType) && error.getSourceCodeRefs().containsAll(Arrays.asList(sourceCodeRef))) {
+                errors.add(error);
+            }
+        }
+        assertEquals(1, errors.size(), () -> printErrors("Expected 1 error of type " + errorType.getCanonicalName()));
+    }
+
+    void assertVar(EvalContext evalContext, String varName, Type type, ValueExpr value) {
+        var symbol = evalContext.getCurrentScope().resolve(varName);
+        assertTrue(symbol instanceof VariableSymbol);
+        Type varType = ((VariableSymbol) symbol).getType();
+        assertNotNull(varType, () -> "var '" + varName + "' has no type");
+        assertEquals(type.getName(), varType.getName(), () -> "var '" + varName + " has type '" + varType.getName()
+                + "'. Expected: '" + type.getName() + "'");
+        var actualValue = evalContext.getCurrentScope().getValue(varName);
+        assertEquals(value, actualValue, () -> "var '" + varName + "' has value " + actualValue.getStringValue()
+                + ". Expected: " + value.getStringValue());
+    }
+
+    EvalContext evalContext(ModuleScope module) {
+        return evalContextProvider.newEvalContext(analyzerContext, module);
+    }
+
+    ValueExpr run(FunctionSymbol function, ValueExpr... args) {
+        return function.eval(analyzerContext, evalContextProvider, Arrays.asList(args));
+    }
+
     ModuleScope module(String moduleId) {
         var scriptRef = new MockScriptRef(moduleId);
         return new ModuleScope(moduleId, scriptRef, "/", new ArrayList<>(), new HashMap<>(),
                 new ModuleIndex(), EvalModeEnum.EXECUTION);
+    }
+
+    void importModule(ModuleScope module, ModuleScope imported) {
+        importModule(module, imported, null);
+    }
+
+    void importModule(ModuleScope module, ModuleScope imported, String alias) {
+        module.addModule(analyzerContext, imported, alias, sourceCodeRef());
     }
 
     Type anyType() {
@@ -251,17 +316,21 @@ public abstract class AstTestBase {
     }
 
     RecordTypeSymbol recordType(ModuleScope module, String name) {
-        return new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        module.define(analyzerContext, recordType);
+        return recordType;
     }
 
     RecordTypeSymbol recordType(ModuleScope module, String name, List<RecordTypeAttribute> attributes) {
         var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        module.define(analyzerContext, recordType);
         attributes.forEach(recordType::addAttribute);
         return recordType;
     }
 
     RecordTypeSymbol recordType(ModuleScope module, String name, List<RecordTypeAttribute> attributes, Type starAttrType) {
         var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        module.define(analyzerContext, recordType);
         attributes.forEach(recordType::addAttribute);
         recordType.setStarAttribute(new RecordTypeStarAttribute(sourceCodeRef(), starAttrType));
         return recordType;
@@ -269,6 +338,7 @@ public abstract class AstTestBase {
 
     RecordTypeSymbol recordType(ModuleScope module, String name, RecordTypeSymbol superType) {
         var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        module.define(analyzerContext, recordType);
         recordType.setSuperType(new RecordSuperType(sourceCodeRef(), superType));
         return recordType;
     }
@@ -276,6 +346,7 @@ public abstract class AstTestBase {
     RecordTypeSymbol recordType(ModuleScope module, String name,
                                 RecordTypeSymbol superType, List<RecordTypeAttribute> attributes) {
         var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        module.define(analyzerContext, recordType);
         attributes.forEach(recordType::addAttribute);
         recordType.setSuperType(new RecordSuperType(sourceCodeRef(), superType));
         return recordType;
@@ -284,6 +355,7 @@ public abstract class AstTestBase {
     RecordTypeSymbol recordType(ModuleScope module, String name,
                                 RecordTypeSymbol superType, List<RecordTypeAttribute> attributes, Type starAttrType) {
         var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        module.define(analyzerContext, recordType);
         attributes.forEach(recordType::addAttribute);
         recordType.setStarAttribute(new RecordTypeStarAttribute(sourceCodeRef(), starAttrType));
         recordType.setSuperType(new RecordSuperType(sourceCodeRef(), superType));
@@ -304,6 +376,69 @@ public abstract class AstTestBase {
             recordConstructor.addField(field);
         }
         return recordConstructor;
+    }
+
+    ArrayConstructorCallExpr arrayConstructor(Expr... elements) {
+        return new ArrayConstructorCallExpr(sourceCodeRef(), Arrays.asList(elements));
+    }
+
+    PairConstructorCallExpr pairConstructor(Expr left, Expr right) {
+        return new PairConstructorCallExpr(sourceCodeRef(), left, right);
+    }
+
+    CastExpr cast(Type targetType, Expr expr) {
+        return new CastExpr(sourceCodeRef(), targetType, expr);
+    }
+
+    FieldAccessExpr fieldAccess(Expr left, Expr right) {
+        return new FieldAccessExpr(sourceCodeRef(), left, right);
+    }
+
+    FunctionParameter functionParameter(String name, Type type) {
+        return new FunctionParameter(sourceCodeRef(), name, type, false);
+    }
+
+    FunctionParameter functionParameter(String name, Type type, boolean optional) {
+        return new FunctionParameter(sourceCodeRef(), name, type, optional);
+    }
+
+    FunctionSymbol functionSymbol(ModuleScope module, String name, FunctionParameter... parameters) {
+        var fn = new FunctionSymbol(sourceCodeRef(), sourceCodeRef(), module, name, null);
+        fn.setParameters(Arrays.asList(parameters));
+        module.define(analyzerContext, fn);
+        return fn;
+    }
+
+    FunctionSymbol functionSymbol(ModuleScope module, String name, Type returnType, FunctionParameter... parameters) {
+        var fn = new FunctionSymbol(sourceCodeRef(), sourceCodeRef(), module, name, null);
+        fn.setParameters(Arrays.asList(parameters));
+        fn.setReturnType(returnType);
+        module.define(analyzerContext, fn);
+        return fn;
+    }
+
+    FunctionArgExpr functionArg(Expr expr) {
+        return new FunctionArgExpr(sourceCodeRef(), expr);
+    }
+
+    FunctionCallExpr functionCall(ModuleScope module, String name, FunctionArgExpr... args) {
+        return new FunctionCallExpr(module, sourceCodeRef(), name, Arrays.asList(args));
+    }
+
+    RuleSymbol rule(ModuleScope module, String name, Type targetType) {
+        var rule = new RuleSymbol(sourceCodeRef(), name, sourceCodeRef(), module, RuleTypeEnum.RULE, null);
+        var query = new Query(sourceCodeRef(), new QueryTypeClause(module, sourceCodeRef(), sourceCodeRef(), targetType,
+                false, "rec"));
+        rule.setQuery(query);
+        module.define(analyzerContext, rule);
+        return rule;
+    }
+
+    String printErrors(String headerMessage) {
+        return headerMessage + "\nErrors: \n" +
+                analyzerContext.getAllErrors().stream()
+                        .map(AnalyzerError::getDescription)
+                        .collect(Collectors.joining("\n"));
     }
 
     private class MockSourceCodeRef extends SourceCodeRef {

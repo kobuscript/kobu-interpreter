@@ -47,7 +47,7 @@ public class UndefinedTypeError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "type '" + type + "' is not defined";
+        return "Type '" + type + "' is not defined";
     }
 
     @Override

@@ -39,6 +39,6 @@ public class NativeFunctionNotFoundError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "native function not found: '" + nativeFunctionId.getModuleId() + "." + nativeFunctionId.getName() + "'";
+        return "Native function not found: '" + nativeFunctionId.getModuleId() + "." + nativeFunctionId.getName() + "'";
     }
 }

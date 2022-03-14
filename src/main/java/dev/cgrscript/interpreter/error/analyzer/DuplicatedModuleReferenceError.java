@@ -29,10 +29,12 @@ import dev.cgrscript.interpreter.error.AnalyzerError;
 
 public class DuplicatedModuleReferenceError extends AnalyzerError {
 
+    private final String currentModuleId;
     private final String moduleId;
 
-    public DuplicatedModuleReferenceError(SourceCodeRef sourceCodeRef, String moduleId) {
+    public DuplicatedModuleReferenceError(SourceCodeRef sourceCodeRef, String currentModuleId, String moduleId) {
         super(sourceCodeRef);
+        this.currentModuleId = currentModuleId;
         this.moduleId = moduleId;
     }
 
@@ -42,6 +44,9 @@ public class DuplicatedModuleReferenceError extends AnalyzerError {
 
     @Override
     public String getDescription() {
+        if (currentModuleId.equals(moduleId)) {
+            return "A module cannot import itself";
+        }
         return "Module " + moduleId + " is already imported";
     }
 }

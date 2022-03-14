@@ -43,6 +43,6 @@ public class NotArrayTypeError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "expected array, but got '" + type.getName() + "'";
+        return "Expected array, but got '" + type.getName() + "'";
     }
 }

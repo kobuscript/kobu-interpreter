@@ -40,17 +40,11 @@ import java.util.List;
 
 public class RuleSymbol extends Symbol implements HasExpr {
 
-    private final EvalContextProvider evalContextProvider;
-
     private final SourceCodeRef closeRuleRef;
 
     private final ModuleScope moduleScope;
 
     private final RuleTypeEnum ruleType;
-
-    private final String parentRuleModuleAlias;
-
-    private final String parentRule;
 
     private final String docText;
 
@@ -62,16 +56,13 @@ public class RuleSymbol extends Symbol implements HasExpr {
 
     private SymbolDocumentation documentation;
 
-    public RuleSymbol(SourceCodeRef sourceCodeRef, String name, EvalContextProvider evalContextProvider,
+    public RuleSymbol(SourceCodeRef sourceCodeRef, String name,
                       SourceCodeRef closeRuleRef, ModuleScope moduleScope, RuleTypeEnum ruleType,
-                      String parentRuleModuleAlias, String parentRule, String docText) {
+                      String docText) {
         super(moduleScope, sourceCodeRef, name);
-        this.evalContextProvider = evalContextProvider;
         this.closeRuleRef = closeRuleRef;
         this.moduleScope = moduleScope;
         this.ruleType = ruleType;
-        this.parentRuleModuleAlias = parentRuleModuleAlias;
-        this.parentRule = parentRule;
         this.docText = docText;
     }
 
@@ -81,6 +72,10 @@ public class RuleSymbol extends Symbol implements HasExpr {
 
     public RuleTypeEnum getRuleType() {
         return ruleType;
+    }
+
+    public void setParentRuleSymbol(RuleSymbol parentRuleSymbol) {
+        this.parentRuleSymbol = parentRuleSymbol;
     }
 
     public String getFullName() {
@@ -112,26 +107,16 @@ public class RuleSymbol extends Symbol implements HasExpr {
     }
 
     @Override
-    public void analyze(AnalyzerContext context) {
+    public void analyze(AnalyzerContext context, EvalContextProvider evalContextProvider) {
         AnalyzerErrorScope errorScope = context.getErrorScope();
-        if (parentRule != null) {
-            if (parentRuleSymbol == null) {
-                String parentRuleName;
-                if (parentRuleModuleAlias != null) {
-                    parentRuleName = parentRuleModuleAlias + "." + parentRule;
-                } else {
-                    parentRuleName = parentRule;
-                }
-                context.getErrorScope().addError(new InvalidParentRuleError(getSourceCodeRef(), parentRuleName));
-            } else {
-                List<String> path = new ArrayList<>();
-                path.add(getName());
-                analyzePath(context, this, path);
+        if (parentRuleSymbol != null) {
+            List<String> path = new ArrayList<>();
+            path.add(getName());
+            analyzePath(context, this, path);
 
-                if (!query.getTypeClause().compatibleWith(parentRuleSymbol.getQuery().getTypeClause())) {
-                    errorScope.addError(new IncompatibleRulesError(getSourceCodeRef(),
-                            this, parentRuleSymbol));
-                }
+            if (!query.getTypeClause().compatibleWith(parentRuleSymbol.getQuery().getTypeClause())) {
+                errorScope.addError(new IncompatibleRulesError(getSourceCodeRef(),
+                        this, parentRuleSymbol));
             }
         }
         var evalContext = evalContextProvider.newEvalContext(context, moduleScope);
@@ -153,8 +138,8 @@ public class RuleSymbol extends Symbol implements HasExpr {
             } else {
                 description = "def file " + getName();
             }
-            if (parentRule != null) {
-                description += " extends " + parentRule;
+            if (parentRuleSymbol != null) {
+                description += " extends " + parentRuleSymbol.getName();
             }
             documentation = new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.RULE, description, docText);
         }
@@ -163,24 +148,6 @@ public class RuleSymbol extends Symbol implements HasExpr {
     @Override
     public SymbolDocumentation getDocumentation() {
         return documentation;
-    }
-
-    public void resolveParentRule() {
-        if (parentRule != null) {
-            Symbol symbol = null;
-            if (parentRuleModuleAlias != null) {
-                var module = moduleScope.resolve(parentRuleModuleAlias);
-                if (module instanceof ModuleRefSymbol) {
-                    symbol = ((ModuleRefSymbol)module).getModuleScopeRef().resolve(parentRule);
-                }
-            } else {
-                symbol = moduleScope.resolve(parentRule);
-            }
-
-            if (symbol instanceof RuleSymbol) {
-                parentRuleSymbol = (RuleSymbol) symbol;
-            }
-        }
     }
 
     private void analyzePath(AnalyzerContext context, RuleSymbol rule, List<String> path) {

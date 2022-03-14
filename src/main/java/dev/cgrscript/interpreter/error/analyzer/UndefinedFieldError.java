@@ -42,6 +42,6 @@ public class UndefinedFieldError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "field '" + fieldName + "' does not exist on type '" + type.getName() + "'";
+        return "Field '" + fieldName + "' does not exist on type '" + type.getName() + "'";
     }
 }

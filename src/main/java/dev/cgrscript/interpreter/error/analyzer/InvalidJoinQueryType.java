@@ -15,7 +15,7 @@ public class InvalidJoinQueryType extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "expected 'AnyRecord', 'Template', 'AnyRecord[]' or 'Template[]', but got '" + type.getName() + "'";
+        return "Expected 'AnyRecord', 'Template', 'AnyRecord[]' or 'Template[]', but got '" + type.getName() + "'";
     }
 
 }

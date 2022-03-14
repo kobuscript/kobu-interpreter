@@ -48,4 +48,8 @@ public class ArrayIndexOutOfBoundsError extends EvalError {
         return index;
     }
 
+    @Override
+    public String getDescription() {
+        return "Index " + index + " out of bounds for length " + array.getValue().size();
+    }
 }

@@ -48,7 +48,7 @@ public class UndefinedVariableError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "undefined variable: " + varName;
+        return "Undefined variable: " + varName;
     }
 
     @Override

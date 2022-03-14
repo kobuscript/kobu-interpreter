@@ -11,6 +11,6 @@ public class InvalidVariableDeclError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "missing variable type";
+        return "Missing variable type";
     }
 }

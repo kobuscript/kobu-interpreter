@@ -97,7 +97,7 @@ public class ModuleLoader {
                         String moduleId = script.extractModuleId();
                         if (!modules.containsKey(moduleId)) {
                             var module = load(context, script);
-                            module.analyze(context);
+                            module.analyze(context, evalContextProvider);
                         }
                     } catch (AnalyzerError e) {
                         context.getErrorScope().addError(e);
@@ -309,7 +309,7 @@ public class ModuleLoader {
 
             modules.put(moduleId, moduleScope);
 
-            var visitor = new ModuleParserVisitor(this, moduleScope, evalContextProvider, context, script, tokens);
+            var visitor = new ModuleParserVisitor(this, moduleScope, context, script, tokens);
             visitor.visit(tree);
 
             EvalTreeParserVisitor evalTreeParserVisitor = new EvalTreeParserVisitor(this,

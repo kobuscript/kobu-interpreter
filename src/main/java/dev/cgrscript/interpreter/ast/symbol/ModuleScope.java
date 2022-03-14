@@ -28,6 +28,7 @@ import dev.cgrscript.config.ProjectProperty;
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.context.ContextSnapshot;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
 import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.StringValueExpr;
@@ -202,39 +203,18 @@ public class ModuleScope implements Scope {
         return nativeFunctions.get(nativeFunctionId);
     }
 
-    public void merge(AnalyzerContext context, ModuleScope dependency, String alias, SourceCodeRef sourceCodeRef) {
-        if (alias != null) {
-            ModuleRefSymbol moduleRefSymbol = new ModuleRefSymbol(this, sourceCodeRef, alias, dependency);
-            Symbol currentDef = symbols.get(alias);
-            if (currentDef != null) {
-                context.getErrorScope().addError(new SymbolConflictError(currentDef, moduleRefSymbol));
-            } else {
-                symbols.put(alias, moduleRefSymbol);
-            }
-        } else {
-            dependency.getSymbolsMap().forEach((name, symbol) -> {
-                Symbol currentDef = symbols.get(name);
-                if (currentDef != null) {
-                    context.getErrorScope().addError(new SymbolConflictError(currentDef, symbol));
-                } else {
-                    dependenciesSymbols.put(name, symbol);
-                }
-            });
-        }
-    }
-
-    public void analyze(AnalyzerContext context) {
+    public void analyze(AnalyzerContext context, EvalContextProvider evalContextProvider) {
         HashSet<String> modulesSet = new HashSet<>();
         modulesSet.add(moduleId);
-        analyze(modulesSet, context);
+        analyze(modulesSet, context, evalContextProvider);
     }
 
-    private void analyze(Set<String> modulesSet, AnalyzerContext context) {
+    private void analyze(Set<String> modulesSet, AnalyzerContext context, EvalContextProvider evalContextProvider) {
         for (ModuleScope module : loadedModules.values()) {
             if (modulesSet.add(module.getModuleId())) {
                 context.pushErrorScope();
                 try {
-                    module.analyze(modulesSet, context);
+                    module.analyze(modulesSet, context, evalContextProvider);
                 } finally {
                     context.popErrorScope();
                 }
@@ -242,7 +222,7 @@ public class ModuleScope implements Scope {
         }
         for (Symbol sym : symbols.values()) {
             if (sym instanceof HasExpr) {
-                ((HasExpr) sym).analyze(context);
+                ((HasExpr) sym).analyze(context, evalContextProvider);
             }
         }
     }
@@ -255,7 +235,8 @@ public class ModuleScope implements Scope {
         return moduleId;
     }
 
-    public void runMainFunction(AnalyzerContext analyzerContext, List<String> args) throws AnalyzerError {
+    public void runMainFunction(AnalyzerContext analyzerContext, EvalContextProvider evalContextProvider,
+                                List<String> args) throws AnalyzerError {
         var symbol = symbols.get("main");
         if (!(symbol instanceof FunctionSymbol)) {
             throw new MainFunctionNotFoundError(script);
@@ -277,9 +258,9 @@ public class ModuleScope implements Scope {
             ArrayValueExpr argsArrayExpr = new ArrayValueExpr(new ArrayType(BuiltinScope.STRING_TYPE), values);
             List<ValueExpr> argList = new ArrayList<>();
             argList.add(argsArrayExpr);
-            function.eval(analyzerContext, argList);
+            function.eval(analyzerContext, evalContextProvider, argList);
         } else {
-            function.eval(analyzerContext, new ArrayList<>());
+            function.eval(analyzerContext, evalContextProvider, new ArrayList<>());
         }
 
     }
@@ -288,11 +269,16 @@ public class ModuleScope implements Scope {
         return symbols;
     }
 
-    public boolean addModule(ModuleScope moduleScope) {
+    public boolean addModule(AnalyzerContext analyzerContext, ModuleScope moduleScope,
+                             String alias, SourceCodeRef sourceCodeRef) {
+        if (moduleId.equals(moduleScope.moduleId)) {
+            return false;
+        }
         if (loadedModules.containsKey(moduleScope.getModuleId())) {
             return false;
         }
         loadedModules.put(moduleScope.getModuleId(), moduleScope);
+        merge(analyzerContext, moduleScope, alias, sourceCodeRef);
         return true;
     }
 
@@ -303,6 +289,27 @@ public class ModuleScope implements Scope {
             return new ArrayList<>(moduleStack);
         }
         return null;
+    }
+
+    private void merge(AnalyzerContext context, ModuleScope dependency, String alias, SourceCodeRef sourceCodeRef) {
+        if (alias != null) {
+            ModuleRefSymbol moduleRefSymbol = new ModuleRefSymbol(this, sourceCodeRef, alias, dependency);
+            Symbol currentDef = symbols.get(alias);
+            if (currentDef != null) {
+                context.getErrorScope().addError(new SymbolConflictError(currentDef, moduleRefSymbol));
+            } else {
+                symbols.put(alias, moduleRefSymbol);
+            }
+        } else {
+            dependency.getSymbolsMap().forEach((name, symbol) -> {
+                Symbol currentDef = symbols.get(name);
+                if (currentDef != null) {
+                    context.getErrorScope().addError(new SymbolConflictError(currentDef, symbol));
+                } else {
+                    dependenciesSymbols.put(name, symbol);
+                }
+            });
+        }
     }
 
     private boolean findCyclicPath(Stack<String> moduleStack, String moduleId) {

@@ -42,6 +42,6 @@ public class ModuleNotFoundError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "module '" + moduleId + "' not found";
+        return "Module '" + moduleId + "' not found";
     }
 }

@@ -43,6 +43,6 @@ public class RecordTypeStarAttributeError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "unknown attributes are already defined for '" + recordTypeSymbol.getName() + "'";
+        return "A star attribute is already defined for '" + recordTypeSymbol.getName() + "'";
     }
 }

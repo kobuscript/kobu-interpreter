@@ -35,6 +35,6 @@ public class IdentifierExpectedError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "identifier expected";
+        return "Identifier expected";
     }
 }

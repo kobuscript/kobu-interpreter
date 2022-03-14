@@ -11,6 +11,6 @@ public class InvalidStatementError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "not a valid statement";
+        return "Not a valid statement";
     }
 }

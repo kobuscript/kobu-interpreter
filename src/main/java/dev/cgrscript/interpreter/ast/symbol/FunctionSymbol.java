@@ -36,8 +36,6 @@ import java.util.List;
 
 public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
 
-    private final EvalContextProvider evalContextProvider;
-
     private final ModuleScope moduleScope;
 
     private final SourceCodeRef closeFunctionRef;
@@ -54,11 +52,9 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
 
     private SymbolDocumentation documentation;
 
-    public FunctionSymbol(EvalContextProvider evalContextProvider,
-                          SourceCodeRef sourceCodeRef, SourceCodeRef closeFunctionRef, ModuleScope moduleScope,
+    public FunctionSymbol(SourceCodeRef sourceCodeRef, SourceCodeRef closeFunctionRef, ModuleScope moduleScope,
                           String name, String docText) {
         super(moduleScope, sourceCodeRef, name);
-        this.evalContextProvider = evalContextProvider;
         this.closeFunctionRef = closeFunctionRef;
         this.moduleScope = moduleScope;
         this.docText = docText;
@@ -108,7 +104,7 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
     }
 
     @Override
-    public void analyze(AnalyzerContext analyzerContext) {
+    public void analyze(AnalyzerContext analyzerContext, EvalContextProvider evalContextProvider) {
         var context = evalContextProvider.newEvalContext(analyzerContext, moduleScope, this);
         var scope = context.getCurrentScope();
 
@@ -140,7 +136,7 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
         context.popBranch();
     }
 
-    public ValueExpr eval(AnalyzerContext analyzerContext, List<ValueExpr> args) {
+    public ValueExpr eval(AnalyzerContext analyzerContext, EvalContextProvider evalContextProvider, List<ValueExpr> args) {
         var context = evalContextProvider.newEvalContext(analyzerContext, moduleScope, this);
         var scope = context.getCurrentScope();
         for (int i = 0; i < parameters.size(); i++) {

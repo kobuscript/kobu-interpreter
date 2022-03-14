@@ -101,7 +101,7 @@ public class RunCommand implements Callable<Integer> {
 
             analyzerContext.getParserErrorListener().checkErrors();
 
-            moduleScope.analyze(analyzerContext);
+            moduleScope.analyze(analyzerContext, evalContextProvider);
 
             List<AnalyzerError> errors = analyzerContext.getAllErrors();
             if (!errors.isEmpty()) {
@@ -111,7 +111,7 @@ public class RunCommand implements Callable<Integer> {
             if (scriptArgs == null) {
                 scriptArgs = new ArrayList<>();
             }
-            moduleScope.runMainFunction(analyzerContext, scriptArgs);
+            moduleScope.runMainFunction(analyzerContext, evalContextProvider, scriptArgs);
 
         } catch (ParserErrorList e) {
             for (ParserError error : e.getErrors()) {

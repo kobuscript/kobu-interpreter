@@ -39,6 +39,6 @@ public class InvalidQueryType extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "expected 'AnyRecord' or 'Template', but got '" + type.getName() + "'";
+        return "Expected 'AnyRecord' or 'Template', but got '" + type.getName() + "'";
     }
 }

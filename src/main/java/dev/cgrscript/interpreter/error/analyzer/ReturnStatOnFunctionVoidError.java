@@ -43,6 +43,6 @@ public class ReturnStatOnFunctionVoidError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "cannot return a value from a function with void result type";
+        return "Cannot return a value from a function with void result type";
     }
 }

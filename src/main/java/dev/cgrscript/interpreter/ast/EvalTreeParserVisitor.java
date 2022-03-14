@@ -250,6 +250,16 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             return null;
         }
 
+        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
+            Type parentRule = (Type) visit(ctx.ruleExtends().typeName());
+            if (parentRule instanceof RuleSymbol) {
+                rule.setParentRuleSymbol((RuleSymbol) parentRule);
+            } else {
+                context.getErrorScope().addError(new InvalidParentRuleError(getSourceCodeRef(ctx.ruleExtends().typeName()),
+                        parentRule.getName()));
+            }
+        }
+
         if (ctx.TEMPLATE_END() != null) {
             scopeEndOffset = ctx.TEMPLATE_END().getSymbol().getStopIndex() + 1;
         }
@@ -275,8 +285,6 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             }
             rule.setBlock(exprList);
         }
-
-        rule.resolveParentRule();
 
         return null;
     }
@@ -352,6 +360,16 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             return null;
         }
 
+        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
+            Type parentRule = (Type) visit(ctx.ruleExtends().typeName());
+            if (parentRule instanceof RuleSymbol) {
+                rule.setParentRuleSymbol((RuleSymbol) parentRule);
+            } else {
+                context.getErrorScope().addError(new InvalidParentRuleError(getSourceCodeRef(ctx.ruleExtends().typeName()),
+                        parentRule.getName()));
+            }
+        }
+
         if (ctx.RCB() != null) {
             scopeEndOffset = ctx.RCB().getSymbol().getStopIndex() + 1;
         }
@@ -382,8 +400,6 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         }
         rule.setBlock(exprList);
 
-        rule.resolveParentRule();
-
         return null;
     }
 
@@ -395,6 +411,16 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         var rule = (RuleSymbol) moduleScope.resolve(ctx.ID().getText());
         if (rule == null) {
             return null;
+        }
+
+        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
+            Type parentRule = (Type) visit(ctx.ruleExtends().typeName());
+            if (parentRule instanceof RuleSymbol) {
+                rule.setParentRuleSymbol((RuleSymbol) parentRule);
+            } else {
+                context.getErrorScope().addError(new InvalidParentRuleError(getSourceCodeRef(ctx.ruleExtends().typeName()),
+                        parentRule.getName()));
+            }
         }
 
         if (ctx.PATH_END() != null) {
@@ -427,8 +453,6 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         List<Evaluable> exprList = new ArrayList<>();
         exprList.add((Evaluable) visit(ctx.pathExpr()));
         rule.setBlock(exprList);
-
-        rule.resolveParentRule();
 
         return null;
     }

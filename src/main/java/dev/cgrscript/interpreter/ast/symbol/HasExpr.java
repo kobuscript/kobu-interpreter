@@ -25,9 +25,10 @@ SOFTWARE.
 package dev.cgrscript.interpreter.ast.symbol;
 
 import dev.cgrscript.interpreter.ast.AnalyzerContext;
+import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
 
 public interface HasExpr {
 
-    void analyze(AnalyzerContext context);
+    void analyze(AnalyzerContext context, EvalContextProvider evalContextProvider);
 
 }

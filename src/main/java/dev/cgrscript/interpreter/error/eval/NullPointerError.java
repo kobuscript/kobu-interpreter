@@ -40,7 +40,7 @@ public class NullPointerError extends EvalError {
     @Override
     public String getDescription() {
         if (nullSubExprSourceCodeRef != null) {
-            return "expression evaluated to null: " + ErrorMessageFormatter.getText(nullSubExprSourceCodeRef);
+            return "Expression evaluated to null: " + ErrorMessageFormatter.getText(nullSubExprSourceCodeRef);
         }
         return "NullPointerError";
     }
