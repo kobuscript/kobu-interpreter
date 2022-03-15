@@ -95,6 +95,24 @@ public abstract class AnalyzerError extends Exception {
         return errors;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AnalyzerError that = (AnalyzerError) o;
+        return Objects.equals(getSourceCodeRefs(), that.getSourceCodeRefs());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSourceCodeRefs());
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " at " + sourceCodeRefs + ": " + getDescription();
+    }
+
     public static class CgrScriptErrorImpl implements CgrScriptError {
 
         private final String description;

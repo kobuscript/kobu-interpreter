@@ -164,4 +164,17 @@ public class RuleSymbol extends Symbol implements HasExpr {
         analyzePath(context, parent, path);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof RuleSymbol) {
+            return getFullName().equals(((RuleSymbol)obj).getFullName());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return getFullName().hashCode();
+    }
+
 }

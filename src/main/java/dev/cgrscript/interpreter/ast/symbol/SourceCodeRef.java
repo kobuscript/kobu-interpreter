@@ -101,6 +101,11 @@ public class SourceCodeRef {
     }
 
     @Override
+    public String toString() {
+        return "SourceCodeRef: " + moduleId + " " + lineStart + ":" + charStart;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

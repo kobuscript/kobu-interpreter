@@ -68,6 +68,9 @@ public class ArrayConstructorCallExpr implements Expr, HasTargetType {
         Type elementType = targetElementType;
         if (elements != null && !elements.isEmpty()) {
             for (Expr element : elements) {
+                if (element instanceof NullValueExpr) {
+                    continue;
+                }
                 if (targetElementType != null && element instanceof HasTargetType) {
                     ((HasTargetType) element).setTargetType(targetElementType);
                 }
@@ -91,7 +94,8 @@ public class ArrayConstructorCallExpr implements Expr, HasTargetType {
                     }
                 }
             }
-        } else if (elementType == null) {
+        }
+        if (elementType == null) {
             elementType = BuiltinScope.ANY_TYPE;
         }
 

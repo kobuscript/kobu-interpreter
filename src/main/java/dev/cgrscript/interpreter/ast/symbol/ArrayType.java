@@ -93,6 +93,11 @@ public class ArrayType implements Type {
 
     @Override
     public Type getCommonSuperType(Type type) {
+        if (isAssignableFrom(type)) {
+            return this;
+        } else if (type instanceof ArrayType) {
+            return new ArrayType(elementType.getCommonSuperType(((ArrayType)type).getElementType()));
+        }
         return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
     }
 
@@ -205,4 +210,18 @@ public class ArrayType implements Type {
 
         methods.put("reverse", new BuiltinFunctionSymbol(this, "reverse", new ArrayReverseMethodImpl()));
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ArrayType arrayType = (ArrayType) o;
+        return Objects.equals(elementType, arrayType.elementType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(elementType);
+    }
+
 }

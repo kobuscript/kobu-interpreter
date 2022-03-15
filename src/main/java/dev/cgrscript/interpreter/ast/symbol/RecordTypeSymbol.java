@@ -330,4 +330,17 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         return documentation;
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof RecordTypeSymbol) {
+            return getName().equals(((RecordTypeSymbol)object).getName());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode();
+    }
+
 }

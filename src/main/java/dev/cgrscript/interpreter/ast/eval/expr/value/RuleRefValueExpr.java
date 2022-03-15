@@ -70,7 +70,7 @@ public class RuleRefValueExpr implements ValueExpr {
 
     @Override
     public String getStringValue() {
-        return value.getName();
+        return value.getFullName();
     }
 
     @Override
@@ -80,6 +80,19 @@ public class RuleRefValueExpr implements ValueExpr {
 
     public RuleSymbol getValue() {
         return value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RuleRefValueExpr that = (RuleRefValueExpr) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
     }
 
     private static class RuleRefSnapshotValue implements SnapshotValue {

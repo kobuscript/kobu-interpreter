@@ -366,4 +366,17 @@ public class ModuleScope implements Scope {
     public EvalModeEnum getEvalMode() {
         return evalMode;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ModuleScope that = (ModuleScope) o;
+        return Objects.equals(moduleId, that.moduleId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(moduleId);
+    }
 }

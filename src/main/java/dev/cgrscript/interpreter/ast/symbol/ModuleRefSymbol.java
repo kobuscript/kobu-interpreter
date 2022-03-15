@@ -30,6 +30,7 @@ import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class ModuleRefSymbol extends Symbol implements Type {
 
@@ -124,4 +125,18 @@ public class ModuleRefSymbol extends Symbol implements Type {
     public Comparator<ValueExpr> getComparator() {
         return null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ModuleRefSymbol that = (ModuleRefSymbol) o;
+        return Objects.equals(alias, that.alias) && Objects.equals(moduleScopeRef, that.moduleScopeRef);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(alias, moduleScopeRef);
+    }
+
 }

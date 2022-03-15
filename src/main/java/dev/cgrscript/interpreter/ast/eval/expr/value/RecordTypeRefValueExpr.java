@@ -82,6 +82,19 @@ public class RecordTypeRefValueExpr implements ValueExpr {
         return value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RecordTypeRefValueExpr that = (RecordTypeRefValueExpr) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
+
     private static class RecordTypeSnapshotValue implements SnapshotValue {
 
         private final String name;

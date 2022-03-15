@@ -28,6 +28,8 @@ import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.ast.symbol.Type;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 
+import java.util.Objects;
+
 public class InvalidAssignExprTypeError extends AnalyzerError {
 
     private final Type expected;
@@ -44,4 +46,19 @@ public class InvalidAssignExprTypeError extends AnalyzerError {
     public String getDescription() {
         return "Type '" + found.getName() + "' is not assignable to type '" + expected.getName() + "'";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        InvalidAssignExprTypeError that = (InvalidAssignExprTypeError) o;
+        return Objects.equals(expected, that.expected) && Objects.equals(found, that.found);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), expected, found);
+    }
+
 }

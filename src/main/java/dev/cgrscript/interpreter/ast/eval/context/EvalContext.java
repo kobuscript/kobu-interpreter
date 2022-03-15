@@ -198,6 +198,9 @@ public class EvalContext {
     }
 
     public void analyzeBlock(List<Evaluable> block) {
+        if (block == null) {
+            return;
+        }
         pushNewScope();
         var branch = pushNewBranch();
 

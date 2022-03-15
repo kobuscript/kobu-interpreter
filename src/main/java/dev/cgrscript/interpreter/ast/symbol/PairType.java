@@ -105,7 +105,13 @@ public class PairType implements Type {
 
     @Override
     public Type getCommonSuperType(Type type) {
-        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
+        if (isAssignableFrom(type)) {
+            return this;
+        } else if (type instanceof PairType) {
+            PairType other = (PairType) type;
+            return new PairType(leftType.getCommonSuperType(other.leftType), rightType.getCommonSuperType(other.rightType));
+        }
+        return BuiltinScope.ANY_TYPE;
     }
 
     @Override
@@ -116,6 +122,19 @@ public class PairType implements Type {
     private void buildMethods() {
         methods.put("left", new BuiltinFunctionSymbol(this, "left", new PairLeftMethodImpl(), leftType));
         methods.put("right", new BuiltinFunctionSymbol(this,"right", new PairRightMethodImpl(), rightType));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PairType pairType = (PairType) o;
+        return Objects.equals(leftType, pairType.leftType) && Objects.equals(rightType, pairType.rightType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(leftType, rightType);
     }
 
 }

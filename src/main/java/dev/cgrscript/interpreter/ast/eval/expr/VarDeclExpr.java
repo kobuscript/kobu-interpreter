@@ -26,6 +26,7 @@ package dev.cgrscript.interpreter.ast.eval.expr;
 
 import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+import dev.cgrscript.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.cgrscript.interpreter.ast.symbol.*;
 import dev.cgrscript.interpreter.error.analyzer.InvalidAssignExprTypeError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidVariableDeclError;
@@ -78,8 +79,7 @@ public class VarDeclExpr implements Statement {
 
         if (valueExpr != null) {
             Type valueType = valueExpr.getType();
-            if (valueType instanceof UnknownType ||
-                    (valueType instanceof ArrayType && ((ArrayType) valueType).getElementType() instanceof UnknownType)) {
+            if (valueType instanceof UnknownType) {
                 return;
             }
             if (!varSymbol.getType().isAssignableFrom(valueType)) {
@@ -99,12 +99,18 @@ public class VarDeclExpr implements Statement {
         scope.define(context.getAnalyzerContext(), varSymbol);
         if (valueExpr != null) {
             scope.setValue(varSymbol.getName(), valueExpr.evalExpr(context));
+        } else {
+            scope.setValue(varSymbol.getName(), new NullValueExpr());
         }
     }
 
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return varSymbol.getSourceCodeRef();
+    }
+
+    public String getName() {
+        return varSymbol.getName();
     }
 
 }

@@ -22,10 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.cgrscript.interpreter;
+package dev.cgrscript.interpreter.ast;
 
 import dev.cgrscript.database.Database;
-import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
@@ -48,6 +47,7 @@ import dev.cgrscript.interpreter.writer.FileSystemWriterHandler;
 import dev.cgrscript.interpreter.writer.OutputWriter;
 import dev.cgrscript.interpreter.writer.OutputWriterLogTypeEnum;
 import dev.cgrscript.interpreter.writer.OutputWriterModeEnum;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,13 +56,16 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Base class for AST unit tests. Provides methods for AST construction and validation.
+ */
 public abstract class AstTestBase {
 
     private int idGen;
 
-    private final AnalyzerContext analyzerContext = new AnalyzerContext();
+    final AnalyzerContext analyzerContext = new AnalyzerContext();
 
-    private final EvalContextProvider evalContextProvider;
+    final EvalContextProvider evalContextProvider;
 
     public AstTestBase() {
         Database database = new Database();
@@ -74,14 +77,19 @@ public abstract class AstTestBase {
         evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, database, inputReader, outputWriter);
     }
 
-    void assertError(Class<? extends AnalyzerError> errorType, SourceCodeRef... sourceCodeRef) {
-        List<AnalyzerError> errors = new ArrayList<>();
-        for (AnalyzerError error : analyzerContext.getErrorScope().getErrors()) {
-            if (errorType.isInstance(errorType) && error.getSourceCodeRefs().containsAll(Arrays.asList(sourceCodeRef))) {
-                errors.add(error);
-            }
-        }
-        assertEquals(1, errors.size(), () -> printErrors("Expected 1 error of type " + errorType.getCanonicalName()));
+    @BeforeEach
+    void pushErrorScope() {
+        analyzerContext.pushErrorScope();
+    }
+
+    void assertErrors(AnalyzerError... expectedErrors) {
+        var actualErrors = analyzerContext.getAllErrors();
+        assertTrue(actualErrors.containsAll(Arrays.asList(expectedErrors)) && actualErrors.size() == expectedErrors.length,
+                () -> printErrors(expectedErrors));
+    }
+
+    void assertNoErrors() {
+        assertEquals(0, analyzerContext.getAllErrors().size(), this::printErrors);
     }
 
     void assertVar(EvalContext evalContext, String varName, Type type, ValueExpr value) {
@@ -89,11 +97,13 @@ public abstract class AstTestBase {
         assertTrue(symbol instanceof VariableSymbol);
         Type varType = ((VariableSymbol) symbol).getType();
         assertNotNull(varType, () -> "var '" + varName + "' has no type");
-        assertEquals(type.getName(), varType.getName(), () -> "var '" + varName + " has type '" + varType.getName()
+        assertEquals(type.getName(), varType.getName(), () -> "var '" + varName + "' has type '" + varType.getName()
                 + "'. Expected: '" + type.getName() + "'");
         var actualValue = evalContext.getCurrentScope().getValue(varName);
-        assertEquals(value, actualValue, () -> "var '" + varName + "' has value " + actualValue.getStringValue()
-                + ". Expected: " + value.getStringValue());
+        var actualValueStr = actualValue != null ? actualValue.getStringValue() : null;
+        assertEquals(new ValueWrapper(value), new ValueWrapper(actualValue),
+                () -> "var '" + varName + "' has value " + actualValueStr
+                    + ". Expected: " + value.getStringValue());
     }
 
     EvalContext evalContext(ModuleScope module) {
@@ -154,6 +164,10 @@ public abstract class AstTestBase {
         return BuiltinScope.TEMPLATE_TYPE;
     }
 
+    Type arrayType(Type elementType) {
+        return new ArrayType(elementType);
+    }
+
     StringValueExpr stringVal(String value) {
         return new StringValueExpr(sourceCodeRef(), value);
     }
@@ -164,6 +178,10 @@ public abstract class AstTestBase {
 
     BooleanValueExpr booleanVal(Boolean value) {
         return new BooleanValueExpr(sourceCodeRef(), value);
+    }
+
+    NullValueExpr nullVal() {
+        return new NullValueExpr(sourceCodeRef());
     }
 
     SourceCodeRef sourceCodeRef() {
@@ -378,12 +396,28 @@ public abstract class AstTestBase {
         return recordConstructor;
     }
 
+    RecordValueExpr record(RecordConstructorCallExpr constructor, EvalContext evalContext) {
+        return (RecordValueExpr) constructor.evalExpr(evalContext);
+    }
+
     ArrayConstructorCallExpr arrayConstructor(Expr... elements) {
         return new ArrayConstructorCallExpr(sourceCodeRef(), Arrays.asList(elements));
     }
 
+    ArrayValueExpr array(ArrayConstructorCallExpr constructor, EvalContext evalContext) {
+        return (ArrayValueExpr) constructor.evalExpr(evalContext);
+    }
+
     PairConstructorCallExpr pairConstructor(Expr left, Expr right) {
         return new PairConstructorCallExpr(sourceCodeRef(), left, right);
+    }
+
+    RuleRefValueExpr ruleRef(RuleSymbol rule) {
+        return new RuleRefValueExpr(rule);
+    }
+
+    RecordTypeRefValueExpr typeRef(RecordTypeSymbol recordTypeSymbol) {
+        return new RecordTypeRefValueExpr(recordTypeSymbol);
     }
 
     CastExpr cast(Type targetType, Expr expr) {
@@ -434,11 +468,20 @@ public abstract class AstTestBase {
         return rule;
     }
 
-    String printErrors(String headerMessage) {
-        return headerMessage + "\nErrors: \n" +
-                analyzerContext.getAllErrors().stream()
-                        .map(AnalyzerError::getDescription)
-                        .collect(Collectors.joining("\n"));
+    String printErrors(AnalyzerError... expected) {
+        return "\n Expected:\n" + Arrays.stream(expected)
+                .map(AnalyzerError::toString)
+                .collect(Collectors.joining("\n")) + "\n "
+                + "Found:\n" + analyzerContext.getAllErrors().stream()
+                .map(AnalyzerError::toString)
+                .collect(Collectors.joining("\n"));
+    }
+
+    String printErrors() {
+        return "\n Expected: no errors.\n "
+                + "Found: " + analyzerContext.getAllErrors().stream()
+                .map(AnalyzerError::toString)
+                .collect(Collectors.joining("\n"));
     }
 
     private class MockSourceCodeRef extends SourceCodeRef {
@@ -447,6 +490,11 @@ public abstract class AstTestBase {
 
         public MockSourceCodeRef() {
             super(null);
+        }
+
+        @Override
+        public String toString() {
+            return "MockSourceCodeRef: " + id;
         }
 
         @Override
@@ -486,6 +534,34 @@ public abstract class AstTestBase {
         @Override
         public String extractModuleId() {
             return moduleId;
+        }
+    }
+
+    private static class ValueWrapper {
+
+        private final ValueExpr value;
+
+        private ValueWrapper(ValueExpr value) {
+            this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof ValueWrapper) {
+                ValueExpr other = ((ValueWrapper) obj).value;
+                if (value instanceof RecordValueExpr && other instanceof RecordValueExpr) {
+                    RecordValueExpr r1 = (RecordValueExpr) value;
+                    RecordValueExpr r2 = (RecordValueExpr) other;
+                    return r1.getType().equals(r2.getType()) && r1.getStringValue().equals(r2.getStringValue());
+                }
+                if (value instanceof ArrayValueExpr && other instanceof ArrayValueExpr) {
+                    List<ValueWrapper> l1 = ((ArrayValueExpr)value).getValue().stream().map(ValueWrapper::new).collect(Collectors.toList());
+                    List<ValueWrapper> l2 = ((ArrayValueExpr)value).getValue().stream().map(ValueWrapper::new).collect(Collectors.toList());
+                    return l1.equals(l2);
+                }
+                return value.equals(other);
+            }
+            return false;
         }
     }
 

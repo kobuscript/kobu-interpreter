@@ -51,7 +51,12 @@ public class NumberTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
     @Override
     public Type getCommonSuperType(Type type) {
-        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
+        if (isAssignableFrom(type)) {
+            return this;
+        } else if (type instanceof ValType) {
+            return BuiltinScope.ANY_VAL_TYPE;
+        }
+        return BuiltinScope.ANY_TYPE;
     }
 
     @Override

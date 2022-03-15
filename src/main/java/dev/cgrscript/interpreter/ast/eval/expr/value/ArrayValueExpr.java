@@ -85,12 +85,8 @@ public class ArrayValueExpr implements ValueExpr, HasMethods {
 
     @Override
     public String getStringValue() {
-        StringBuilder strBuilder = new StringBuilder("[");
-
-        strBuilder.append(value.stream().map(ValueExpr::getStringValue).collect(Collectors.joining(", ")));
-
-        strBuilder.append("]");
-        return strBuilder.toString();
+        return "[" + value.stream().map(ValueExpr::getStringValue).collect(Collectors.joining(", ")) +
+                "]";
     }
 
     @Override

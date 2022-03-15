@@ -94,16 +94,11 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods, Fact {
 
     @Override
     public String getStringValue() {
-        StringBuilder strBuilder = new StringBuilder(((RecordTypeSymbol)type).getNameInModule());
-
-        strBuilder.append("{");
-
-        strBuilder.append(fieldValues.entrySet().stream()
-                .map(e -> e.getKey() + ": " + e.getValue().getStringValue()).collect(Collectors.joining(", ")));
-
-        strBuilder.append("} ");
-
-        return strBuilder.toString();
+        return ((RecordTypeSymbol) type).getNameInModule() + "{" +
+                fieldValues.entrySet().stream()
+                        .map(e -> e.getKey() + ": " + e.getValue().getStringValue())
+                        .collect(Collectors.joining(", ")) +
+                "}";
     }
 
     @Override
