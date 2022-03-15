@@ -125,7 +125,7 @@ public abstract class AstTestBase {
     }
 
     void importModule(ModuleScope module, ModuleScope imported, String alias) {
-        module.addModule(analyzerContext, imported, alias, sourceCodeRef());
+        module.addModule(analyzerContext, imported, alias, sourceCodeRef("import"));
     }
 
     Type anyType() {
@@ -168,120 +168,124 @@ public abstract class AstTestBase {
         return new ArrayType(elementType);
     }
 
+    Type pairType(Type leftType, Type rightType) {
+        return new PairType(leftType, rightType);
+    }
+
     StringValueExpr stringVal(String value) {
-        return new StringValueExpr(sourceCodeRef(), value);
+        return new StringValueExpr(sourceCodeRef("string-literal"), value);
     }
 
     NumberValueExpr numberVal(Number value) {
-        return new NumberValueExpr(sourceCodeRef(), value);
+        return new NumberValueExpr(sourceCodeRef("number-literal"), value);
     }
 
     BooleanValueExpr booleanVal(Boolean value) {
-        return new BooleanValueExpr(sourceCodeRef(), value);
+        return new BooleanValueExpr(sourceCodeRef("boolean-literal"), value);
     }
 
     NullValueExpr nullVal() {
-        return new NullValueExpr(sourceCodeRef());
+        return new NullValueExpr(sourceCodeRef("null-literal"));
     }
 
-    SourceCodeRef sourceCodeRef() {
-        return new MockSourceCodeRef();
+    SourceCodeRef sourceCodeRef(String label) {
+        return new MockSourceCodeRef(label);
     }
 
     VarDeclExpr var(ModuleScope module, String name) {
-        var varSymbol = new VariableSymbol(module, sourceCodeRef(), name, null);
+        var varSymbol = new VariableSymbol(module, sourceCodeRef("var_" + name), name, null);
         return new VarDeclExpr(varSymbol);
     }
 
     VarDeclExpr var(ModuleScope module, String name, Type type) {
-        var varSymbol = new VariableSymbol(module, sourceCodeRef(), name, type);
+        var varSymbol = new VariableSymbol(module, sourceCodeRef("var_" + name), name, type);
         return new VarDeclExpr(varSymbol);
     }
 
     VarDeclExpr var(ModuleScope module, String name, Expr value) {
-        var varSymbol = new VariableSymbol(module, sourceCodeRef(), name, null);
+        var varSymbol = new VariableSymbol(module, sourceCodeRef("var_" + name), name, null);
         var varDecl = new VarDeclExpr(varSymbol);
         varDecl.setValueExpr(value);
         return varDecl;
     }
 
     VarDeclExpr var(ModuleScope module, String name, Type type, Expr value) {
-        var varSymbol = new VariableSymbol(module, sourceCodeRef(), name, type);
+        var varSymbol = new VariableSymbol(module, sourceCodeRef("var_" + name), name, type);
         var varDecl = new VarDeclExpr(varSymbol);
         varDecl.setValueExpr(value);
         return varDecl;
     }
 
     AddExpr add(Expr left, Expr right) {
-        return new AddExpr(sourceCodeRef(), left, right);
+        return new AddExpr(sourceCodeRef("add"), left, right);
     }
 
     SubExpr sub(Expr left, Expr right) {
-        return new SubExpr(sourceCodeRef(), left, right);
+        return new SubExpr(sourceCodeRef("sub"), left, right);
     }
 
     MultExpr mult(Expr left, Expr right) {
-        return new MultExpr(sourceCodeRef(), left, right);
+        return new MultExpr(sourceCodeRef("mult"), left, right);
     }
 
     DivExpr div(Expr left, Expr right) {
-        return new DivExpr(sourceCodeRef(), left, right);
+        return new DivExpr(sourceCodeRef("div"), left, right);
     }
 
     NotExpr not(Expr expr) {
-        return new NotExpr(sourceCodeRef(), expr);
+        return new NotExpr(sourceCodeRef("not"), expr);
     }
 
     LogicExpr and(Expr left, Expr right) {
-        return new LogicExpr(sourceCodeRef(), left, LogicOperatorEnum.AND, right);
+        return new LogicExpr(sourceCodeRef("and"), left, LogicOperatorEnum.AND, right);
     }
 
     LogicExpr or(Expr left, Expr right) {
-        return new LogicExpr(sourceCodeRef(), left, LogicOperatorEnum.OR, right);
+        return new LogicExpr(sourceCodeRef("or"), left, LogicOperatorEnum.OR, right);
     }
 
     EqExpr equals(Expr left, Expr right) {
-        return new EqExpr(sourceCodeRef(), left, EqOperatorEnum.EQUALS, right);
+        return new EqExpr(sourceCodeRef("equals"), left, EqOperatorEnum.EQUALS, right);
     }
 
     EqExpr notEquals(Expr left, Expr right) {
-        return new EqExpr(sourceCodeRef(), left, EqOperatorEnum.NOT_EQUALS, right);
+        return new EqExpr(sourceCodeRef("not-equals"), left, EqOperatorEnum.NOT_EQUALS, right);
     }
 
     EqExpr less(Expr left, Expr right) {
-        return new EqExpr(sourceCodeRef(), left, EqOperatorEnum.LESS, right);
+        return new EqExpr(sourceCodeRef("less"), left, EqOperatorEnum.LESS, right);
     }
 
     EqExpr lessOrEquals(Expr left, Expr right) {
-        return new EqExpr(sourceCodeRef(), left, EqOperatorEnum.LESS_OR_EQUALS, right);
+        return new EqExpr(sourceCodeRef("less-or-equals"), left, EqOperatorEnum.LESS_OR_EQUALS, right);
     }
 
     EqExpr greater(Expr left, Expr right) {
-        return new EqExpr(sourceCodeRef(), left, EqOperatorEnum.GREATER, right);
+        return new EqExpr(sourceCodeRef("greater"), left, EqOperatorEnum.GREATER, right);
     }
 
     EqExpr greaterOrEquals(Expr left, Expr right) {
-        return new EqExpr(sourceCodeRef(), left, EqOperatorEnum.GREATER_OR_EQUALS, right);
+        return new EqExpr(sourceCodeRef("greater-or-equals"), left, EqOperatorEnum.GREATER_OR_EQUALS, right);
     }
 
     PostIncDecExpr postInc(Expr expr) {
-        return new PostIncDecExpr(sourceCodeRef(), expr, IncDecOperatorEnum.INC);
+        return new PostIncDecExpr(sourceCodeRef("post-inc"), expr, IncDecOperatorEnum.INC);
     }
 
     PostIncDecExpr postDec(Expr expr) {
-        return new PostIncDecExpr(sourceCodeRef(), expr, IncDecOperatorEnum.DEC);
+        return new PostIncDecExpr(sourceCodeRef("post-dec"), expr, IncDecOperatorEnum.DEC);
     }
 
     PreIncDecExpr preInc(Expr expr) {
-        return new PreIncDecExpr(sourceCodeRef(), expr, IncDecOperatorEnum.INC);
+        return new PreIncDecExpr(sourceCodeRef("pre-inc"), expr, IncDecOperatorEnum.INC);
     }
 
     PreIncDecExpr preDec(Expr expr) {
-        return new PreIncDecExpr(sourceCodeRef(), expr, IncDecOperatorEnum.DEC);
+        return new PreIncDecExpr(sourceCodeRef("pre-dec"), expr, IncDecOperatorEnum.DEC);
     }
 
     RefExpr ref(ModuleScope module, String name) {
-        return new RefExpr(module, sourceCodeRef(), name);
+        return new RefExpr(module, sourceCodeRef("ref"), name);
     }
 
     List<Evaluable> block(Evaluable... evaluable) {
@@ -289,23 +293,23 @@ public abstract class AstTestBase {
     }
 
     IfStatement ifStatement(Expr condExpr, List<Evaluable> block) {
-        return new IfStatement(sourceCodeRef(), condExpr, block);
+        return new IfStatement(sourceCodeRef("if"), condExpr, block);
     }
 
     ElseIfStatement elseIf(IfStatement ifStatement, Expr condExpr, List<Evaluable> block) {
-        var elseIf = new ElseIfStatement(sourceCodeRef(), condExpr, block);
+        var elseIf = new ElseIfStatement(sourceCodeRef("else-if"), condExpr, block);
         ifStatement.setElseIf(elseIf);
         return elseIf;
     }
 
     ElseIfStatement elseIf(ElseIfStatement elseIf, Expr condExpr, List<Evaluable> block) {
-        var nextElseIf = new ElseIfStatement(sourceCodeRef(), condExpr, block);
+        var nextElseIf = new ElseIfStatement(sourceCodeRef("else-if"), condExpr, block);
         elseIf.setElseIf(nextElseIf);
         return nextElseIf;
     }
 
     WhileStatement whileStatement(Expr condExpr, List<Evaluable> block) {
-        return new WhileStatement(sourceCodeRef(), condExpr, block);
+        return new WhileStatement(sourceCodeRef("while"), condExpr, block);
     }
 
     List<VarDeclExpr> varDeclList(VarDeclExpr... varDecl) {
@@ -322,11 +326,11 @@ public abstract class AstTestBase {
 
     ForStatement forStatement(List<VarDeclExpr> varDeclList, List<Expr> condExprList,
                               List<Statement> stepList, List<Evaluable> block) {
-        return new ForStatement(sourceCodeRef(), varDeclList, condExprList, stepList, block);
+        return new ForStatement(sourceCodeRef("for"), varDeclList, condExprList, stepList, block);
     }
 
     RecordTypeAttribute attribute(ModuleScope module, String name, Type type) {
-        return new RecordTypeAttribute(module, sourceCodeRef(), name, type);
+        return new RecordTypeAttribute(module, sourceCodeRef("attr_" + name), name, type);
     }
 
     List<RecordTypeAttribute> attributeList(RecordTypeAttribute... attribute) {
@@ -334,62 +338,62 @@ public abstract class AstTestBase {
     }
 
     RecordTypeSymbol recordType(ModuleScope module, String name) {
-        var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
         return recordType;
     }
 
     RecordTypeSymbol recordType(ModuleScope module, String name, List<RecordTypeAttribute> attributes) {
-        var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
         attributes.forEach(recordType::addAttribute);
         return recordType;
     }
 
     RecordTypeSymbol recordType(ModuleScope module, String name, List<RecordTypeAttribute> attributes, Type starAttrType) {
-        var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
         attributes.forEach(recordType::addAttribute);
-        recordType.setStarAttribute(new RecordTypeStarAttribute(sourceCodeRef(), starAttrType));
+        recordType.setStarAttribute(new RecordTypeStarAttribute(sourceCodeRef("deftype_" + name), starAttrType));
         return recordType;
     }
 
     RecordTypeSymbol recordType(ModuleScope module, String name, RecordTypeSymbol superType) {
-        var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
-        recordType.setSuperType(new RecordSuperType(sourceCodeRef(), superType));
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
         return recordType;
     }
 
     RecordTypeSymbol recordType(ModuleScope module, String name,
                                 RecordTypeSymbol superType, List<RecordTypeAttribute> attributes) {
-        var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
         attributes.forEach(recordType::addAttribute);
-        recordType.setSuperType(new RecordSuperType(sourceCodeRef(), superType));
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
         return recordType;
     }
 
     RecordTypeSymbol recordType(ModuleScope module, String name,
                                 RecordTypeSymbol superType, List<RecordTypeAttribute> attributes, Type starAttrType) {
-        var recordType = new RecordTypeSymbol(sourceCodeRef(), name, module, null);
+        var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
         attributes.forEach(recordType::addAttribute);
-        recordType.setStarAttribute(new RecordTypeStarAttribute(sourceCodeRef(), starAttrType));
-        recordType.setSuperType(new RecordSuperType(sourceCodeRef(), superType));
+        recordType.setStarAttribute(new RecordTypeStarAttribute(sourceCodeRef("attr_*"), starAttrType));
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
         return recordType;
     }
 
     RecordFieldExpr recordField(String name, Expr expr) {
-        return new RecordFieldExpr(sourceCodeRef(), name, expr);
+        return new RecordFieldExpr(sourceCodeRef("record-field_" + name), name, expr);
     }
 
     RecordConstructorCallExpr recordConstructor(Type recordType) {
-        return new RecordConstructorCallExpr(sourceCodeRef(), recordType);
+        return new RecordConstructorCallExpr(sourceCodeRef("new-record_" + recordType), recordType);
     }
 
     RecordConstructorCallExpr recordConstructor(Type recordType, RecordFieldExpr... fields) {
-        var recordConstructor = new RecordConstructorCallExpr(sourceCodeRef(), recordType);
+        var recordConstructor = new RecordConstructorCallExpr(sourceCodeRef("new-record_" + recordType), recordType);
         for (RecordFieldExpr field : fields) {
             recordConstructor.addField(field);
         }
@@ -401,7 +405,7 @@ public abstract class AstTestBase {
     }
 
     ArrayConstructorCallExpr arrayConstructor(Expr... elements) {
-        return new ArrayConstructorCallExpr(sourceCodeRef(), Arrays.asList(elements));
+        return new ArrayConstructorCallExpr(sourceCodeRef("new-array"), Arrays.asList(elements));
     }
 
     ArrayValueExpr array(ArrayConstructorCallExpr constructor, EvalContext evalContext) {
@@ -409,7 +413,11 @@ public abstract class AstTestBase {
     }
 
     PairConstructorCallExpr pairConstructor(Expr left, Expr right) {
-        return new PairConstructorCallExpr(sourceCodeRef(), left, right);
+        return new PairConstructorCallExpr(sourceCodeRef("new-pair"), left, right);
+    }
+
+    PairValueExpr pair(PairConstructorCallExpr constructor, EvalContext evalContext) {
+        return (PairValueExpr) constructor.evalExpr(evalContext);
     }
 
     RuleRefValueExpr ruleRef(RuleSymbol rule) {
@@ -421,30 +429,30 @@ public abstract class AstTestBase {
     }
 
     CastExpr cast(Type targetType, Expr expr) {
-        return new CastExpr(sourceCodeRef(), targetType, expr);
+        return new CastExpr(sourceCodeRef("cast"), targetType, expr);
     }
 
     FieldAccessExpr fieldAccess(Expr left, Expr right) {
-        return new FieldAccessExpr(sourceCodeRef(), left, right);
+        return new FieldAccessExpr(sourceCodeRef("field-access"), left, right);
     }
 
     FunctionParameter functionParameter(String name, Type type) {
-        return new FunctionParameter(sourceCodeRef(), name, type, false);
+        return new FunctionParameter(sourceCodeRef("param_" + name), name, type, false);
     }
 
     FunctionParameter functionParameter(String name, Type type, boolean optional) {
-        return new FunctionParameter(sourceCodeRef(), name, type, optional);
+        return new FunctionParameter(sourceCodeRef("param_" + name), name, type, optional);
     }
 
     FunctionSymbol functionSymbol(ModuleScope module, String name, FunctionParameter... parameters) {
-        var fn = new FunctionSymbol(sourceCodeRef(), sourceCodeRef(), module, name, null);
+        var fn = new FunctionSymbol(sourceCodeRef("fun_" + name), sourceCodeRef("end-fun_" + name), module, name, null);
         fn.setParameters(Arrays.asList(parameters));
         module.define(analyzerContext, fn);
         return fn;
     }
 
     FunctionSymbol functionSymbol(ModuleScope module, String name, Type returnType, FunctionParameter... parameters) {
-        var fn = new FunctionSymbol(sourceCodeRef(), sourceCodeRef(), module, name, null);
+        var fn = new FunctionSymbol(sourceCodeRef("fun_" + name), sourceCodeRef("end-fun_" + name), module, name, null);
         fn.setParameters(Arrays.asList(parameters));
         fn.setReturnType(returnType);
         module.define(analyzerContext, fn);
@@ -452,17 +460,20 @@ public abstract class AstTestBase {
     }
 
     FunctionArgExpr functionArg(Expr expr) {
-        return new FunctionArgExpr(sourceCodeRef(), expr);
+        return new FunctionArgExpr(sourceCodeRef("arg"), expr);
     }
 
     FunctionCallExpr functionCall(ModuleScope module, String name, FunctionArgExpr... args) {
-        return new FunctionCallExpr(module, sourceCodeRef(), name, Arrays.asList(args));
+        return new FunctionCallExpr(module, sourceCodeRef("function-call_" + name), name, Arrays.asList(args));
     }
 
     RuleSymbol rule(ModuleScope module, String name, Type targetType) {
-        var rule = new RuleSymbol(sourceCodeRef(), name, sourceCodeRef(), module, RuleTypeEnum.RULE, null);
-        var query = new Query(sourceCodeRef(), new QueryTypeClause(module, sourceCodeRef(), sourceCodeRef(), targetType,
-                false, "rec"));
+        var rule = new RuleSymbol(sourceCodeRef("defrule_" + name), name, sourceCodeRef("end-defrule_" + name),
+                module, RuleTypeEnum.RULE, null);
+        var query = new Query(sourceCodeRef("query-of_" + name),
+                new QueryTypeClause(module, sourceCodeRef("type-clause_" + targetType),
+                        sourceCodeRef("type-clause-bind"), targetType,
+                        false, "rec"));
         rule.setQuery(query);
         module.define(analyzerContext, rule);
         return rule;
@@ -488,13 +499,16 @@ public abstract class AstTestBase {
 
         private final int id = idGen++;
 
-        public MockSourceCodeRef() {
+        private final String label;
+
+        public MockSourceCodeRef(String label) {
             super(null);
+            this.label = label;
         }
 
         @Override
         public String toString() {
-            return "MockSourceCodeRef: " + id;
+            return "MockSourceCodeRef: " + label + "<" + id + ">";
         }
 
         @Override
@@ -555,9 +569,21 @@ public abstract class AstTestBase {
                     return r1.getType().equals(r2.getType()) && r1.getStringValue().equals(r2.getStringValue());
                 }
                 if (value instanceof ArrayValueExpr && other instanceof ArrayValueExpr) {
-                    List<ValueWrapper> l1 = ((ArrayValueExpr)value).getValue().stream().map(ValueWrapper::new).collect(Collectors.toList());
-                    List<ValueWrapper> l2 = ((ArrayValueExpr)value).getValue().stream().map(ValueWrapper::new).collect(Collectors.toList());
+                    ArrayValueExpr thisValue = (ArrayValueExpr) this.value;
+                    ArrayValueExpr otherValue = (ArrayValueExpr) other;
+                    List<ValueWrapper> l1 = thisValue.getValue().stream().map(ValueWrapper::new).collect(Collectors.toList());
+                    List<ValueWrapper> l2 = otherValue.getValue().stream().map(ValueWrapper::new).collect(Collectors.toList());
                     return l1.equals(l2);
+                }
+                if (value instanceof PairValueExpr && other instanceof PairValueExpr) {
+                    PairValueExpr thisValue = (PairValueExpr) this.value;
+                    PairValueExpr otherValue = (PairValueExpr) other;
+                    ValueWrapper v1Left = new ValueWrapper(thisValue.getLeftValue());
+                    ValueWrapper v1Right = new ValueWrapper(thisValue.getRightValue());
+                    ValueWrapper v2Left = new ValueWrapper(otherValue.getLeftValue());
+                    ValueWrapper v2Right = new ValueWrapper(otherValue.getRightValue());
+
+                    return v1Left.equals(v2Left) && v1Right.equals(v2Right);
                 }
                 return value.equals(other);
             }

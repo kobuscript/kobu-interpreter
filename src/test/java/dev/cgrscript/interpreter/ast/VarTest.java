@@ -28,6 +28,7 @@ import dev.cgrscript.interpreter.ast.eval.Expr;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.VarDeclExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayConstructorCallExpr;
+import dev.cgrscript.interpreter.ast.eval.expr.value.PairConstructorCallExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.RecordConstructorCallExpr;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
 import dev.cgrscript.interpreter.ast.symbol.Type;
@@ -244,6 +245,30 @@ public class VarTest extends AstTestBase {
     }
 
     @Test
+    @DisplayName("Type inference -> (\"str1\", 10) = (string, number)")
+    void testStringNumberPairTypeInference() {
+        var stringNumberPairVar = var(module, "stringNumberPair",
+                pairConstructor(stringVal("str1"), numberVal(10)));
+
+        testVar(stringNumberPairVar, pairType(stringType(), numberType()),
+                pairConstructor(stringVal("str1"), numberVal(10)));
+    }
+
+    @Test
+    @DisplayName("Type inference -> [(1, true), (2, \"str\")] = (number, AnyVal)[]")
+    void testNumberAnyValPairArrayTypeInference() {
+        var pairArrayVar = var(module, "pairArray", arrayConstructor(
+                pairConstructor(numberVal(1), booleanVal(true)),
+                pairConstructor(numberVal(2), stringVal("str"))
+        ));
+
+        testVar(pairArrayVar, arrayType(pairType(numberType(), anyValType())), arrayConstructor(
+                pairConstructor(numberVal(1), booleanVal(true)),
+                pairConstructor(numberVal(2), stringVal("str"))
+        ));
+    }
+
+    @Test
     @DisplayName("Type checker, invalid var -> var stringVar: string = 10 + 20")
     void testInvalidStringTypeChecker() {
         var stringVar = var(module, "stringVar", stringType(),
@@ -298,7 +323,7 @@ public class VarTest extends AstTestBase {
     }
 
     @Test
-    @DisplayName("Typ checker -> var stringVar: string")
+    @DisplayName("Type checker -> var stringVar: string")
     void testVarDeclWithoutVal() {
         var stringVar = var(module, "stringVar", stringType());
 
@@ -330,6 +355,15 @@ public class VarTest extends AstTestBase {
         varDecl.evalStat(evalContext);
         assertNoErrors();
         assertVar(evalContext, varDecl.getName(), expectedType, array(arrayConstructor, evalContext));
+    }
+
+    private void testVar(VarDeclExpr varDecl, Type expectedType, PairConstructorCallExpr pairConstructor) {
+        var evalContext = evalContext(module);
+        varDecl.analyze(evalContext);
+        evalContext = evalContext(module);
+        varDecl.evalStat(evalContext);
+        assertNoErrors();
+        assertVar(evalContext, varDecl.getName(), expectedType, pair(pairConstructor, evalContext));
     }
 
     private void testVar(VarDeclExpr varDecl, AnalyzerError... expectedErrors) {
