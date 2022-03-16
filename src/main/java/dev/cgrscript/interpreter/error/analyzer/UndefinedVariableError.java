@@ -29,6 +29,8 @@ import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.CgrScriptActionTypeEnum;
 
+import java.util.Objects;
+
 public class UndefinedVariableError extends AnalyzerError {
 
     private static final CgrScriptActionTypeEnum[] actions = new CgrScriptActionTypeEnum[]{
@@ -71,5 +73,19 @@ public class UndefinedVariableError extends AnalyzerError {
     @Override
     public SymbolTypeEnum getSymbolType() {
         return SymbolTypeEnum.VARIABLE;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        UndefinedVariableError that = (UndefinedVariableError) o;
+        return Objects.equals(varName, that.varName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), varName);
     }
 }

@@ -31,10 +31,7 @@ import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
 import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 import dev.cgrscript.interpreter.ast.eval.expr.*;
 import dev.cgrscript.interpreter.ast.eval.expr.value.*;
-import dev.cgrscript.interpreter.ast.eval.statement.ElseIfStatement;
-import dev.cgrscript.interpreter.ast.eval.statement.ForStatement;
-import dev.cgrscript.interpreter.ast.eval.statement.IfStatement;
-import dev.cgrscript.interpreter.ast.eval.statement.WhileStatement;
+import dev.cgrscript.interpreter.ast.eval.statement.*;
 import dev.cgrscript.interpreter.ast.query.Query;
 import dev.cgrscript.interpreter.ast.query.QueryTypeClause;
 import dev.cgrscript.interpreter.ast.symbol.*;
@@ -292,6 +289,10 @@ public abstract class AstTestBase {
         return Arrays.asList(evaluable);
     }
 
+    List<Statement> statements(Statement... statements) {
+        return Arrays.asList(statements);
+    }
+
     IfStatement ifStatement(Expr condExpr, List<Evaluable> block) {
         return new IfStatement(sourceCodeRef("if"), condExpr, block);
     }
@@ -436,6 +437,10 @@ public abstract class AstTestBase {
         return new FieldAccessExpr(sourceCodeRef("field-access"), left, right);
     }
 
+    AssignElemValueStatement assign(Expr left, Expr right) {
+        return new AssignElemValueStatement(sourceCodeRef("assignment"), left, right);
+    }
+
     FunctionParameter functionParameter(String name, Type type) {
         return new FunctionParameter(sourceCodeRef("param_" + name), name, type, false);
     }
@@ -457,6 +462,10 @@ public abstract class AstTestBase {
         fn.setReturnType(returnType);
         module.define(analyzerContext, fn);
         return fn;
+    }
+
+    ReturnStatement returnStatement(Expr expr) {
+        return new ReturnStatement(sourceCodeRef("return"), expr);
     }
 
     FunctionArgExpr functionArg(Expr expr) {
@@ -493,6 +502,17 @@ public abstract class AstTestBase {
                 + "Found: " + analyzerContext.getAllErrors().stream()
                 .map(AnalyzerError::toString)
                 .collect(Collectors.joining("\n"));
+    }
+
+    void analyze(ModuleScope module, List<Evaluable> block) {
+        var evalContext = evalContext(module);
+        block.forEach(evaluable -> evaluable.analyze(evalContext));
+    }
+
+    EvalContext eval(ModuleScope module, List<Statement> stats) {
+        var evalContext = evalContext(module);
+        stats.forEach(stat -> stat.evalStat(evalContext));
+        return evalContext;
     }
 
     private class MockSourceCodeRef extends SourceCodeRef {

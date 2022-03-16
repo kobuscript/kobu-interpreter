@@ -47,6 +47,14 @@ public class AssignElemValueStatement implements Statement, Assignment {
         this.exprRight = exprRight;
     }
 
+    public Expr getExprLeft() {
+        return exprLeft;
+    }
+
+    public Expr getExprRight() {
+        return exprRight;
+    }
+
     @Override
     public void analyze(EvalContext context) {
         if (!(exprLeft instanceof MemoryReference)) {

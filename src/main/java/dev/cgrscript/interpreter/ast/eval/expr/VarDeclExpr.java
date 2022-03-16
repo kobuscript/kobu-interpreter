@@ -41,6 +41,10 @@ public class VarDeclExpr implements Statement {
         this.varSymbol = varSymbol;
     }
 
+    public VariableSymbol getVarSymbol() {
+        return varSymbol;
+    }
+
     public Expr getValueExpr() {
         return valueExpr;
     }

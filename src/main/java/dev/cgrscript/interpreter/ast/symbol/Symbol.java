@@ -28,6 +28,7 @@ import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
 
 import java.util.List;
+import java.util.Objects;
 
 public abstract class Symbol implements AutoCompletionSource, DocumentationSource {
 
@@ -87,4 +88,18 @@ public abstract class Symbol implements AutoCompletionSource, DocumentationSourc
     public boolean hasOwnCompletionScope() {
         return true;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Symbol symbol = (Symbol) o;
+        return Objects.equals(moduleScope, symbol.moduleScope) && Objects.equals(name, symbol.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(moduleScope, name);
+    }
+
 }

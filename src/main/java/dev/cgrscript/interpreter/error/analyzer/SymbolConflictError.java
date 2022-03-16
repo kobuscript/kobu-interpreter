@@ -30,6 +30,7 @@ import dev.cgrscript.interpreter.error.AnalyzerError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SymbolConflictError extends AnalyzerError {
 
@@ -58,4 +59,19 @@ public class SymbolConflictError extends AnalyzerError {
         }
         return refs;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        SymbolConflictError that = (SymbolConflictError) o;
+        return Objects.equals(symbolOrig, that.symbolOrig) && Objects.equals(symbolDup, that.symbolDup);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), symbolOrig, symbolDup);
+    }
+
 }

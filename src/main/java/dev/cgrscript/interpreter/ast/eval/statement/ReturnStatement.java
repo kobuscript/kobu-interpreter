@@ -28,6 +28,7 @@ import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
 import dev.cgrscript.interpreter.ast.eval.Expr;
 import dev.cgrscript.interpreter.ast.eval.HasTargetType;
 import dev.cgrscript.interpreter.ast.eval.Statement;
+import dev.cgrscript.interpreter.ast.symbol.UnknownType;
 import dev.cgrscript.interpreter.error.analyzer.FunctionMissingReturnValueError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidReturnTypeError;
 import dev.cgrscript.interpreter.error.analyzer.ReturnStatOnFunctionVoidError;
@@ -42,6 +43,10 @@ public class ReturnStatement implements Statement {
     public ReturnStatement(SourceCodeRef sourceCodeRef, Expr expr) {
         this.sourceCodeRef = sourceCodeRef;
         this.expr = expr;
+    }
+
+    public Expr getExpr() {
+        return expr;
     }
 
     @Override
@@ -62,6 +67,9 @@ public class ReturnStatement implements Statement {
             ((HasTargetType)expr).setTargetType(functionType.getReturnType());
         }
         expr.analyze(context);
+        if (expr.getType() instanceof UnknownType) {
+            return;
+        }
         if (expr.getType() != null && !functionType.getReturnType().isAssignableFrom(expr.getType())) {
             context.addAnalyzerError(new InvalidReturnTypeError(sourceCodeRef, functionType, expr.getType()));
         }

@@ -35,6 +35,8 @@ import dev.cgrscript.interpreter.ast.symbol.Type;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidAssignExprTypeError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidVariableDeclError;
+import dev.cgrscript.interpreter.error.analyzer.SymbolConflictError;
+import dev.cgrscript.interpreter.error.analyzer.UndefinedVariableError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -330,47 +332,117 @@ public class VarTest extends AstTestBase {
         testVar(stringVar, stringType(), nullVal());
     }
 
+    @Test
+    @DisplayName("Type checker -> invalid assignment")
+    void testInvalidAssignment() {
+        var numberVar = var(module, "numberVar",
+                add(numberVal(10), numberVal(20)));
+        var assignment = assign(ref(module, "numberVar"), stringVal("str"));
+
+        analyze(module, block(numberVar, assignment));
+        eval(module, statements(numberVar, assignment));
+        assertErrors(new InvalidAssignExprTypeError(assignment.getExprRight().getSourceCodeRef(), numberType(), stringType()));
+    }
+
+    @Test
+    @DisplayName("Scope -> function scope")
+    void testFunctionScope() {
+        var function1 = functionSymbol(module, "myFunction", numberType());
+        var myVar = var(module, "myVar", mult(
+                add(numberVal(10), numberVal(23)),
+                sub(numberVal(12.1), numberVal(6))));
+        function1.setExprList(block(
+                myVar,
+                returnStatement(ref(module, "myVar"))
+        ));
+        var function2 = functionSymbol(module, "myFunction2", numberType());
+        var returnStat = returnStatement(ref(module, "myVar"));
+        function2.setExprList(block(returnStat));
+        function1.analyze(analyzerContext, evalContextProvider);
+        function2.analyze(analyzerContext, evalContextProvider);
+
+        assertErrors(new UndefinedVariableError(returnStat.getExpr().getSourceCodeRef(), myVar.getName()));
+    }
+
+    @Test
+    @DisplayName("Scope -> symbol conflict")
+    void testSymbolConflict() {
+        var myVar1 = var(module, "myVar", stringVal("str1"));
+        var myVar2 = var(module, "myVar", numberVal(10));
+
+        analyze(module, block(myVar1, myVar2));
+        assertErrors(new SymbolConflictError(myVar1.getVarSymbol(), myVar2.getVarSymbol()));
+    }
+
+    @Test
+    @DisplayName("Scope -> local vars and functions can share the same name")
+    void testLocalVarAndFunctionNameResolution() {
+        var function = functionSymbol(module, "mySymbol", numberType());
+        function.setExprList(block(returnStatement(numberVal(10))));
+        function.analyze(analyzerContext, evalContextProvider);
+
+        var myVar = var(module, "mySymbol", stringVal("str"));
+        var myVar2 = var(module, "myVar", ref(module, "mySymbol"));
+        var myVar3 = var(module, "myVar2", functionCall(module, "mySymbol"));
+
+        analyze(module, block(myVar, myVar2, myVar3));
+        var evalContext = eval(module, statements(myVar, myVar2, myVar3));
+
+        assertNoErrors();
+        assertVar(evalContext, myVar.getName(), stringType(), stringVal("str"));
+        assertVar(evalContext, myVar2.getName(), stringType(), stringVal("str"));
+        assertVar(evalContext, myVar3.getName(), numberType(), numberVal(10));
+    }
+
+    @Test
+    @DisplayName("Scope -> symbol shadowing")
+    void testSymbolShadowing() {
+        var myVar = var(module, "myVar", stringVal("str"));
+        var myVar2 = var(module, "myVar", numberVal(10));
+        var ifStat = ifStatement(booleanVal(true), block(
+                myVar2,
+                assign(ref(module, "myVar"), numberVal(20))
+        ));
+        var assign = assign(ref(module, "myVar"), stringVal("str2"));
+
+        analyze(module, block(myVar, ifStat, assign));
+        var evalContext = eval(module, statements(myVar, ifStat, assign));
+
+        assertNoErrors();
+        assertVar(evalContext, myVar.getName(), stringType(), stringVal("str2"));
+    }
+
     private void testVar(VarDeclExpr varDecl, Type expectedType, ValueExpr expectedValue) {
-        var evalContext = evalContext(module);
-        varDecl.analyze(evalContext);
-        evalContext = evalContext(module);
-        varDecl.evalStat(evalContext);
+        analyze(module, block(varDecl));
+        var evalContext = eval(module, statements(varDecl));
         assertNoErrors();
         assertVar(evalContext, varDecl.getName(), expectedType, expectedValue);
     }
 
     private void testVar(VarDeclExpr varDecl, Type expectedType, RecordConstructorCallExpr recordContructor) {
-        var evalContext = evalContext(module);
-        varDecl.analyze(evalContext);
-        evalContext = evalContext(module);
-        varDecl.evalStat(evalContext);
+        analyze(module, block(varDecl));
+        var evalContext = eval(module, statements(varDecl));
         assertNoErrors();
         assertVar(evalContext, varDecl.getName(), expectedType, record(recordContructor, evalContext));
     }
 
     private void testVar(VarDeclExpr varDecl, Type expectedType, ArrayConstructorCallExpr arrayConstructor) {
-        var evalContext = evalContext(module);
-        varDecl.analyze(evalContext);
-        evalContext = evalContext(module);
-        varDecl.evalStat(evalContext);
+        analyze(module, block(varDecl));
+        var evalContext = eval(module, statements(varDecl));
         assertNoErrors();
         assertVar(evalContext, varDecl.getName(), expectedType, array(arrayConstructor, evalContext));
     }
 
     private void testVar(VarDeclExpr varDecl, Type expectedType, PairConstructorCallExpr pairConstructor) {
-        var evalContext = evalContext(module);
-        varDecl.analyze(evalContext);
-        evalContext = evalContext(module);
-        varDecl.evalStat(evalContext);
+        analyze(module, block(varDecl));
+        var evalContext = eval(module, statements(varDecl));
         assertNoErrors();
         assertVar(evalContext, varDecl.getName(), expectedType, pair(pairConstructor, evalContext));
     }
 
     private void testVar(VarDeclExpr varDecl, AnalyzerError... expectedErrors) {
-        var evalContext = evalContext(module);
-        varDecl.analyze(evalContext);
-        evalContext = evalContext(module);
-        varDecl.evalStat(evalContext);
+        analyze(module, block(varDecl));
+        var evalContext = eval(module, statements(varDecl));
         assertErrors(expectedErrors);
     }
 
