@@ -122,11 +122,11 @@ elseStat : 'else' LCB execStat* RCB
            | 'else' {notifyErrorListenersPrevToken("'{' expected");}
            ;
 
-forStat : 'for' LP varDeclList? SEMI exprSequence? SEMI assignmentSequece? RP LCB execStat* RCB
-          | 'for' LP varDeclList? SEMI exprSequence? SEMI assignmentSequece? RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
-          | 'for' LP varDeclList? SEMI exprSequence? SEMI assignmentSequece? RP {notifyErrorListenersPrevToken("'{' expected");}
-          | 'for' LP varDeclList? SEMI exprSequence? SEMI assignmentSequece? {notifyErrorListenersPrevToken("')' expected");}
-          | 'for' LP varDeclList? SEMI exprSequence? {notifyErrorListenersPrevToken("';' expected");}
+forStat : 'for' LP varDeclList? SEMI expr? SEMI assignmentSequece? RP LCB execStat* RCB
+          | 'for' LP varDeclList? SEMI expr? SEMI assignmentSequece? RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+          | 'for' LP varDeclList? SEMI expr? SEMI assignmentSequece? RP {notifyErrorListenersPrevToken("'{' expected");}
+          | 'for' LP varDeclList? SEMI expr? SEMI assignmentSequece? {notifyErrorListenersPrevToken("')' expected");}
+          | 'for' LP varDeclList? SEMI expr? {notifyErrorListenersPrevToken("';' expected");}
           | 'for' LP varDeclList? {notifyErrorListenersPrevToken("';' expected");}
           ;
 

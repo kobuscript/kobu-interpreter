@@ -45,17 +45,17 @@ public class ForStatement implements Statement {
 
     private final List<VarDeclExpr> varDeclList;
 
-    private final List<Expr> condExprList;
+    private final Expr condExpr;
 
     private final List<Statement> stepStatList;
 
     private final List<Evaluable> block;
 
-    public ForStatement(SourceCodeRef sourceCodeRef, List<VarDeclExpr> varDeclList, List<Expr> condExprList,
+    public ForStatement(SourceCodeRef sourceCodeRef, List<VarDeclExpr> varDeclList, Expr condExpr,
                         List<Statement> stepStatList, List<Evaluable> block) {
         this.sourceCodeRef = sourceCodeRef;
         this.varDeclList = varDeclList;
-        this.condExprList = condExprList;
+        this.condExpr = condExpr;
         this.stepStatList = stepStatList;
         this.block = block;
     }
@@ -73,11 +73,11 @@ public class ForStatement implements Statement {
         }
 
         var booleanType = BuiltinScope.BOOLEAN_TYPE;
-        for (Expr expr : condExprList) {
-            expr.analyze(context);
-            if (!(expr.getType() instanceof BooleanTypeSymbol)) {
-                context.addAnalyzerError(new InvalidTypeError(expr.getSourceCodeRef(),
-                        booleanType, expr.getType()));
+        if (condExpr != null) {
+            condExpr.analyze(context);
+            if (!(condExpr.getType() instanceof BooleanTypeSymbol)) {
+                context.addAnalyzerError(new InvalidTypeError(condExpr.getSourceCodeRef(),
+                        booleanType, condExpr.getType()));
             }
         }
 
@@ -109,17 +109,16 @@ public class ForStatement implements Statement {
 
         boolean cond = true;
         while(cond) {
-            for (Expr expr : condExprList) {
-                ValueExpr valueExpr = expr.evalExpr(context);
+            if (condExpr != null) {
+                ValueExpr valueExpr = condExpr.evalExpr(context);
                 if (valueExpr instanceof NullValueExpr) {
-                    throw new NullPointerError(sourceCodeRef, expr.getSourceCodeRef());
+                    throw new NullPointerError(sourceCodeRef, condExpr.getSourceCodeRef());
                 }
                 if (!(valueExpr instanceof BooleanValueExpr)) {
                     throw new InternalInterpreterError("Expected: Boolean. Found: " +
                             valueExpr.getStringValue(), getSourceCodeRef());
                 }
-                boolean exprResult = ((BooleanValueExpr) valueExpr).getValue();
-                cond = cond && exprResult;
+                cond = ((BooleanValueExpr) valueExpr).getValue();
             }
 
             if (cond) {
@@ -150,8 +149,8 @@ public class ForStatement implements Statement {
         return varDeclList;
     }
 
-    public List<Expr> getCondExprList() {
-        return condExprList;
+    public Expr getCondExpr() {
+        return condExpr;
     }
 
     public List<Statement> getStepStatList() {

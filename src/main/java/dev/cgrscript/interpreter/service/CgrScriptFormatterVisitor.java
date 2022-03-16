@@ -762,10 +762,10 @@ public class CgrScriptFormatterVisitor extends CgrScriptParserBaseVisitor<Void> 
             printCommentsBefore(ctx.varDeclList());
             out.append(ctx.varDeclList().getText());
         }
-        if (ctx.exprSequence() != null) {
+        if (ctx.expr() != null) {
             out.append("; ");
-            printCommentsBefore(ctx.exprSequence());
-            out.append(ctx.exprSequence().getText());
+            printCommentsBefore(ctx.expr());
+            out.append(ctx.expr().getText());
         }
         if (ctx.assignmentSequece() != null) {
             out.append("; ");

@@ -325,9 +325,9 @@ public abstract class AstTestBase {
         return Arrays.asList(statement);
     }
 
-    ForStatement forStatement(List<VarDeclExpr> varDeclList, List<Expr> condExprList,
+    ForStatement forStatement(List<VarDeclExpr> varDeclList, Expr condExpr,
                               List<Statement> stepList, List<Evaluable> block) {
-        return new ForStatement(sourceCodeRef("for"), varDeclList, condExprList, stepList, block);
+        return new ForStatement(sourceCodeRef("for"), varDeclList, condExpr, stepList, block);
     }
 
     RecordTypeAttribute attribute(ModuleScope module, String name, Type type) {

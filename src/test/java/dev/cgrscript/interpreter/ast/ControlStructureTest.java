@@ -154,11 +154,11 @@ public class ControlStructureTest extends AstTestBase {
         var myFunc = functionSymbol(module, "factorial", numberType(),
                 functionParameter("n", numberType()));
         var varDeclList = varDeclList(var(module, "idx", numberVal(1)));
-        var condList = exprList(lessOrEquals(ref(module, "idx"), ref(module, "n")));
+        var cond = lessOrEquals(ref(module, "idx"), ref(module, "n"));
         var stepList = statementList(postInc(ref(module, "idx")));
         myFunc.setExprList(block(
                 var(module, "result", numberVal(1)),
-                forStatement(varDeclList, condList, stepList, block(
+                forStatement(varDeclList, cond, stepList, block(
                         assign(ref(module, "result"), mult(ref(module,"result"), ref(module, "idx")))
                 )),
                 returnStatement(ref(module, "result"))
@@ -180,13 +180,32 @@ public class ControlStructureTest extends AstTestBase {
     @Test
     @DisplayName("'for' statement without variables and step")
     void testForCondOnlyEvaluation() {
+        var myFunc = functionSymbol(module, "factorial", numberType(),
+                functionParameter("n", numberType()));
+        var varDeclList = varDeclList();
+        var cond = lessOrEquals(ref(module, "idx"), ref(module, "n"));
+        var stepList = statementList();
+        myFunc.setExprList(block(
+                var(module, "idx", numberVal(1)),
+                var(module, "result", numberVal(1)),
+                forStatement(varDeclList, cond, stepList, block(
+                        assign(ref(module, "result"), mult(ref(module,"result"), ref(module, "idx"))),
+                        postInc(ref(module, "idx"))
+                )),
+                returnStatement(ref(module, "result"))
+        ));
+        myFunc.analyze(analyzerContext, evalContextProvider);
 
-    }
+        var myVar = var(module, "myVar", functionCall(module, "factorial", functionArg(numberVal(2))));
+        var myVar2 = var(module, "myVar2", functionCall(module, "factorial", functionArg(numberVal(5))));
+        var myVar3 = var(module, "myVar3", functionCall(module, "factorial", functionArg(numberVal(8))));
 
-    @Test
-    @DisplayName("'for' statement with multiple expressions")
-    void testForMultipleExprsEvaluation() {
-
+        analyze(module, block(myVar, myVar2, myVar3));
+        var evalContext = eval(module, block(myVar, myVar2, myVar3));
+        assertNoErrors();
+        assertVar(evalContext, myVar.getName(), numberType(), numberVal(2));
+        assertVar(evalContext, myVar2.getName(), numberType(), numberVal(120));
+        assertVar(evalContext, myVar3.getName(), numberType(), numberVal(40320));
     }
 
 }

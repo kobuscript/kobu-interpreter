@@ -606,14 +606,9 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             }
         }
         topLevelExpression = false;
-        List<Expr> condExprList = new ArrayList<>();
-        if (ctx.exprSequence() != null) {
-            for (CgrScriptParser.ExprWrapperContext exprContext : ctx.exprSequence().exprWrapper()) {
-                var exprNode = visit(exprContext);
-                if (exprNode != null) {
-                    condExprList.add((Expr) exprNode);
-                }
-            }
+        Expr condExpr = null;
+        if (ctx.expr() != null) {
+            condExpr = (Expr) visit(ctx.expr());
         }
         topLevelExpression = false;
         List<Statement> stepStatementList = new ArrayList<>();
@@ -637,7 +632,7 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
             }
         }
         return new ForStatement(getSourceCodeRef(ctx),
-                varDeclList, condExprList, stepStatementList, block);
+                varDeclList, condExpr, stepStatementList, block);
     }
 
     @Override
