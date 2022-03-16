@@ -289,10 +289,6 @@ public abstract class AstTestBase {
         return Arrays.asList(evaluable);
     }
 
-    List<Statement> statements(Statement... statements) {
-        return Arrays.asList(statements);
-    }
-
     IfStatement ifStatement(Expr condExpr, List<Evaluable> block) {
         return new IfStatement(sourceCodeRef("if"), condExpr, block);
     }
@@ -307,6 +303,10 @@ public abstract class AstTestBase {
         var nextElseIf = new ElseIfStatement(sourceCodeRef("else-if"), condExpr, block);
         elseIf.setElseIf(nextElseIf);
         return nextElseIf;
+    }
+
+    void elseStatement(IfStatement ifStatement, List<Evaluable> block) {
+        ifStatement.setElseBlock(block);
     }
 
     WhileStatement whileStatement(Expr condExpr, List<Evaluable> block) {
@@ -347,15 +347,16 @@ public abstract class AstTestBase {
     RecordTypeSymbol recordType(ModuleScope module, String name, List<RecordTypeAttribute> attributes) {
         var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
-        attributes.forEach(recordType::addAttribute);
+        attributes.forEach(attr -> recordType.addAttribute(analyzerContext, attr));
         return recordType;
     }
 
     RecordTypeSymbol recordType(ModuleScope module, String name, List<RecordTypeAttribute> attributes, Type starAttrType) {
         var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
-        attributes.forEach(recordType::addAttribute);
-        recordType.setStarAttribute(new RecordTypeStarAttribute(sourceCodeRef("deftype_" + name), starAttrType));
+        attributes.forEach(attr -> recordType.addAttribute(analyzerContext, attr));
+        recordType.setStarAttribute(analyzerContext,
+                new RecordTypeStarAttribute(sourceCodeRef("deftype_" + name), starAttrType));
         return recordType;
     }
 
@@ -370,7 +371,7 @@ public abstract class AstTestBase {
                                 RecordTypeSymbol superType, List<RecordTypeAttribute> attributes) {
         var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
-        attributes.forEach(recordType::addAttribute);
+        attributes.forEach(attr -> recordType.addAttribute(analyzerContext, attr));
         recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
         return recordType;
     }
@@ -379,8 +380,9 @@ public abstract class AstTestBase {
                                 RecordTypeSymbol superType, List<RecordTypeAttribute> attributes, Type starAttrType) {
         var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
-        attributes.forEach(recordType::addAttribute);
-        recordType.setStarAttribute(new RecordTypeStarAttribute(sourceCodeRef("attr_*"), starAttrType));
+        attributes.forEach(attr -> recordType.addAttribute(analyzerContext, attr));
+        recordType.setStarAttribute(analyzerContext,
+                new RecordTypeStarAttribute(sourceCodeRef("attr_*"), starAttrType));
         recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
         return recordType;
     }
@@ -464,12 +466,20 @@ public abstract class AstTestBase {
         return fn;
     }
 
+    ReturnStatement returnStatement() {
+        return returnStatement(null);
+    }
+
     ReturnStatement returnStatement(Expr expr) {
         return new ReturnStatement(sourceCodeRef("return"), expr);
     }
 
     FunctionArgExpr functionArg(Expr expr) {
         return new FunctionArgExpr(sourceCodeRef("arg"), expr);
+    }
+
+    List<FunctionArgExpr> functionArgs(FunctionArgExpr... args) {
+        return Arrays.asList(args);
     }
 
     FunctionCallExpr functionCall(ModuleScope module, String name, FunctionArgExpr... args) {
@@ -509,9 +519,15 @@ public abstract class AstTestBase {
         block.forEach(evaluable -> evaluable.analyze(evalContext));
     }
 
-    EvalContext eval(ModuleScope module, List<Statement> stats) {
+    EvalContext eval(ModuleScope module, List<Evaluable> block) {
         var evalContext = evalContext(module);
-        stats.forEach(stat -> stat.evalStat(evalContext));
+        block.forEach(evaluable -> {
+            if (evaluable instanceof Statement) {
+                ((Statement) evaluable).evalStat(evalContext);
+            } else if (evaluable instanceof Expr) {
+                ((Expr) evaluable).evalExpr(evalContext);
+            }
+        });
         return evalContext;
     }
 

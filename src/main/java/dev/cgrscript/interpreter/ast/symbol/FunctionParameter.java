@@ -24,6 +24,8 @@ SOFTWARE.
 
 package dev.cgrscript.interpreter.ast.symbol;
 
+import java.util.Objects;
+
 public class FunctionParameter {
 
     private final String name;
@@ -70,5 +72,18 @@ public class FunctionParameter {
         }
         str += ": " + type.getName();
         return str;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FunctionParameter that = (FunctionParameter) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

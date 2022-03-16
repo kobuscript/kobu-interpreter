@@ -28,11 +28,13 @@ import dev.cgrscript.interpreter.ast.symbol.FunctionType;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 
-public class ReturnStatOnFunctionVoidError extends AnalyzerError {
+import java.util.Objects;
+
+public class ReturnStatInVoidFunctionError extends AnalyzerError {
 
     private final FunctionType function;
 
-    public ReturnStatOnFunctionVoidError(SourceCodeRef sourceCodeRef, FunctionType function) {
+    public ReturnStatInVoidFunctionError(SourceCodeRef sourceCodeRef, FunctionType function) {
         super(sourceCodeRef);
         this.function = function;
     }
@@ -45,4 +47,19 @@ public class ReturnStatOnFunctionVoidError extends AnalyzerError {
     public String getDescription() {
         return "Cannot return a value from a function with void result type";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ReturnStatInVoidFunctionError that = (ReturnStatInVoidFunctionError) o;
+        return Objects.equals(function, that.function);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), function);
+    }
+
 }

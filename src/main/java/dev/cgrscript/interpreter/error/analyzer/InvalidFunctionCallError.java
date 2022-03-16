@@ -30,6 +30,7 @@ import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 
 import java.util.List;
+import java.util.Objects;
 
 public class InvalidFunctionCallError extends AnalyzerError {
 
@@ -62,5 +63,19 @@ public class InvalidFunctionCallError extends AnalyzerError {
         } else {
             return function.getParameters().size() + " arguments";
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        InvalidFunctionCallError that = (InvalidFunctionCallError) o;
+        return Objects.equals(function, that.function);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), function);
     }
 }

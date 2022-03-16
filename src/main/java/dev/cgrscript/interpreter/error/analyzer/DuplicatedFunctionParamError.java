@@ -30,6 +30,7 @@ import dev.cgrscript.interpreter.error.AnalyzerError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DuplicatedFunctionParamError extends AnalyzerError {
 
@@ -58,4 +59,19 @@ public class DuplicatedFunctionParamError extends AnalyzerError {
     public String getDescription() {
         return "Parameter " + paramOrig.getName() + " is already defined";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        DuplicatedFunctionParamError that = (DuplicatedFunctionParamError) o;
+        return Objects.equals(paramOrig, that.paramOrig) && Objects.equals(paramDup, that.paramDup);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), paramOrig, paramDup);
+    }
+
 }

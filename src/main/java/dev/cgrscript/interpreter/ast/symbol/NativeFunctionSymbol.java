@@ -35,19 +35,16 @@ public class NativeFunctionSymbol extends Symbol implements FunctionType {
 
     private final NativeFunction functionImpl;
 
-    private final String docText;
-
     private List<FunctionParameter> parameters = new ArrayList<>();
 
     private Type returnType;
 
-    private SymbolDocumentation documentation;
+    private final SymbolDocumentation documentation;
 
     public NativeFunctionSymbol(SourceCodeRef sourceCodeRef, ModuleScope moduleScope, String name,
                                 NativeFunction functionImpl, String docText) {
         super(moduleScope, sourceCodeRef, name);
         this.functionImpl = functionImpl;
-        this.docText = docText;
         this.functionImpl.setFuncDef(this);
         this.documentation = new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.FUNCTION,
                 getName() + getDescription(), docText);

@@ -36,6 +36,7 @@ import dev.cgrscript.interpreter.ast.eval.function.record.RecordValuesMethodImpl
 import dev.cgrscript.interpreter.error.analyzer.CyclicRecordInheritanceError;
 import dev.cgrscript.interpreter.error.analyzer.RecordSuperTypeConflictError;
 import dev.cgrscript.interpreter.error.analyzer.RecordTypeAttributeConflictError;
+import dev.cgrscript.interpreter.error.analyzer.RecordTypeStarAttributeError;
 
 import java.util.*;
 
@@ -101,8 +102,12 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         this.superTypeSourceCodeRef = superType.getSourceCodeRef();
     }
 
-    public void addAttribute(RecordTypeAttribute attribute) {
+    public void addAttribute(AnalyzerContext analyzerContext, RecordTypeAttribute attribute) {
         attribute.setRecordType(this);
+        RecordTypeAttribute currentDef = getAttribute(attribute.getName());
+        if (currentDef != null) {
+            analyzerContext.getErrorScope().addError(new RecordTypeAttributeConflictError(currentDef, attribute));
+        }
         attributes.put(attribute.getName(), attribute);
     }
 
@@ -110,7 +115,12 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         return starAttribute;
     }
 
-    public void setStarAttribute(RecordTypeStarAttribute attribute) {
+    public void setStarAttribute(AnalyzerContext analyzerContext, RecordTypeStarAttribute attribute) {
+        if (starAttribute != null) {
+            analyzerContext.getErrorScope()
+                    .addError(new RecordTypeStarAttributeError(attribute.getSourceCodeRef(), this));
+            return;
+        }
         starAttribute = attribute;
     }
 

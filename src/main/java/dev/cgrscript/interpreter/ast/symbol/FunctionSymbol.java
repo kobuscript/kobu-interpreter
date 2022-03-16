@@ -28,11 +28,11 @@ import dev.cgrscript.interpreter.ast.AnalyzerContext;
 import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.context.EvalContextProvider;
 import dev.cgrscript.interpreter.ast.eval.context.EvalModeEnum;
+import dev.cgrscript.interpreter.error.analyzer.DuplicatedFunctionParamError;
 import dev.cgrscript.interpreter.error.analyzer.FunctionMissingReturnStatError;
+import dev.cgrscript.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
 
@@ -116,7 +116,24 @@ public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
                         SymbolTypeEnum.FILE,
                         SymbolTypeEnum.KEYWORD);
 
+        Map<String, FunctionParameter> paramsMap = new HashMap<>();
+        FunctionParameter lastOptionalParam = null;
         for (FunctionParameter parameter : parameters) {
+            FunctionParameter currentParam = paramsMap.get(parameter.getName());
+            if (currentParam != null) {
+                analyzerContext.getErrorScope().addError(new DuplicatedFunctionParamError(currentParam, parameter));
+                continue;
+            }
+            paramsMap.put(parameter.getName(), parameter);
+
+            if (parameter.isOptional()) {
+                lastOptionalParam = parameter;
+            } else {
+                if (lastOptionalParam != null) {
+                    analyzerContext.getErrorScope().addError(new InvalidRequiredFunctionParamError(parameter));
+                }
+            }
+
             VariableSymbol variableSymbol = new VariableSymbol(moduleScope, parameter.getSourceCodeRef(), parameter.getName(),
                     parameter.getType());
             scope.define(analyzerContext, variableSymbol);

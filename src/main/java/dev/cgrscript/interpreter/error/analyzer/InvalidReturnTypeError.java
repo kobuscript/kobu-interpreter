@@ -29,6 +29,8 @@ import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.ast.symbol.Type;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 
+import java.util.Objects;
+
 public class InvalidReturnTypeError extends AnalyzerError {
 
     private final FunctionType function;
@@ -53,4 +55,19 @@ public class InvalidReturnTypeError extends AnalyzerError {
     public String getDescription() {
         return "Type '" + foundType.getName() + "' is not assignable to type '" + function.getReturnType().getName() + "'";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        InvalidReturnTypeError that = (InvalidReturnTypeError) o;
+        return Objects.equals(function, that.function) && Objects.equals(foundType, that.foundType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), function, foundType);
+    }
+
 }

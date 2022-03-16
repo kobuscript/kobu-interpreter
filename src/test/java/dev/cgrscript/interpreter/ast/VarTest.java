@@ -340,7 +340,7 @@ public class VarTest extends AstTestBase {
         var assignment = assign(ref(module, "numberVar"), stringVal("str"));
 
         analyze(module, block(numberVar, assignment));
-        eval(module, statements(numberVar, assignment));
+        eval(module, block(numberVar, assignment));
         assertErrors(new InvalidAssignExprTypeError(assignment.getExprRight().getSourceCodeRef(), numberType(), stringType()));
     }
 
@@ -386,7 +386,7 @@ public class VarTest extends AstTestBase {
         var myVar3 = var(module, "myVar2", functionCall(module, "mySymbol"));
 
         analyze(module, block(myVar, myVar2, myVar3));
-        var evalContext = eval(module, statements(myVar, myVar2, myVar3));
+        var evalContext = eval(module, block(myVar, myVar2, myVar3));
 
         assertNoErrors();
         assertVar(evalContext, myVar.getName(), stringType(), stringVal("str"));
@@ -406,43 +406,54 @@ public class VarTest extends AstTestBase {
         var assign = assign(ref(module, "myVar"), stringVal("str2"));
 
         analyze(module, block(myVar, ifStat, assign));
-        var evalContext = eval(module, statements(myVar, ifStat, assign));
+        var evalContext = eval(module, block(myVar, ifStat, assign));
 
         assertNoErrors();
         assertVar(evalContext, myVar.getName(), stringType(), stringVal("str2"));
     }
 
+    @Test
+    @DisplayName("Scope -> var ref outside scope")
+    void testRefOutsideScope() {
+        var myVar = var(module, "myVar", stringVal("str"));
+        var ifStat = ifStatement(booleanVal(true), block(myVar));
+        var assign = assign(ref(module, "myVar"), stringVal("str2"));
+
+        analyze(module, block(ifStat, assign));
+        assertErrors(new UndefinedVariableError(assign.getExprLeft().getSourceCodeRef(), myVar.getName()));
+    }
+
     private void testVar(VarDeclExpr varDecl, Type expectedType, ValueExpr expectedValue) {
         analyze(module, block(varDecl));
-        var evalContext = eval(module, statements(varDecl));
+        var evalContext = eval(module, block(varDecl));
         assertNoErrors();
         assertVar(evalContext, varDecl.getName(), expectedType, expectedValue);
     }
 
     private void testVar(VarDeclExpr varDecl, Type expectedType, RecordConstructorCallExpr recordContructor) {
         analyze(module, block(varDecl));
-        var evalContext = eval(module, statements(varDecl));
+        var evalContext = eval(module, block(varDecl));
         assertNoErrors();
         assertVar(evalContext, varDecl.getName(), expectedType, record(recordContructor, evalContext));
     }
 
     private void testVar(VarDeclExpr varDecl, Type expectedType, ArrayConstructorCallExpr arrayConstructor) {
         analyze(module, block(varDecl));
-        var evalContext = eval(module, statements(varDecl));
+        var evalContext = eval(module, block(varDecl));
         assertNoErrors();
         assertVar(evalContext, varDecl.getName(), expectedType, array(arrayConstructor, evalContext));
     }
 
     private void testVar(VarDeclExpr varDecl, Type expectedType, PairConstructorCallExpr pairConstructor) {
         analyze(module, block(varDecl));
-        var evalContext = eval(module, statements(varDecl));
+        var evalContext = eval(module, block(varDecl));
         assertNoErrors();
         assertVar(evalContext, varDecl.getName(), expectedType, pair(pairConstructor, evalContext));
     }
 
     private void testVar(VarDeclExpr varDecl, AnalyzerError... expectedErrors) {
         analyze(module, block(varDecl));
-        var evalContext = eval(module, statements(varDecl));
+        var evalContext = eval(module, block(varDecl));
         assertErrors(expectedErrors);
     }
 

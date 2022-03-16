@@ -31,7 +31,7 @@ import dev.cgrscript.interpreter.ast.eval.Statement;
 import dev.cgrscript.interpreter.ast.symbol.UnknownType;
 import dev.cgrscript.interpreter.error.analyzer.FunctionMissingReturnValueError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidReturnTypeError;
-import dev.cgrscript.interpreter.error.analyzer.ReturnStatOnFunctionVoidError;
+import dev.cgrscript.interpreter.error.analyzer.ReturnStatInVoidFunctionError;
 import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 
 public class ReturnStatement implements Statement {
@@ -54,7 +54,7 @@ public class ReturnStatement implements Statement {
         context.getCurrentBranch().setHasReturnStatement(true);
         var functionType = context.getFunction();
         if ((functionType == null || functionType.getReturnType() == null) && expr != null) {
-            context.addAnalyzerError(new ReturnStatOnFunctionVoidError(sourceCodeRef, functionType));
+            context.addAnalyzerError(new ReturnStatInVoidFunctionError(sourceCodeRef, functionType));
             return;
         } else if (functionType != null && functionType.getReturnType() != null && expr == null) {
             context.addAnalyzerError(new FunctionMissingReturnValueError(sourceCodeRef, functionType));

@@ -137,20 +137,10 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
                     var type = (Type) visit(attrCtx.type());
                     if (attrCtx.ID() != null) {
                         var attr = new RecordTypeAttribute(moduleScope, getSourceCodeRef(attrCtx.ID()), attrCtx.ID().getText(), type);
-                        RecordTypeAttribute currentDef = recordType.getAttribute(attr.getName());
-                        if (currentDef != null) {
-                            context.getErrorScope().addError(new RecordTypeAttributeConflictError(currentDef, attr));
-                        }
-                        recordType.addAttribute(attr);
+                        recordType.addAttribute(context, attr);
                     } else if (attrCtx.STAR() != null) {
-                        var starAttributes = recordType.getStarAttribute();
                         var sourceCodeRef = getSourceCodeRef(attrCtx);
-                        if (starAttributes != null) {
-                            context.getErrorScope()
-                                    .addError(new RecordTypeStarAttributeError(sourceCodeRef, recordType));
-                        } else {
-                            recordType.setStarAttribute(new RecordTypeStarAttribute(sourceCodeRef, type));
-                        }
+                        recordType.setStarAttribute(context, new RecordTypeStarAttribute(sourceCodeRef, type));
                     }
                 }
                 attrCtx = attrCtx.attributes();
@@ -1388,27 +1378,11 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
     private List<FunctionParameter> getFunctionParameters(CgrScriptParser.FunctionDeclParamContext paramCtx) {
         List<FunctionParameter> parameters;
         parameters = new ArrayList<>();
-        Map<String, FunctionParameter> paramsMap = new HashMap<>();
-        FunctionParameter lastOptionalParam = null;
 
         while (paramCtx != null) {
             var type = paramCtx.type() != null ? (Type) visit(paramCtx.type()) : UnknownType.INSTANCE;
             FunctionParameter param = new FunctionParameter(getSourceCodeRef(paramCtx.ID()), paramCtx.ID().getText(), type,
                     paramCtx.QM() != null);
-
-            FunctionParameter currentParam = paramsMap.get(param.getName());
-            if (currentParam != null) {
-                context.getErrorScope().addError(new DuplicatedFunctionParamError(currentParam, param));
-                continue;
-            }
-            if (param.isOptional()) {
-                lastOptionalParam = param;
-            } else {
-                if (lastOptionalParam != null) {
-                    context.getErrorScope().addError(new InvalidRequiredFunctionParamError(param));
-                }
-            }
-            paramsMap.put(param.getName(), param);
             parameters.add(param);
 
             paramCtx = paramCtx.functionDeclParam();
