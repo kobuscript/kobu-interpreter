@@ -155,7 +155,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
             if (arg.getType() instanceof UnknownType) {
                 return UnknownType.INSTANCE;
             }
-            if (!parameter.getType().isAssignableFrom(arg.getType())) {
+            if (arg.getType() != null && !parameter.getType().isAssignableFrom(arg.getType())) {
                 context.addAnalyzerError(new InvalidTypeError(arg.getSourceCodeRef(),
                         parameter.getType(), arg.getType()));
                 return UnknownType.INSTANCE;

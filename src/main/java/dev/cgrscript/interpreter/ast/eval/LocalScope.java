@@ -95,7 +95,11 @@ public class LocalScope implements Scope {
     }
 
     public void setValue(String symbolName, ValueExpr value) {
-        memory.put(symbolName, value);
+        if (symbols.containsKey(symbolName)) {
+            memory.put(symbolName, value);
+        } else if (enclosingScope instanceof LocalScope) {
+            ((LocalScope) enclosingScope).setValue(symbolName, value);
+        }
     }
 
     public List<String> getKeys() {

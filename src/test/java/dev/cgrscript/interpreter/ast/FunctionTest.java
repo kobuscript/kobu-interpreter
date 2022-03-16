@@ -133,6 +133,27 @@ public class FunctionTest extends AstTestBase {
     }
 
     @Test
+    @DisplayName("Analyzer -> return statement: loop branch w/ return")
+    void testMissingReturnStatementLoopBranchWithReturn() {
+        var myFunc = functionSymbol(module, "myFunc", stringType());
+        myFunc.setExprList(block(whileStatement(booleanVal(true), block(returnStatement(stringVal("str"))))));
+        myFunc.analyze(analyzerContext, evalContextProvider);
+        assertErrors(new FunctionMissingReturnStatError(myFunc.getCloseFunctionRef()));
+    }
+
+    @Test
+    @DisplayName("Analyzer -> unreachable code")
+    void testUnreachableCode() {
+        var myFunc = functionSymbol(module, "myFunc", stringType());
+        IfStatement ifStat = ifStatement(booleanVal(true), block(returnStatement(stringVal("str"))));
+        elseStatement(ifStat, block(returnStatement(stringVal("str2"))));
+        ReturnStatement returnStatement = returnStatement(stringVal("str3"));
+        myFunc.setExprList(block(ifStat, returnStatement));
+        myFunc.analyze(analyzerContext, evalContextProvider);
+        assertErrors(new UnreachableCodeError(returnStatement.getSourceCodeRef()));
+    }
+
+    @Test
     @DisplayName("Analyzer -> return statement with value in void function")
     void testReturnStatementWithValueVoidFunction() {
         var myFunc = functionSymbol(module, "myFunc");

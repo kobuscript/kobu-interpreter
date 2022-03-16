@@ -101,7 +101,7 @@ public class WhileStatement implements Statement {
                 context.getCurrentBranch().setInterrupt(null);
             }
 
-            cond = ((BooleanValueExpr) condValue).getValue();
+            cond = ((BooleanValueExpr) condExpr.evalExpr(context)).getValue();
         }
 
         context.popBranch();
