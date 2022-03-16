@@ -151,7 +151,30 @@ public class ControlStructureTest extends AstTestBase {
     @Test
     @DisplayName("'for' statement evaluation")
     void testForEvaluation() {
+        var myFunc = functionSymbol(module, "factorial", numberType(),
+                functionParameter("n", numberType()));
+        var varDeclList = varDeclList(var(module, "idx", numberVal(1)));
+        var condList = exprList(lessOrEquals(ref(module, "idx"), ref(module, "n")));
+        var stepList = statementList(postInc(ref(module, "idx")));
+        myFunc.setExprList(block(
+                var(module, "result", numberVal(1)),
+                forStatement(varDeclList, condList, stepList, block(
+                        assign(ref(module, "result"), mult(ref(module,"result"), ref(module, "idx")))
+                )),
+                returnStatement(ref(module, "result"))
+        ));
+        myFunc.analyze(analyzerContext, evalContextProvider);
 
+        var myVar = var(module, "myVar", functionCall(module, "factorial", functionArg(numberVal(2))));
+        var myVar2 = var(module, "myVar2", functionCall(module, "factorial", functionArg(numberVal(5))));
+        var myVar3 = var(module, "myVar3", functionCall(module, "factorial", functionArg(numberVal(8))));
+
+        analyze(module, block(myVar, myVar2, myVar3));
+        var evalContext = eval(module, block(myVar, myVar2, myVar3));
+        assertNoErrors();
+        assertVar(evalContext, myVar.getName(), numberType(), numberVal(2));
+        assertVar(evalContext, myVar2.getName(), numberType(), numberVal(120));
+        assertVar(evalContext, myVar3.getName(), numberType(), numberVal(40320));
     }
 
     @Test
