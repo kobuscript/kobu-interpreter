@@ -218,6 +218,9 @@ public class EvalContext {
     }
 
     public InterruptTypeEnum evalBlock(List<Evaluable> block) {
+        if (block == null) {
+            return null;
+        }
         pushNewScope();
         var branch = pushNewBranch();
 
@@ -277,6 +280,9 @@ public class EvalContext {
     }
 
     public int getNewGlobalDefinitionOffset() {
+        if (evalMode == EvalModeEnum.EXECUTION) {
+            return 0;
+        }
         if (getFunction() != null) {
             return getFunction().getCloseFunctionRef().getStartOffset() + 1;
         } else if (getRuleContext() != null) {

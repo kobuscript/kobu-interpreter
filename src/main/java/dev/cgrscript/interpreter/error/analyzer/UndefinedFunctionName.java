@@ -30,6 +30,8 @@ import dev.cgrscript.interpreter.ast.eval.expr.FunctionCallExpr;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 import dev.cgrscript.interpreter.error.CgrScriptActionTypeEnum;
 
+import java.util.Objects;
+
 public class UndefinedFunctionName extends AnalyzerError {
 
     private static final CgrScriptActionTypeEnum[] actions = new CgrScriptActionTypeEnum[]{
@@ -82,4 +84,19 @@ public class UndefinedFunctionName extends AnalyzerError {
     public int getNewDefInsertionPoint() {
         return newDefInsertionPoint;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        UndefinedFunctionName that = (UndefinedFunctionName) o;
+        return Objects.equals(moduleId, that.moduleId) && Objects.equals(functionName, that.functionName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), moduleId, functionName);
+    }
+
 }

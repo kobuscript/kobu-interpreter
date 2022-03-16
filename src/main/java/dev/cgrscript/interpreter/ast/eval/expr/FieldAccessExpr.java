@@ -26,6 +26,8 @@ package dev.cgrscript.interpreter.ast.eval.expr;
 
 import dev.cgrscript.interpreter.ast.eval.*;
 import dev.cgrscript.interpreter.ast.eval.context.EvalContext;
+import dev.cgrscript.interpreter.ast.symbol.BuiltinScope;
+import dev.cgrscript.interpreter.error.analyzer.InvalidTypeError;
 import dev.cgrscript.interpreter.error.eval.InternalInterpreterError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidAssignmentError;
 import dev.cgrscript.interpreter.error.analyzer.InvalidExpressionError;
@@ -63,6 +65,12 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope {
         }
         leftExpr.analyze(context);
         Type typeRef = leftExpr.getType();
+
+        if (typeRef == null) {
+            context.addAnalyzerError(new InvalidTypeError(leftExpr.getSourceCodeRef(), BuiltinScope.ANY_TYPE, null));
+            this.type = UnknownType.INSTANCE;
+            return;
+        }
 
         if (typeRef instanceof UnknownType) {
             this.type = UnknownType.INSTANCE;

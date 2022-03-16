@@ -26,6 +26,7 @@ package dev.cgrscript.interpreter.ast;
 
 import dev.cgrscript.interpreter.ast.eval.Expr;
 import dev.cgrscript.interpreter.ast.eval.ValueExpr;
+import dev.cgrscript.interpreter.ast.eval.expr.FunctionCallExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.VarDeclExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.ArrayConstructorCallExpr;
 import dev.cgrscript.interpreter.ast.eval.expr.value.PairConstructorCallExpr;
@@ -333,6 +334,14 @@ public class VarTest extends AstTestBase {
     }
 
     @Test
+    @DisplayName("Type checker -> var stringVar: string = null")
+    void testVarNullVal() {
+        var stringVar = var(module, "stringVar", stringType(), nullVal());
+
+        testVar(stringVar, stringType(), nullVal());
+    }
+
+    @Test
     @DisplayName("Type checker -> invalid assignment")
     void testInvalidAssignment() {
         var numberVar = var(module, "numberVar",
@@ -342,6 +351,30 @@ public class VarTest extends AstTestBase {
         analyze(module, block(numberVar, assignment));
         eval(module, block(numberVar, assignment));
         assertErrors(new InvalidAssignExprTypeError(assignment.getExprRight().getSourceCodeRef(), numberType(), stringType()));
+    }
+
+    @Test
+    @DisplayName("Type checker -> void assignment without type")
+    void testVoidAssignmentWithoutType() {
+        var myFunc = functionSymbol(module, "myFunc");
+        myFunc.analyze(analyzerContext, evalContextProvider);
+
+        var fnCall = functionCall(module, "myFunc");
+        var myVar = var(module, "myVar", fnCall);
+        analyze(module, block(myVar));
+        assertErrors(new InvalidVariableDeclError(myVar.getSourceCodeRef()));
+    }
+
+    @Test
+    @DisplayName("Type checker -> void assignment")
+    void testVoidAssignment() {
+        var myFunc = functionSymbol(module, "myFunc");
+        myFunc.analyze(analyzerContext, evalContextProvider);
+
+        var fnCall = functionCall(module, "myFunc");
+        var myVar = var(module, "myVar", stringType(), fnCall);
+        analyze(module, block(myVar));
+        assertErrors(new InvalidAssignExprTypeError(fnCall.getSourceCodeRef(), stringType(), null));
     }
 
     @Test

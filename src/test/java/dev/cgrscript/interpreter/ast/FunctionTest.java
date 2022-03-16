@@ -201,43 +201,86 @@ public class FunctionTest extends AstTestBase {
                 functionArg(stringVal("str")),
                 functionArg(numberVal(23)));
         analyze(module, block(funcCall));
+        eval(module, block(funcCall));
         assertNoErrors();
     }
 
     @Test
     @DisplayName("Type checker -> function call optional args")
     void testFunctionCallOptionalArgsTypeChecker() {
+        var myFunc = functionSymbol(module, "myFunc",
+                functionParameter("p1", stringType()),
+                functionParameter("p2", anyValType(), true));
+        myFunc.analyze(analyzerContext, evalContextProvider);
 
+        var funcCall = functionCall(module, "myFunc",
+                functionArg(stringVal("str")));
+        var funcCall2 = functionCall(module, "myFunc",
+                functionArg(stringVal("str")),
+                functionArg(numberVal(23)));
+
+        analyze(module, block(funcCall, funcCall2));
+        eval(module, block(funcCall, funcCall2));
+        assertNoErrors();
     }
 
     @Test
     @DisplayName("Type checker -> function call return value")
     void testFunctionCallReturnTypeChecker() {
+        var myFunc = functionSymbol(module, "myFunc", stringType());
+        myFunc.setExprList(block(returnStatement(stringVal("str"))));
+        myFunc.analyze(analyzerContext, evalContextProvider);
 
-    }
-
-    @Test
-    @DisplayName("Type checker -> assign void function call")
-    void testAssignmentVoidFunctionCall() {
-
+        var fnCall = functionCall(module, "myFunc");
+        var myVar = var(module, "myVar", numberType(), fnCall);
+        analyze(module, block(myVar));
+        assertErrors(new InvalidAssignExprTypeError(fnCall.getSourceCodeRef(), numberType(), stringType()));
     }
 
     @Test
     @DisplayName("Scope -> call function from imported module")
     void testFunctionCallImportedModule() {
+        var mod2 = module("mod2");
+        var myFunc = functionSymbol(mod2, "myFunc", stringType());
+        myFunc.setExprList(block(returnStatement(stringVal("str"))));
+        myFunc.analyze(analyzerContext, evalContextProvider);
+
+        importModule(module, mod2);
+
+        var fnCall = functionCall(module, "myFunc");
+        var myVar = var(module, "myVar", fnCall);
+        analyze(module, block(myVar));
+        var evalContext = eval(module, block(myVar));
+        assertNoErrors();
+        assertVar(evalContext, myVar.getName(), stringType(), stringVal("str"));
 
     }
 
     @Test
     @DisplayName("Scope -> call function from indirect dependency")
     void testFunctionCallIndirectDependency() {
+        var mod2 = module("mod2");
+        var mod3 = module("mod3");
+        var myFunc = functionSymbol(mod3, "myFunc", stringType());
+        myFunc.setExprList(block(returnStatement(stringVal("str"))));
+        myFunc.analyze(analyzerContext, evalContextProvider);
 
+        importModule(mod2, mod3);
+        importModule(module, mod2);
+
+        var fnCall = functionCall(module, "myFunc");
+        var myVar = var(module, "myVar", fnCall);
+        analyze(module, block(myVar));
+        assertErrors(new UndefinedFunctionName(fnCall, null, fnCall.getFunctionName(), 0));
     }
 
     @Test
     @DisplayName("Scope -> call undefined function")
     void testUndefinedFunctionCall() {
-
+        var fnCall = functionCall(module, "myFunc");
+        var myVar = var(module, "myVar", fnCall);
+        analyze(module, block(myVar));
+        assertErrors(new UndefinedFunctionName(fnCall, null, fnCall.getFunctionName(), 0));
     }
 
 }

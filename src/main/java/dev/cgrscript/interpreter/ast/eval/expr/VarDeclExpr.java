@@ -55,7 +55,7 @@ public class VarDeclExpr implements Statement {
 
     @Override
     public void analyze(EvalContext context) {
-        if (valueExpr != null) {
+        if (valueExpr != null && !(valueExpr instanceof NullValueExpr)) {
             if (varSymbol.getType() == null) {
                 valueExpr.analyze(context);
                 if (valueExpr.getType() == null) {
@@ -81,7 +81,7 @@ public class VarDeclExpr implements Statement {
 
         scope.define(context.getAnalyzerContext(), varSymbol);
 
-        if (valueExpr != null) {
+        if (valueExpr != null && !(valueExpr instanceof NullValueExpr)) {
             Type valueType = valueExpr.getType();
             if (valueType instanceof UnknownType) {
                 return;
