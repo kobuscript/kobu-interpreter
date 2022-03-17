@@ -26,6 +26,7 @@ package dev.cgrscript.interpreter.ast;
 
 import dev.cgrscript.interpreter.ast.eval.statement.IfStatement;
 import dev.cgrscript.interpreter.ast.symbol.ModuleScope;
+import dev.cgrscript.interpreter.error.analyzer.InvalidTypeError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -208,4 +209,65 @@ public class ControlStructureTest extends AstTestBase {
         assertVar(evalContext, myVar3.getName(), numberType(), numberVal(40320));
     }
 
+    @Test
+    @DisplayName("'for' statement: invalid condition expression")
+    void testForInvalidCondExpr() {
+        var varDeclList = varDeclList(var(module, "i", numberVal(0)));
+        var condExpr = add(ref(module, "i"), numberVal(2));
+        var stepList = statementList(postInc(ref(module, "i")));
+        var forStat = forStatement(varDeclList, condExpr, stepList, block());
+
+        analyze(module, block(forStat));
+        assertErrors(new InvalidTypeError(condExpr.getSourceCodeRef(), booleanType(), numberType()));
+    }
+
+    @Test
+    @DisplayName("'while' statement: invalid condition expression")
+    void testWhileInvalidCondExpr() {
+        var condExpr = add(stringVal("str"), numberVal(2));
+        var whileStat = whileStatement(condExpr, block());
+        analyze(module, block(whileStat));
+        assertErrors(new InvalidTypeError(condExpr.getSourceCodeRef(), booleanType(), stringType()));
+    }
+
+    @Test
+    @DisplayName("'continue' statement")
+    void testContinue() {
+        var oddNumbersVar = var(module, "oddNumbers", arrayType(numberType()), arrayConstructor());
+        var countVar = var(module, "count", numberVal(0));
+        var condExpr = lessOrEquals(ref(module, "count"), numberVal(10));
+        var whileStat = whileStatement(condExpr, block(
+                ifStatement(equals(mod(ref(module, "count"), numberVal(2)), numberVal(0)), block(
+                        postInc(ref(module, "count")),
+                        continueStatement()
+                )),
+                fieldAccess(ref(module, "oddNumbers"),
+                        functionCall(module, "add", functionArg(ref(module, "count")))),
+                postInc(ref(module, "count"))
+        ));
+
+        analyze(module, block(oddNumbersVar, countVar, whileStat));
+        var evalContext = eval(module, block(oddNumbersVar, countVar, whileStat));
+        assertNoErrors();
+        assertVar(evalContext, oddNumbersVar.getName(), arrayType(numberType()), array(arrayConstructor(
+                numberVal(1), numberVal(3), numberVal(5), numberVal(7), numberVal(9)
+        ), evalContext));
+    }
+
+    @Test
+    @DisplayName("'break' statement")
+    void testBreak() {
+        var countVar = var(module, "count", numberVal(0));
+        var condExpr = less(ref(module, "count"), numberVal(10));
+        var whileStat = whileStatement(condExpr, block(
+                ifStatement(equals(ref(module, "count"), numberVal(5)), block(
+                        breakStatement()
+                )),
+                postInc(ref(module, "count"))
+        ));
+        analyze(module, block(countVar, whileStat));
+        var evalContext = eval(module, block(countVar, whileStat));
+        assertNoErrors();
+        assertVar(evalContext, countVar.getName(), numberType(), numberVal(5));
+    }
 }

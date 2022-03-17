@@ -126,21 +126,21 @@ public class EqExpr implements Expr {
                 return new BooleanValueExpr(sourceCodeRef, leftValue.compareTo(rightValue) >= 0);
             }
         } else if (leftValueExpr instanceof NumberValueExpr && rightValueExpr instanceof NumberValueExpr) {
-            var leftValue = ((NumberValueExpr)leftValueExpr).getValue();
-            var rightValue = ((NumberValueExpr)rightValueExpr).getValue();
+            var leftValue = ((NumberValueExpr)leftValueExpr).getValue().doubleValue();
+            var rightValue = ((NumberValueExpr)rightValueExpr).getValue().doubleValue();
 
             if (operator.equals(EqOperatorEnum.EQUALS)) {
-                return new BooleanValueExpr(sourceCodeRef, leftValue.equals(rightValue));
+                return new BooleanValueExpr(sourceCodeRef, leftValue == rightValue);
             } else if (operator.equals(EqOperatorEnum.NOT_EQUALS)) {
-                return new BooleanValueExpr(sourceCodeRef, !leftValue.equals(rightValue));
+                return new BooleanValueExpr(sourceCodeRef, leftValue != rightValue);
             } else if (operator.equals(EqOperatorEnum.LESS)) {
-                return new BooleanValueExpr(sourceCodeRef, leftValue.doubleValue() < rightValue.doubleValue());
+                return new BooleanValueExpr(sourceCodeRef, leftValue < rightValue);
             } else if (operator.equals(EqOperatorEnum.LESS_OR_EQUALS)) {
-                return new BooleanValueExpr(sourceCodeRef, leftValue.doubleValue() <= rightValue.doubleValue());
+                return new BooleanValueExpr(sourceCodeRef, leftValue <= rightValue);
             } else if (operator.equals(EqOperatorEnum.GREATER)) {
-                return new BooleanValueExpr(sourceCodeRef, leftValue.doubleValue() > rightValue.doubleValue());
+                return new BooleanValueExpr(sourceCodeRef, leftValue > rightValue);
             } else if (operator.equals(EqOperatorEnum.GREATER_OR_EQUALS)) {
-                return new BooleanValueExpr(sourceCodeRef, leftValue.doubleValue() >= rightValue.doubleValue());
+                return new BooleanValueExpr(sourceCodeRef, leftValue >= rightValue);
             }
 
         } else if (leftValueExpr instanceof BooleanValueExpr && rightValueExpr instanceof BooleanValueExpr) {

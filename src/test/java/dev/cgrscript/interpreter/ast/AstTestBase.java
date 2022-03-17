@@ -229,6 +229,10 @@ public abstract class AstTestBase {
         return new DivExpr(sourceCodeRef("div"), left, right);
     }
 
+    ModExpr mod(Expr left, Expr right) {
+        return new ModExpr(sourceCodeRef("mod"), left, right);
+    }
+
     NotExpr not(Expr expr) {
         return new NotExpr(sourceCodeRef("not"), expr);
     }
@@ -311,6 +315,14 @@ public abstract class AstTestBase {
 
     WhileStatement whileStatement(Expr condExpr, List<Evaluable> block) {
         return new WhileStatement(sourceCodeRef("while"), condExpr, block);
+    }
+
+    ContinueStatement continueStatement() {
+        return new ContinueStatement(sourceCodeRef("continue"));
+    }
+
+    BreakStatement breakStatement() {
+        return new BreakStatement(sourceCodeRef("break"));
     }
 
     List<VarDeclExpr> varDeclList(VarDeclExpr... varDecl) {

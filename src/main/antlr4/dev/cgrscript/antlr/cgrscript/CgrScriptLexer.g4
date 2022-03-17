@@ -71,6 +71,7 @@ INC : '++' ;
 DEC : '--' ;
 STAR : '*' ;
 DIV : '/' ;
+MOD : '%' ;
 PLUS : '+' ;
 MINUS : '-' ;
 OF : 'of' ;

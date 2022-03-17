@@ -274,8 +274,8 @@ expr : record                                                                   
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
        | expr DOT                                                                                   #fieldAccessErr
-       | expr ( STAR | DIV ) expr                                                                   #factorExpr
-       | expr ( STAR | DIV )                                                                        #factorErr
+       | expr ( STAR | DIV | MOD ) expr                                                             #factorExpr
+       | expr ( STAR | DIV | MOD )                                                                  #factorErr
        | expr ( PLUS | MINUS ) expr                                                                 #addSubExpr
        | expr ( PLUS | MINUS )                                                                      #addSubErr
        | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS ) expr    #eqExpr

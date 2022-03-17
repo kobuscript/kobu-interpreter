@@ -28,6 +28,8 @@ import dev.cgrscript.interpreter.ast.symbol.SourceCodeRef;
 import dev.cgrscript.interpreter.ast.symbol.Type;
 import dev.cgrscript.interpreter.error.AnalyzerError;
 
+import java.util.Objects;
+
 public class InvalidTypeError extends AnalyzerError {
 
     private final Type expected;
@@ -53,5 +55,19 @@ public class InvalidTypeError extends AnalyzerError {
         var foundStr = found != null ? found.getName() : "void";
         var expectedStr = expected != null ? expected.getName() : "void";
         return "Expected '" + expectedStr + "', but got '" + foundStr + "'";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        InvalidTypeError that = (InvalidTypeError) o;
+        return Objects.equals(expected, that.expected) && Objects.equals(found, that.found);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), expected, found);
     }
 }

@@ -849,8 +849,10 @@ public class EvalTreeParserVisitor extends CgrScriptParserVisitor<AstNode> {
         Expr expr;
         if (ctx.STAR() != null) {
             expr = new MultExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, (Expr) rightExprNode);
-        } else {
+        } else if (ctx.DIV() != null) {
             expr = new DivExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, (Expr) rightExprNode);
+        } else {
+            expr = new ModExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, (Expr) rightExprNode);
         }
 
         topLevelExpression = exprStatus;
