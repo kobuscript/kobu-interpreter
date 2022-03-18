@@ -50,6 +50,7 @@ public abstract class TwoInputsIndexNode implements IndexNode {
     }
 
     private void receiveLeft(Match match) {
+        leftEntries.removeIf(match::overrides);
         leftEntries.add(match);
         rightEntries.forEach(right -> {
             receive(match, right);

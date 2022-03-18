@@ -51,6 +51,8 @@ public class RootTypeIndexNode extends RootIndexNode {
 
     private List<Fact> accList;
 
+    private int matchId;
+
     public RootTypeIndexNode(EvalContextProvider evalContextProvider, AnalyzerContext analyzerContext,
                              ModuleScope moduleScope, QueryTypeClause queryTypeClause) {
         this.evalContextProvider = evalContextProvider;
@@ -104,9 +106,17 @@ public class RootTypeIndexNode extends RootIndexNode {
     public void beforeRun() {
         if (queryTypeClause.accumulator()) {
             var evalContext = evalContextProvider.newEvalContext(analyzerContext, moduleScope);
-            var match = new Match(evalContext, null,
-                    new ArrayValueExpr((ArrayType) queryTypeClause.getType(), copyAccList()),
-                    queryTypeClause.getBind());
+            Match match = null;
+            if (matchId == 0) {
+                match = new Match(evalContext, null,
+                        new ArrayValueExpr((ArrayType) queryTypeClause.getType(), copyAccList()),
+                        queryTypeClause.getBind());
+                matchId = match.getMatchId();
+            } else {
+                match = new Match(matchId, evalContext, null,
+                        new ArrayValueExpr((ArrayType) queryTypeClause.getType(), copyAccList()),
+                        queryTypeClause.getBind());
+            }
             dispatch(match);
         }
     }

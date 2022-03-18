@@ -29,7 +29,6 @@ import dev.kobu.interpreter.ast.eval.Evaluable;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.RuleContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.context.ContextSnapshot;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.symbol.RuleSymbol;
@@ -49,8 +48,6 @@ public class RuleInstance implements RuleContext {
 
     private Match currentMatch;
 
-    private ContextSnapshot lastSnapshot;
-
     public RuleInstance(RuleSymbol ruleSymbol, Expr whenExpr, List<Evaluable> block) {
         this.ruleSymbol = ruleSymbol;
         this.whenExpr = whenExpr;
@@ -58,11 +55,6 @@ public class RuleInstance implements RuleContext {
     }
 
     public void run(Match match) {
-        ContextSnapshot snapshot = match.getSnapshot();
-        if (lastSnapshot != null && lastSnapshot.equals(snapshot)) {
-            return;
-        }
-        lastSnapshot = snapshot;
         this.currentMatch = match;
         EvalContext matchCtx = match.getContext();
         EvalContext evalContext = matchCtx.newEvalContext(this);

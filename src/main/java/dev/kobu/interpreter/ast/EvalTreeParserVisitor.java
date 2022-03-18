@@ -239,12 +239,12 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         }
 
         if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
-            Type parentRule = (Type) visit(ctx.ruleExtends().typeName());
+            var parentRule = visit(ctx.ruleExtends().typeName());
             if (parentRule instanceof RuleSymbol) {
                 rule.setParentRuleSymbol((RuleSymbol) parentRule);
             } else {
                 context.getErrorScope().addError(new InvalidParentRuleError(getSourceCodeRef(ctx.ruleExtends().typeName()),
-                        parentRule.getName()));
+                        ctx.ruleExtends().getText()));
             }
         }
 
@@ -1311,13 +1311,13 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                 });
             }
 
-            if (!(symbol instanceof Type)) {
+            if (!(symbol instanceof Type) && !(symbol instanceof RuleSymbol)) {
                 context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx.ID(0)),
                         typeName, scopeEndOffset));
                 return UnknownType.INSTANCE;
             }
 
-            return (Type) symbol;
+            return (AstNode) symbol;
         } else {
             var moduleAlias = ctx.ID(0).getText();
             var typeName = ctx.ID(1).getText();
@@ -1351,7 +1351,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
             var symbol = moduleRefSymbol.getModuleScopeRef().resolve(typeName);
 
-            if (!(symbol instanceof Type)) {
+            if (!(symbol instanceof Type) && !(symbol instanceof RuleSymbol)) {
                 context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx),
                         moduleAlias + "." + typeName, scopeEndOffset));
                 return UnknownType.INSTANCE;

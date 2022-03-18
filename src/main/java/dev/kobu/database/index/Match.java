@@ -30,6 +30,8 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.symbol.VariableSymbol;
 
+import java.util.Objects;
+
 public class Match {
 
     private final int matchId;
@@ -41,6 +43,17 @@ public class Match {
     private final RecordValueExpr rootRecord;
 
     private final String bind;
+
+    private MatchPath matchPath;
+
+    public Match(int matchId, EvalContext context, RecordValueExpr rootRecord, ValueExpr value, String bind) {
+        this.context = context;
+        this.rootRecord = rootRecord;
+        this.matchId = matchId;
+        this.value = value;
+        this.bind = bind;
+        addValueToCtx(context, value, bind);
+    }
 
     public Match(EvalContext context, RecordValueExpr rootRecord, ValueExpr value, String bind) {
         this.context = context;
@@ -63,14 +76,20 @@ public class Match {
         EvalContext matchCtx = context.newEvalContext();
         matchCtx.getCurrentScope().addAll(context.getCurrentScope());
         addValueToCtx(matchCtx, value, bind);
-        return new Match(matchCtx, rootRecord, value, bind);
+        return new Match(matchId, matchCtx, rootRecord, value, bind);
     }
 
     public Match merge(Match match) {
         EvalContext matchCtx = context.newEvalContext();
         matchCtx.getCurrentScope().addAll(context.getCurrentScope());
         matchCtx.getCurrentScope().addAll(match.context.getCurrentScope());
-        return new Match(matchCtx, rootRecord, value, bind);
+        Match newMatch = new Match(matchCtx, rootRecord, value, bind);
+        if (matchPath == null) {
+            newMatch.matchPath = new MatchPath(matchId, match.matchId);
+        } else {
+            newMatch.matchPath = matchPath.add(matchId, match.matchId);
+        }
+        return newMatch;
     }
 
     public EvalContext getContext() {
@@ -101,12 +120,50 @@ public class Match {
         return snapshot;
     }
 
+    public boolean overrides(Match match) {
+        return matchPath != null && matchPath.equals(match.matchPath);
+    }
+
     private void addValueToCtx(EvalContext evalContext, ValueExpr value, String bind) {
         if (bind != null) {
             evalContext.getCurrentScope().define(context.getAnalyzerContext(), new VariableSymbol(context.getModuleScope(),
                     bind, value.getType()));
             evalContext.getCurrentScope().setValue(bind, value);
         }
+    }
+
+    private static class MatchPath {
+
+        private final int left;
+
+        private final int right;
+
+        private MatchPath next;
+
+        public MatchPath(int left, int right) {
+            this.left = left;
+            this.right = right;
+        }
+
+        public MatchPath add(int left, int right) {
+            MatchPath matchPath = new MatchPath(left, right);
+            matchPath.next = this;
+            return matchPath;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MatchPath matchPath = (MatchPath) o;
+            return left == matchPath.left && right == matchPath.right && Objects.equals(next, matchPath.next);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(left, right, next);
+        }
+
     }
 
 }

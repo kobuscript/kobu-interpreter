@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.AnalyzerErrorScope;
+import dev.kobu.interpreter.ast.AstNode;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.query.Query;
@@ -38,7 +39,7 @@ import dev.kobu.interpreter.ast.eval.SymbolTypeEnum;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RuleSymbol extends Symbol implements HasExpr {
+public class RuleSymbol extends Symbol implements HasExpr, AstNode {
 
     private final SourceCodeRef closeRuleRef;
 

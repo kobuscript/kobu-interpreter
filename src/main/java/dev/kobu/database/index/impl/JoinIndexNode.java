@@ -28,6 +28,7 @@ import dev.kobu.database.Fact;
 import dev.kobu.database.index.TwoInputsIndexNode;
 import dev.kobu.database.index.Match;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.ContextSnapshot;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.TemplateValueExpr;
@@ -41,8 +42,14 @@ public class JoinIndexNode extends TwoInputsIndexNode {
 
     private final QueryJoin queryJoin;
 
+    private Map<Integer, ContextSnapshot> snapshotMap;
+
     public JoinIndexNode(QueryJoin queryJoin) {
         this.queryJoin = queryJoin;
+
+        if (queryJoin.getTypeClause().accumulator()) {
+            this.snapshotMap = new HashMap<>();
+        }
     }
 
     @Override
@@ -77,9 +84,20 @@ public class JoinIndexNode extends TwoInputsIndexNode {
 
                 sort(recordList, values);
 
-                dispatch(left.merge(right
+                Match newMatch = left.merge(right
                         .setValue(new ArrayValueExpr((ArrayType) queryJoin.getTypeClause().getQueryType(), values),
-                                right.getBind())));
+                                right.getBind()));
+
+                if (queryJoin.getTypeClause().accumulator()) {
+                    var prevCtx = snapshotMap.get(left.getMatchId());
+                    ContextSnapshot snapshot = newMatch.getSnapshot();
+                    if (snapshot.equals(prevCtx)) {
+                        return;
+                    }
+                    snapshotMap.put(left.getMatchId(), snapshot);
+                }
+
+                dispatch(newMatch);
             }
 
         }
