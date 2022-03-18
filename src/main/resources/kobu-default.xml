@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<kobu-project xmlns="https://kobu.dev" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://kobu.dev https://kobu.dev/xsd/kobu-1.0.0.xsd">
+    <groupId>$GROUPID$</groupId>
+    <name>$NAME$</name>
+    <version>$VERSION$</version>
+
+    <sourcePaths>
+        <sourcePath>src</sourcePath>
+    </sourcePaths>
+</kobu-project>

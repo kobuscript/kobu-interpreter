@@ -1,8 +1,9 @@
-CGRScript
+kobu-interpreter
 ===========
 
-CGR (**C**ode **G**eneration **R**ules) is a small programming language designed specifically
-for the construction of source code generators.
+![KOBU logo](assets/kobu-logo.png)
+
+KOBU is a domain-specific programming language for constructing source code generators.
 
 Features
 -----------

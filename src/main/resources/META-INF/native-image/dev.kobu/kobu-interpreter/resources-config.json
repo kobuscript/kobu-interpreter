@@ -1,0 +1,16 @@
+{
+  "resources": [
+    {
+      "pattern": ".*kobu$"
+    },
+    {
+      "pattern": ".*xsd$"
+    },
+    {
+      "pattern": ".*xml$"
+    },
+    {
+      "pattern": "kobu-default-entry-point$"
+    }
+  ]
+}
