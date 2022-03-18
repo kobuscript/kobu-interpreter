@@ -96,7 +96,7 @@ COMMENT_BLOCK : '/*' .*? '*/' -> channel(BLOCKCOMMENTCHANNEL) ;
 COMMENT_LINE : '//' .*? '\n' -> channel(COMMENTCHANNEL) ;
 
 LCB : '{' ;
-TEMPLATE_BEGIN : '<$' {this.SetTemplateMode(true);} -> pushMode(TEMPLATE_MODE) ;
+TEMPLATE_BEGIN : '<|' {this.SetTemplateMode(true);} -> pushMode(TEMPLATE_MODE) ;
 TEMPLATE_EXPR_END : {this.IsTemplateMode()}? '}' -> popMode ;
 FILE_PATH_EXPR : '->' {this.SetPathMode(true);} -> pushMode(PATH_MODE) ;
 PATH_VARIABLE_END : {this.IsPathMode()}? '}' -> popMode ;
@@ -150,8 +150,8 @@ PATHWS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
 
 mode TEMPLATE_MODE;
 
-TEMPLATE_END : '$>' {this.SetTemplateMode(false);} -> popMode ;
-CONTENT : (CONT_ESC | ~[$\\] )+ ;
-fragment CONT_ESC : '\\' ([$\\]) ;
+TEMPLATE_END : '|>' {this.SetTemplateMode(false);} -> popMode ;
+CONTENT : (CONT_ESC | ~[|$\\] )+ ;
+fragment CONT_ESC : '\\' ([|$\\]) ;
 
 TEMPLATE_EXPR_BEGIN : '${' -> pushMode(DEFAULT_MODE) ;

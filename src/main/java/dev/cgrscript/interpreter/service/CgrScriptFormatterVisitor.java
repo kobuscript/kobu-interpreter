@@ -503,13 +503,13 @@ public class CgrScriptFormatterVisitor extends CgrScriptParserBaseVisitor<Void> 
         }
 
         if (ctx.TEMPLATE_BEGIN() != null) {
-            out.append(" <$");
+            out.append(" <|");
         }
         if (ctx.template() != null) {
             out.append(ctx.template().getText());
         }
         if (ctx.TEMPLATE_END() != null) {
-            out.append("$>");
+            out.append("|>");
         }
 
         printHiddenTextAfter(ctx);

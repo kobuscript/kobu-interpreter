@@ -167,9 +167,9 @@ recordField : ID COLON exprWrapper ( COMMA? recordField )?
               | ID COLON? {notifyErrorListenersPrevToken("value expected");};
 
 deftemplate : 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? TEMPLATE_END
-              | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? RCB? {notifyErrorListenersPrevToken("'$>' expected");}
+              | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? RCB? {notifyErrorListenersPrevToken("'|>' expected");}
               | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
-              | 'def' 'template' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'<$' expected");}
+              | 'def' 'template' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'<|' expected");}
               | 'def' 'template' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query expected");}
               | 'def' 'template' ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
               | 'def' 'template' {notifyErrorListenersPrevToken("rule name expected");}
