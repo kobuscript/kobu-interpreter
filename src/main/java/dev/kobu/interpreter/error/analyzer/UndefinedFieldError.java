@@ -28,6 +28,8 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.error.AnalyzerError;
 
+import java.util.Objects;
+
 public class UndefinedFieldError extends AnalyzerError {
 
     private final Type type;
@@ -42,6 +44,20 @@ public class UndefinedFieldError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "Field '" + fieldName + "' does not exist on type '" + type.getName() + "'";
+        return "Field '" + fieldName + "' does not exist in type '" + type.getName() + "'";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        UndefinedFieldError that = (UndefinedFieldError) o;
+        return Objects.equals(type, that.type) && Objects.equals(fieldName, that.fieldName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), type, fieldName);
     }
 }

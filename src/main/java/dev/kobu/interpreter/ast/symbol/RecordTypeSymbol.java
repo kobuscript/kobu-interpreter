@@ -83,6 +83,10 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         return getName();
     }
 
+    public SourceCodeRef getSuperTypeSourceCodeRef() {
+        return superTypeSourceCodeRef;
+    }
+
     @Override
     public List<FieldDescriptor> getFields() {
         List<FieldDescriptor> fields = new ArrayList<>();
@@ -176,7 +180,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     public boolean hasSuperType(RecordTypeSymbol recordTypeSymbol, List<String> path) {
         if (path != null) {
-            path.add(recordTypeSymbol.getName());
+            path.add(getName());
         }
         if (superType == null) {
             return false;
@@ -310,11 +314,8 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
             if (hasSuperType(this, path)) {
                 context.getErrorScope().addError(new CyclicRecordInheritanceError(superTypeSourceCodeRef, path));
             } else if (starAttribute != null && superType.hasStarAttribute()) {
-                List<SourceCodeRef> sourceCodeRefList = new ArrayList<>();
-                sourceCodeRefList.add(superType.getSourceCodeRef());
-                sourceCodeRefList.add(getSourceCodeRef());
-                context.getErrorScope().addError(new RecordSuperTypeConflictError(sourceCodeRefList, this,
-                        superType, starAttribute));
+                context.getErrorScope().addError(new RecordSuperTypeConflictError(this,
+                        superType));
             }
 
             for (RecordTypeAttribute attr : attributes.values()) {

@@ -29,6 +29,8 @@ import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.SymbolDocumentation;
 import dev.kobu.interpreter.ast.eval.SymbolTypeEnum;
 
+import java.util.Objects;
+
 public class RecordTypeAttribute implements DocumentationSource {
 
     private final ModuleScope moduleScope;
@@ -84,4 +86,16 @@ public class RecordTypeAttribute implements DocumentationSource {
         return documentation;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RecordTypeAttribute that = (RecordTypeAttribute) o;
+        return Objects.equals(moduleScope, that.moduleScope) && Objects.equals(sourceCodeRef, that.sourceCodeRef) && Objects.equals(name, that.name) && Objects.equals(type, that.type) && Objects.equals(recordType, that.recordType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(moduleScope, sourceCodeRef, name, type, recordType);
+    }
 }

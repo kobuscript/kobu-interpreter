@@ -29,6 +29,8 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.error.AnalyzerError;
 
+import java.util.Objects;
+
 public class InvalidRecordFieldTypeError extends AnalyzerError {
 
     private final RecordTypeSymbol recordType;
@@ -61,5 +63,19 @@ public class InvalidRecordFieldTypeError extends AnalyzerError {
     public String getDescription() {
         Type fieldType = recordType.resolveField(fieldName);
         return "Type '" + valueType.getName() + "' is not assignable to type '" + fieldType.getName() + "'";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        InvalidRecordFieldTypeError that = (InvalidRecordFieldTypeError) o;
+        return Objects.equals(recordType, that.recordType) && Objects.equals(fieldName, that.fieldName) && Objects.equals(valueType, that.valueType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), recordType, fieldName, valueType);
     }
 }

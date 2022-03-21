@@ -30,6 +30,7 @@ import dev.kobu.interpreter.error.AnalyzerError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RecordTypeAttributeConflictError extends AnalyzerError {
 
@@ -46,6 +47,10 @@ public class RecordTypeAttributeConflictError extends AnalyzerError {
 
     @Override
     public String getDescription() {
+        if (attributeOrig.getRecordType().equals(attributeDup.getRecordType())) {
+            return "Attribute '" + attributeOrig.getName() + "' already defined in '"
+                    + attributeOrig.getRecordType().getName() + "'";
+        }
         return "'" + attributeOrig.getRecordType().getName() + "' incorrectly extends '"
                 + attributeDup.getRecordType().getName() + "'. Types of '"
                 + attributeOrig.getRecordType().getName() + "." + attributeOrig.getName() + "' and '"
@@ -55,12 +60,26 @@ public class RecordTypeAttributeConflictError extends AnalyzerError {
 
     private static List<SourceCodeRef> getRefs(RecordTypeAttribute attributeOrig, RecordTypeAttribute attributeDup) {
         List<SourceCodeRef> refs = new ArrayList<>();
-        if (attributeOrig.getRecordType().getSourceCodeRef() != null) {
-            refs.add(attributeOrig.getRecordType().getSourceCodeRef());
+        if (attributeOrig.getSourceCodeRef() != null) {
+            refs.add(attributeOrig.getSourceCodeRef());
         }
-        if (attributeDup.getRecordType().getSourceCodeRef() != null) {
-            refs.add(attributeDup.getRecordType().getSourceCodeRef());
+        if (attributeDup.getSourceCodeRef() != null) {
+            refs.add(attributeDup.getSourceCodeRef());
         }
         return refs;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        RecordTypeAttributeConflictError that = (RecordTypeAttributeConflictError) o;
+        return Objects.equals(attributeOrig, that.attributeOrig) && Objects.equals(attributeDup, that.attributeDup);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), attributeOrig, attributeDup);
     }
 }

@@ -30,6 +30,7 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.AnalyzerError;
 
 import java.util.List;
+import java.util.Objects;
 
 public class RecordSuperTypeConflictError extends AnalyzerError {
 
@@ -37,19 +38,30 @@ public class RecordSuperTypeConflictError extends AnalyzerError {
 
     private final RecordTypeSymbol superType;
 
-    private final RecordTypeStarAttribute starAttribute;
-
-    public RecordSuperTypeConflictError(List<SourceCodeRef> sourceCodeRefList, RecordTypeSymbol recordType,
-                                        RecordTypeSymbol superType, RecordTypeStarAttribute starAttribute) {
-        super(sourceCodeRefList);
+    public RecordSuperTypeConflictError(RecordTypeSymbol recordType,
+                                        RecordTypeSymbol superType) {
+        super(List.of(superType.getSourceCodeRef(), recordType.getSourceCodeRef()));
         this.recordType = recordType;
         this.superType = superType;
-        this.starAttribute = starAttribute;
     }
 
     @Override
     public String getDescription() {
         return "'" + recordType.getName() + "' incorrectly extends '" + superType.getName()
-                + "'. Both have unknown attributes with incompatible types";
+                + "'. Both have star attributes with incompatible types";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        RecordSuperTypeConflictError that = (RecordSuperTypeConflictError) o;
+        return Objects.equals(recordType, that.recordType) && Objects.equals(superType, that.superType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), recordType, superType);
     }
 }

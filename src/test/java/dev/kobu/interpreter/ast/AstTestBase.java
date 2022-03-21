@@ -388,6 +388,11 @@ public abstract class AstTestBase {
         return recordType;
     }
 
+    RecordTypeSymbol setSuperType(RecordTypeSymbol recordType, RecordTypeSymbol superType) {
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + recordType.getName()), superType));
+        return recordType;
+    }
+
     RecordTypeSymbol recordType(ModuleScope module, String name,
                                 RecordTypeSymbol superType, List<RecordTypeAttribute> attributes, Type starAttrType) {
         var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);

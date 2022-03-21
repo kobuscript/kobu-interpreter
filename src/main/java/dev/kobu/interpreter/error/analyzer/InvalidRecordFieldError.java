@@ -28,6 +28,8 @@ import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.AnalyzerError;
 
+import java.util.Objects;
+
 public class InvalidRecordFieldError extends AnalyzerError {
 
     private final RecordTypeSymbol recordType;
@@ -52,4 +54,19 @@ public class InvalidRecordFieldError extends AnalyzerError {
     public String getDescription() {
         return "'" + fieldName + "' does not exist in type '" + recordType.getName() + "'";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        InvalidRecordFieldError that = (InvalidRecordFieldError) o;
+        return Objects.equals(recordType, that.recordType) && Objects.equals(fieldName, that.fieldName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), recordType, fieldName);
+    }
+
 }
