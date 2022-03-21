@@ -342,6 +342,18 @@ public abstract class AstTestBase {
         return new ForStatement(sourceCodeRef("for"), varDeclList, condExpr, stepList, block);
     }
 
+    EnhancedForStatement enhancedForStatement(ModuleScope module, String varName, Expr arrayExpr, List<Evaluable> block) {
+        return new EnhancedForStatement(sourceCodeRef("enhanced-for"),
+                new VariableSymbol(module, sourceCodeRef("var_" + varName), varName, null),
+                arrayExpr, block);
+    }
+
+    EnhancedForStatement enhancedForStatement(ModuleScope module, String varName, Type varType, Expr arrayExpr, List<Evaluable> block) {
+        return new EnhancedForStatement(sourceCodeRef("enhanced-for"),
+                new VariableSymbol(module, sourceCodeRef("var_" + varName), varName, varType),
+                arrayExpr, block);
+    }
+
     RecordTypeAttribute attribute(ModuleScope module, String name, Type type) {
         return new RecordTypeAttribute(module, sourceCodeRef("attr_" + name), name, type);
     }

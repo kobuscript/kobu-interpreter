@@ -634,6 +634,35 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
+    public AstNode visitEnhancedForStat(KobuParser.EnhancedForStatContext ctx) {
+        if (ctx.expr() != null) {
+            topLevelExpression = false;
+            Expr arrayExpr = (Expr) visit(ctx.expr());
+            topLevelExpression = true;
+            Type type = null;
+            if (ctx.type() != null) {
+                type = (Type) visit(ctx.type());
+            }
+            VariableSymbol varSymbol = new VariableSymbol(moduleScope, getSourceCodeRef(ctx.ID()),
+                    ctx.ID().getText(), type);
+
+            List<Evaluable> block = new ArrayList<>();
+            if (ctx.execStat() != null) {
+                for (KobuParser.ExecStatContext execStatContext : ctx.execStat()) {
+                    var statNode = (Evaluable) visit(execStatContext);
+                    if (statNode != null) {
+                        block.add(statNode);
+                    }
+                }
+            }
+
+            return new EnhancedForStatement(getSourceCodeRef(ctx), varSymbol, arrayExpr, block);
+        }
+
+        return null;
+    }
+
+    @Override
     public AstNode visitWhileStat(KobuParser.WhileStatContext ctx) {
 
         topLevelExpression = false;

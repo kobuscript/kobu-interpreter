@@ -26,30 +26,31 @@ package dev.kobu.interpreter.ast.eval.statement;
 
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
-import dev.kobu.interpreter.ast.symbol.BuiltinScope;
-import dev.kobu.interpreter.error.eval.InternalInterpreterError;
+import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.BooleanTypeSymbol;
 
 import java.util.List;
 
-public class WhileStatement implements Statement {
+public class EnhancedForStatement implements Statement {
 
     private final SourceCodeRef sourceCodeRef;
 
-    private final Expr condExpr;
+    private final VariableSymbol itElemVar;
+
+    private final Expr arrayExpr;
 
     private final List<Evaluable> block;
 
-    public WhileStatement(SourceCodeRef sourceCodeRef, Expr condExpr, List<Evaluable> block) {
+    public EnhancedForStatement(SourceCodeRef sourceCodeRef, VariableSymbol itElemVar, Expr arrayExpr, List<Evaluable> block) {
         this.sourceCodeRef = sourceCodeRef;
-        this.condExpr = condExpr;
+        this.itElemVar = itElemVar;
+        this.arrayExpr = arrayExpr;
         this.block = block;
     }
+
 
     @Override
     public SourceCodeRef getSourceCodeRef() {
@@ -63,12 +64,26 @@ public class WhileStatement implements Statement {
         branch.setCanInterrupt(true);
 
         try {
-            condExpr.analyze(context);
-            if (!(condExpr.getType() instanceof BooleanTypeSymbol)) {
-                BooleanTypeSymbol booleanType = BuiltinScope.BOOLEAN_TYPE;
-                context.addAnalyzerError(new InvalidTypeError(condExpr.getSourceCodeRef(),
-                        booleanType, condExpr.getType()));
+            arrayExpr.analyze(context);
+            Type type = arrayExpr.getType();
+            if (type instanceof UnknownType) {
+                return;
             }
+            if (!(type instanceof ArrayType)) {
+                context.addAnalyzerError(new InvalidTypeError(arrayExpr.getSourceCodeRef(),
+                        new ArrayType(BuiltinScope.ANY_TYPE), type));
+                return;
+            }
+            Type elemType = ((ArrayType)type).getElementType();
+            if (itElemVar.getType() != null) {
+                if (!itElemVar.getType().isAssignableFrom(elemType)) {
+                    context.addAnalyzerError(new InvalidTypeError(arrayExpr.getSourceCodeRef(),
+                            new ArrayType(itElemVar.getType()), type));
+                }
+            } else {
+                itElemVar.setType(elemType);
+            }
+            context.getCurrentScope().define(context.getAnalyzerContext(), itElemVar);
 
             context.analyzeBlock(block);
         } finally {
@@ -84,18 +99,14 @@ public class WhileStatement implements Statement {
         context.pushNewBranch();
 
         try {
-            ValueExpr condValue = condExpr.evalExpr(context);
-            if (condValue instanceof NullValueExpr) {
-                throw new NullPointerError(sourceCodeRef, condExpr.getSourceCodeRef());
+            context.getCurrentScope().define(context.getAnalyzerContext(), itElemVar);
+            ValueExpr valueExpr = arrayExpr.evalExpr(context);
+            if (valueExpr instanceof NullValueExpr) {
+                throw new NullPointerError(sourceCodeRef, arrayExpr.getSourceCodeRef());
             }
-            if (!(condValue instanceof BooleanValueExpr)) {
-                throw new InternalInterpreterError("Expected: Boolean. Found: " + condValue.getStringValue(),
-                        condExpr.getSourceCodeRef());
-            }
-
-            boolean cond = ((BooleanValueExpr) condValue).getValue();
-
-            while (cond) {
+            ArrayValueExpr arrayValue = (ArrayValueExpr) valueExpr;
+            for (ValueExpr expr : arrayValue.getValue()) {
+                context.getCurrentScope().setValue(itElemVar.getName(), expr);
                 var interrupt = context.evalBlock(block);
                 if (interrupt != null) {
                     if (interrupt == InterruptTypeEnum.BREAK) {
@@ -103,12 +114,12 @@ public class WhileStatement implements Statement {
                     }
                     context.getCurrentBranch().setInterrupt(null);
                 }
-
-                cond = ((BooleanValueExpr) condExpr.evalExpr(context)).getValue();
             }
+
         } finally {
             context.popBranch();
             context.popScope();
         }
     }
+
 }

@@ -24,8 +24,12 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast;
 
+import dev.kobu.interpreter.ast.eval.expr.AddExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.ArrayConstructorCallExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.statement.IfStatement;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
+import dev.kobu.interpreter.error.analyzer.InvalidAssignExprTypeError;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -219,6 +223,47 @@ public class ControlStructureTest extends AstTestBase {
 
         analyze(module, block(forStat));
         assertErrors(new InvalidTypeError(condExpr.getSourceCodeRef(), booleanType(), numberType()));
+    }
+
+    @Test
+    @DisplayName("'enhanced for' statement evaluation")
+    void testEnhancedForEvaluation() {
+        var sumVar = var(module, "sum", numberVal(0));
+        var enhancedFor = enhancedForStatement(module, "elem",
+                arrayConstructor(numberVal(1), numberVal(10), numberVal(100)), block(
+                         assign(ref(module, "sum"), add(ref(module, "sum"), ref(module, "elem")))
+                ));
+        analyze(module, block(sumVar, enhancedFor));
+        var evalContext = eval(module, block(sumVar, enhancedFor));
+        assertNoErrors();
+        assertVar(evalContext, sumVar.getName(), numberType(), numberVal(111));
+    }
+
+    @Test
+    @DisplayName("'enhanced for' statement: invalid expression")
+    void testEnhancedForInvalidExpr() {
+        StringValueExpr str = stringVal("str");
+        var enhancedFor = enhancedForStatement(module, "elem",
+                str, block());
+        analyze(module, block(enhancedFor));
+        assertErrors(new InvalidTypeError(str.getSourceCodeRef(), arrayType(anyType()), stringType()));
+    }
+
+    @Test
+    @DisplayName("'enhanced for' statement: invalid type")
+    void testEnhancedForInvalidType() {
+        var sumVar = var(module, "sum", numberVal(0));
+        ArrayConstructorCallExpr arrayExpr = arrayConstructor(numberVal(1), numberVal(10), numberVal(100));
+        AddExpr addExpr = add(ref(module, "sum"), ref(module, "elem"));
+        var enhancedFor = enhancedForStatement(module, "elem", stringType(),
+                arrayExpr, block(
+                        assign(ref(module, "sum"), addExpr)
+                ));
+        analyze(module, block(sumVar, enhancedFor));
+        assertErrors(
+                new InvalidTypeError(arrayExpr.getSourceCodeRef(), arrayType(stringType()), arrayType(numberType())),
+                new InvalidAssignExprTypeError(addExpr.getSourceCodeRef(), numberType(), stringType())
+        );
     }
 
     @Test

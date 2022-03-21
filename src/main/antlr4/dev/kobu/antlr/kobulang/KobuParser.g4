@@ -62,6 +62,7 @@ emptyExpr: SEMI ;
 
 blockStat: ifStat
            | forStat
+           | enhancedForStat
            | whileStat
            ;
 
@@ -129,6 +130,15 @@ forStat : 'for' LP varDeclList? SEMI expr? SEMI assignmentSequece? RP LCB execSt
           | 'for' LP varDeclList? SEMI expr? {notifyErrorListenersPrevToken("';' expected");}
           | 'for' LP varDeclList? {notifyErrorListenersPrevToken("';' expected");}
           ;
+
+enhancedForStat : 'for' LP VAR ID ( COLON type )? OF expr RP LCB execStat* RCB
+                  | 'for' LP VAR ID ( COLON type )? OF expr RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+                  | 'for' LP VAR ID ( COLON type )? OF expr RP {notifyErrorListenersPrevToken("'{' expected");}
+                  | 'for' LP VAR ID ( COLON type )? OF expr {notifyErrorListenersPrevToken("')' expected");}
+                  | 'for' LP VAR ID ( COLON type )? OF RP? {notifyErrorListenersPrevToken("expression expected");}
+                  | 'for' LP VAR ID ( COLON type )? {notifyErrorListenersPrevToken("'of' expected");}
+                  | 'for' LP VAR {notifyErrorListenersPrevToken("identifier expected");}
+                  ;
 
 whileStat : 'while' LP expr RP LCB execStat* RCB
             | 'while' LP expr RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}

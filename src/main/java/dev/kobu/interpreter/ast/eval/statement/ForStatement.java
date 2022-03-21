@@ -66,34 +66,36 @@ public class ForStatement implements Statement {
         var branch = context.pushNewBranch();
         branch.setCanInterrupt(true);
 
-        if (varDeclList != null) {
-            for (VarDeclExpr varDeclExpr : varDeclList) {
-                varDeclExpr.analyze(context);
+        try {
+            if (varDeclList != null) {
+                for (VarDeclExpr varDeclExpr : varDeclList) {
+                    varDeclExpr.analyze(context);
+                }
             }
-        }
 
-        var booleanType = BuiltinScope.BOOLEAN_TYPE;
-        if (condExpr != null) {
-            condExpr.analyze(context);
-            if (!(condExpr.getType() instanceof BooleanTypeSymbol)) {
-                context.addAnalyzerError(new InvalidTypeError(condExpr.getSourceCodeRef(),
-                        booleanType, condExpr.getType()));
+            var booleanType = BuiltinScope.BOOLEAN_TYPE;
+            if (condExpr != null) {
+                condExpr.analyze(context);
+                if (!(condExpr.getType() instanceof BooleanTypeSymbol)) {
+                    context.addAnalyzerError(new InvalidTypeError(condExpr.getSourceCodeRef(),
+                            booleanType, condExpr.getType()));
+                }
             }
-        }
 
-        for (Statement stepStat : stepStatList) {
-            if (!(stepStat instanceof Assignment)) {
-                context.addAnalyzerError(new InvalidExpressionError(stepStat.getSourceCodeRef()));
-            } else {
-                stepStat.analyze(context);
+            for (Statement stepStat : stepStatList) {
+                if (!(stepStat instanceof Assignment)) {
+                    context.addAnalyzerError(new InvalidExpressionError(stepStat.getSourceCodeRef()));
+                } else {
+                    stepStat.analyze(context);
+                }
             }
+
+            context.analyzeBlock(block);
+        } finally {
+            branch = context.popBranch();
+            branch.setHasReturnStatement(false);
+            context.popScope();
         }
-
-        context.analyzeBlock(block);
-
-        branch = context.popBranch();
-        branch.setHasReturnStatement(false);
-        context.popScope();
     }
 
     @Override
@@ -101,43 +103,45 @@ public class ForStatement implements Statement {
         context.pushNewScope();
         context.pushNewBranch();
 
-        if (varDeclList != null) {
-            for (VarDeclExpr varDeclExpr : varDeclList) {
-                varDeclExpr.evalStat(context);
-            }
-        }
-
-        boolean cond = true;
-        while(cond) {
-            if (condExpr != null) {
-                ValueExpr valueExpr = condExpr.evalExpr(context);
-                if (valueExpr instanceof NullValueExpr) {
-                    throw new NullPointerError(sourceCodeRef, condExpr.getSourceCodeRef());
+        try {
+            if (varDeclList != null) {
+                for (VarDeclExpr varDeclExpr : varDeclList) {
+                    varDeclExpr.evalStat(context);
                 }
-                if (!(valueExpr instanceof BooleanValueExpr)) {
-                    throw new InternalInterpreterError("Expected: Boolean. Found: " +
-                            valueExpr.getStringValue(), getSourceCodeRef());
-                }
-                cond = ((BooleanValueExpr) valueExpr).getValue();
             }
 
-            if (cond) {
-                var interrupt = context.evalBlock(block);
-                if (interrupt != null) {
-                    if (interrupt == InterruptTypeEnum.BREAK) {
-                        break;
+            boolean cond = true;
+            while (cond) {
+                if (condExpr != null) {
+                    ValueExpr valueExpr = condExpr.evalExpr(context);
+                    if (valueExpr instanceof NullValueExpr) {
+                        throw new NullPointerError(sourceCodeRef, condExpr.getSourceCodeRef());
                     }
-                    context.getCurrentBranch().setInterrupt(null);
+                    if (!(valueExpr instanceof BooleanValueExpr)) {
+                        throw new InternalInterpreterError("Expected: Boolean. Found: " +
+                                valueExpr.getStringValue(), getSourceCodeRef());
+                    }
+                    cond = ((BooleanValueExpr) valueExpr).getValue();
                 }
 
-                for (Statement stepStat : stepStatList) {
-                    stepStat.evalStat(context);
+                if (cond) {
+                    var interrupt = context.evalBlock(block);
+                    if (interrupt != null) {
+                        if (interrupt == InterruptTypeEnum.BREAK) {
+                            break;
+                        }
+                        context.getCurrentBranch().setInterrupt(null);
+                    }
+
+                    for (Statement stepStat : stepStatList) {
+                        stepStat.evalStat(context);
+                    }
                 }
             }
+        } finally {
+            context.popBranch();
+            context.popScope();
         }
-
-        context.popBranch();
-        context.popScope();
     }
 
     @Override
