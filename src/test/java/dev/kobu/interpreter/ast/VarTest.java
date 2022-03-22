@@ -383,13 +383,13 @@ public class VarTest extends AstTestBase {
         var myVar = var(module, "myVar", mult(
                 add(numberVal(10), numberVal(23)),
                 sub(numberVal(12.1), numberVal(6))));
-        function1.setExprList(block(
+        function1.setBlock(block(
                 myVar,
                 returnStatement(ref(module, "myVar"))
         ));
         var function2 = functionSymbol(module, "myFunction2", numberType());
         var returnStat = returnStatement(ref(module, "myVar"));
-        function2.setExprList(block(returnStat));
+        function2.setBlock(block(returnStat));
         function1.analyze(analyzerContext, evalContextProvider);
         function2.analyze(analyzerContext, evalContextProvider);
 
@@ -410,7 +410,7 @@ public class VarTest extends AstTestBase {
     @DisplayName("Scope -> local vars and functions can share the same name")
     void testLocalVarAndFunctionNameResolution() {
         var function = functionSymbol(module, "mySymbol", numberType());
-        function.setExprList(block(returnStatement(numberVal(10))));
+        function.setBlock(block(returnStatement(numberVal(10))));
         function.analyze(analyzerContext, evalContextProvider);
 
         var myVar = var(module, "mySymbol", stringVal("str"));

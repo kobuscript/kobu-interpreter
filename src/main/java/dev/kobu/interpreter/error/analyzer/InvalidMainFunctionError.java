@@ -24,21 +24,21 @@ SOFTWARE.
 
 package dev.kobu.interpreter.error.analyzer;
 
-import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
+import dev.kobu.interpreter.ast.symbol.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.AnalyzerError;
 
 public class InvalidMainFunctionError extends AnalyzerError {
 
-    private final FunctionDefinition functionDefinition;
+    private final NamedFunction namedFunction;
 
-    public InvalidMainFunctionError(SourceCodeRef sourceCodeRef, FunctionDefinition functionDefinition) {
+    public InvalidMainFunctionError(SourceCodeRef sourceCodeRef, NamedFunction namedFunction) {
         super(sourceCodeRef);
-        this.functionDefinition = functionDefinition;
+        this.namedFunction = namedFunction;
     }
 
-    public FunctionDefinition getFunctionType() {
-        return functionDefinition;
+    public NamedFunction getFunctionType() {
+        return namedFunction;
     }
 
     @Override

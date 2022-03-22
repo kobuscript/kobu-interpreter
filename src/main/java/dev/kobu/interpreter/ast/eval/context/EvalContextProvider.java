@@ -28,7 +28,9 @@ import dev.kobu.database.Database;
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.RuleContext;
 import dev.kobu.interpreter.ast.symbol.FunctionSymbol;
+import dev.kobu.interpreter.ast.symbol.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
+import dev.kobu.interpreter.ast.symbol.UserDefinedFunction;
 import dev.kobu.interpreter.input.InputReader;
 import dev.kobu.interpreter.writer.OutputWriter;
 
@@ -54,8 +56,8 @@ public class EvalContextProvider {
         return new EvalContext(this, analyzerContext, evalMode, moduleScope, database, inputReader, outputWriter);
     }
 
-    public EvalContext newEvalContext(AnalyzerContext analyzerContext, ModuleScope moduleScope, FunctionSymbol functionSymbol) {
-        return new EvalContext(this, analyzerContext, evalMode, moduleScope, database, inputReader, outputWriter, functionSymbol);
+    public EvalContext newEvalContext(AnalyzerContext analyzerContext, ModuleScope moduleScope, UserDefinedFunction function) {
+        return new EvalContext(this, analyzerContext, evalMode, moduleScope, database, inputReader, outputWriter, function);
     }
 
     public EvalContext newEvalContext(AnalyzerContext analyzerContext, ModuleScope moduleScope, RuleContext ruleContext) {

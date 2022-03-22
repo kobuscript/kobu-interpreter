@@ -24,20 +24,20 @@ SOFTWARE.
 
 package dev.kobu.interpreter.error.analyzer;
 
-import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
+import dev.kobu.interpreter.ast.symbol.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.AnalyzerError;
 
 public class InvalidFunctionClauseError extends AnalyzerError {
 
-    private final FunctionDefinition function;
+    private final KobuFunction function;
 
-    public InvalidFunctionClauseError(SourceCodeRef sourceCodeRef, FunctionDefinition function) {
+    public InvalidFunctionClauseError(SourceCodeRef sourceCodeRef, KobuFunction function) {
         super(sourceCodeRef);
         this.function = function;
     }
 
-    public FunctionDefinition getFunction() {
+    public KobuFunction getFunction() {
         return function;
     }
 

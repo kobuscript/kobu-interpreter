@@ -25,12 +25,12 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.eval.context;
 
 import dev.kobu.config.ProjectProperty;
+import dev.kobu.database.Database;
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.error.analyzer.UnreachableCodeError;
-import dev.kobu.database.Database;
 import dev.kobu.interpreter.input.InputReader;
 import dev.kobu.interpreter.writer.OutputWriter;
 
@@ -56,7 +56,7 @@ public class EvalContext {
 
     private final Map<String, String> properties = new HashMap<>();
 
-    private FunctionSymbol function;
+    private UserDefinedFunction function;
 
     private RuleContext ruleContext;
 
@@ -64,12 +64,16 @@ public class EvalContext {
 
     private LocalScope currentScope;
 
+    private Type returnType;
+
+    private boolean voidReturnType;
+
     private ValueExpr returnValue;
 
     protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                           ModuleScope moduleScope, Database database,
                           InputReader inputReader, OutputWriter outputWriter,
-                          FunctionSymbol function) {
+                          UserDefinedFunction function) {
         this.provider = provider;
         this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
@@ -175,26 +179,26 @@ public class EvalContext {
         return this.currentBranch;
     }
 
-    public ValueExpr evalFunction(FunctionDefinition functionDefinition, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        if (functionDefinition instanceof FunctionSymbol) {
-            FunctionSymbol functionSymbol = (FunctionSymbol) functionDefinition;
-            return functionSymbol.eval(analyzerContext, provider, args);
-        } else if (functionDefinition instanceof BuiltinFunctionSymbol) {
-            BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) functionDefinition;
+    public ValueExpr evalFunction(KobuFunction function, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
+        if (function instanceof UserDefinedFunction) {
+            UserDefinedFunction userFunction = (UserDefinedFunction) function;
+            return userFunction.eval(analyzerContext, provider, args);
+        } else if (function instanceof BuiltinFunctionSymbol) {
+            BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) function;
             return builtinFunctionSymbol.getFunctionImpl().run(this, args, sourceCodeRef);
-        } else if (functionDefinition instanceof NativeFunctionSymbol) {
-            NativeFunctionSymbol nativeFunctionSymbol = (NativeFunctionSymbol) functionDefinition;
+        } else if (function instanceof NativeFunctionSymbol) {
+            NativeFunctionSymbol nativeFunctionSymbol = (NativeFunctionSymbol) function;
             return nativeFunctionSymbol.getFunctionImpl().run(this, args, sourceCodeRef);
         }
-        throw new IllegalArgumentException("Unrecognized function type: " + functionDefinition.getClass().getName());
+        throw new IllegalArgumentException("Unrecognized function type: " + function.getClass().getName());
     }
 
-    public ValueExpr evalMethod(ValueExpr object, FunctionDefinition functionDefinition, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        if (functionDefinition instanceof BuiltinFunctionSymbol) {
-            BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) functionDefinition;
+    public ValueExpr evalMethod(ValueExpr object, KobuFunction function, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
+        if (function instanceof BuiltinFunctionSymbol) {
+            BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) function;
             return builtinFunctionSymbol.getFunctionImpl().run(this, object, args, sourceCodeRef);
         }
-        throw new IllegalArgumentException("Unrecognized method type: " + functionDefinition.getClass().getName());
+        throw new IllegalArgumentException("Unrecognized method type: " + function.getClass().getName());
     }
 
     public void analyzeBlock(List<Evaluable> block) {
@@ -247,6 +251,22 @@ public class EvalContext {
         return interrupt;
     }
 
+    public Type getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(Type returnType) {
+        this.returnType = returnType;
+    }
+
+    public boolean voidReturnType() {
+        return voidReturnType;
+    }
+
+    public void setVoidReturnType() {
+        this.voidReturnType = true;
+    }
+
     public ValueExpr getReturnValue() {
         return returnValue;
     }
@@ -259,7 +279,7 @@ public class EvalContext {
         return moduleScope;
     }
 
-    public FunctionSymbol getFunction() {
+    public UserDefinedFunction getFunction() {
         return function;
     }
 
@@ -284,7 +304,7 @@ public class EvalContext {
             return 0;
         }
         if (getFunction() != null) {
-            return getFunction().getCloseFunctionRef().getStartOffset() + 1;
+            return getFunction().getCloseBlockSourceRef().getStartOffset() + 1;
         } else if (getRuleContext() != null) {
             return getRuleContext().getRuleSymbol().getCloseRuleRef().getStartOffset() + 1;
         }

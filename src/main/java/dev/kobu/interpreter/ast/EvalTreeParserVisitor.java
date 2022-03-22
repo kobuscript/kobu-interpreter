@@ -203,7 +203,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                 functionReturnType = false;
             }
         }
-        function.setExprList(exprList);
+        function.setBlock(exprList);
 
         return null;
     }

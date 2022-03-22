@@ -24,7 +24,7 @@ SOFTWARE.
 
 package dev.kobu.interpreter.error.analyzer;
 
-import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
+import dev.kobu.interpreter.ast.symbol.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.error.AnalyzerError;
@@ -33,22 +33,14 @@ import java.util.Objects;
 
 public class InvalidReturnTypeError extends AnalyzerError {
 
-    private final FunctionDefinition function;
+    private final KobuFunction function;
 
     private final Type foundType;
 
-    public InvalidReturnTypeError(SourceCodeRef sourceCodeRef, FunctionDefinition function, Type foundType) {
+    public InvalidReturnTypeError(SourceCodeRef sourceCodeRef, KobuFunction function, Type foundType) {
         super(sourceCodeRef);
         this.function = function;
         this.foundType = foundType;
-    }
-
-    public FunctionDefinition getFunction() {
-        return function;
-    }
-
-    public Type getFoundType() {
-        return foundType;
     }
 
     @Override

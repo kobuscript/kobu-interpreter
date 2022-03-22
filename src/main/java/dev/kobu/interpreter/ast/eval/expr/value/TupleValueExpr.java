@@ -26,7 +26,7 @@ package dev.kobu.interpreter.ast.eval.expr.value;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
-import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
+import dev.kobu.interpreter.ast.symbol.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.TupleType;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
@@ -70,7 +70,7 @@ public class TupleValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public FunctionDefinition resolveMethod(String methodName) {
+    public NamedFunction resolveMethod(String methodName) {
         return type.resolveMethod(methodName);
     }
 

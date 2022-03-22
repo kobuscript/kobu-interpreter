@@ -51,7 +51,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
     private final List<FunctionArgExpr> args;
 
-    private FunctionDefinition functionDefinition;
+    private KobuFunction function;
 
     private Type typeScope;
 
@@ -91,30 +91,30 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
             }
 
             var functionSymbol = context.getModuleScope().resolve(functionName);
-            if (!(functionSymbol instanceof FunctionDefinition)) {
+            if (!(functionSymbol instanceof KobuFunction)) {
                 context.addAnalyzerError(new UndefinedFunctionName(this, null, functionName,
                         context.getNewGlobalDefinitionOffset()));
                 this.type = UnknownType.INSTANCE;
                 return;
             }
-            var functionType = (FunctionDefinition)functionSymbol;
-            this.type = analyzeCall(context, functionType);
-            this.functionDefinition = functionType;
+            var functionDef = (KobuFunction)functionSymbol;
+            this.type = analyzeCall(context, functionDef);
+            this.function = functionDef;
 
         } else {
-            if (context.getEvalMode() != EvalModeEnum.EXECUTION) {
+            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
                 List<SymbolDescriptor> symbols = new ArrayList<>();
                 for (FieldDescriptor field : typeScope.getFields()) {
                     symbols.add(new SymbolDescriptor(field));
                 }
-                for (FunctionDefinition method : typeScope.getMethods()) {
+                for (NamedFunction method : typeScope.getMethods()) {
                     symbols.add(new SymbolDescriptor(method));
                 }
                 this.symbolsInScope = symbols;
             }
 
-            var methodType = typeScope.resolveMethod(functionName);
-            if (methodType == null) {
+            var methodDef = typeScope.resolveMethod(functionName);
+            if (methodDef == null) {
                 if (typeScope instanceof ModuleRefSymbol) {
                     var moduleId = ((ModuleRefSymbol)typeScope).getModuleScopeRef().getModuleId();
                     context.addAnalyzerError(new UndefinedFunctionName(this, moduleId, functionName,
@@ -125,26 +125,26 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
                 this.type = UnknownType.INSTANCE;
                 return;
             }
-            this.type = analyzeCall(context, methodType);
-            this.functionDefinition = methodType;
+            this.type = analyzeCall(context, methodDef);
+            this.function = methodDef;
 
         }
 
-        if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && functionDefinition instanceof BuiltinFunctionSymbol) {
-            moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) functionDefinition);
+        if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && function instanceof BuiltinFunctionSymbol) {
+            moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) function);
         }
     }
 
-    public FunctionDefinition getFunctionType() {
-        return functionDefinition;
+    public KobuFunction getFunctionType() {
+        return function;
     }
 
-    private Type analyzeCall(EvalContext context, FunctionDefinition functionDefinition) {
-        for (int i = 0; i < functionDefinition.getParameters().size(); i++) {
-            var parameter = functionDefinition.getParameters().get(i);
+    private Type analyzeCall(EvalContext context, KobuFunction function) {
+        for (int i = 0; i < function.getParameters().size(); i++) {
+            var parameter = function.getParameters().get(i);
             if (i >= args.size()) {
                 if (!parameter.isOptional()) {
-                    context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, functionDefinition, args));
+                    context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, function, args));
                     return UnknownType.INSTANCE;
                 }
                 break;
@@ -161,27 +161,27 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
                 return UnknownType.INSTANCE;
             }
         }
-        if (args.size() > functionDefinition.getParameters().size()) {
-            context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, functionDefinition, args));
+        if (args.size() > function.getParameters().size()) {
+            context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, function, args));
             return UnknownType.INSTANCE;
         }
-        return functionDefinition.getReturnType();
+        return function.getReturnType();
     }
 
     @Override
     public ValueExpr evalExpr(EvalContext context) {
         if (valueScope == null) {
-            return context.evalFunction(functionDefinition, args.stream()
+            return context.evalFunction(function, args.stream()
                     .map(arg -> arg.evalExpr(context)).collect(Collectors.toList()), sourceCodeRef);
         } else {
             if (valueScope instanceof NullValueExpr) {
                 throw new NullPointerError(valueScope.getSourceCodeRef(), valueScope.getSourceCodeRef());
             }
             if (valueScope instanceof ModuleRefValueExpr) {
-                return context.evalFunction(functionDefinition, args.stream()
+                return context.evalFunction(function, args.stream()
                         .map(arg -> arg.evalExpr(context)).collect(Collectors.toList()), sourceCodeRef);
             }
-            return context.evalMethod(valueScope, functionDefinition, args.stream()
+            return context.evalMethod(valueScope, function, args.stream()
                     .map(arg -> arg.evalExpr(context)).collect(Collectors.toList()), sourceCodeRef);
         }
     }
@@ -216,7 +216,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
     @Override
     public SourceCodeRef getElementRef() {
-        return functionDefinition != null ? functionDefinition.getSourceCodeRef() : null;
+        return function != null ? function.getSourceCodeRef() : null;
     }
 
     @Override

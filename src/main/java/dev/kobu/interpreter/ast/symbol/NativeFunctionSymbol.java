@@ -31,7 +31,7 @@ import dev.kobu.interpreter.ast.eval.function.NativeFunction;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NativeFunctionSymbol extends Symbol implements FunctionDefinition {
+public class NativeFunctionSymbol extends Symbol implements NamedFunction {
 
     private final NativeFunction functionImpl;
 

@@ -34,7 +34,7 @@ public class TupleType implements Type {
 
     private final List<Type> types;
 
-    private final Map<String, FunctionDefinition> methods = new HashMap<>();
+    private final Map<String, NamedFunction> methods = new HashMap<>();
 
     public TupleType(List<Type> types) {
         this.types = types;
@@ -66,7 +66,7 @@ public class TupleType implements Type {
     }
 
     @Override
-    public List<FunctionDefinition> getMethods() {
+    public List<NamedFunction> getMethods() {
         return new ArrayList<>(methods.values());
     }
 
@@ -81,7 +81,7 @@ public class TupleType implements Type {
     }
 
     @Override
-    public FunctionDefinition resolveMethod(String name) {
+    public NamedFunction resolveMethod(String name) {
         return methods.get(name);
     }
 

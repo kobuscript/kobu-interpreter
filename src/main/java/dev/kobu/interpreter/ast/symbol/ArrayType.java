@@ -35,7 +35,7 @@ public class ArrayType implements Type {
 
     private final Type elementType;
 
-    private final Map<String, FunctionDefinition> methods = new HashMap<>();
+    private final Map<String, NamedFunction> methods = new HashMap<>();
 
     public ArrayType(Type elementType) {
         this.elementType = elementType;
@@ -67,7 +67,7 @@ public class ArrayType implements Type {
     }
 
     @Override
-    public List<FunctionDefinition> getMethods() {
+    public List<NamedFunction> getMethods() {
         return new ArrayList<>(methods.values());
     }
 
@@ -82,7 +82,7 @@ public class ArrayType implements Type {
     }
 
     @Override
-    public FunctionDefinition resolveMethod(String name) {
+    public NamedFunction resolveMethod(String name) {
         return methods.get(name);
     }
 

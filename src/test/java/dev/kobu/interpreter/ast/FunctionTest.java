@@ -49,7 +49,7 @@ public class FunctionTest extends AstTestBase {
         var myFunc = functionSymbol(module, "myFunc",
                 stringType(),
                 functionParameter("p1", stringType()));
-        myFunc.setExprList(block(
+        myFunc.setBlock(block(
                 var(module, "myVar", add(ref(module, "p1"), stringVal("_suffix"))),
                 returnStatement(ref(module, "myVar"))
         ));
@@ -74,7 +74,7 @@ public class FunctionTest extends AstTestBase {
                 stringType(),
                 functionParameter("p1", stringType()));
         ReturnStatement returnStatement = returnStatement(add(numberVal(1), numberVal(3)));
-        myFunc.setExprList(block(returnStatement));
+        myFunc.setBlock(block(returnStatement));
         myFunc.analyze(analyzerContext, evalContextProvider);
         assertErrors(new InvalidReturnTypeError(returnStatement.getSourceCodeRef(), myFunc, numberType()));
     }
@@ -86,7 +86,7 @@ public class FunctionTest extends AstTestBase {
                 stringType(),
                 functionParameter("p1", stringType()));
         myFunc.analyze(analyzerContext, evalContextProvider);
-        assertErrors(new FunctionMissingReturnStatError(myFunc.getCloseFunctionRef()));
+        assertErrors(new FunctionMissingReturnStatError(myFunc.getCloseBlockSourceRef()));
     }
 
     @Test
@@ -94,9 +94,9 @@ public class FunctionTest extends AstTestBase {
     void testMissingReturnStatementIfBranch() {
         var myFunc = functionSymbol(module, "myFunc", stringType());
         IfStatement ifStatement = ifStatement(booleanVal(true), block(returnStatement(stringVal("str"))));
-        myFunc.setExprList(block(ifStatement));
+        myFunc.setBlock(block(ifStatement));
         myFunc.analyze(analyzerContext, evalContextProvider);
-        assertErrors(new FunctionMissingReturnStatError(myFunc.getCloseFunctionRef()));
+        assertErrors(new FunctionMissingReturnStatError(myFunc.getCloseBlockSourceRef()));
     }
 
     @Test
@@ -105,9 +105,9 @@ public class FunctionTest extends AstTestBase {
         var myFunc = functionSymbol(module, "myFunc", stringType());
         IfStatement ifStat = ifStatement(booleanVal(true), block(returnStatement(stringVal("str"))));
         elseStatement(ifStat, block());
-        myFunc.setExprList(block(ifStat));
+        myFunc.setBlock(block(ifStat));
         myFunc.analyze(analyzerContext, evalContextProvider);
-        assertErrors(new FunctionMissingReturnStatError(myFunc.getCloseFunctionRef()));
+        assertErrors(new FunctionMissingReturnStatError(myFunc.getCloseBlockSourceRef()));
     }
 
     @Test
@@ -116,7 +116,7 @@ public class FunctionTest extends AstTestBase {
         var myFunc = functionSymbol(module, "myFunc", stringType());
         IfStatement ifStat = ifStatement(booleanVal(true), block(returnStatement(stringVal("str"))));
         elseStatement(ifStat, block(returnStatement(stringVal("str2"))));
-        myFunc.setExprList(block(ifStat));
+        myFunc.setBlock(block(ifStat));
         myFunc.analyze(analyzerContext, evalContextProvider);
         assertNoErrors();
     }
@@ -127,7 +127,7 @@ public class FunctionTest extends AstTestBase {
         var myFunc = functionSymbol(module, "myFunc", stringType());
         IfStatement ifStat = ifStatement(booleanVal(true), block(returnStatement(stringVal("str"))));
         elseStatement(ifStat, block());
-        myFunc.setExprList(block(ifStat, returnStatement(stringVal("str2"))));
+        myFunc.setBlock(block(ifStat, returnStatement(stringVal("str2"))));
         myFunc.analyze(analyzerContext, evalContextProvider);
         assertNoErrors();
     }
@@ -136,9 +136,9 @@ public class FunctionTest extends AstTestBase {
     @DisplayName("Analyzer -> return statement: loop branch w/ return")
     void testMissingReturnStatementLoopBranchWithReturn() {
         var myFunc = functionSymbol(module, "myFunc", stringType());
-        myFunc.setExprList(block(whileStatement(booleanVal(true), block(returnStatement(stringVal("str"))))));
+        myFunc.setBlock(block(whileStatement(booleanVal(true), block(returnStatement(stringVal("str"))))));
         myFunc.analyze(analyzerContext, evalContextProvider);
-        assertErrors(new FunctionMissingReturnStatError(myFunc.getCloseFunctionRef()));
+        assertErrors(new FunctionMissingReturnStatError(myFunc.getCloseBlockSourceRef()));
     }
 
     @Test
@@ -148,7 +148,7 @@ public class FunctionTest extends AstTestBase {
         IfStatement ifStat = ifStatement(booleanVal(true), block(returnStatement(stringVal("str"))));
         elseStatement(ifStat, block(returnStatement(stringVal("str2"))));
         ReturnStatement returnStatement = returnStatement(stringVal("str3"));
-        myFunc.setExprList(block(ifStat, returnStatement));
+        myFunc.setBlock(block(ifStat, returnStatement));
         myFunc.analyze(analyzerContext, evalContextProvider);
         assertErrors(new UnreachableCodeError(returnStatement.getSourceCodeRef()));
     }
@@ -158,7 +158,7 @@ public class FunctionTest extends AstTestBase {
     void testReturnStatementWithValueVoidFunction() {
         var myFunc = functionSymbol(module, "myFunc");
         ReturnStatement returnStatement = returnStatement(numberVal(10));
-        myFunc.setExprList(block(returnStatement));
+        myFunc.setBlock(block(returnStatement));
         myFunc.analyze(analyzerContext, evalContextProvider);
         assertErrors(new ReturnStatInVoidFunctionError(returnStatement.getSourceCodeRef(), myFunc));
     }
@@ -168,7 +168,7 @@ public class FunctionTest extends AstTestBase {
     void testReturnStatementVoidFunction() {
         var myFunc = functionSymbol(module, "myFunc");
         ReturnStatement returnStatement = returnStatement();
-        myFunc.setExprList(block(ifStatement(booleanVal(true), block(returnStatement))));
+        myFunc.setBlock(block(ifStatement(booleanVal(true), block(returnStatement))));
         myFunc.analyze(analyzerContext, evalContextProvider);
         assertNoErrors();
     }
@@ -249,7 +249,7 @@ public class FunctionTest extends AstTestBase {
     @DisplayName("Type checker -> function call return value")
     void testFunctionCallReturnTypeChecker() {
         var myFunc = functionSymbol(module, "myFunc", stringType());
-        myFunc.setExprList(block(returnStatement(stringVal("str"))));
+        myFunc.setBlock(block(returnStatement(stringVal("str"))));
         myFunc.analyze(analyzerContext, evalContextProvider);
 
         var fnCall = functionCall(module, "myFunc");
@@ -263,7 +263,7 @@ public class FunctionTest extends AstTestBase {
     void testFunctionCallImportedModule() {
         var mod2 = module("mod2");
         var myFunc = functionSymbol(mod2, "myFunc", stringType());
-        myFunc.setExprList(block(returnStatement(stringVal("str"))));
+        myFunc.setBlock(block(returnStatement(stringVal("str"))));
         myFunc.analyze(analyzerContext, evalContextProvider);
 
         importModule(module, mod2);
@@ -283,7 +283,7 @@ public class FunctionTest extends AstTestBase {
         var mod2 = module("mod2");
         var mod3 = module("mod3");
         var myFunc = functionSymbol(mod3, "myFunc", stringType());
-        myFunc.setExprList(block(returnStatement(stringVal("str"))));
+        myFunc.setBlock(block(returnStatement(stringVal("str"))));
         myFunc.analyze(analyzerContext, evalContextProvider);
 
         importModule(mod2, mod3);

@@ -24,35 +24,28 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.AstNode;
-import dev.kobu.interpreter.ast.eval.FieldDescriptor;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
+import java.util.stream.Collectors;
 
-import java.util.Comparator;
-import java.util.List;
-
-public interface Type extends AstNode {
-
-    SourceCodeRef getSourceCodeRef();
+public interface NamedFunction extends KobuFunction {
 
     String getName();
 
-    String getIdentifier();
+    SourceCodeRef getSourceCodeRef();
 
-    List<FieldDescriptor> getFields();
+    default String getDescription() {
+        StringBuilder str = new StringBuilder();
+        str.append('(');
+        if (getParameters() != null) {
+            str.append(getParameters().stream().map(FunctionParameter::getDescription)
+                    .collect(Collectors.joining(", ")));
+        }
+        str.append(')');
+        if (getReturnType() != null) {
+            str.append(": ").append(getReturnType().getName());
+        } else {
+            str.append(": void");
+        }
 
-    List<NamedFunction> getMethods();
-
-    Type resolveField(String name);
-
-    SourceCodeRef getFieldRef(String name);
-
-    NamedFunction resolveMethod(String name);
-
-    boolean isAssignableFrom(Type type);
-
-    Type getCommonSuperType(Type type);
-
-    Comparator<ValueExpr> getComparator();
-
+        return str.toString();
+    }
 }

@@ -27,7 +27,7 @@ package dev.kobu.interpreter.ast.eval.function;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
+import dev.kobu.interpreter.ast.symbol.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.FunctionParameter;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.EvalError;
@@ -40,9 +40,9 @@ import java.util.Map;
 
 public abstract class BuiltinFunction {
 
-    private FunctionDefinition funcDef;
+    private NamedFunction funcDef;
 
-    public void setFuncDef(FunctionDefinition funcDef) {
+    public void setFuncDef(NamedFunction funcDef) {
         this.funcDef = funcDef;
     }
 
@@ -66,7 +66,7 @@ public abstract class BuiltinFunction {
         }
     }
 
-    public FunctionDefinition getFuncDef() {
+    public NamedFunction getFuncDef() {
         return funcDef;
     }
 

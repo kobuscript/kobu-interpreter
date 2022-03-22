@@ -24,33 +24,21 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
+import dev.kobu.interpreter.ast.AnalyzerContext;
+import dev.kobu.interpreter.ast.eval.Evaluable;
+import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
-public interface FunctionDefinition {
+public interface UserDefinedFunction extends KobuFunction {
 
-    String getName();
+    SourceCodeRef getCloseBlockSourceRef();
 
-    SourceCodeRef getSourceCodeRef();
+    List<Evaluable> getBlock();
 
-    List<FunctionParameter> getParameters();
+    boolean inferReturnType();
 
-    Type getReturnType();
+    ValueExpr eval(AnalyzerContext analyzerContext, EvalContextProvider evalContextProvider, List<ValueExpr> args);
 
-    default String getDescription() {
-        StringBuilder str = new StringBuilder();
-        str.append('(');
-        if (getParameters() != null) {
-            str.append(getParameters().stream().map(FunctionParameter::getDescription)
-                    .collect(Collectors.joining(", ")));
-        }
-        str.append(')');
-        if (getReturnType() != null) {
-            str.append(": ").append(getReturnType().getName());
-        } else {
-            str.append(": void");
-        }
-
-        return str.toString();
-    }
 }

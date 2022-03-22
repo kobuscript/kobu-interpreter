@@ -52,26 +52,43 @@ public class ReturnStatement implements Statement {
     @Override
     public void analyze(EvalContext context) {
         context.getCurrentBranch().setHasReturnStatement(true);
-        var functionType = context.getFunction();
-        if ((functionType == null || functionType.getReturnType() == null) && expr != null) {
-            context.addAnalyzerError(new ReturnStatInVoidFunctionError(sourceCodeRef, functionType));
-            return;
-        } else if (functionType != null && functionType.getReturnType() != null && expr == null) {
-            context.addAnalyzerError(new FunctionMissingReturnValueError(sourceCodeRef, functionType));
-            return;
+        var function = context.getFunction();
+        if (!function.inferReturnType()) {
+            if ((function.getReturnType() == null) && expr != null) {
+                context.addAnalyzerError(new ReturnStatInVoidFunctionError(sourceCodeRef, function));
+                return;
+            } else if (function.getReturnType() != null && expr == null) {
+                context.addAnalyzerError(new FunctionMissingReturnValueError(sourceCodeRef, function));
+                return;
+            }
         }
         if (expr == null) {
+            if (function.inferReturnType()) {
+                if (context.getReturnType() != null) {
+                    context.addAnalyzerError(new FunctionMissingReturnValueError(sourceCodeRef, function));
+                }
+                context.setVoidReturnType();
+            }
             return;
         }
         if (expr instanceof HasTargetType) {
-            ((HasTargetType)expr).setTargetType(functionType.getReturnType());
+            ((HasTargetType)expr).setTargetType(function.getReturnType());
         }
         expr.analyze(context);
         if (expr.getType() instanceof UnknownType) {
             return;
         }
-        if (expr.getType() != null && !functionType.getReturnType().isAssignableFrom(expr.getType())) {
-            context.addAnalyzerError(new InvalidReturnTypeError(sourceCodeRef, functionType, expr.getType()));
+
+        if (function.inferReturnType()) {
+            if (context.voidReturnType()) {
+                context.addAnalyzerError(new ReturnStatInVoidFunctionError(sourceCodeRef, function));
+            } else if (context.getReturnType() == null) {
+                context.setReturnType(expr.getType());
+            } else {
+                context.setReturnType(context.getReturnType().getCommonSuperType(expr.getType()));
+            }
+        } else if (expr.getType() != null && !function.getReturnType().isAssignableFrom(expr.getType())) {
+            context.addAnalyzerError(new InvalidReturnTypeError(sourceCodeRef, function, expr.getType()));
         }
     }
 

@@ -50,7 +50,7 @@ public class ControlStructureTest extends AstTestBase {
     void testIfEvaluation() {
         var myFunc = functionSymbol(module, "myFunc", stringType(),
                 functionParameter("param", stringType()));
-        myFunc.setExprList(block(
+        myFunc.setBlock(block(
                 ifStatement(equals(ref(module, "param"), stringVal("str1")),
                         block(returnStatement(stringVal("str1")))),
                 returnStatement(nullVal())
@@ -77,7 +77,7 @@ public class ControlStructureTest extends AstTestBase {
         IfStatement ifStatement = ifStatement(equals(ref(module, "param"), stringVal("str1")),
                 block(returnStatement(stringVal("str1"))));
         elseStatement(ifStatement, block(returnStatement(stringVal("str2"))));
-        myFunc.setExprList(block(ifStatement));
+        myFunc.setBlock(block(ifStatement));
         myFunc.analyze(analyzerContext, evalContextProvider);
 
         var myVar = var(module, "myVar",
@@ -104,7 +104,7 @@ public class ControlStructureTest extends AstTestBase {
         elseIf = elseIf(elseIf, equals(ref(module, "param"), stringVal("str3")),
                 block(returnStatement(stringVal("str3"))));
         elseStatement(ifStatement, block(returnStatement(stringVal("str4"))));
-        myFunc.setExprList(block(ifStatement));
+        myFunc.setBlock(block(ifStatement));
         myFunc.analyze(analyzerContext, evalContextProvider);
 
         var myVar = var(module, "myVar",
@@ -130,7 +130,7 @@ public class ControlStructureTest extends AstTestBase {
     void testWhileEvaluation() {
         var myFunc = functionSymbol(module, "factorial", numberType(),
                 functionParameter("n", numberType()));
-        myFunc.setExprList(block(
+        myFunc.setBlock(block(
                 var(module, "idx", numberVal(1)),
                 var(module, "result", numberVal(1)),
                 whileStatement(lessOrEquals(ref(module, "idx"), ref(module, "n")), block(
@@ -161,7 +161,7 @@ public class ControlStructureTest extends AstTestBase {
         var varDeclList = varDeclList(var(module, "idx", numberVal(1)));
         var cond = lessOrEquals(ref(module, "idx"), ref(module, "n"));
         var stepList = statementList(postInc(ref(module, "idx")));
-        myFunc.setExprList(block(
+        myFunc.setBlock(block(
                 var(module, "result", numberVal(1)),
                 forStatement(varDeclList, cond, stepList, block(
                         assign(ref(module, "result"), mult(ref(module,"result"), ref(module, "idx")))
@@ -190,7 +190,7 @@ public class ControlStructureTest extends AstTestBase {
         var varDeclList = varDeclList();
         var cond = lessOrEquals(ref(module, "idx"), ref(module, "n"));
         var stepList = statementList();
-        myFunc.setExprList(block(
+        myFunc.setBlock(block(
                 var(module, "idx", numberVal(1)),
                 var(module, "result", numberVal(1)),
                 forStatement(varDeclList, cond, stepList, block(

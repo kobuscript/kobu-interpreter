@@ -30,9 +30,9 @@ public class FunctionParameter {
 
     private final String name;
 
-    private final Type type;
-
     private final boolean optional;
+
+    private Type type;
 
     private SourceCodeRef sourceCodeRef;
 
@@ -61,6 +61,10 @@ public class FunctionParameter {
         return type;
     }
 
+    public void setType(Type type) {
+        this.type = type;
+    }
+
     public boolean isOptional() {
         return optional;
     }
@@ -70,7 +74,7 @@ public class FunctionParameter {
         if (optional) {
             str += "?";
         }
-        str += ": " + type.getName();
+        str += ": " + (type != null ? type.getName() : BuiltinScope.ANY_TYPE.getName());
         return str;
     }
 
@@ -85,5 +89,9 @@ public class FunctionParameter {
     @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+    public FunctionTypeParameter toFunctionTypeParameter() {
+        return new FunctionTypeParameter(type, optional);
     }
 }

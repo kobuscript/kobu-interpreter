@@ -74,11 +74,11 @@ public class ModuleRefSymbol extends Symbol implements Type {
     }
 
     @Override
-    public List<FunctionDefinition> getMethods() {
-        List<FunctionDefinition> functions = new ArrayList<>();
+    public List<NamedFunction> getMethods() {
+        List<NamedFunction> functions = new ArrayList<>();
         for (Symbol symbol : moduleScopeRef.getSymbols()) {
             if (symbol instanceof FunctionSymbol) {
-                functions.add((FunctionDefinition) symbol);
+                functions.add((NamedFunction) symbol);
             }
         }
         return functions;
@@ -103,10 +103,10 @@ public class ModuleRefSymbol extends Symbol implements Type {
     }
 
     @Override
-    public FunctionDefinition resolveMethod(String name) {
+    public NamedFunction resolveMethod(String name) {
         var symbol = moduleScopeRef.resolveLocal(name);
-        if (symbol instanceof FunctionDefinition) {
-            return (FunctionDefinition) symbol;
+        if (symbol instanceof NamedFunction) {
+            return (NamedFunction) symbol;
         }
         return null;
     }

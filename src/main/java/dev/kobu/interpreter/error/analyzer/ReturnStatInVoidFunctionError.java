@@ -24,23 +24,19 @@ SOFTWARE.
 
 package dev.kobu.interpreter.error.analyzer;
 
-import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.UserDefinedFunction;
 import dev.kobu.interpreter.error.AnalyzerError;
 
 import java.util.Objects;
 
 public class ReturnStatInVoidFunctionError extends AnalyzerError {
 
-    private final FunctionDefinition function;
+    private final UserDefinedFunction function;
 
-    public ReturnStatInVoidFunctionError(SourceCodeRef sourceCodeRef, FunctionDefinition function) {
+    public ReturnStatInVoidFunctionError(SourceCodeRef sourceCodeRef, UserDefinedFunction function) {
         super(sourceCodeRef);
         this.function = function;
-    }
-
-    public FunctionDefinition getFunction() {
-        return function;
     }
 
     @Override

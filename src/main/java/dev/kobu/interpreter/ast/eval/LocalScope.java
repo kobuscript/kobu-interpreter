@@ -50,6 +50,9 @@ public class LocalScope implements Scope {
     }
 
     public void addAll(LocalScope scope) {
+        if (scope.getEnclosingScope() instanceof LocalScope) {
+            addAll((LocalScope) scope.getEnclosingScope());
+        }
         symbols.putAll(scope.symbols);
         memory.putAll(scope.memory);
     }

@@ -25,7 +25,8 @@ SOFTWARE.
 package dev.kobu.interpreter.error.analyzer;
 
 import dev.kobu.interpreter.ast.eval.expr.FunctionArgExpr;
-import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
+import dev.kobu.interpreter.ast.symbol.KobuFunction;
+import dev.kobu.interpreter.ast.symbol.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.AnalyzerError;
 
@@ -34,17 +35,17 @@ import java.util.Objects;
 
 public class InvalidFunctionCallError extends AnalyzerError {
 
-    private final FunctionDefinition function;
+    private final KobuFunction function;
 
     private final List<FunctionArgExpr> args;
 
-    public InvalidFunctionCallError(SourceCodeRef sourceCodeRef, FunctionDefinition function, List<FunctionArgExpr> args) {
+    public InvalidFunctionCallError(SourceCodeRef sourceCodeRef, KobuFunction function, List<FunctionArgExpr> args) {
         super(sourceCodeRef);
         this.function = function;
         this.args = args;
     }
 
-    public FunctionDefinition getFunction() {
+    public KobuFunction getFunction() {
         return function;
     }
 

@@ -27,7 +27,7 @@ package dev.kobu.interpreter.ast.eval.expr.value;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.ArrayType;
-import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
+import dev.kobu.interpreter.ast.symbol.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.eval.ArrayIndexOutOfBoundsError;
 import dev.kobu.interpreter.ast.eval.HasMethods;
@@ -82,7 +82,7 @@ public class ArrayValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public FunctionDefinition resolveMethod(String methodName) {
+    public NamedFunction resolveMethod(String methodName) {
         return type.resolveMethod(methodName);
     }
 

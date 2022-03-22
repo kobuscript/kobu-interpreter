@@ -34,16 +34,16 @@ import java.util.stream.Collectors;
 
 public class FunctionType implements Type {
 
-    private final List<Type> parameters;
+    private final List<FunctionTypeParameter> parameters;
 
     private final Type returnType;
 
-    public FunctionType(List<Type> parameters, Type returnType) {
+    public FunctionType(List<FunctionTypeParameter> parameters, Type returnType) {
         this.parameters = parameters;
         this.returnType = returnType;
     }
 
-    public List<Type> getParameters() {
+    public List<FunctionTypeParameter> getParameters() {
         return parameters;
     }
 
@@ -58,7 +58,7 @@ public class FunctionType implements Type {
 
     @Override
     public String getName() {
-        return "(" + parameters.stream().map(Type::getName).collect(Collectors.joining(", ")) + ") => " +
+        return "(" + parameters.stream().map(FunctionTypeParameter::getDescription).collect(Collectors.joining(", ")) + ") => " +
                 (returnType != null ? returnType.getName() : "void");
     }
 
@@ -73,7 +73,7 @@ public class FunctionType implements Type {
     }
 
     @Override
-    public List<FunctionDefinition> getMethods() {
+    public List<NamedFunction> getMethods() {
         return new ArrayList<>();
     }
 
@@ -88,7 +88,7 @@ public class FunctionType implements Type {
     }
 
     @Override
-    public FunctionDefinition resolveMethod(String name) {
+    public NamedFunction resolveMethod(String name) {
         return null;
     }
 
@@ -96,9 +96,20 @@ public class FunctionType implements Type {
     public boolean isAssignableFrom(Type type) {
         if (type instanceof FunctionType) {
             FunctionType other = (FunctionType) type;
-            if (other.getParameters().size() == getParameters().size()) {
-                for (int i = 0; i < other.getParameters().size(); i++) {
-                    if (!getParameters().get(i).isAssignableFrom(other.getParameters().get(i))) {
+            if (getParameters().size() >= other.getParameters().size()) {
+                for (int i = 0; i < getParameters().size(); i++) {
+                    FunctionTypeParameter thisParameter = getParameters().get(i);
+                    if (i >= other.getParameters().size()) {
+                        if (!thisParameter.isOptional()) {
+                            return false;
+                        }
+                        continue;
+                    }
+                    FunctionTypeParameter otherParameter = other.getParameters().get(i);
+                    if (thisParameter.isOptional() && !otherParameter.isOptional()) {
+                        return false;
+                    }
+                    if (!thisParameter.getType().isAssignableFrom(otherParameter.getType())) {
                         return false;
                     }
                 }
@@ -118,24 +129,7 @@ public class FunctionType implements Type {
     public Type getCommonSuperType(Type type) {
         if (isAssignableFrom(type)) {
             return this;
-        } else if (type instanceof FunctionType) {
-            FunctionType other = (FunctionType) type;
-            if (getParameters().size() == other.getParameters().size()) {
-                List<Type> params = new ArrayList<>();
-                for (int i = 0; i < getParameters().size(); i++) {
-                    params.add(getParameters().get(i).getCommonSuperType(other.getParameters().get(i)));
-                }
-
-                if ((getReturnType() != null && other.getReturnType() == null)
-                        || (getReturnType() == null && other.getReturnType() != null)) {
-                    return BuiltinScope.ANY_TYPE;
-                } else if (getReturnType() == null && other.getReturnType() == null) {
-                    return new FunctionType(params, null);
-                }
-                return new FunctionType(params, getReturnType().getCommonSuperType(other.getReturnType()));
-            }
         }
-
         return BuiltinScope.ANY_TYPE;
     }
 

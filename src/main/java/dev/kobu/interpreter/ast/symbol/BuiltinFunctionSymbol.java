@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BuiltinFunctionSymbol extends Symbol implements FunctionDefinition {
+public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
 
     private final Type enclosingType;
 

@@ -34,11 +34,11 @@ import dev.kobu.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
 
 import java.util.*;
 
-public class FunctionSymbol extends Symbol implements FunctionDefinition, HasExpr {
+public class FunctionSymbol extends Symbol implements NamedFunction, UserDefinedFunction, HasExpr {
 
     private final ModuleScope moduleScope;
 
-    private final SourceCodeRef closeFunctionRef;
+    private final SourceCodeRef closeBlockSourceRef;
 
     private final String docText;
 
@@ -46,21 +46,21 @@ public class FunctionSymbol extends Symbol implements FunctionDefinition, HasExp
 
     private Type returnType;
 
-    private List<Evaluable> exprList;
+    private List<Evaluable> block;
 
     private Collection<SymbolDescriptor> symbolsModule;
 
     private SymbolDocumentation documentation;
 
-    public FunctionSymbol(SourceCodeRef sourceCodeRef, SourceCodeRef closeFunctionRef, ModuleScope moduleScope,
+    public FunctionSymbol(SourceCodeRef sourceCodeRef, SourceCodeRef closeBlockSourceRef, ModuleScope moduleScope,
                           String name, String docText) {
         super(moduleScope, sourceCodeRef, name);
-        this.closeFunctionRef = closeFunctionRef;
+        this.closeBlockSourceRef = closeBlockSourceRef;
         this.moduleScope = moduleScope;
         this.docText = docText;
 
-        if (closeFunctionRef != null && moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
-            moduleScope.registerAutoCompletionSource(closeFunctionRef.getStartOffset(), new AutoCompletionSource() {
+        if (closeBlockSourceRef != null && moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            moduleScope.registerAutoCompletionSource(closeBlockSourceRef.getStartOffset(), new AutoCompletionSource() {
                 @Override
                 public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
                     return new ArrayList<>(symbolsModule);
@@ -91,16 +91,23 @@ public class FunctionSymbol extends Symbol implements FunctionDefinition, HasExp
         this.returnType = returnType;
     }
 
-    public List<Evaluable> getExprList() {
-        return exprList;
+    @Override
+    public List<Evaluable> getBlock() {
+        return block;
     }
 
-    public void setExprList(List<Evaluable> exprList) {
-        this.exprList = exprList;
+    @Override
+    public boolean inferReturnType() {
+        return false;
     }
 
-    public SourceCodeRef getCloseFunctionRef() {
-        return closeFunctionRef;
+    public void setBlock(List<Evaluable> block) {
+        this.block = block;
+    }
+
+    @Override
+    public SourceCodeRef getCloseBlockSourceRef() {
+        return closeBlockSourceRef;
     }
 
     @Override
@@ -108,13 +115,15 @@ public class FunctionSymbol extends Symbol implements FunctionDefinition, HasExp
         var context = evalContextProvider.newEvalContext(analyzerContext, moduleScope, this);
         var scope = context.getCurrentScope();
 
-        symbolsModule = scope.getSymbolDescriptors(
-                        SymbolTypeEnum.FUNCTION,
-                        SymbolTypeEnum.MODULE_REF,
-                        SymbolTypeEnum.RULE,
-                        SymbolTypeEnum.TEMPLATE,
-                        SymbolTypeEnum.FILE,
-                        SymbolTypeEnum.KEYWORD);
+        if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            symbolsModule = scope.getSymbolDescriptors(
+                    SymbolTypeEnum.FUNCTION,
+                    SymbolTypeEnum.MODULE_REF,
+                    SymbolTypeEnum.RULE,
+                    SymbolTypeEnum.TEMPLATE,
+                    SymbolTypeEnum.FILE,
+                    SymbolTypeEnum.KEYWORD);
+        }
 
         Map<String, FunctionParameter> paramsMap = new HashMap<>();
         FunctionParameter lastOptionalParam = null;
@@ -139,10 +148,10 @@ public class FunctionSymbol extends Symbol implements FunctionDefinition, HasExp
             scope.define(analyzerContext, variableSymbol);
         }
         var branch = context.pushNewBranch();
-        context.analyzeBlock(exprList);
+        context.analyzeBlock(block);
 
-        if (closeFunctionRef != null && returnType != null && !branch.hasReturnStatement()) {
-            analyzerContext.getErrorScope().addError(new FunctionMissingReturnStatError(closeFunctionRef));
+        if (closeBlockSourceRef != null && returnType != null && !branch.hasReturnStatement()) {
+            analyzerContext.getErrorScope().addError(new FunctionMissingReturnStatError(closeBlockSourceRef));
         }
 
         if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
@@ -153,6 +162,7 @@ public class FunctionSymbol extends Symbol implements FunctionDefinition, HasExp
         context.popBranch();
     }
 
+    @Override
     public ValueExpr eval(AnalyzerContext analyzerContext, EvalContextProvider evalContextProvider, List<ValueExpr> args) {
         var context = evalContextProvider.newEvalContext(analyzerContext, moduleScope, this);
         var scope = context.getCurrentScope();
@@ -167,7 +177,7 @@ public class FunctionSymbol extends Symbol implements FunctionDefinition, HasExp
                 scope.setValue(parameter.getName(), arg);
             }
         }
-        context.evalBlock(exprList);
+        context.evalBlock(block);
         return context.getReturnValue();
     }
 

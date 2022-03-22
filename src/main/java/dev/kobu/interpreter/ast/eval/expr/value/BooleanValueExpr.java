@@ -70,7 +70,7 @@ public class BooleanValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public FunctionDefinition resolveMethod(String methodName) {
+    public NamedFunction resolveMethod(String methodName) {
         return type.resolveMethod(methodName);
     }
 
