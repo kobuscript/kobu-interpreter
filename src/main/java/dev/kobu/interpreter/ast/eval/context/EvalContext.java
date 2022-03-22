@@ -175,26 +175,26 @@ public class EvalContext {
         return this.currentBranch;
     }
 
-    public ValueExpr evalFunction(FunctionType functionType, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        if (functionType instanceof FunctionSymbol) {
-            FunctionSymbol functionSymbol = (FunctionSymbol) functionType;
+    public ValueExpr evalFunction(FunctionDefinition functionDefinition, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
+        if (functionDefinition instanceof FunctionSymbol) {
+            FunctionSymbol functionSymbol = (FunctionSymbol) functionDefinition;
             return functionSymbol.eval(analyzerContext, provider, args);
-        } else if (functionType instanceof BuiltinFunctionSymbol) {
-            BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) functionType;
+        } else if (functionDefinition instanceof BuiltinFunctionSymbol) {
+            BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) functionDefinition;
             return builtinFunctionSymbol.getFunctionImpl().run(this, args, sourceCodeRef);
-        } else if (functionType instanceof NativeFunctionSymbol) {
-            NativeFunctionSymbol nativeFunctionSymbol = (NativeFunctionSymbol) functionType;
+        } else if (functionDefinition instanceof NativeFunctionSymbol) {
+            NativeFunctionSymbol nativeFunctionSymbol = (NativeFunctionSymbol) functionDefinition;
             return nativeFunctionSymbol.getFunctionImpl().run(this, args, sourceCodeRef);
         }
-        throw new IllegalArgumentException("Unrecognized function type: " + functionType.getClass().getName());
+        throw new IllegalArgumentException("Unrecognized function type: " + functionDefinition.getClass().getName());
     }
 
-    public ValueExpr evalMethod(ValueExpr object, FunctionType functionType, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        if (functionType instanceof BuiltinFunctionSymbol) {
-            BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) functionType;
+    public ValueExpr evalMethod(ValueExpr object, FunctionDefinition functionDefinition, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
+        if (functionDefinition instanceof BuiltinFunctionSymbol) {
+            BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) functionDefinition;
             return builtinFunctionSymbol.getFunctionImpl().run(this, object, args, sourceCodeRef);
         }
-        throw new IllegalArgumentException("Unrecognized method type: " + functionType.getClass().getName());
+        throw new IllegalArgumentException("Unrecognized method type: " + functionDefinition.getClass().getName());
     }
 
     public void analyzeBlock(List<Evaluable> block) {

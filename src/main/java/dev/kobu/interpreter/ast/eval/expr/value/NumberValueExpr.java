@@ -70,7 +70,7 @@ public class NumberValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public FunctionType resolveMethod(String methodName) {
+    public FunctionDefinition resolveMethod(String methodName) {
         return type.resolveMethod(methodName);
     }
 

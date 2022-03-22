@@ -35,7 +35,7 @@ public class ArrayType implements Type {
 
     private final Type elementType;
 
-    private final Map<String, FunctionType> methods = new HashMap<>();
+    private final Map<String, FunctionDefinition> methods = new HashMap<>();
 
     public ArrayType(Type elementType) {
         this.elementType = elementType;
@@ -67,7 +67,7 @@ public class ArrayType implements Type {
     }
 
     @Override
-    public List<FunctionType> getMethods() {
+    public List<FunctionDefinition> getMethods() {
         return new ArrayList<>(methods.values());
     }
 
@@ -82,7 +82,7 @@ public class ArrayType implements Type {
     }
 
     @Override
-    public FunctionType resolveMethod(String name) {
+    public FunctionDefinition resolveMethod(String name) {
         return methods.get(name);
     }
 
@@ -98,7 +98,7 @@ public class ArrayType implements Type {
         } else if (type instanceof ArrayType) {
             return new ArrayType(elementType.getCommonSuperType(((ArrayType)type).getElementType()));
         }
-        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
+        return BuiltinScope.ANY_TYPE;
     }
 
     @Override
@@ -137,15 +137,15 @@ public class ArrayType implements Type {
                             new ArraySortMethodImpl(name)));
                 }
             }
-        } else if (elementType instanceof PairType) {
-            if (((PairType)elementType).getLeftType().getComparator() != null) {
-                methods.put("sortByLeft", new BuiltinFunctionSymbol(this, "sortByLeft",
-                        new ArraySortMethodImpl("left")));
-            }
-            if (((PairType)elementType).getRightType().getComparator() != null) {
-                methods.put("sortByRight", new BuiltinFunctionSymbol(this, "sortByRight",
-                        new ArraySortMethodImpl("right")));
-            }
+        } else if (elementType instanceof TupleType) {
+//            if (((TupleType)elementType).getLeftType().getComparator() != null) {
+//                methods.put("sortByLeft", new BuiltinFunctionSymbol(this, "sortByLeft",
+//                        new ArraySortMethodImpl("left")));
+//            }
+//            if (((TupleType)elementType).getRightType().getComparator() != null) {
+//                methods.put("sortByRight", new BuiltinFunctionSymbol(this, "sortByRight",
+//                        new ArraySortMethodImpl("right")));
+//            }
         }
 
         if (elementType instanceof TemplateTypeSymbol) {

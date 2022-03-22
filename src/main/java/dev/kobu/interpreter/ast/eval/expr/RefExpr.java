@@ -145,7 +145,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                 for (FieldDescriptor field : typeScope.getFields()) {
                     symbols.add(new SymbolDescriptor(field));
                 }
-                for (FunctionType method : typeScope.getMethods()) {
+                for (FunctionDefinition method : typeScope.getMethods()) {
                     symbols.add(new SymbolDescriptor(method));
                 }
                 this.symbolsInScope = symbols;

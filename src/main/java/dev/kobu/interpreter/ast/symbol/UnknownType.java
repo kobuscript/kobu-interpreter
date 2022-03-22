@@ -59,7 +59,7 @@ public class UnknownType implements Type {
     }
 
     @Override
-    public List<FunctionType> getMethods() {
+    public List<FunctionDefinition> getMethods() {
         return new ArrayList<>();
     }
 
@@ -74,7 +74,7 @@ public class UnknownType implements Type {
     }
 
     @Override
-    public FunctionType resolveMethod(String name) {
+    public FunctionDefinition resolveMethod(String name) {
         return null;
     }
 

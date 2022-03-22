@@ -28,26 +28,31 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.HasTargetType;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.symbol.PairType;
+import dev.kobu.interpreter.ast.symbol.TupleType;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 
-public class PairConstructorCallExpr implements Expr, HasTargetType {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class TupleConstructorCallExpr implements Expr, HasTargetType {
 
     private final SourceCodeRef sourceCodeRef;
 
-    private final Expr leftExpr;
-
-    private final Expr rightExpr;
+    private final List<Expr> exprList;
 
     private Type targetType;
 
-    private PairType type;
+    private TupleType type;
 
-    public PairConstructorCallExpr(SourceCodeRef sourceCodeRef, Expr leftExpr, Expr rightExpr) {
+    public TupleConstructorCallExpr(SourceCodeRef sourceCodeRef, List<Expr> exprList) {
         this.sourceCodeRef = sourceCodeRef;
-        this.leftExpr = leftExpr;
-        this.rightExpr = rightExpr;
+        this.exprList = exprList;
+    }
+
+    public List<Expr> getExprList() {
+        return exprList;
     }
 
     @Override
@@ -62,23 +67,33 @@ public class PairConstructorCallExpr implements Expr, HasTargetType {
 
     @Override
     public void analyze(EvalContext context) {
-        if (targetType instanceof PairType) {
-            if (leftExpr instanceof HasTargetType) {
-                ((HasTargetType)leftExpr).setTargetType(((PairType)targetType).getLeftType());
-            }
-            if (rightExpr instanceof HasTargetType) {
-                ((HasTargetType)rightExpr).setTargetType(((PairType)targetType).getRightType());
+        if (targetType instanceof TupleType) {
+            TupleType targetTupleType = (TupleType) targetType;
+            if (exprList.size() == targetTupleType.getTypes().size()) {
+                for (int i = 0; i < exprList.size(); i++) {
+                    Expr expr = exprList.get(i);
+                    if (expr instanceof HasTargetType) {
+                        ((HasTargetType)expr).setTargetType(targetTupleType.getTypes().get(i));
+                    }
+                }
             }
         }
-        leftExpr.analyze(context);
-        rightExpr.analyze(context);
+        for (Expr expr : exprList) {
+            expr.analyze(context);
+        }
 
-        this.type = new PairType(leftExpr.getType(), rightExpr.getType());
+        this.type = new TupleType(exprList.stream().map(Expr::getType).collect(Collectors.toList()));
     }
 
     @Override
     public ValueExpr evalExpr(EvalContext context) {
-        return new PairValueExpr(type, leftExpr.evalExpr(context), rightExpr.evalExpr(context));
+        List<ValueExpr> value = new ArrayList<>();
+
+        for (Expr expr : exprList) {
+            value.add(expr.evalExpr(context));
+        }
+
+        return new TupleValueExpr(type, value);
     }
 
     @Override

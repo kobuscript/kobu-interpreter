@@ -24,15 +24,14 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.function.array;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.PairValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
-import dev.kobu.interpreter.ast.symbol.PairType;
 import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.TupleType;
 import dev.kobu.interpreter.ast.symbol.Type;
 
 import java.util.Map;
@@ -76,28 +75,28 @@ public class ArraySortMethodImpl extends BuiltinMethod {
 
                 return fieldType.getComparator().compare(v1, v2);
             });
-        } else if (elementType instanceof PairType) {
-            arrayExpr.getValue().sort((o1, o2) -> {
-                PairValueExpr p1 = (PairValueExpr) o1;
-                PairValueExpr p2 = (PairValueExpr) o2;
-
-                Type type;
-                ValueExpr v1;
-                ValueExpr v2;
-
-                if ("left".equals(field)) {
-                    type = ((PairType)p1.getType()).getLeftType();
-                    v1 = p1.getLeftValue();
-                    v2 = p2.getLeftValue();
-                } else {
-                    type = ((PairType)p1.getType()).getRightType();
-                    v1 = p1.getRightValue();
-                    v2 = p2.getRightValue();
-                }
-
-                return type.getComparator().compare(v1, v2);
-
-            });
+        } else if (elementType instanceof TupleType) {
+//            arrayExpr.getValue().sort((o1, o2) -> {
+//                TupleValueExpr p1 = (TupleValueExpr) o1;
+//                TupleValueExpr p2 = (TupleValueExpr) o2;
+//
+//                Type type;
+//                ValueExpr v1;
+//                ValueExpr v2;
+//
+//                if ("left".equals(field)) {
+//                    type = ((TupleType)p1.getType()).getLeftType();
+//                    v1 = p1.getLeftValue();
+//                    v2 = p2.getLeftValue();
+//                } else {
+//                    type = ((TupleType)p1.getType()).getRightType();
+//                    v1 = p1.getRightValue();
+//                    v2 = p2.getRightValue();
+//                }
+//
+//                return type.getComparator().compare(v1, v2);
+//
+//            });
         }
 
         return null;

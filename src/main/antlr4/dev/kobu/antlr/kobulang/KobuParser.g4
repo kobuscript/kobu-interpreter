@@ -185,8 +185,8 @@ deftemplate : 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when
               | 'def' 'template' {notifyErrorListenersPrevToken("rule name expected");}
               ;
 
-deffile : 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? FILE_PATH_EXPR pathExpr PATH_END
-          | 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? FILE_PATH_EXPR pathExpr {notifyMissingEndStatement();}
+deffile : 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? PATH_ARROW pathExpr PATH_END
+          | 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? PATH_ARROW pathExpr {notifyMissingEndStatement();}
           | 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
           | 'def' 'file' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'->' expected");}
           | 'def' 'file' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query expected");}
@@ -271,13 +271,11 @@ exprWrapper : expr | assignPostIncDec | assignPreIncDec ;
 expr : record                                                                                       #recordExpr
        | LSB exprSequence? RSB                                                                      #arrayExpr
        | LSB exprSequence? {notifyErrorListenersPrevToken("']' expected");}                         #arrayErr1
-       | LP exprWrapper COMMA exprWrapper RP                                                        #pairExpr
-       | LP exprWrapper COMMA exprWrapper {notifyErrorListenersPrevToken("')' expected");}          #pairErr1
-       | LP exprWrapper COMMA {notifyErrorListenersPrevToken("value expected");}                    #pairErr2
-       | LP exprWrapper {notifyErrorListenersPrevToken("',' or ')' expected");}                     #pairErr3
-       | LP {notifyErrorListenersPrevToken("value expected");}                                      #pairErr4
-       | LP exprWrapper COMMA exprWrapper COMMA
-           {notifyErrorListenersPrevToken("Only tuples with two values are supported");}            #pairErr5
+       | LP exprWrapper COMMA exprSequence RP                                                       #tupleExpr
+       | LP exprWrapper COMMA exprSequence {notifyErrorListenersPrevToken("')' expected");}         #tupleErr1
+       | LP exprWrapper COMMA {notifyErrorListenersPrevToken("value expected");}                    #tupleErr2
+       | LP exprWrapper {notifyErrorListenersPrevToken("',' or ')' expected");}                     #tupleErr3
+       | LP {notifyErrorListenersPrevToken("value expected");}                                      #tupleErr4
        | expr AS typeName                                                                           #castExpr
        | expr AS {notifyErrorListenersPrevToken("expression expected");}                            #castErr1
        | functionCallExpr                                                                           #functionCallProxyExpr
@@ -324,13 +322,13 @@ assignPreIncDec : ( INC | DEC) expr ;
 
 assignmentSequece : assignment ( COMMA assignment )* ;
 
-type : typeName                 #typeNameExpr
-       | type LSB RSB           #arrayType
-       | LP type COMMA type RP  #pairType
+type : typeName                      #typeNameExpr
+       | type LSB RSB                #arrayType
+       | LP type ( COMMA type )+ RP  #tupleType
        ;
 
 typeName : ID ( DOT ID )?
-           | ANY {notifyErrorListenersPrevToken("keyword 'any' not allowed here. Did you mean 'Any'?");}
+           | ANY {notifyErrorListenersPrevToken("'any' not allowed here. Did you mean 'Any'?");}
            ;
 
 stringLiteral : OPEN_QUOTE STRING_CONTENT? CLOSE_QUOTE

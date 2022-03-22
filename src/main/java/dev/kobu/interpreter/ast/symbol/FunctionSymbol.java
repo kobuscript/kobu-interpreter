@@ -34,7 +34,7 @@ import dev.kobu.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
 
 import java.util.*;
 
-public class FunctionSymbol extends Symbol implements FunctionType, HasExpr {
+public class FunctionSymbol extends Symbol implements FunctionDefinition, HasExpr {
 
     private final ModuleScope moduleScope;
 

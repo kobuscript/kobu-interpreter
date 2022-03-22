@@ -575,7 +575,7 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             popIndentation();
         }
 
-        if (ctx.FILE_PATH_EXPR() != null) {
+        if (ctx.PATH_ARROW() != null) {
             out.append(" -> ");
         }
         if (ctx.pathExpr() != null) {

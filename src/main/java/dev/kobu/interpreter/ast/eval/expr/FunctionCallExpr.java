@@ -51,7 +51,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
     private final List<FunctionArgExpr> args;
 
-    private FunctionType functionType;
+    private FunctionDefinition functionDefinition;
 
     private Type typeScope;
 
@@ -91,15 +91,15 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
             }
 
             var functionSymbol = context.getModuleScope().resolve(functionName);
-            if (!(functionSymbol instanceof FunctionType)) {
+            if (!(functionSymbol instanceof FunctionDefinition)) {
                 context.addAnalyzerError(new UndefinedFunctionName(this, null, functionName,
                         context.getNewGlobalDefinitionOffset()));
                 this.type = UnknownType.INSTANCE;
                 return;
             }
-            var functionType = (FunctionType)functionSymbol;
+            var functionType = (FunctionDefinition)functionSymbol;
             this.type = analyzeCall(context, functionType);
-            this.functionType = functionType;
+            this.functionDefinition = functionType;
 
         } else {
             if (context.getEvalMode() != EvalModeEnum.EXECUTION) {
@@ -107,7 +107,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
                 for (FieldDescriptor field : typeScope.getFields()) {
                     symbols.add(new SymbolDescriptor(field));
                 }
-                for (FunctionType method : typeScope.getMethods()) {
+                for (FunctionDefinition method : typeScope.getMethods()) {
                     symbols.add(new SymbolDescriptor(method));
                 }
                 this.symbolsInScope = symbols;
@@ -126,25 +126,25 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
                 return;
             }
             this.type = analyzeCall(context, methodType);
-            this.functionType = methodType;
+            this.functionDefinition = methodType;
 
         }
 
-        if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && functionType instanceof BuiltinFunctionSymbol) {
-            moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) functionType);
+        if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && functionDefinition instanceof BuiltinFunctionSymbol) {
+            moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) functionDefinition);
         }
     }
 
-    public FunctionType getFunctionType() {
-        return functionType;
+    public FunctionDefinition getFunctionType() {
+        return functionDefinition;
     }
 
-    private Type analyzeCall(EvalContext context, FunctionType functionType) {
-        for (int i = 0; i < functionType.getParameters().size(); i++) {
-            var parameter = functionType.getParameters().get(i);
+    private Type analyzeCall(EvalContext context, FunctionDefinition functionDefinition) {
+        for (int i = 0; i < functionDefinition.getParameters().size(); i++) {
+            var parameter = functionDefinition.getParameters().get(i);
             if (i >= args.size()) {
                 if (!parameter.isOptional()) {
-                    context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, functionType, args));
+                    context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, functionDefinition, args));
                     return UnknownType.INSTANCE;
                 }
                 break;
@@ -161,27 +161,27 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
                 return UnknownType.INSTANCE;
             }
         }
-        if (args.size() > functionType.getParameters().size()) {
-            context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, functionType, args));
+        if (args.size() > functionDefinition.getParameters().size()) {
+            context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, functionDefinition, args));
             return UnknownType.INSTANCE;
         }
-        return functionType.getReturnType();
+        return functionDefinition.getReturnType();
     }
 
     @Override
     public ValueExpr evalExpr(EvalContext context) {
         if (valueScope == null) {
-            return context.evalFunction(functionType, args.stream()
+            return context.evalFunction(functionDefinition, args.stream()
                     .map(arg -> arg.evalExpr(context)).collect(Collectors.toList()), sourceCodeRef);
         } else {
             if (valueScope instanceof NullValueExpr) {
                 throw new NullPointerError(valueScope.getSourceCodeRef(), valueScope.getSourceCodeRef());
             }
             if (valueScope instanceof ModuleRefValueExpr) {
-                return context.evalFunction(functionType, args.stream()
+                return context.evalFunction(functionDefinition, args.stream()
                         .map(arg -> arg.evalExpr(context)).collect(Collectors.toList()), sourceCodeRef);
             }
-            return context.evalMethod(valueScope, functionType, args.stream()
+            return context.evalMethod(valueScope, functionDefinition, args.stream()
                     .map(arg -> arg.evalExpr(context)).collect(Collectors.toList()), sourceCodeRef);
         }
     }
@@ -216,7 +216,7 @@ public class FunctionCallExpr implements Expr, HasTypeScope, HasElementRef {
 
     @Override
     public SourceCodeRef getElementRef() {
-        return functionType != null ? functionType.getSourceCodeRef() : null;
+        return functionDefinition != null ? functionDefinition.getSourceCodeRef() : null;
     }
 
     @Override

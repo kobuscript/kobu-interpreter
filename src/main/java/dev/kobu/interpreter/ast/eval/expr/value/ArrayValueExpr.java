@@ -27,7 +27,7 @@ package dev.kobu.interpreter.ast.eval.expr.value;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.ArrayType;
-import dev.kobu.interpreter.ast.symbol.FunctionType;
+import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.eval.ArrayIndexOutOfBoundsError;
 import dev.kobu.interpreter.ast.eval.HasMethods;
@@ -82,7 +82,7 @@ public class ArrayValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public FunctionType resolveMethod(String methodName) {
+    public FunctionDefinition resolveMethod(String methodName) {
         return type.resolveMethod(methodName);
     }
 
@@ -112,7 +112,7 @@ public class ArrayValueExpr implements ValueExpr, HasMethods {
 
     private static class ArraySnapshotValue implements SnapshotValue {
 
-        private List<SnapshotValue> values = new ArrayList<>();
+        private final List<SnapshotValue> values = new ArrayList<>();
 
         public ArraySnapshotValue(List<ValueExpr> values) {
             values.forEach(v -> this.values.add(v.getSnapshotValue()));

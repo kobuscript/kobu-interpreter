@@ -24,33 +24,123 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
+import dev.kobu.interpreter.ast.eval.FieldDescriptor;
+import dev.kobu.interpreter.ast.eval.ValueExpr;
+
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public interface FunctionType {
+public class FunctionType implements Type {
 
-    String getName();
+    private final List<Type> parameters;
 
-    SourceCodeRef getSourceCodeRef();
+    private final Type returnType;
 
-    List<FunctionParameter> getParameters();
+    public FunctionType(List<Type> parameters, Type returnType) {
+        this.parameters = parameters;
+        this.returnType = returnType;
+    }
 
-    Type getReturnType();
+    public List<Type> getParameters() {
+        return parameters;
+    }
 
-    default String getDescription() {
-        StringBuilder str = new StringBuilder();
-        str.append('(');
-        if (getParameters() != null) {
-            str.append(getParameters().stream().map(FunctionParameter::getDescription)
-                    .collect(Collectors.joining(", ")));
+    public Type getReturnType() {
+        return returnType;
+    }
+
+    @Override
+    public SourceCodeRef getSourceCodeRef() {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return "(" + parameters.stream().map(Type::getName).collect(Collectors.joining(", ")) + ") => " +
+                (returnType != null ? returnType.getName() : "void");
+    }
+
+    @Override
+    public String getIdentifier() {
+        return null;
+    }
+
+    @Override
+    public List<FieldDescriptor> getFields() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<FunctionDefinition> getMethods() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public Type resolveField(String name) {
+        return null;
+    }
+
+    @Override
+    public SourceCodeRef getFieldRef(String name) {
+        return null;
+    }
+
+    @Override
+    public FunctionDefinition resolveMethod(String name) {
+        return null;
+    }
+
+    @Override
+    public boolean isAssignableFrom(Type type) {
+        if (type instanceof FunctionType) {
+            FunctionType other = (FunctionType) type;
+            if (other.getParameters().size() == getParameters().size()) {
+                for (int i = 0; i < other.getParameters().size(); i++) {
+                    if (!getParameters().get(i).isAssignableFrom(other.getParameters().get(i))) {
+                        return false;
+                    }
+                }
+                if (getReturnType() == null) {
+                    return other.getReturnType() == null;
+                }
+                if (other.getReturnType() == null) {
+                    return false;
+                }
+                return getReturnType().isAssignableFrom(other.getReturnType());
+            }
         }
-        str.append(')');
-        if (getReturnType() != null) {
-            str.append(": ").append(getReturnType().getName());
-        } else {
-            str.append(": void");
+        return false;
+    }
+
+    @Override
+    public Type getCommonSuperType(Type type) {
+        if (isAssignableFrom(type)) {
+            return this;
+        } else if (type instanceof FunctionType) {
+            FunctionType other = (FunctionType) type;
+            if (getParameters().size() == other.getParameters().size()) {
+                List<Type> params = new ArrayList<>();
+                for (int i = 0; i < getParameters().size(); i++) {
+                    params.add(getParameters().get(i).getCommonSuperType(other.getParameters().get(i)));
+                }
+
+                if ((getReturnType() != null && other.getReturnType() == null)
+                        || (getReturnType() == null && other.getReturnType() != null)) {
+                    return BuiltinScope.ANY_TYPE;
+                } else if (getReturnType() == null && other.getReturnType() == null) {
+                    return new FunctionType(params, null);
+                }
+                return new FunctionType(params, getReturnType().getCommonSuperType(other.getReturnType()));
+            }
         }
 
-        return str.toString();
+        return BuiltinScope.ANY_TYPE;
+    }
+
+    @Override
+    public Comparator<ValueExpr> getComparator() {
+        return null;
     }
 }

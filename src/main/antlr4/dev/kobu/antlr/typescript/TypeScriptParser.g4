@@ -79,7 +79,7 @@ typeArgument
 
 type_
     : unionOrIntersectionOrPrimaryType
-    | functionType
+    | functionDefinition
     | constructorType
     | typeGeneric
     | StringLiteral
@@ -173,7 +173,7 @@ tupleElementTypes
     : type_ (',' type_)*
     ;
 
-functionType
+functionDefinition
     : typeParameters? '(' parameterList? ')' '=>' type_
     ;
 

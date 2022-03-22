@@ -33,7 +33,7 @@ import java.util.Map;
 
 public abstract class BuiltinTypeSymbol extends Symbol implements Type {
 
-    private final Map<String, FunctionType> methods = new HashMap<>();
+    private final Map<String, FunctionDefinition> methods = new HashMap<>();
 
     private final Map<String, Type> fields = new HashMap<>();
 
@@ -59,7 +59,7 @@ public abstract class BuiltinTypeSymbol extends Symbol implements Type {
     }
 
     @Override
-    public List<FunctionType> getMethods() {
+    public List<FunctionDefinition> getMethods() {
         var methodList = new ArrayList<>(methods.values());
         if (!(this instanceof AnyTypeSymbol)) {
             methodList.addAll(BuiltinScope.ANY_TYPE.getMethods());
@@ -68,7 +68,7 @@ public abstract class BuiltinTypeSymbol extends Symbol implements Type {
     }
 
     @Override
-    public FunctionType resolveMethod(String name) {
+    public FunctionDefinition resolveMethod(String name) {
         var method = methods.get(name);
         if (method == null && !(this instanceof AnyTypeSymbol)) {
             method = BuiltinScope.ANY_TYPE.resolveMethod(name);

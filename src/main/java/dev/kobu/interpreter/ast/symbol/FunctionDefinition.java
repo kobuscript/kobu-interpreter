@@ -22,27 +22,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.pair;
+package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.PairValueExpr;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import java.util.Map;
+public interface FunctionDefinition {
 
-public class PairLeftMethodImpl extends BuiltinMethod {
+    String getName();
 
-    @Override
-    protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        PairValueExpr pairExpr = (PairValueExpr) object;
-        return pairExpr.getLeftValue();
+    SourceCodeRef getSourceCodeRef();
+
+    List<FunctionParameter> getParameters();
+
+    Type getReturnType();
+
+    default String getDescription() {
+        StringBuilder str = new StringBuilder();
+        str.append('(');
+        if (getParameters() != null) {
+            str.append(getParameters().stream().map(FunctionParameter::getDescription)
+                    .collect(Collectors.joining(", ")));
+        }
+        str.append(')');
+        if (getReturnType() != null) {
+            str.append(": ").append(getReturnType().getName());
+        } else {
+            str.append(": void");
+        }
+
+        return str.toString();
     }
-
-    @Override
-    public String getDocumentation() {
-        return "";
-    }
-
 }

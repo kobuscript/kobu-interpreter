@@ -28,7 +28,7 @@ import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.VarDeclExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayConstructorCallExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.PairConstructorCallExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.TupleConstructorCallExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordConstructorCallExpr;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.Type;
@@ -250,23 +250,23 @@ public class VarTest extends AstTestBase {
     @DisplayName("Type inference -> (\"str1\", 10) = (string, number)")
     void testStringNumberPairTypeInference() {
         var stringNumberPairVar = var(module, "stringNumberPair",
-                pairConstructor(stringVal("str1"), numberVal(10)));
+                tupleConstructor(stringVal("str1"), numberVal(10)));
 
-        testVar(stringNumberPairVar, pairType(stringType(), numberType()),
-                pairConstructor(stringVal("str1"), numberVal(10)));
+        testVar(stringNumberPairVar, tupleType(stringType(), numberType()),
+                tupleConstructor(stringVal("str1"), numberVal(10)));
     }
 
     @Test
     @DisplayName("Type inference -> [(1, true), (2, \"str\")] = (number, AnyVal)[]")
     void testNumberAnyValPairArrayTypeInference() {
         var pairArrayVar = var(module, "pairArray", arrayConstructor(
-                pairConstructor(numberVal(1), booleanVal(true)),
-                pairConstructor(numberVal(2), stringVal("str"))
+                tupleConstructor(numberVal(1), booleanVal(true)),
+                tupleConstructor(numberVal(2), stringVal("str"))
         ));
 
-        testVar(pairArrayVar, arrayType(pairType(numberType(), anyValType())), arrayConstructor(
-                pairConstructor(numberVal(1), booleanVal(true)),
-                pairConstructor(numberVal(2), stringVal("str"))
+        testVar(pairArrayVar, arrayType(tupleType(numberType(), anyValType())), arrayConstructor(
+                tupleConstructor(numberVal(1), booleanVal(true)),
+                tupleConstructor(numberVal(2), stringVal("str"))
         ));
     }
 
@@ -476,16 +476,16 @@ public class VarTest extends AstTestBase {
         assertVar(evalContext, varDecl.getName(), expectedType, array(arrayConstructor, evalContext));
     }
 
-    private void testVar(VarDeclExpr varDecl, Type expectedType, PairConstructorCallExpr pairConstructor) {
+    private void testVar(VarDeclExpr varDecl, Type expectedType, TupleConstructorCallExpr tupleConstructor) {
         analyze(module, block(varDecl));
         var evalContext = eval(module, block(varDecl));
         assertNoErrors();
-        assertVar(evalContext, varDecl.getName(), expectedType, pair(pairConstructor, evalContext));
+        assertVar(evalContext, varDecl.getName(), expectedType, tuple(tupleConstructor, evalContext));
     }
 
     private void testVar(VarDeclExpr varDecl, AnalyzerError... expectedErrors) {
         analyze(module, block(varDecl));
-        var evalContext = eval(module, block(varDecl));
+        eval(module, block(varDecl));
         assertErrors(expectedErrors);
     }
 

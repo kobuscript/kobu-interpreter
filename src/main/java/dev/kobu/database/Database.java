@@ -29,9 +29,9 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.PairValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.TemplateValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.TupleValueExpr;
 import dev.kobu.interpreter.ast.symbol.RuleSymbol;
 
 import java.util.*;
@@ -199,13 +199,12 @@ public class Database {
                             processRecord(queue, (RecordValueExpr) arrayItem, insertedFacts);
                         }
                     }
-                } else if (value instanceof PairValueExpr) {
-                    PairValueExpr pairValue = (PairValueExpr) value;
-                    if (pairValue.getLeftValue() instanceof RecordValueExpr) {
-                        processRecord(queue, (RecordValueExpr) pairValue.getLeftValue(), insertedFacts);
-                    }
-                    if (pairValue.getRightValue() instanceof RecordValueExpr) {
-                        processRecord(queue, (RecordValueExpr) pairValue.getRightValue(), insertedFacts);
+                } else if (value instanceof TupleValueExpr) {
+                    TupleValueExpr tupleValue = (TupleValueExpr) value;
+                    for (ValueExpr valueExpr : tupleValue.getValueExprList()) {
+                        if (valueExpr instanceof RecordValueExpr) {
+                            processRecord(queue, (RecordValueExpr) valueExpr, insertedFacts);
+                        }
                     }
                 }
             }

@@ -26,27 +26,27 @@ package dev.kobu.interpreter.ast.eval.expr.value;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
-import dev.kobu.interpreter.ast.symbol.FunctionType;
-import dev.kobu.interpreter.ast.symbol.PairType;
+import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
+import dev.kobu.interpreter.ast.symbol.TupleType;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.eval.HasMethods;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class PairValueExpr implements ValueExpr, HasMethods {
+public class TupleValueExpr implements ValueExpr, HasMethods {
 
-    private final PairType type;
+    private final TupleType type;
 
-    private final ValueExpr leftValue;
+    private final List<ValueExpr> valueExprList;
 
-    private final ValueExpr rightValue;
-
-    public PairValueExpr(PairType type, ValueExpr leftValue, ValueExpr rightValue) {
+    public TupleValueExpr(TupleType type, List<ValueExpr> valueExprList) {
         this.type = type;
-        this.leftValue = leftValue;
-        this.rightValue = rightValue;
+        this.valueExprList = valueExprList;
     }
 
     @Override
@@ -70,52 +70,43 @@ public class PairValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public FunctionType resolveMethod(String methodName) {
+    public FunctionDefinition resolveMethod(String methodName) {
         return type.resolveMethod(methodName);
     }
 
-    public ValueExpr getLeftValue() {
-        return leftValue;
-    }
-
-    public ValueExpr getRightValue() {
-        return rightValue;
+    public List<ValueExpr> getValueExprList() {
+        return valueExprList;
     }
 
     @Override
     public String getStringValue() {
-        return "(" + leftValue.getStringValue() + ", " + rightValue.getStringValue() + ")";
+        return "(" + valueExprList.stream().map(ValueExpr::getStringValue).collect(Collectors.joining(", ")) + ")";
     }
 
     @Override
     public SnapshotValue getSnapshotValue() {
-        SnapshotValue left = leftValue != null ? leftValue.getSnapshotValue() : null;
-        SnapshotValue right = rightValue != null ? rightValue.getSnapshotValue() : null;
-        return new PairSnapshotValue(left, right);
+        return new TupleSnapshotValue(valueExprList);
     }
 
-    private static class PairSnapshotValue implements SnapshotValue {
+    private static class TupleSnapshotValue implements SnapshotValue {
 
-        private final SnapshotValue snapshotLeft;
+        private final List<SnapshotValue> values = new ArrayList<>();
 
-        private final SnapshotValue snapshotRight;
-
-        private PairSnapshotValue(SnapshotValue snapshotLeft, SnapshotValue snapshotRight) {
-            this.snapshotLeft = snapshotLeft;
-            this.snapshotRight = snapshotRight;
+        public TupleSnapshotValue(List<ValueExpr> values) {
+            values.forEach(v -> this.values.add(v.getSnapshotValue()));
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            PairSnapshotValue that = (PairSnapshotValue) o;
-            return Objects.equals(snapshotLeft, that.snapshotLeft) && Objects.equals(snapshotRight, that.snapshotRight);
+            TupleSnapshotValue that = (TupleSnapshotValue) o;
+            return Objects.equals(values, that.values);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(snapshotLeft, snapshotRight);
+            return Objects.hash(values);
         }
 
     }

@@ -22,27 +22,46 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.pair;
+package dev.kobu.interpreter.ast.eval.expr.value;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.PairValueExpr;
+import dev.kobu.interpreter.ast.eval.Expr;
+import dev.kobu.interpreter.ast.eval.HasTargetType;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
 
-import java.util.Map;
+public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType {
 
-public class PairRightMethodImpl extends BuiltinMethod {
+//    private final SourceCodeRef sourceCodeRef;
 
     @Override
-    protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        PairValueExpr pairExpr = (PairValueExpr) object;
-        return pairExpr.getRightValue();
+    public SourceCodeRef getSourceCodeRef() {
+        return null;
     }
 
     @Override
-    public String getDocumentation() {
-        return "";
+    public void analyze(EvalContext context) {
+
     }
 
+    @Override
+    public Type getType() {
+        return null;
+    }
+
+    @Override
+    public ValueExpr evalExpr(EvalContext context) {
+        return null;
+    }
+
+    @Override
+    public Type getTargetType() {
+        return null;
+    }
+
+    @Override
+    public void setTargetType(Type targetType) {
+
+    }
 }

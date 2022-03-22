@@ -95,10 +95,12 @@ RSB : ']' ;
 COMMENT_BLOCK : '/*' .*? '*/' -> channel(BLOCKCOMMENTCHANNEL) ;
 COMMENT_LINE : '//' .*? '\n' -> channel(COMMENTCHANNEL) ;
 
+FN_ARROW : '=>' ;
+
 LCB : '{' ;
 TEMPLATE_BEGIN : '<|' {this.SetTemplateMode(true);} -> pushMode(TEMPLATE_MODE) ;
 TEMPLATE_EXPR_END : {this.IsTemplateMode()}? '}' -> popMode ;
-FILE_PATH_EXPR : '->' {this.SetPathMode(true);} -> pushMode(PATH_MODE) ;
+PATH_ARROW : '->' {this.SetPathMode(true);} -> pushMode(PATH_MODE) ;
 PATH_VARIABLE_END : {this.IsPathMode()}? '}' -> popMode ;
 RCB : '}' ;
 

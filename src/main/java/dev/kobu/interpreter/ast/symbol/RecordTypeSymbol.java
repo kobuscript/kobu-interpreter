@@ -50,7 +50,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     private final Map<String, RecordTypeAttribute> attributes = new HashMap<>();
 
-    private final Map<String, FunctionType> methods = new HashMap<>();
+    private final Map<String, FunctionDefinition> methods = new HashMap<>();
 
     private final String docText;
 
@@ -97,7 +97,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     @Override
-    public List<FunctionType> getMethods() {
+    public List<FunctionDefinition> getMethods() {
         return new ArrayList<>(methods.values());
     }
 
@@ -212,7 +212,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     @Override
-    public FunctionType resolveMethod(String name) {
+    public FunctionDefinition resolveMethod(String name) {
         var method = methods.get(name);
         if (method != null) {
             return method;
@@ -293,7 +293,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         var entryMethodName = "get" + type.getIdentifier() + "Entries";
         methods.put(entryMethodName, new BuiltinFunctionSymbol(this, entryMethodName,
                 new RecordEntriesMethodImpl(type),
-                new ArrayType(new PairType(BuiltinScope.STRING_TYPE, type))));
+                new ArrayType(new TupleType(List.of(BuiltinScope.STRING_TYPE, type)))));
     }
 
     private RecordTypeAttribute resolveSuperTypeAttribute(String attrName) {

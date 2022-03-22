@@ -26,31 +26,23 @@ package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.function.pair.PairLeftMethodImpl;
-import dev.kobu.interpreter.ast.eval.function.pair.PairRightMethodImpl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class PairType implements Type {
+public class TupleType implements Type {
 
-    private final Type leftType;
+    private final List<Type> types;
 
-    private final Type rightType;
+    private final Map<String, FunctionDefinition> methods = new HashMap<>();
 
-    private final Map<String, FunctionType> methods = new HashMap<>();
-
-    public PairType(Type leftType, Type rightType) {
-        this.leftType = leftType;
-        this.rightType = rightType;
+    public TupleType(List<Type> types) {
+        this.types = types;
         buildMethods();
     }
 
-    public Type getLeftType() {
-        return leftType;
-    }
-
-    public Type getRightType() {
-        return rightType;
+    public List<Type> getTypes() {
+        return types;
     }
 
     @Override
@@ -60,12 +52,12 @@ public class PairType implements Type {
 
     @Override
     public String getName() {
-        return "( " + leftType.getName() + ", " + rightType.getName() + " )";
+        return "( " + types.stream().map(Type::getName).collect(Collectors.joining(", ")) + " )";
     }
 
     @Override
     public String getIdentifier() {
-        return "PairOf" + leftType.getIdentifier() + "And" + rightType.getIdentifier();
+        return null;
     }
 
     @Override
@@ -74,7 +66,7 @@ public class PairType implements Type {
     }
 
     @Override
-    public List<FunctionType> getMethods() {
+    public List<FunctionDefinition> getMethods() {
         return new ArrayList<>(methods.values());
     }
 
@@ -89,16 +81,22 @@ public class PairType implements Type {
     }
 
     @Override
-    public FunctionType resolveMethod(String name) {
+    public FunctionDefinition resolveMethod(String name) {
         return methods.get(name);
     }
 
     @Override
     public boolean isAssignableFrom(Type type) {
-        if (type instanceof PairType) {
-            PairType other = (PairType) type;
-            return leftType.getName().equals(other.getLeftType().getName()) &&
-                    rightType.getName().equals(other.getRightType().getName());
+        if (type instanceof TupleType) {
+            TupleType other = (TupleType) type;
+            if (getTypes().size() == other.getTypes().size()) {
+                for (int i = 0; i < getTypes().size(); i++) {
+                    if (!getTypes().get(i).isAssignableFrom(other.getTypes().get(i))) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
         return false;
     }
@@ -107,9 +105,15 @@ public class PairType implements Type {
     public Type getCommonSuperType(Type type) {
         if (isAssignableFrom(type)) {
             return this;
-        } else if (type instanceof PairType) {
-            PairType other = (PairType) type;
-            return new PairType(leftType.getCommonSuperType(other.leftType), rightType.getCommonSuperType(other.rightType));
+        } else if (type instanceof TupleType) {
+            TupleType other = (TupleType) type;
+            if (getTypes().size() == other.getTypes().size()) {
+                List<Type> commonTypes = new ArrayList<>();
+                for (int i = 0; i < getTypes().size(); i++) {
+                    commonTypes.add(getTypes().get(i).getCommonSuperType(other.getTypes().get(i)));
+                }
+                return new TupleType(commonTypes);
+            }
         }
         return BuiltinScope.ANY_TYPE;
     }
@@ -120,21 +124,20 @@ public class PairType implements Type {
     }
 
     private void buildMethods() {
-        methods.put("left", new BuiltinFunctionSymbol(this, "left", new PairLeftMethodImpl(), leftType));
-        methods.put("right", new BuiltinFunctionSymbol(this,"right", new PairRightMethodImpl(), rightType));
+
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PairType pairType = (PairType) o;
-        return Objects.equals(leftType, pairType.leftType) && Objects.equals(rightType, pairType.rightType);
+        TupleType tupleType = (TupleType) o;
+        return Objects.equals(types, tupleType.types);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(leftType, rightType);
+        return Objects.hash(types);
     }
 
 }

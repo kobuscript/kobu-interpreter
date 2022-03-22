@@ -56,9 +56,9 @@ public class SymbolDescriptor {
         this.hasImports = hasImports;
         this.name = symbol.getNameInModule();
         this.label = name;
-        if (symbol instanceof FunctionType) {
+        if (symbol instanceof FunctionDefinition) {
             this.type = SymbolTypeEnum.FUNCTION;
-            this.description = ((FunctionType)symbol).getDescription();
+            this.description = ((FunctionDefinition)symbol).getDescription();
             if (symbol.getSourceCodeRef() != null) {
                 this.metadata = symbol.getSourceCodeRef().getModuleId();
             }
@@ -98,11 +98,11 @@ public class SymbolDescriptor {
         this.metadata = fieldDescriptor.getTypeName();
     }
 
-    public SymbolDescriptor(FunctionType functionType) {
+    public SymbolDescriptor(FunctionDefinition functionDefinition) {
         this.type = SymbolTypeEnum.FUNCTION;
-        this.name = functionType.getName();
+        this.name = functionDefinition.getName();
         this.label = name;
-        this.description = functionType.getDescription();
+        this.description = functionDefinition.getDescription();
     }
 
     public SymbolDescriptor(SymbolTypeEnum type, String name, String description, String metadata) {

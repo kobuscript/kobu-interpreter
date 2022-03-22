@@ -24,12 +24,12 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.function.record;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.PairValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.TupleValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.*;
 
@@ -53,8 +53,8 @@ public class RecordEntriesMethodImpl extends BuiltinMethod {
         for (String field : recordExpr.getFields()) {
             ValueExpr value = recordExpr.resolveField(field);
             if (type.isAssignableFrom(value.getType())) {
-                var pairType = new PairType(BuiltinScope.STRING_TYPE, value.getType());
-                result.add(new PairValueExpr(pairType, new StringValueExpr(field), value));
+                var pairType = new TupleType(List.of(BuiltinScope.STRING_TYPE, value.getType()));
+                result.add(new TupleValueExpr(pairType, List.of(new StringValueExpr(field), value)));
             }
         }
 

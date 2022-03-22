@@ -24,20 +24,20 @@ SOFTWARE.
 
 package dev.kobu.interpreter.error.analyzer;
 
-import dev.kobu.interpreter.ast.symbol.FunctionType;
+import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.AnalyzerError;
 
 public class FunctionMissingReturnValueError extends AnalyzerError {
 
-    private final FunctionType function;
+    private final FunctionDefinition function;
 
-    public FunctionMissingReturnValueError(SourceCodeRef sourceCodeRef, FunctionType function) {
+    public FunctionMissingReturnValueError(SourceCodeRef sourceCodeRef, FunctionDefinition function) {
         super(sourceCodeRef);
         this.function = function;
     }
 
-    public FunctionType getFunction() {
+    public FunctionDefinition getFunction() {
         return function;
     }
 

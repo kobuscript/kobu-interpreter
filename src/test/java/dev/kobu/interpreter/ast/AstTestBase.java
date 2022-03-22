@@ -165,8 +165,8 @@ public abstract class AstTestBase {
         return new ArrayType(elementType);
     }
 
-    Type pairType(Type leftType, Type rightType) {
-        return new PairType(leftType, rightType);
+    Type tupleType(Type... types) {
+        return new TupleType(Arrays.asList(types));
     }
 
     StringValueExpr stringVal(String value) {
@@ -444,12 +444,12 @@ public abstract class AstTestBase {
         return (ArrayValueExpr) constructor.evalExpr(evalContext);
     }
 
-    PairConstructorCallExpr pairConstructor(Expr left, Expr right) {
-        return new PairConstructorCallExpr(sourceCodeRef("new-pair"), left, right);
+    TupleConstructorCallExpr tupleConstructor(Expr... expr) {
+        return new TupleConstructorCallExpr(sourceCodeRef("new-tuple"), Arrays.asList(expr));
     }
 
-    PairValueExpr pair(PairConstructorCallExpr constructor, EvalContext evalContext) {
-        return (PairValueExpr) constructor.evalExpr(evalContext);
+    TupleValueExpr tuple(TupleConstructorCallExpr constructor, EvalContext evalContext) {
+        return (TupleValueExpr) constructor.evalExpr(evalContext);
     }
 
     RuleRefValueExpr ruleRef(RuleSymbol rule) {
@@ -640,15 +640,13 @@ public abstract class AstTestBase {
                     List<ValueWrapper> l2 = otherValue.getValue().stream().map(ValueWrapper::new).collect(Collectors.toList());
                     return l1.equals(l2);
                 }
-                if (value instanceof PairValueExpr && other instanceof PairValueExpr) {
-                    PairValueExpr thisValue = (PairValueExpr) this.value;
-                    PairValueExpr otherValue = (PairValueExpr) other;
-                    ValueWrapper v1Left = new ValueWrapper(thisValue.getLeftValue());
-                    ValueWrapper v1Right = new ValueWrapper(thisValue.getRightValue());
-                    ValueWrapper v2Left = new ValueWrapper(otherValue.getLeftValue());
-                    ValueWrapper v2Right = new ValueWrapper(otherValue.getRightValue());
+                if (value instanceof TupleValueExpr && other instanceof TupleValueExpr) {
+                    TupleValueExpr thisValue = (TupleValueExpr) this.value;
+                    TupleValueExpr otherValue = (TupleValueExpr) other;
+                    List<ValueWrapper> l1 = thisValue.getValueExprList().stream().map(ValueWrapper::new).collect(Collectors.toList());
+                    List<ValueWrapper> l2 = otherValue.getValueExprList().stream().map(ValueWrapper::new).collect(Collectors.toList());
 
-                    return v1Left.equals(v2Left) && v1Right.equals(v2Right);
+                    return l1.equals(l2);
                 }
                 return value.equals(other);
             }

@@ -41,13 +41,13 @@ public interface Type extends AstNode {
 
     List<FieldDescriptor> getFields();
 
-    List<FunctionType> getMethods();
+    List<FunctionDefinition> getMethods();
 
     Type resolveField(String name);
 
     SourceCodeRef getFieldRef(String name);
 
-    FunctionType resolveMethod(String name);
+    FunctionDefinition resolveMethod(String name);
 
     boolean isAssignableFrom(Type type);
 

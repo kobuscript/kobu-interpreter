@@ -24,10 +24,10 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval;
 
-import dev.kobu.interpreter.ast.symbol.FunctionType;
+import dev.kobu.interpreter.ast.symbol.FunctionDefinition;
 
 public interface HasMethods {
 
-    FunctionType resolveMethod(String methodName);
+    FunctionDefinition resolveMethod(String methodName);
 
 }

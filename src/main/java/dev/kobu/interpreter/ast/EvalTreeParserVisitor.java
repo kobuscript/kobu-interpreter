@@ -738,18 +738,25 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitPairExpr(KobuParser.PairExprContext ctx) {
+    public AstNode visitTupleExpr(KobuParser.TupleExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
             context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
             topLevelExpression = false;
         }
 
-        Expr leftExpr = (Expr) visit(ctx.exprWrapper(0));
-        Expr rightExpr = (Expr) visit(ctx.exprWrapper(1));
+        List<Expr> exprList = new ArrayList<>();
+        if (ctx.exprWrapper() != null) {
+            exprList.add((Expr) visit(ctx.exprWrapper()));
+        }
+        if (ctx.exprSequence() != null && ctx.exprSequence().exprWrapper() != null) {
+            for (KobuParser.ExprWrapperContext exprWrapperContext : ctx.exprSequence().exprWrapper()) {
+                exprList.add((Expr) visit(exprWrapperContext));
+            }
+        }
 
         topLevelExpression = exprStatus;
-        return new PairConstructorCallExpr(getSourceCodeRef(ctx), leftExpr, rightExpr);
+        return new TupleConstructorCallExpr(getSourceCodeRef(ctx), exprList);
     }
 
     @Override
@@ -1391,8 +1398,14 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitPairType(KobuParser.PairTypeContext ctx) {
-        return new PairType((Type) visit(ctx.type(0)), (Type) visit(ctx.type(1)));
+    public AstNode visitTupleType(KobuParser.TupleTypeContext ctx) {
+        List<Type> typeList = new ArrayList<>();
+        if (ctx.type() != null) {
+            for (KobuParser.TypeContext typeContext : ctx.type()) {
+                typeList.add((Type) visit(typeContext));
+            }
+        }
+        return new TupleType(typeList);
     }
 
     public ModuleScope getModuleScope() {
