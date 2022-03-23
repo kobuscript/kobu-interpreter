@@ -25,6 +25,8 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.query;
 
 import dev.kobu.database.index.Match;
+import dev.kobu.interpreter.ast.eval.Evaluable;
+import dev.kobu.interpreter.ast.eval.HasTypeScope;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
@@ -38,7 +40,7 @@ import dev.kobu.interpreter.error.analyzer.UndefinedFieldError;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QueryFieldClause implements QueryPipeClause {
+public class QueryFieldClause implements Evaluable, HasTypeScope {
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -50,7 +52,7 @@ public class QueryFieldClause implements QueryPipeClause {
 
     private QueryArrayItemClause arrayItemClause;
 
-    private QueryPipeClause next;
+    private QueryFieldClause next;
 
     private Type typeScope;
 
@@ -97,7 +99,6 @@ public class QueryFieldClause implements QueryPipeClause {
         }
     }
 
-    @Override
     public List<Match> eval(Match match) {
 
         List<Match> result = new ArrayList<>();
@@ -136,17 +137,14 @@ public class QueryFieldClause implements QueryPipeClause {
         return field;
     }
 
-    @Override
     public String getBind() {
         return bind;
     }
 
-    @Override
     public void setBind(String bind) {
         this.bind = bind;
     }
 
-    @Override
     public void setAliasSourceCodeRef(SourceCodeRef aliasSourceCodeRef) {
         this.aliasSourceCodeRef = aliasSourceCodeRef;
     }
@@ -159,18 +157,15 @@ public class QueryFieldClause implements QueryPipeClause {
         this.arrayItemClause = arrayItemClause;
     }
 
-    @Override
     public Type getType() {
         return type;
     }
 
-    @Override
-    public QueryPipeClause getNext() {
+    public QueryFieldClause getNext() {
         return next;
     }
 
-    @Override
-    public void setNext(QueryPipeClause next) {
+    public void setNext(QueryFieldClause next) {
         this.next = next;
     }
 
