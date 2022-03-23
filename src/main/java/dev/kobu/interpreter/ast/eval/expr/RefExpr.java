@@ -139,7 +139,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                     this.type = (ModuleRefSymbol) symbol;
                     return;
                 }
-                if (symbol instanceof FunctionSymbol) {
+                if (symbol instanceof KobuFunction) {
                     this.elementRef = symbol.getSourceCodeRef();
                     this.function = (KobuFunction) symbol;
                     this.type = this.function.getType();

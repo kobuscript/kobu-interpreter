@@ -206,6 +206,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             }
         }
         function.setBlock(exprList);
+        function.buildType();
 
         return null;
     }
@@ -842,9 +843,10 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             }
         }
 
+        Expr refExpr = (Expr) visit(ctx.expr());
         topLevelExpression = exprStatus;
         return new FunctionCallExpr(moduleScope, getSourceCodeRef(ctx),
-                (Expr) visit(ctx.expr()), args);
+                refExpr, args);
     }
 
     @Override

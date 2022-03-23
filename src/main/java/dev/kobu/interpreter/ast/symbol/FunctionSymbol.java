@@ -118,6 +118,12 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
         return closeBlockSourceRef;
     }
 
+    public void buildType() {
+        this.type = new FunctionType(
+                parameters.stream().map(FunctionParameter::toFunctionTypeParameter).collect(Collectors.toList()),
+                returnType);
+    }
+
     @Override
     public void analyze(AnalyzerContext analyzerContext, EvalContextProvider evalContextProvider) {
         var context = evalContextProvider.newEvalContext(analyzerContext, moduleScope, this);
@@ -168,10 +174,6 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
         }
 
         context.popBranch();
-
-        this.type = new FunctionType(
-                parameters.stream().map(FunctionParameter::toFunctionTypeParameter).collect(Collectors.toList()),
-                returnType);
     }
 
     @Override

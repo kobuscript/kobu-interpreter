@@ -267,9 +267,6 @@ templateContentExpr : TEMPLATE_EXPR_BEGIN expr? TEMPLATE_EXPR_END
 exprWrapper : expr | assignPostIncDec | assignPreIncDec ;
 
 expr : record                                                                                       #recordExpr
-       | anonymousFunction                                                                          #anonymousFunctionExpr
-       | expr LP exprSequence? RP                                                                   #functionCallExpr
-       | expr LP exprSequence? {notifyErrorListenersPrevToken("')' expected");}                     #functionCallErr
        | LSB exprSequence? RSB                                                                      #arrayExpr
        | LSB exprSequence? {notifyErrorListenersPrevToken("']' expected");}                         #arrayErr1
        | LP exprWrapper COMMA exprSequence RP                                                       #tupleExpr
@@ -282,6 +279,9 @@ expr : record                                                                   
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
        | expr DOT                                                                                   #fieldAccessErr
+       | anonymousFunction                                                                          #anonymousFunctionExpr
+       | expr LP exprSequence? RP                                                                   #functionCallExpr
+       | expr LP exprSequence? {notifyErrorListenersPrevToken("')' expected");}                     #functionCallErr
        | expr ( STAR | DIV | MOD ) expr                                                             #factorExpr
        | expr ( STAR | DIV | MOD )                                                                  #factorErr
        | expr ( PLUS | MINUS ) expr                                                                 #addSubExpr
