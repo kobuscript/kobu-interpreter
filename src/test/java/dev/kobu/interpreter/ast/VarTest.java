@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast;
 
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.FunctionCallExpr;
 import dev.kobu.interpreter.ast.eval.expr.VarDeclExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayConstructorCallExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.TupleConstructorCallExpr;
@@ -33,10 +34,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.RecordConstructorCallExpr;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.error.AnalyzerError;
-import dev.kobu.interpreter.error.analyzer.InvalidAssignExprTypeError;
-import dev.kobu.interpreter.error.analyzer.InvalidVariableDeclError;
-import dev.kobu.interpreter.error.analyzer.SymbolConflictError;
-import dev.kobu.interpreter.error.analyzer.UndefinedVariableError;
+import dev.kobu.interpreter.error.analyzer.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -393,7 +391,7 @@ public class VarTest extends AstTestBase {
         function1.analyze(analyzerContext, evalContextProvider);
         function2.analyze(analyzerContext, evalContextProvider);
 
-        assertErrors(new UndefinedVariableError(returnStat.getExpr().getSourceCodeRef(), myVar.getName()));
+        assertErrors(new UndefinedSymbolError(returnStat.getExpr().getSourceCodeRef(), myVar.getName()));
     }
 
     @Test
@@ -407,7 +405,7 @@ public class VarTest extends AstTestBase {
     }
 
     @Test
-    @DisplayName("Scope -> local vars and functions can share the same name")
+    @DisplayName("Scope -> local vars and functions cannot share the same name")
     void testLocalVarAndFunctionNameResolution() {
         var function = functionSymbol(module, "mySymbol", numberType());
         function.setBlock(block(returnStatement(numberVal(10))));
@@ -415,15 +413,14 @@ public class VarTest extends AstTestBase {
 
         var myVar = var(module, "mySymbol", stringVal("str"));
         var myVar2 = var(module, "myVar", ref(module, "mySymbol"));
-        var myVar3 = var(module, "myVar2", functionCall(module, "mySymbol"));
+        FunctionCallExpr functionCall = functionCall(module, "mySymbol");
+        var myVar3 = var(module, "myVar2", functionCall);
 
         analyze(module, block(myVar, myVar2, myVar3));
-        var evalContext = eval(module, block(myVar, myVar2, myVar3));
-
-        assertNoErrors();
-        assertVar(evalContext, myVar.getName(), stringType(), stringVal("str"));
-        assertVar(evalContext, myVar2.getName(), stringType(), stringVal("str"));
-        assertVar(evalContext, myVar3.getName(), numberType(), numberVal(10));
+        assertErrors(
+                new SymbolConflictError(function, myVar.getVarSymbol()),
+                new InvalidFunctionRefError(functionCall.getFunctionRefExpr().getSourceCodeRef(), myVar.getVarSymbol().getType())
+        );
     }
 
     @Test
@@ -452,7 +449,7 @@ public class VarTest extends AstTestBase {
         var assign = assign(ref(module, "myVar"), stringVal("str2"));
 
         analyze(module, block(ifStat, assign));
-        assertErrors(new UndefinedVariableError(assign.getExprLeft().getSourceCodeRef(), myVar.getName()));
+        assertErrors(new UndefinedSymbolError(assign.getExprLeft().getSourceCodeRef(), myVar.getName()));
     }
 
     private void testVar(VarDeclExpr varDecl, Type expectedType, ValueExpr expectedValue) {

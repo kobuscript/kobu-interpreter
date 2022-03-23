@@ -224,13 +224,11 @@ queryExprAlias : AS ID
                  | AS {notifyErrorListenersPrevToken("alias expected");}
                  ;
 
-queryExprSegment : DIV queryPipeExpr queryExprAlias? queryExprSegment?
+queryExprSegment : DIV queryFieldExpr queryExprAlias? queryExprSegment?
                    | DIV {notifyErrorListenersPrevToken("field or selector expected");}
                    ;
 
-queryPipeExpr : ID queryExprArraySelect?                                    #queryFieldExpr
-                | functionCallExpr queryExprArraySelect?                    #queryFunctionCallExpr
-                ;
+queryFieldExpr : ID queryExprArraySelect? ;
 
 queryExprArraySelect : LSB queryExprArrayItem RSB ;
 
@@ -269,6 +267,9 @@ templateContentExpr : TEMPLATE_EXPR_BEGIN expr? TEMPLATE_EXPR_END
 exprWrapper : expr | assignPostIncDec | assignPreIncDec ;
 
 expr : record                                                                                       #recordExpr
+       | anonymousFunction                                                                          #anonymousFunctionExpr
+       | expr LP exprSequence? RP                                                                   #functionCallExpr
+       | expr LP exprSequence? {notifyErrorListenersPrevToken("')' expected");}                     #functionCallErr
        | LSB exprSequence? RSB                                                                      #arrayExpr
        | LSB exprSequence? {notifyErrorListenersPrevToken("']' expected");}                         #arrayErr1
        | LP exprWrapper COMMA exprSequence RP                                                       #tupleExpr
@@ -278,7 +279,6 @@ expr : record                                                                   
        | LP {notifyErrorListenersPrevToken("value expected");}                                      #tupleErr4
        | expr AS typeName                                                                           #castExpr
        | expr AS {notifyErrorListenersPrevToken("expression expected");}                            #castErr1
-       | functionCallExpr                                                                           #functionCallProxyExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
        | expr DOT                                                                                   #fieldAccessErr
@@ -301,9 +301,15 @@ expr : record                                                                   
        | LP expr RP                                                                                 #parenthesizedExpr
        ;
 
-functionCallExpr : ID LP exprSequence? RP
-                   | ID LP exprSequence? {notifyErrorListenersPrevToken("')' expected");}
-                   ;
+anonymousFunction : ID FN_ARROW anonymousFunctionBody                              #singleArgAnonymousFunction
+                    | anonymousFunctionHeader FN_ARROW anonymousFunctionBody #fullArgsAnonymousFunction;
+
+anonymousFunctionHeader : LP anonymousFunctionParams RP ;
+anonymousFunctionParams : ID QM? ( COLON type )? ( COMMA anonymousFunctionParams )? ;
+
+anonymousFunctionBody : expr
+                        | LCB execStat* RCB
+                        ;
 
 arrayIndexExpr : expr ':' expr  #arrayIndexSliceExpr
                  | ':' expr     #arrayIndexSliceEndExpr
@@ -323,9 +329,16 @@ assignPreIncDec : ( INC | DEC) expr ;
 assignmentSequece : assignment ( COMMA assignment )* ;
 
 type : typeName                      #typeNameExpr
+       | functionType                #functionTypeExpr
        | type LSB RSB                #arrayType
        | LP type ( COMMA type )+ RP  #tupleType
+       | LP functionType RP          #parenthesizedFunctionTypeExpr
        ;
+
+functionType : LP functionTypeParameter? RP FN_ARROW type
+               | LP functionTypeParameter? RP FN_ARROW {notifyErrorListenersPrevToken("return type expected");}
+               ;
+functionTypeParameter : type QM? ( COMMA functionTypeParameter )? ;
 
 typeName : ID ( DOT ID )?
            | ANY {notifyErrorListenersPrevToken("'any' not allowed here. Did you mean 'Any'?");}

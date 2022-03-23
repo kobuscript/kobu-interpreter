@@ -22,27 +22,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.database.index.impl;
+package dev.kobu.interpreter.error.analyzer;
 
-import dev.kobu.database.index.OneInputIndexNode;
-import dev.kobu.database.index.Match;
-import dev.kobu.interpreter.ast.query.QueryPipeClause;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.error.AnalyzerError;
 
-public class PipeIndexNode extends OneInputIndexNode {
+import java.util.Objects;
 
-    private final QueryPipeClause queryPipeClause;
+public class InvalidFunctionRefError extends AnalyzerError {
 
-    public PipeIndexNode(QueryPipeClause queryPipeClause) {
-        this.queryPipeClause = queryPipeClause;
+    private final Type type;
+
+    public InvalidFunctionRefError(SourceCodeRef sourceCodeRef, Type type) {
+        super(sourceCodeRef);
+        this.type = type;
     }
 
     @Override
-    public void receive(Match match) {
+    public String getDescription() {
+        String typeStr = type != null ? type.getName() : "void";
+        return "Expected function, but got '" + typeStr + "'";
+    }
 
-        for (Match fieldMatch : queryPipeClause.eval(match)) {
-            dispatch(fieldMatch);
-        }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        InvalidFunctionRefError that = (InvalidFunctionRefError) o;
+        return Objects.equals(type, that.type);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), type);
     }
 
 }

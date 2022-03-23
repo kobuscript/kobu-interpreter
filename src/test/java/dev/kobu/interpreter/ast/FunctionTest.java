@@ -27,6 +27,7 @@ package dev.kobu.interpreter.ast;
 import dev.kobu.interpreter.ast.eval.statement.IfStatement;
 import dev.kobu.interpreter.ast.eval.statement.ReturnStatement;
 import dev.kobu.interpreter.ast.symbol.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.FunctionType;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.error.analyzer.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -206,7 +207,7 @@ public class FunctionTest extends AstTestBase {
 
         var funcCall = functionCall(module, "myFunc", functionArg(stringVal("str")));
         analyze(module, block(funcCall));
-        assertErrors(new InvalidFunctionCallError(funcCall.getSourceCodeRef(), myFunc,
+        assertErrors(new InvalidFunctionCallError(funcCall.getSourceCodeRef(), (FunctionType) myFunc.getType(),
                 functionArgs(functionArg(stringVal("str")))));
     }
 
@@ -292,7 +293,7 @@ public class FunctionTest extends AstTestBase {
         var fnCall = functionCall(module, "myFunc");
         var myVar = var(module, "myVar", fnCall);
         analyze(module, block(myVar));
-        assertErrors(new UndefinedFunctionName(fnCall, null, fnCall.getFunctionName(), 0));
+        assertErrors(new UndefinedFunctionName(fnCall, null, "myFunc", 0));
     }
 
     @Test
@@ -301,7 +302,7 @@ public class FunctionTest extends AstTestBase {
         var fnCall = functionCall(module, "myFunc");
         var myVar = var(module, "myVar", fnCall);
         analyze(module, block(myVar));
-        assertErrors(new UndefinedFunctionName(fnCall, null, fnCall.getFunctionName(), 0));
+        assertErrors(new UndefinedFunctionName(fnCall, null, "myFunc", 0));
     }
 
 }

@@ -1,5 +1,7 @@
 package dev.kobu.interpreter.ast.symbol;
 
+import java.util.Objects;
+
 public class FunctionTypeParameter {
 
     private final Type type;
@@ -27,4 +29,16 @@ public class FunctionTypeParameter {
         return typeName;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FunctionTypeParameter that = (FunctionTypeParameter) o;
+        return optional == that.optional && Objects.equals(type, that.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, optional);
+    }
 }

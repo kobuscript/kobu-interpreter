@@ -27,14 +27,11 @@ package dev.kobu.interpreter.ast.eval.expr;
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
-import dev.kobu.interpreter.ast.eval.expr.value.ModuleRefValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.RecordTypeRefValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.RuleRefValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.*;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.error.analyzer.InvalidVariableError;
 import dev.kobu.interpreter.error.analyzer.UndefinedFieldError;
-import dev.kobu.interpreter.error.analyzer.UndefinedVariableError;
+import dev.kobu.interpreter.error.analyzer.UndefinedSymbolError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
 
@@ -43,13 +40,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementRef {
+public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementRef, UndefinedSymbolNotifier {
 
     private final ModuleScope moduleScope;
 
     private final SourceCodeRef sourceCodeRef;
 
-    private final String varName;
+    private final String symbolName;
 
     private Type typeScope;
 
@@ -61,19 +58,23 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
 
     private RecordTypeSymbol recordTypeSymbol;
 
+    private KobuFunction function;
+
     private boolean assignMode;
 
     private SourceCodeRef elementRef;
 
     private Collection<SymbolDescriptor> symbolsInScope;
 
-    public RefExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String varName) {
+    private UndefinedSymbolListener undefinedSymbolListener;
+
+    public RefExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String symbolName) {
         this.moduleScope = moduleScope;
         this.sourceCodeRef = sourceCodeRef;
-        this.varName = varName;
+        this.symbolName = symbolName;
 
         if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
-            if (varName.equals("")) {
+            if (symbolName.equals("")) {
                 int offset = sourceCodeRef.getStartOffset()
                         + (sourceCodeRef.getEndOffset() - sourceCodeRef.getStartOffset()) + 1;
                 moduleScope.registerRef(offset, this);
@@ -101,13 +102,17 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                                 SymbolTypeEnum.TYPE);
             }
 
-            if (varName.equals("")) {
+            if (symbolName.equals("")) {
                 return;
             }
 
-            var symbol = context.getCurrentScope().resolve(varName);
+            var symbol = context.getCurrentScope().resolve(symbolName);
             if (symbol == null) {
-                context.addAnalyzerError(new UndefinedVariableError(sourceCodeRef, varName));
+                if (undefinedSymbolListener != null) {
+                    undefinedSymbolListener.onUndefinedSymbol(context, symbolName);
+                } else {
+                    context.addAnalyzerError(new UndefinedSymbolError(sourceCodeRef, symbolName));
+                }
                 this.type = UnknownType.INSTANCE;
                 return;
             }
@@ -134,9 +139,15 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                     this.type = (ModuleRefSymbol) symbol;
                     return;
                 }
+                if (symbol instanceof FunctionSymbol) {
+                    this.elementRef = symbol.getSourceCodeRef();
+                    this.function = (KobuFunction) symbol;
+                    this.type = this.function.getType();
+                    return;
+                }
             }
 
-            context.addAnalyzerError(new InvalidVariableError(sourceCodeRef, varName, symbol));
+            context.addAnalyzerError(new InvalidVariableError(sourceCodeRef, symbolName, symbol));
             this.type = UnknownType.INSTANCE;
 
         } else {
@@ -151,17 +162,30 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                 this.symbolsInScope = symbols;
             }
 
-            if (varName.equals("")) {
+            if (symbolName.equals("")) {
                 return;
             }
 
-            var field = typeScope.resolveField(varName);
+            var field = typeScope.resolveField(symbolName);
             if (field == null) {
-                context.addAnalyzerError(new UndefinedFieldError(sourceCodeRef, typeScope, varName));
+                if (!assignMode) {
+                    var method = typeScope.resolveMethod(symbolName);
+                    if (method != null) {
+                        this.function = method;
+                        this.type = method.getType();
+                        return;
+                    }
+                }
+
+                if (undefinedSymbolListener != null) {
+                    undefinedSymbolListener.onUndefinedSymbol(context, typeScope, symbolName);
+                } else {
+                    context.addAnalyzerError(new UndefinedFieldError(sourceCodeRef, typeScope, symbolName));
+                }
                 this.type = UnknownType.INSTANCE;
                 return;
             }
-            this.elementRef = typeScope.getFieldRef(varName);
+            this.elementRef = typeScope.getFieldRef(symbolName);
             this.type = field;
         }
     }
@@ -174,10 +198,13 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
         if (recordTypeSymbol != null) {
             return new RecordTypeRefValueExpr(sourceCodeRef, recordTypeSymbol);
         }
+        if (function != null) {
+            return new FunctionRefValueExpr(sourceCodeRef, function, valueScope);
+        }
         if (valueScope == null) {
-            var symbol = context.getCurrentScope().resolve(varName);
+            var symbol = context.getCurrentScope().resolve(symbolName);
             if (symbol == null) {
-                throw new InternalInterpreterError("Variable '" + varName + "' not defined in scope",
+                throw new InternalInterpreterError("Variable '" + symbolName + "' not defined in scope",
                         sourceCodeRef);
             }
             if (symbol instanceof VariableSymbol) {
@@ -197,7 +224,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                 throw new NullPointerError(valueScope.getSourceCodeRef(), valueScope.getSourceCodeRef());
             }
             if (valueScope instanceof HasFields) {
-                var field = ((HasFields)valueScope).resolveField(varName);
+                var field = ((HasFields)valueScope).resolveField(symbolName);
                 if (field == null || field instanceof NullValueExpr) {
                     return new NullValueExpr(sourceCodeRef);
                 }
@@ -220,8 +247,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
         return type;
     }
 
-    public String getVarName() {
-        return varName;
+    public String getSymbolName() {
+        return symbolName;
     }
 
     @Override
@@ -242,13 +269,13 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     @Override
     public void assign(EvalContext context, ValueExpr value) {
         if (valueScope == null) {
-            context.getCurrentScope().setValue(varName, value);
+            context.getCurrentScope().setValue(symbolName, value);
         } else {
             if (valueScope instanceof NullValueExpr) {
                 throw new NullPointerError(valueScope.getSourceCodeRef(), valueScope.getSourceCodeRef());
             }
             if (valueScope instanceof HasFields) {
-                ((HasFields)valueScope).updateFieldValue(context, varName, value);
+                ((HasFields)valueScope).updateFieldValue(context, symbolName, value);
                 return;
             }
             throw new InternalInterpreterError("Can't update a field of: " + valueScope.getClass().getName(),
@@ -279,6 +306,11 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     @Override
     public boolean hasOwnCompletionScope() {
         return false;
+    }
+
+    @Override
+    public void registerUndefinedSymbolListener(UndefinedSymbolListener listener) {
+        this.undefinedSymbolListener = listener;
     }
 
 }

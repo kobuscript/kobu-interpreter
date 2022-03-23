@@ -30,6 +30,7 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class FunctionType implements Type {
@@ -137,4 +138,18 @@ public class FunctionType implements Type {
     public Comparator<ValueExpr> getComparator() {
         return null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FunctionType that = (FunctionType) o;
+        return Objects.equals(parameters, that.parameters) && Objects.equals(returnType, that.returnType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(parameters, returnType);
+    }
+
 }

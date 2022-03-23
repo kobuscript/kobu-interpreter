@@ -22,18 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.eval;
 
-import java.util.List;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.symbol.Type;
 
-public interface KobuFunction {
+public interface UndefinedSymbolListener {
 
-    SourceCodeRef getSourceCodeRef();
+    void onUndefinedSymbol(EvalContext evalContext, String symbolName);
 
-    List<FunctionParameter> getParameters();
-
-    Type getReturnType();
-
-    Type getType();
+    void onUndefinedSymbol(EvalContext evalContext, Type typeScope, String symbolName);
 
 }

@@ -62,13 +62,12 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
 
     public AnonymousFunctionDefinitionExpr(SourceCodeRef sourceCodeRef, SourceCodeRef closeBlockSourceCodeRef,
                                            ModuleScope moduleScope, List<FunctionParameter> parameters,
-                                           List<Evaluable> block, Type returnType) {
+                                           List<Evaluable> block) {
         this.sourceCodeRef = sourceCodeRef;
         this.closeBlockSourceCodeRef = closeBlockSourceCodeRef;
         this.moduleScope = moduleScope;
         this.parameters = parameters;
         this.block = block;
-        this.returnType = returnType;
     }
 
     @Override

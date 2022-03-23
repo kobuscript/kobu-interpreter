@@ -56,6 +56,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
     private int scopeEndOffset = 0;
 
+    private boolean ruleTypeScope = false;
+
     public EvalTreeParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, AnalyzerContext context) {
         super(moduleLoader);
         this.context = context;
@@ -229,6 +231,70 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
+    public AstNode visitSingleArgAnonymousFunction(KobuParser.SingleArgAnonymousFunctionContext ctx) {
+        SourceCodeRef sourceCodeRef = getSourceCodeRef(ctx.ID());
+        SourceCodeRef closeBlockSourceCodeRef = null;
+        if (ctx.anonymousFunctionBody() != null && ctx.anonymousFunctionBody().RCB() != null) {
+            closeBlockSourceCodeRef = getSourceCodeRef(ctx.anonymousFunctionBody().RCB());
+        }
+
+        List<FunctionParameter> params = new ArrayList<>();
+        params.add(new FunctionParameter(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), null, false));
+
+        List<Evaluable> block = new ArrayList<>();
+        if (ctx.anonymousFunctionBody() != null) {
+            if (ctx.anonymousFunctionBody().expr() != null) {
+                block.add((Evaluable) visit(ctx.anonymousFunctionBody().expr()));
+            } else if (ctx.anonymousFunctionBody().execStat() != null) {
+                for (KobuParser.ExecStatContext execStatContext : ctx.anonymousFunctionBody().execStat()) {
+                    block.add((Evaluable) visit(execStatContext));
+                }
+            }
+        }
+
+        return new AnonymousFunctionDefinitionExpr(sourceCodeRef, closeBlockSourceCodeRef,
+                moduleScope, params, block);
+    }
+
+    @Override
+    public AstNode visitFullArgsAnonymousFunction(KobuParser.FullArgsAnonymousFunctionContext ctx) {
+        SourceCodeRef sourceCodeRef = getSourceCodeRef(ctx.anonymousFunctionHeader());
+        SourceCodeRef closeBlockSourceCodeRef = null;
+        if (ctx.anonymousFunctionBody() != null && ctx.anonymousFunctionBody().RCB() != null) {
+            closeBlockSourceCodeRef = getSourceCodeRef(ctx.anonymousFunctionBody().RCB());
+        }
+
+        List<FunctionParameter> params = new ArrayList<>();
+        if (ctx.anonymousFunctionHeader() != null) {
+            var paramCtx = ctx.anonymousFunctionHeader().anonymousFunctionParams();
+            while (paramCtx != null) {
+                Type type = null;
+                if (paramCtx.type() != null) {
+                    type = (Type) visit(paramCtx.type());
+                }
+                var param = new FunctionParameter(getSourceCodeRef(paramCtx), paramCtx.ID().getText(),
+                        type, paramCtx.QM() != null);
+                params.add(param);
+                paramCtx = paramCtx.anonymousFunctionParams();
+            }
+        }
+
+        List<Evaluable> block = new ArrayList<>();
+        if (ctx.anonymousFunctionBody() != null) {
+            if (ctx.anonymousFunctionBody().expr() != null) {
+                block.add((Evaluable) visit(ctx.anonymousFunctionBody().expr()));
+            } else if (ctx.anonymousFunctionBody().execStat() != null) {
+                for (KobuParser.ExecStatContext execStatContext : ctx.anonymousFunctionBody().execStat()) {
+                    block.add((Evaluable) visit(execStatContext));
+                }
+            }
+        }
+
+        return new AnonymousFunctionDefinitionExpr(sourceCodeRef, closeBlockSourceCodeRef,
+                moduleScope, params, block);
+    }
+
+    @Override
     public AstNode visitDeftemplate(KobuParser.DeftemplateContext ctx) {
         if (ctx.ID() == null) {
             return null;
@@ -349,7 +415,9 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         }
 
         if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
+            ruleTypeScope = true;
             Type parentRule = (Type) visit(ctx.ruleExtends().typeName());
+            ruleTypeScope = false;
             if (parentRule instanceof RuleSymbol) {
                 rule.setParentRuleSymbol((RuleSymbol) parentRule);
             } else {
@@ -776,7 +844,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         topLevelExpression = exprStatus;
         return new FunctionCallExpr(moduleScope, getSourceCodeRef(ctx),
-                ctx.ID().getText(), args);
+                (Expr) visit(ctx.expr()), args);
     }
 
     @Override
@@ -1236,8 +1304,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                 ctx.ANY() != null, bind);
 
         if (ctx.queryExprSegment() != null) {
-            QueryPipeClause pipeClause = (QueryPipeClause) visit(ctx.queryExprSegment());
-            queryTypeClause.setPipeClause(pipeClause);
+            QueryFieldClause fieldClause = (QueryFieldClause) visit(ctx.queryExprSegment());
+            queryTypeClause.setFieldClause(fieldClause);
         }
 
         return new Query(getSourceCodeRef(ctx), queryTypeClause);
@@ -1250,13 +1318,13 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             alias = ctx.queryExprAlias().ID().getText();
         }
 
-        QueryPipeClause pipeClause = (QueryPipeClause) visit(ctx.queryPipeExpr());
+        QueryFieldClause pipeClause = (QueryFieldClause) visit(ctx.queryFieldExpr());
         if (alias != null) {
             pipeClause.setBind(alias);
         }
 
         if (ctx.queryExprSegment() != null) {
-            QueryPipeClause next = (QueryPipeClause) visit(ctx.queryExprSegment());
+            QueryFieldClause next = (QueryFieldClause) visit(ctx.queryExprSegment());
             pipeClause.setNext(next);
         }
         return pipeClause;
@@ -1273,20 +1341,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         }
 
         return field;
-    }
-
-    @Override
-    public AstNode visitQueryFunctionCallExpr(KobuParser.QueryFunctionCallExprContext ctx) {
-
-        var functionCallExpr = (FunctionCallExpr) visit(ctx.functionCallExpr());
-        var functionCallClause = new QueryFunctionCallClause(getSourceCodeRef(ctx), functionCallExpr);
-
-        if (ctx.queryExprArraySelect() != null) {
-            QueryArrayItemClause arrayItemClause = (QueryArrayItemClause) visit(ctx.queryExprArraySelect());
-            functionCallClause.setArrayItemClause(arrayItemClause);
-        }
-
-        return functionCallClause;
     }
 
     @Override
@@ -1347,10 +1401,16 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                 });
             }
 
-            if (!(symbol instanceof Type) && !(symbol instanceof RuleSymbol)) {
-                context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx.ID(0)),
-                        typeName, scopeEndOffset));
-                return UnknownType.INSTANCE;
+            if (!ruleTypeScope) {
+                if (!(symbol instanceof Type)) {
+                    context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx.ID(0)),
+                            typeName, scopeEndOffset));
+                    return UnknownType.INSTANCE;
+                }
+            } else {
+                if (!(symbol instanceof RuleSymbol)) {
+                    return UnknownType.INSTANCE;
+                }
             }
 
             return (AstNode) symbol;
@@ -1387,13 +1447,18 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
             var symbol = moduleRefSymbol.getModuleScopeRef().resolve(typeName);
 
-            if (!(symbol instanceof Type) && !(symbol instanceof RuleSymbol)) {
-                context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx),
-                        moduleAlias + "." + typeName, scopeEndOffset));
-                return UnknownType.INSTANCE;
+            if (!ruleTypeScope) {
+                if (!(symbol instanceof Type)) {
+                    context.getErrorScope().addError(new UndefinedTypeError(getSourceCodeRef(ctx),
+                            moduleAlias + "." + typeName, scopeEndOffset));
+                    return UnknownType.INSTANCE;
+                }
+            } else {
+                if (!(symbol instanceof RuleSymbol)) {
+                    return UnknownType.INSTANCE;
+                }
             }
-
-            return (Type) symbol;
+            return (AstNode) symbol;
         }
     }
 
@@ -1406,6 +1471,29 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             }
         }
         return new TupleType(typeList);
+    }
+
+    @Override
+    public AstNode visitFunctionType(KobuParser.FunctionTypeContext ctx) {
+        if (ctx.type() == null) {
+            return UnknownType.INSTANCE;
+        }
+
+        List<FunctionTypeParameter> parameters = new ArrayList<>();
+        var paramCtx = ctx.functionTypeParameter();
+        while (paramCtx != null) {
+            var param = new FunctionTypeParameter((Type) visit(paramCtx.type()), paramCtx.QM() != null);
+            parameters.add(param);
+            paramCtx = paramCtx.functionTypeParameter();
+        }
+        Type returnType = (Type) visit(ctx.type());
+
+        return new FunctionType(parameters, returnType);
+    }
+
+    @Override
+    public AstNode visitParenthesizedFunctionTypeExpr(KobuParser.ParenthesizedFunctionTypeExprContext ctx) {
+        return visit(ctx.functionType());
     }
 
     public ModuleScope getModuleScope() {

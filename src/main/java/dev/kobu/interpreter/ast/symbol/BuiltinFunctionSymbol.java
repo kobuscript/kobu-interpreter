@@ -31,6 +31,7 @@ import dev.kobu.interpreter.ast.eval.function.BuiltinFunction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
 
@@ -44,30 +45,22 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
 
     private SymbolDocumentation symbolDocumentation;
 
-    public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl) {
+    private FunctionType type;
+
+    public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
+                                 Type returnType, FunctionParameter... args) {
         super(null,null, name);
         this.enclosingType = enclosingType;
         this.functionImpl = functionImpl;
         this.functionImpl.setFuncDef(this);
-    }
-
-    public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
-                                 Type returnType) {
-        this(enclosingType, name, functionImpl);
-        this.returnType = returnType;
-    }
-
-    public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
-                                 Type returnType, FunctionParameter... args) {
-        this(enclosingType, name, functionImpl);
         this.returnType = returnType;
         this.parameters.addAll(Arrays.asList(args));
+        buildType();
     }
 
     public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
                                  FunctionParameter... args) {
-        this(enclosingType, name, functionImpl);
-        this.parameters.addAll(Arrays.asList(args));
+        this(enclosingType, name, functionImpl, null, args);
     }
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl) {
@@ -100,6 +93,11 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
     }
 
     @Override
+    public Type getType() {
+        return type;
+    }
+
+    @Override
     public SymbolDocumentation getDocumentation() {
         if (symbolDocumentation == null) {
             String description = getName() + functionImpl.getFuncDef().getDescription();
@@ -120,6 +118,12 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
 
     public BuiltinFunction getFunctionImpl() {
         return functionImpl;
+    }
+
+    private void buildType() {
+        this.type = new FunctionType(
+                parameters.stream().map(FunctionParameter::toFunctionTypeParameter).collect(Collectors.toList()),
+                returnType);
     }
 
 }

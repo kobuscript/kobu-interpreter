@@ -33,6 +33,7 @@ import dev.kobu.interpreter.error.analyzer.FunctionMissingReturnStatError;
 import dev.kobu.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FunctionSymbol extends Symbol implements NamedFunction, UserDefinedFunction, HasExpr {
 
@@ -51,6 +52,8 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
     private Collection<SymbolDescriptor> symbolsModule;
 
     private SymbolDocumentation documentation;
+
+    private FunctionType type;
 
     public FunctionSymbol(SourceCodeRef sourceCodeRef, SourceCodeRef closeBlockSourceRef, ModuleScope moduleScope,
                           String name, String docText) {
@@ -77,6 +80,11 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
     @Override
     public Type getReturnType() {
         return returnType;
+    }
+
+    @Override
+    public Type getType() {
+        return type;
     }
 
     public List<FunctionParameter> getParameters() {
@@ -160,6 +168,10 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
         }
 
         context.popBranch();
+
+        this.type = new FunctionType(
+                parameters.stream().map(FunctionParameter::toFunctionTypeParameter).collect(Collectors.toList()),
+                returnType);
     }
 
     @Override

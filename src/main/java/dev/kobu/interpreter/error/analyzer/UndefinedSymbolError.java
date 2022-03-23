@@ -31,43 +31,43 @@ import dev.kobu.interpreter.error.KobuActionTypeEnum;
 
 import java.util.Objects;
 
-public class UndefinedVariableError extends AnalyzerError {
+public class UndefinedSymbolError extends AnalyzerError {
 
     private static final KobuActionTypeEnum[] actions = new KobuActionTypeEnum[]{
             KobuActionTypeEnum.AUTO_IMPORT
     };
 
-    private final String varName;
+    private final String symbolName;
 
-    public UndefinedVariableError(SourceCodeRef sourceCodeRef, String varName) {
+    public UndefinedSymbolError(SourceCodeRef sourceCodeRef, String symbolName) {
         super(sourceCodeRef);
-        this.varName = varName;
+        this.symbolName = symbolName;
     }
 
-    public String getVarName() {
-        return varName;
+    public String getSymbolName() {
+        return symbolName;
     }
 
     @Override
     public String getDescription() {
-        return "Undefined variable: " + varName;
+        return "Undefined symbol: " + symbolName;
     }
 
     @Override
     public KobuActionTypeEnum[] actions() {
-        if (isRuleRef()) {
+        if (isRuleOrTypeRef()) {
             return actions;
         }
         return null;
     }
 
-    private boolean isRuleRef() {
-        return varName.length() > 1 && Character.isUpperCase(varName.charAt(0));
+    private boolean isRuleOrTypeRef() {
+        return symbolName.length() > 1 && Character.isUpperCase(symbolName.charAt(0));
     }
 
     @Override
     public String getTokenText() {
-        return varName;
+        return symbolName;
     }
 
     @Override
@@ -80,12 +80,12 @@ public class UndefinedVariableError extends AnalyzerError {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        UndefinedVariableError that = (UndefinedVariableError) o;
-        return Objects.equals(varName, that.varName);
+        UndefinedSymbolError that = (UndefinedSymbolError) o;
+        return Objects.equals(symbolName, that.symbolName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), varName);
+        return Objects.hash(super.hashCode(), symbolName);
     }
 }

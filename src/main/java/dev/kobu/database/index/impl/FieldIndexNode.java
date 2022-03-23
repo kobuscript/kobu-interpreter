@@ -22,30 +22,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.query;
+package dev.kobu.database.index.impl;
 
 import dev.kobu.database.index.Match;
-import dev.kobu.interpreter.ast.eval.Evaluable;
-import dev.kobu.interpreter.ast.eval.HasTypeScope;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.database.index.OneInputIndexNode;
+import dev.kobu.interpreter.ast.query.QueryFieldClause;
 
-import java.util.List;
+public class FieldIndexNode extends OneInputIndexNode {
 
-public interface QueryPipeClause extends Evaluable, HasTypeScope {
+    private final QueryFieldClause queryFieldClause;
 
-    Type getType();
+    public FieldIndexNode(QueryFieldClause queryFieldClause) {
+        this.queryFieldClause = queryFieldClause;
+    }
 
-    String getBind();
+    @Override
+    public void receive(Match match) {
 
-    QueryPipeClause getNext();
+        for (Match fieldMatch : queryFieldClause.eval(match)) {
+            dispatch(fieldMatch);
+        }
 
-    void setNext(QueryPipeClause next);
-
-    void setBind(String bind);
-
-    void setAliasSourceCodeRef(SourceCodeRef aliasSourceCodeRef);
-
-    List<Match> eval(Match match);
+    }
 
 }

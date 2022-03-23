@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.eval;
 
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.context.ContextSnapshot;
+import dev.kobu.interpreter.ast.symbol.FunctionSymbol;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.Scope;
 import dev.kobu.interpreter.ast.symbol.Symbol;
@@ -68,6 +69,10 @@ public class LocalScope implements Scope {
         var currentSymbol = this.symbols.get(symbol.getName());
         if (currentSymbol != null) {
             analyzerContext.getErrorScope().addError(new SymbolConflictError(currentSymbol, symbol));
+        }
+        Symbol moduleSymbol = moduleScope.resolve(symbol.getName());
+        if (moduleSymbol instanceof FunctionSymbol) {
+            analyzerContext.getErrorScope().addError(new SymbolConflictError(moduleSymbol, symbol));
         }
         this.symbols.put(symbol.getName(), symbol);
 

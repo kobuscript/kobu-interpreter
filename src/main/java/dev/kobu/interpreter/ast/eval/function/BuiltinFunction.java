@@ -81,11 +81,6 @@ public abstract class BuiltinFunction {
         for (int i = 0; i < funcDef.getParameters().size() && i < args.size(); i++) {
             FunctionParameter param = funcDef.getParameters().get(i);
             ValueExpr value = args.get(i);
-            if (!param.isOptional() && (value == null || value instanceof NullValueExpr)) {
-                throw new IllegalArgumentError("Parameter '" + param.getName() + "' of function '"
-                        + funcDef.getName() + "' cannot be null.",
-                        sourceCodeRef);
-            }
             if (!(value instanceof NullValueExpr)) {
                 mapArgs.put(param.getName(), value);
             }

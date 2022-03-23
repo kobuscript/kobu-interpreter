@@ -512,7 +512,13 @@ public abstract class AstTestBase {
     }
 
     FunctionCallExpr functionCall(ModuleScope module, String name, FunctionArgExpr... args) {
-        return new FunctionCallExpr(module, sourceCodeRef("function-call_" + name), name, Arrays.asList(args));
+        return new FunctionCallExpr(module, sourceCodeRef("function-call_" + name),
+                ref(module, name), Arrays.asList(args));
+    }
+
+    FunctionCallExpr functionCall(ModuleScope module, Expr fnRefExpr, FunctionArgExpr... args) {
+        return new FunctionCallExpr(module, sourceCodeRef("function-call_" + fnRefExpr.getClass().getName()),
+                fnRefExpr, Arrays.asList(args));
     }
 
     RuleSymbol rule(ModuleScope module, String name, Type targetType) {

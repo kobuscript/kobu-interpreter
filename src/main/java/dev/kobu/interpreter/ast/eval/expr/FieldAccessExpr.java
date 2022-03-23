@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.expr;
 
+import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
@@ -33,12 +34,8 @@ import dev.kobu.interpreter.error.analyzer.InvalidExpressionError;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.UnknownType;
-import dev.kobu.interpreter.ast.eval.Expr;
-import dev.kobu.interpreter.ast.eval.HasTypeScope;
-import dev.kobu.interpreter.ast.eval.MemoryReference;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 
-public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope {
+public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope, UndefinedSymbolNotifier {
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -53,6 +50,8 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope {
     private Type typeScope;
 
     private ValueExpr valueScope;
+
+    private UndefinedSymbolListener undefinedSymbolListener;
 
     public FieldAccessExpr(SourceCodeRef sourceCodeRef, Expr leftExpr, Expr rightExpr) {
         this.sourceCodeRef = sourceCodeRef;
@@ -95,6 +94,10 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope {
                 this.type = UnknownType.INSTANCE;
                 return;
             }
+        }
+
+        if (undefinedSymbolListener != null && rightExpr instanceof UndefinedSymbolNotifier) {
+            ((UndefinedSymbolNotifier) rightExpr).registerUndefinedSymbolListener(undefinedSymbolListener);
         }
         rightExpr.analyze(context);
 
@@ -166,6 +169,11 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope {
     @Override
     public void setValueScope(ValueExpr valueScope) {
         this.valueScope = valueScope;
+    }
+
+    @Override
+    public void registerUndefinedSymbolListener(UndefinedSymbolListener listener) {
+        this.undefinedSymbolListener = listener;
     }
 
 }

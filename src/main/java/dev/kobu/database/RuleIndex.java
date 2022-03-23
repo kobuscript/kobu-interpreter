@@ -25,15 +25,15 @@ SOFTWARE.
 package dev.kobu.database;
 
 import dev.kobu.database.index.IndexNode;
+import dev.kobu.database.index.impl.FieldIndexNode;
 import dev.kobu.database.index.impl.JoinIndexNode;
-import dev.kobu.database.index.impl.PipeIndexNode;
 import dev.kobu.database.index.impl.RootTypeIndexNode;
 import dev.kobu.database.index.impl.RuleIndexNode;
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.query.Query;
+import dev.kobu.interpreter.ast.query.QueryFieldClause;
 import dev.kobu.interpreter.ast.query.QueryJoin;
-import dev.kobu.interpreter.ast.query.QueryPipeClause;
 import dev.kobu.interpreter.ast.query.QueryTypeClause;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.RuleSymbol;
@@ -125,10 +125,10 @@ public class RuleIndex {
         RootTypeIndexNode rootNode = new RootTypeIndexNode(evalContextProvider, analyzerContext, moduleScope, queryTypeClause);
         this.index.add(rootNode);
 
-        QueryPipeClause clause = queryTypeClause.getPipeClause();
+        QueryFieldClause clause = queryTypeClause.getFieldClause();
         IndexNode lastNode = rootNode;
         while (clause != null) {
-            PipeIndexNode node = new PipeIndexNode(clause);
+            FieldIndexNode node = new FieldIndexNode(clause);
             lastNode.addChild(node);
             clause = clause.getNext();
             lastNode = node;

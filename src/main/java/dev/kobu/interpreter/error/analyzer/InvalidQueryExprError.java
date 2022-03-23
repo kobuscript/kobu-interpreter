@@ -22,18 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.error.analyzer;
 
-import java.util.List;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.AnalyzerError;
 
-public interface KobuFunction {
+public class InvalidQueryExprError extends AnalyzerError {
 
-    SourceCodeRef getSourceCodeRef();
+    public InvalidQueryExprError(SourceCodeRef sourceCodeRef) {
+        super(sourceCodeRef);
+    }
 
-    List<FunctionParameter> getParameters();
-
-    Type getReturnType();
-
-    Type getType();
-
+    @Override
+    public String getDescription() {
+        return "Not a valid query expression";
+    }
 }

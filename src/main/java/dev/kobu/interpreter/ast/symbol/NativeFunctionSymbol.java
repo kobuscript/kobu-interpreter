@@ -24,14 +24,17 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
+import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.SymbolDocumentation;
 import dev.kobu.interpreter.ast.eval.SymbolTypeEnum;
+import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.function.NativeFunction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class NativeFunctionSymbol extends Symbol implements NamedFunction {
+public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasExpr {
 
     private final NativeFunction functionImpl;
 
@@ -40,6 +43,8 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction {
     private Type returnType;
 
     private final SymbolDocumentation documentation;
+
+    private FunctionType type;
 
     public NativeFunctionSymbol(SourceCodeRef sourceCodeRef, ModuleScope moduleScope, String name,
                                 NativeFunction functionImpl, String docText) {
@@ -60,6 +65,18 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction {
         return returnType;
     }
 
+    @Override
+    public Type getType() {
+        return type;
+    }
+
+    @Override
+    public void analyze(AnalyzerContext context, EvalContextProvider evalContextProvider) {
+        this.type = new FunctionType(
+                parameters.stream().map(FunctionParameter::toFunctionTypeParameter).collect(Collectors.toList()),
+                returnType);
+    }
+
     public void setParameters(List<FunctionParameter> parameters) {
         this.parameters = parameters;
     }
@@ -76,4 +93,5 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction {
     public SymbolDocumentation getDocumentation() {
         return documentation;
     }
+
 }

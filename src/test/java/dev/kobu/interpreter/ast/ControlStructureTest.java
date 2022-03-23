@@ -286,8 +286,8 @@ public class ControlStructureTest extends AstTestBase {
                         postInc(ref(module, "count")),
                         continueStatement()
                 )),
-                fieldAccess(ref(module, "oddNumbers"),
-                        functionCall(module, "add", functionArg(ref(module, "count")))),
+                functionCall(module, fieldAccess(ref(module, "oddNumbers"), ref(module, "add")),
+                        functionArg(ref(module, "count"))),
                 postInc(ref(module, "count"))
         ));
 

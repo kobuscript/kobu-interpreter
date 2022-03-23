@@ -46,7 +46,7 @@ public class QueryTypeClause implements Evaluable {
 
     private final String bind;
 
-    private QueryPipeClause pipeClause;
+    private QueryFieldClause fieldClause;
 
     private Type queryType;
 
@@ -108,12 +108,12 @@ public class QueryTypeClause implements Evaluable {
         return sourceCodeRef;
     }
 
-    public QueryPipeClause getPipeClause() {
-        return pipeClause;
+    public QueryFieldClause getFieldClause() {
+        return fieldClause;
     }
 
-    public void setPipeClause(QueryPipeClause pipeClause) {
-        this.pipeClause = pipeClause;
+    public void setFieldClause(QueryFieldClause fieldClause) {
+        this.fieldClause = fieldClause;
     }
 
     @Override
@@ -143,11 +143,11 @@ public class QueryTypeClause implements Evaluable {
         }
         context.getCurrentScope().define(context.getAnalyzerContext(), variableSymbol);
 
-        if (pipeClause != null) {
-            pipeClause.setTypeScope(type);
-            pipeClause.analyze(context);
+        if (fieldClause != null) {
+            fieldClause.setTypeScope(type);
+            fieldClause.analyze(context);
 
-            var clause = pipeClause;
+            var clause = fieldClause;
             while (clause != null) {
                 queryType = clause.getType();
                 mainRecordBind = clause.getBind();
