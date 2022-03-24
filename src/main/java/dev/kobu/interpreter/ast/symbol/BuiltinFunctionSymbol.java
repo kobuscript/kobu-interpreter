@@ -27,10 +27,12 @@ package dev.kobu.interpreter.ast.symbol;
 import dev.kobu.interpreter.ast.eval.SymbolDocumentation;
 import dev.kobu.interpreter.ast.eval.SymbolTypeEnum;
 import dev.kobu.interpreter.ast.eval.function.BuiltinFunction;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.function.FunctionType;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
@@ -46,6 +48,8 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
     private SymbolDocumentation symbolDocumentation;
 
     private FunctionType type;
+
+    private final Map<String, Type> typeArgsMap = new HashMap<>();
 
     public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
                                  Type returnType, FunctionParameter... args) {
@@ -83,6 +87,11 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
     }
 
     @Override
+    public Map<String, Type> providedTypeArguments() {
+        return typeArgsMap;
+    }
+
+    @Override
     public List<FunctionParameter> getParameters() {
         return parameters;
     }
@@ -110,6 +119,10 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
             }
         }
         return symbolDocumentation;
+    }
+
+    public void setProvidedTypeArg(String typeAlias, Type type) {
+        typeArgsMap.put(typeAlias, type);
     }
 
     public void setReturnType(Type returnType) {

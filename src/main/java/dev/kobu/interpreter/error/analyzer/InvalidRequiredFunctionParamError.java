@@ -24,7 +24,7 @@ SOFTWARE.
 
 package dev.kobu.interpreter.error.analyzer;
 
-import dev.kobu.interpreter.ast.symbol.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 import dev.kobu.interpreter.error.AnalyzerError;
 
 public class InvalidRequiredFunctionParamError extends AnalyzerError {

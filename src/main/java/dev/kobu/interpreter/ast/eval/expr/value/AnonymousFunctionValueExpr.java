@@ -32,8 +32,11 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AnonymousFunctionValueExpr implements ValueExpr, UserDefinedFunction {
 
@@ -52,6 +55,11 @@ public class AnonymousFunctionValueExpr implements ValueExpr, UserDefinedFunctio
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return definition.getSourceCodeRef();
+    }
+
+    @Override
+    public Map<String, Type> providedTypeArguments() {
+        return new HashMap<>();
     }
 
     @Override

@@ -85,14 +85,14 @@ invalidDef : 'def' elem=( INVALID_DEF | DEF_BREAK ) ;
 
 invalidStat : ID {notifyErrorListenersPrevToken("'def' or 'fun' expected");} ;
 
-functionDecl : 'fun' ID LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB
-               | 'fun' ID LP functionDeclParam? RP LCB {notifyMissingFunctionReturnType();}
-               | 'fun' ID LP functionDeclParam? RP COLON functionDeclRet LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
-               | 'fun' ID LP functionDeclParam? RP COLON functionDeclRet {notifyErrorListenersPrevToken("'{' expected");}
-               | 'fun' ID LP functionDeclParam? RP COLON {notifyErrorListenersPrevToken("return type expected");}
-               | 'fun' ID LP functionDeclParam? RP {notifyErrorListenersPrevToken("':' expected");}
-               | 'fun' ID LP functionDeclParam? {notifyErrorListenersPrevToken("')' expected");}
-               | 'fun' ID {notifyErrorListenersPrevToken("'(' expected");}
+functionDecl : 'fun' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB
+               | 'fun' ID typeParameters? LP functionDeclParam? RP LCB {notifyMissingFunctionReturnType();}
+               | 'fun' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+               | 'fun' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet {notifyErrorListenersPrevToken("'{' expected");}
+               | 'fun' ID typeParameters? LP functionDeclParam? RP COLON {notifyErrorListenersPrevToken("return type expected");}
+               | 'fun' ID typeParameters? LP functionDeclParam? RP {notifyErrorListenersPrevToken("':' expected");}
+               | 'fun' ID typeParameters? LP functionDeclParam? {notifyErrorListenersPrevToken("')' expected");}
+               | 'fun' ID typeParameters? {notifyErrorListenersPrevToken("'(' expected");}
                | 'fun' {notifyErrorListenersPrevToken("function name expected");}
                ;
 
@@ -302,7 +302,7 @@ expr : record                                                                   
        ;
 
 anonymousFunction : ID FN_ARROW anonymousFunctionBody                              #singleArgAnonymousFunction
-                    | anonymousFunctionHeader FN_ARROW anonymousFunctionBody #fullArgsAnonymousFunction;
+                    | anonymousFunctionHeader FN_ARROW anonymousFunctionBody       #fullArgsAnonymousFunction;
 
 anonymousFunctionHeader : LP anonymousFunctionParams RP ;
 anonymousFunctionParams : ID QM? ( COLON type )? ( COMMA anonymousFunctionParams )? ;
@@ -327,6 +327,9 @@ assignPostIncDec : expr ( INC | DEC ) ;
 assignPreIncDec : ( INC | DEC) expr ;
 
 assignmentSequece : assignment ( COMMA assignment )* ;
+
+typeParameters : LESS typeParameter GREATER ;
+typeParameter: ID ( COMMA typeParameter )? ;
 
 type : typeName                      #typeNameExpr
        | functionType                #functionTypeExpr

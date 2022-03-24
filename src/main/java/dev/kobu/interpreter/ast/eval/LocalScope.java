@@ -26,7 +26,7 @@ package dev.kobu.interpreter.ast.eval;
 
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.context.ContextSnapshot;
-import dev.kobu.interpreter.ast.symbol.FunctionSymbol;
+import dev.kobu.interpreter.ast.symbol.function.FunctionSymbol;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.Scope;
 import dev.kobu.interpreter.ast.symbol.Symbol;

@@ -22,15 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.symbol.function;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.symbol.BuiltinScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FunctionType implements Type {
@@ -137,6 +139,29 @@ public class FunctionType implements Type {
     @Override
     public Comparator<ValueExpr> getComparator() {
         return null;
+    }
+
+    @Override
+    public Collection<TypeAlias> aliases() {
+        Set<TypeAlias> aliases = new HashSet<>();
+        for (FunctionTypeParameter parameter : parameters) {
+            aliases.addAll(parameter.getType().aliases());
+        }
+        if (returnType != null) {
+            aliases.addAll(returnType.aliases());
+        }
+        return aliases;
+    }
+
+    @Override
+    public Type constructFor(Map<String, Type> typeArgs) {
+        Type retType = null;
+        if (returnType != null) {
+            retType = returnType.constructFor(typeArgs);
+        }
+        return new FunctionType(
+                parameters.stream().map(p -> p.constructFor(typeArgs)).collect(Collectors.toList()),
+                retType);
     }
 
     @Override

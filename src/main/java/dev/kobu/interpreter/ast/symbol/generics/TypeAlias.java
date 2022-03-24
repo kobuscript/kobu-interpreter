@@ -22,103 +22,77 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.symbol.generics;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.symbol.function.FunctionSymbol;
+import dev.kobu.interpreter.ast.symbol.BuiltinScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
-import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 
 import java.util.*;
 
-public class ModuleRefSymbol extends Symbol implements Type {
+public class TypeAlias implements Type {
 
-    private final String alias;
+    private final TypeParameter typeParameter;
 
-    private final ModuleScope moduleScopeRef;
-
-    public ModuleRefSymbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String alias, ModuleScope moduleScopeRef) {
-        super(moduleScope, sourceCodeRef, "$" + moduleScopeRef.getModuleId());
-        this.alias = alias;
-        this.moduleScopeRef = moduleScopeRef;
+    public TypeAlias(TypeParameter typeParameter) {
+        this.typeParameter = typeParameter;
     }
 
-    public String getAlias() {
-        return alias;
+    public TypeParameter getTypeParameter() {
+        return typeParameter;
     }
 
-    public ModuleScope getModuleScopeRef() {
-        return moduleScopeRef;
+    @Override
+    public SourceCodeRef getSourceCodeRef() {
+        return typeParameter.getSourceCodeRef();
+    }
+
+    @Override
+    public String getName() {
+        return typeParameter.getAlias();
     }
 
     @Override
     public String getIdentifier() {
-        return getName();
-    }
-
-    @Override
-    public String getNameInModule() {
-        return alias;
+        return typeParameter.getAlias();
     }
 
     @Override
     public List<FieldDescriptor> getFields() {
-        List<FieldDescriptor> fields = new ArrayList<>();
-        for (Symbol symbol : moduleScopeRef.getSymbols()) {
-            if (symbol instanceof RuleSymbol) {
-                fields.add(new FieldDescriptor(symbol.getName(), ((RuleSymbol)symbol).getRuleType().name()));
-            }
-        }
-        return fields;
+        return BuiltinScope.ANY_TYPE.getFields();
     }
 
     @Override
     public List<NamedFunction> getMethods() {
-        List<NamedFunction> functions = new ArrayList<>();
-        for (Symbol symbol : moduleScopeRef.getSymbols()) {
-            if (symbol instanceof FunctionSymbol) {
-                functions.add((NamedFunction) symbol);
-            }
-        }
-        return functions;
+        return BuiltinScope.ANY_TYPE.getMethods();
     }
 
     @Override
     public Type resolveField(String name) {
-        var symbol = moduleScopeRef.resolveLocal(name);
-        if (symbol instanceof RuleSymbol) {
-            return BuiltinScope.RULE_REF_TYPE;
-        }
-        return null;
+        return BuiltinScope.ANY_TYPE.resolveField(name);
     }
 
     @Override
     public SourceCodeRef getFieldRef(String name) {
-        var symbol = moduleScopeRef.resolveLocal(name);
-        if (symbol instanceof RuleSymbol) {
-            return symbol.getSourceCodeRef();
-        }
-        return null;
+        return BuiltinScope.ANY_TYPE.getFieldRef(name);
     }
 
     @Override
     public NamedFunction resolveMethod(String name) {
-        var symbol = moduleScopeRef.resolveLocal(name);
-        if (symbol instanceof NamedFunction) {
-            return (NamedFunction) symbol;
-        }
-        return null;
+        return BuiltinScope.ANY_TYPE.resolveMethod(name);
     }
 
     @Override
     public boolean isAssignableFrom(Type type) {
-        return false;
+        return equals(type);
     }
 
     @Override
     public Type getCommonSuperType(Type type) {
-        return null;
+        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
     }
 
     @Override
@@ -128,11 +102,15 @@ public class ModuleRefSymbol extends Symbol implements Type {
 
     @Override
     public Collection<TypeAlias> aliases() {
-        return List.of();
+        return List.of(this);
     }
 
     @Override
     public Type constructFor(Map<String, Type> typeArgs) {
+        Type type = typeArgs.get(typeParameter.getAlias());
+        if (type != null) {
+            return type;
+        }
         return this;
     }
 
@@ -140,13 +118,13 @@ public class ModuleRefSymbol extends Symbol implements Type {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ModuleRefSymbol that = (ModuleRefSymbol) o;
-        return Objects.equals(alias, that.alias) && Objects.equals(moduleScopeRef, that.moduleScopeRef);
+        TypeAlias typeAlias = (TypeAlias) o;
+        return Objects.equals(typeParameter, typeAlias.typeParameter);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(alias, moduleScopeRef);
+        return Objects.hash(typeParameter);
     }
 
 }

@@ -32,8 +32,9 @@ import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.kobu.interpreter.ast.symbol.ArrayType;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.utils.RecordFactory;
 
 import java.util.ArrayList;
@@ -76,7 +77,7 @@ public class CsvParserVisitor extends CSVBaseVisitor<ValueExpr> {
             rows.add(rowRec);
         }
         var rowType = context.getModuleScope().resolve(CSV_ROW_TYPE);
-        ArrayType rowArrayType = new ArrayType((Type) rowType);
+        ArrayType rowArrayType = ArrayTypeFactory.getArrayTypeFor((Type) rowType);
         if (ctx.row() != null) {
             int idx = 1;
             for (CSVParser.RowContext rowContext : ctx.row()) {
@@ -113,7 +114,7 @@ public class CsvParserVisitor extends CSVBaseVisitor<ValueExpr> {
             }
         }
         record.updateFieldValue(context, "columns",
-                new ArrayValueExpr(new ArrayType((Type) context.getModuleScope().resolve(CSV_COLUMN_TYPE)), columns));
+                new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor((Type) context.getModuleScope().resolve(CSV_COLUMN_TYPE)), columns));
         return record;
     }
 

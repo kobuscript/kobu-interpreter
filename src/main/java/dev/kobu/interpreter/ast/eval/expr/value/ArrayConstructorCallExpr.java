@@ -29,6 +29,8 @@ import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.HasTargetType;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 
 import java.util.ArrayList;
@@ -77,7 +79,7 @@ public class ArrayConstructorCallExpr implements Expr, HasTargetType {
                 element.analyze(context);
                 var inferType = element.getType();
                 if (inferType instanceof UnknownType) {
-                    this.type = new ArrayType(UnknownType.INSTANCE);
+                    this.type = ArrayTypeFactory.getArrayTypeFor(UnknownType.INSTANCE);
                     return;
                 }
                 if (elementType == null) {
@@ -87,7 +89,7 @@ public class ArrayConstructorCallExpr implements Expr, HasTargetType {
                     if (commonType == null) {
                         context.addAnalyzerError(new InvalidTypeError(element.getSourceCodeRef(),
                                 inferType, elementType));
-                        this.type = new ArrayType(UnknownType.INSTANCE);
+                        this.type = ArrayTypeFactory.getArrayTypeFor(UnknownType.INSTANCE);
                         return;
                     } else {
                         elementType = commonType;
@@ -99,7 +101,7 @@ public class ArrayConstructorCallExpr implements Expr, HasTargetType {
             elementType = BuiltinScope.ANY_TYPE;
         }
 
-        this.type = new ArrayType(elementType);
+        this.type = ArrayTypeFactory.getArrayTypeFor(elementType);
     }
 
     @Override

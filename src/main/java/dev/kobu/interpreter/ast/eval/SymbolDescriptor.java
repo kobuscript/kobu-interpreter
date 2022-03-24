@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.eval;
 
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 
 import java.util.Objects;
 

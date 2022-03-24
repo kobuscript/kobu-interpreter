@@ -22,49 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.string;
+package dev.kobu.interpreter.ast.eval.function.array;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
-import dev.kobu.interpreter.ast.symbol.array.ArrayType;
-import dev.kobu.interpreter.ast.symbol.BuiltinScope;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-public class StringSplitMethodImpl extends BuiltinMethod {
+public class ArrayFilterMethodImpl extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        StringValueExpr stringExpr = (StringValueExpr) object;
-        StringValueExpr regexExpr = (StringValueExpr) args.get("regex");
-        NumberValueExpr limitExpr = (NumberValueExpr) args.get("limit");
-
-        List<String> result;
-        if (limitExpr == null) {
-            result = Arrays.asList(stringExpr.getValue().split(regexExpr.getValue()));
-        } else {
-            result = Arrays.asList(stringExpr.getValue().split(regexExpr.getValue(), limitExpr.getValue().intValue()));
-        }
-        List<ValueExpr> resultExpr = result
-                .stream()
-                .map(StringValueExpr::new)
-                .collect(Collectors.toList());
-
-        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(BuiltinScope.STRING_TYPE), resultExpr);
+        return null;
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return null;
     }
-
 }

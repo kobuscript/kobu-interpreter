@@ -29,6 +29,8 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.expr.value.*;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.error.analyzer.InvalidVariableError;
 import dev.kobu.interpreter.error.analyzer.UndefinedFieldError;
 import dev.kobu.interpreter.error.analyzer.UndefinedSymbolError;

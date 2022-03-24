@@ -32,6 +32,8 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.function.FunctionType;
 import dev.kobu.interpreter.error.analyzer.DuplicatedFunctionParamError;
 import dev.kobu.interpreter.error.analyzer.FunctionMissingReturnStatError;
 import dev.kobu.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
@@ -73,6 +75,11 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public Map<String, Type> providedTypeArguments() {
+        return new HashMap<>();
     }
 
     @Override

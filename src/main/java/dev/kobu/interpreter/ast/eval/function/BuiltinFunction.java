@@ -27,12 +27,11 @@ package dev.kobu.interpreter.ast.eval.function;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.symbol.NamedFunction;
-import dev.kobu.interpreter.ast.symbol.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.EvalError;
 import dev.kobu.interpreter.error.eval.BuiltinFunctionError;
-import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.util.HashMap;
 import java.util.List;

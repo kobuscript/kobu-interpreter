@@ -27,6 +27,7 @@ package dev.kobu.interpreter.ast.query;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Evaluable;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.error.analyzer.InvalidJoinQueryType;
 import dev.kobu.interpreter.error.analyzer.InvalidQueryType;
 

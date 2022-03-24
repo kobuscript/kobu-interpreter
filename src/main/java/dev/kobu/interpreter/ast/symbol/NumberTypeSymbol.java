@@ -27,6 +27,7 @@ package dev.kobu.interpreter.ast.symbol;
 import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.number.*;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 
 import java.util.Comparator;
 

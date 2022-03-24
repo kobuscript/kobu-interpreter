@@ -22,7 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.symbol.function;
+
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.util.stream.Collectors;
 

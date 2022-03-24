@@ -22,22 +22,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.symbol.array;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.eval.function.array.*;
+import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.ast.utils.StringFunctions;
 
 import java.util.*;
 
 public class ArrayType implements Type {
 
+    private final static BuiltinMethod SIZE_METHOD = new ArraySizeMethodImpl();
+
+    private final static BuiltinMethod ADD_METHOD = new ArrayAddMethodImpl();
+
+    private final static BuiltinMethod REMOVE_METHOD = new ArrayRemoveMethodImpl();
+
+    private final static BuiltinMethod ADD_ALL_METHOD = new ArrayAddAllMethodImpl();
+
+    private final static BuiltinMethod DISTINCT_METHOD = new ArrayDistinctMethodImpl();
+
     private final Type elementType;
 
     private final Map<String, NamedFunction> methods = new HashMap<>();
 
-    public ArrayType(Type elementType) {
+    protected ArrayType(Type elementType) {
         this.elementType = elementType;
         buildMethods();
     }
@@ -96,7 +112,7 @@ public class ArrayType implements Type {
         if (isAssignableFrom(type)) {
             return this;
         } else if (type instanceof ArrayType) {
-            return new ArrayType(elementType.getCommonSuperType(((ArrayType)type).getElementType()));
+            return ArrayTypeFactory.getArrayTypeFor(elementType.getCommonSuperType(((ArrayType)type).getElementType()));
         }
         return BuiltinScope.ANY_TYPE;
     }
@@ -106,18 +122,28 @@ public class ArrayType implements Type {
         return null;
     }
 
+    @Override
+    public Collection<TypeAlias> aliases() {
+        return elementType.aliases();
+    }
+
+    @Override
+    public Type constructFor(Map<String, Type> typeArgs) {
+        return ArrayTypeFactory.getArrayTypeFor(elementType.constructFor(typeArgs));
+    }
+
     private void buildMethods() {
         BuiltinTypeSymbol numberType = BuiltinScope.NUMBER_TYPE;
 
-        methods.put("size", new BuiltinFunctionSymbol(this, "size", new ArraySizeMethodImpl()));
-        methods.put("length", new BuiltinFunctionSymbol(this, "length", new ArraySizeMethodImpl()));
-        methods.put("add", new BuiltinFunctionSymbol(this, "add", new ArrayAddMethodImpl(),
+        methods.put("size", new BuiltinFunctionSymbol(this, "size", SIZE_METHOD));
+        methods.put("length", new BuiltinFunctionSymbol(this, "length", SIZE_METHOD));
+        methods.put("add", new BuiltinFunctionSymbol(this, "add", ADD_METHOD,
                 new FunctionParameter("elem", elementType, false)));
-        methods.put("remove", new BuiltinFunctionSymbol(this, "remove", new ArrayRemoveMethodImpl(),
+        methods.put("remove", new BuiltinFunctionSymbol(this, "remove", REMOVE_METHOD,
                 new FunctionParameter("index", numberType, false)));
-        methods.put("addAll", new BuiltinFunctionSymbol(this, "addAll", new ArrayAddAllMethodImpl(),
+        methods.put("addAll", new BuiltinFunctionSymbol(this, "addAll", ADD_ALL_METHOD,
                 new FunctionParameter("arr", this, false)));
-        methods.put("distinct", new BuiltinFunctionSymbol(this, "distinct", new ArrayDistinctMethodImpl(), this));
+        methods.put("distinct", new BuiltinFunctionSymbol(this, "distinct", DISTINCT_METHOD, this));
 
         if (elementType == null) {
             return;

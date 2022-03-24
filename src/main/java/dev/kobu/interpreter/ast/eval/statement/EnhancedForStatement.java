@@ -29,6 +29,8 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
 
@@ -71,14 +73,14 @@ public class EnhancedForStatement implements Statement {
             }
             if (!(type instanceof ArrayType)) {
                 context.addAnalyzerError(new InvalidTypeError(arrayExpr.getSourceCodeRef(),
-                        new ArrayType(BuiltinScope.ANY_TYPE), type));
+                        ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_TYPE), type));
                 return;
             }
             Type elemType = ((ArrayType)type).getElementType();
             if (itElemVar.getType() != null) {
                 if (!itElemVar.getType().isAssignableFrom(elemType)) {
                     context.addAnalyzerError(new InvalidTypeError(arrayExpr.getSourceCodeRef(),
-                            new ArrayType(itElemVar.getType()), type));
+                            ArrayTypeFactory.getArrayTypeFor(itElemVar.getType()), type));
                 }
             } else {
                 itElemVar.setType(elemType);

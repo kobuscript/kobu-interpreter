@@ -22,12 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval;
+package dev.kobu.interpreter.ast.symbol.generics;
 
-import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface HasMethods {
+public class TypeParameterContext {
 
-    NamedFunction resolveMethod(String methodName);
+    private final Map<String, TypeAlias> typeMap = new HashMap<>();
+
+    public boolean set(TypeParameter typeParameter) {
+        if (typeMap.containsKey(typeParameter.getAlias())) {
+            return false;
+        }
+        typeMap.put(typeParameter.getAlias(), new TypeAlias(typeParameter));
+        return true;
+    }
+
+    public TypeAlias get(String alias) {
+        return typeMap.get(alias);
+    }
 
 }

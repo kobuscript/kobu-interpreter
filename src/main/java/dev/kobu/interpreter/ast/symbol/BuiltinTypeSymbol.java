@@ -25,11 +25,10 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class BuiltinTypeSymbol extends Symbol implements Type {
 
@@ -74,6 +73,16 @@ public abstract class BuiltinTypeSymbol extends Symbol implements Type {
             method = BuiltinScope.ANY_TYPE.resolveMethod(name);
         }
         return method;
+    }
+
+    @Override
+    public Collection<TypeAlias> aliases() {
+        return List.of();
+    }
+
+    @Override
+    public Type constructFor(Map<String, Type> typeArgs) {
+        return this;
     }
 
     protected void addMethod(BuiltinFunctionSymbol method) {

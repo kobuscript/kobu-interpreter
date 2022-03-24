@@ -29,6 +29,7 @@ import dev.kobu.interpreter.ast.eval.HasMethods;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 
 import java.util.Objects;
 

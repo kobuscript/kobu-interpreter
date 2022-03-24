@@ -30,8 +30,9 @@ import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.kobu.interpreter.ast.symbol.ArrayType;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.utils.NumberParser;
 import dev.kobu.interpreter.ast.utils.RecordFactory;
 import dev.kobu.antlr.json.JSONBaseVisitor;
@@ -142,7 +143,7 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
             }
         }
         var jsonValueType = (Type) context.getModuleScope().resolve(JSON_VALUE_TYPE);
-        record.updateFieldValue(context, "value", new ArrayValueExpr(new ArrayType(jsonValueType), values));
+        record.updateFieldValue(context, "value", new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(jsonValueType), values));
 
         return record;
     }

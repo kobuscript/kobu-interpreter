@@ -22,12 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval;
+package dev.kobu.interpreter.error.analyzer;
 
-import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
+import dev.kobu.interpreter.error.AnalyzerError;
 
-public interface HasMethods {
+public class DuplicatedTypeParamError extends AnalyzerError {
 
-    NamedFunction resolveMethod(String methodName);
+    private final TypeParameter typeParameter;
+
+    public DuplicatedTypeParamError(SourceCodeRef sourceCodeRef, TypeParameter typeParameter) {
+        super(sourceCodeRef);
+        this.typeParameter = typeParameter;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Type parameter '" + typeParameter + "' is already defined";
+    }
 
 }

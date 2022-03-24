@@ -27,8 +27,6 @@ package dev.kobu.interpreter.ast.eval.context;
 import dev.kobu.database.Database;
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.RuleContext;
-import dev.kobu.interpreter.ast.symbol.FunctionSymbol;
-import dev.kobu.interpreter.ast.symbol.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.UserDefinedFunction;
 import dev.kobu.interpreter.input.InputReader;

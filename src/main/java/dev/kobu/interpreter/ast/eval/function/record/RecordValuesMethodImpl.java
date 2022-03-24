@@ -29,9 +29,10 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
-import dev.kobu.interpreter.ast.symbol.ArrayType;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,7 @@ public class RecordValuesMethodImpl extends BuiltinMethod {
             }
         }
 
-        return new ArrayValueExpr(new ArrayType(type), result);
+        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(type), result);
     }
 
     @Override

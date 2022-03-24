@@ -26,8 +26,8 @@ package dev.kobu.interpreter.ast.eval.expr.value;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
-import dev.kobu.interpreter.ast.symbol.ArrayType;
-import dev.kobu.interpreter.ast.symbol.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.eval.ArrayIndexOutOfBoundsError;
 import dev.kobu.interpreter.ast.eval.HasMethods;

@@ -29,8 +29,9 @@ import dev.kobu.antlr.csv.CSVParser;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.symbol.ArrayType;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.input.parser.CsvParserVisitor;
 import dev.kobu.interpreter.input.parser.JsonParserVisitor;
 import dev.kobu.antlr.json.JSONLexer;
@@ -65,7 +66,7 @@ public class InputReader {
             }
         }
 
-        return new ArrayValueExpr(new ArrayType(inputType.getType(context)), values);
+        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(inputType.getType(context)), values);
     }
 
     public ValueExpr readFromUrl(EvalContext context, InputParser parser, String url) throws IOException {

@@ -34,6 +34,10 @@ import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.function.NativeFunction;
 import dev.kobu.interpreter.ast.eval.function.NativeFunctionId;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.function.FunctionSymbol;
 import dev.kobu.interpreter.ast.utils.SymbolDescriptorUtils;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.error.analyzer.InvalidMainFunctionError;
@@ -251,11 +255,11 @@ public class ModuleScope implements Scope {
             FunctionParameter param = function.getParameters().get(0);
             if (!(param.getType() instanceof ArrayType) &&
                     !(((ArrayType)param.getType()).getElementType().getName().equals(BuiltinScope.STRING_TYPE.getName()))) {
-                throw new InvalidTypeError(function.getSourceCodeRef(), new ArrayType(BuiltinScope.STRING_TYPE), param.getType());
+                throw new InvalidTypeError(function.getSourceCodeRef(), ArrayTypeFactory.getArrayTypeFor(BuiltinScope.STRING_TYPE), param.getType());
             }
 
             List<ValueExpr> values = args.stream().map(StringValueExpr::new).collect(Collectors.toList());
-            ArrayValueExpr argsArrayExpr = new ArrayValueExpr(new ArrayType(BuiltinScope.STRING_TYPE), values);
+            ArrayValueExpr argsArrayExpr = new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(BuiltinScope.STRING_TYPE), values);
             List<ValueExpr> argList = new ArrayList<>();
             argList.add(argsArrayExpr);
             function.eval(analyzerContext, evalContextProvider, argList);

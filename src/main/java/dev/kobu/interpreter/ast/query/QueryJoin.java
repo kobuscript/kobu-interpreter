@@ -27,10 +27,11 @@ package dev.kobu.interpreter.ast.query;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Evaluable;
 import dev.kobu.interpreter.ast.eval.Expr;
-import dev.kobu.interpreter.ast.symbol.ArrayType;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.UnknownType;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 
 public class QueryJoin implements Evaluable {
@@ -82,7 +83,7 @@ public class QueryJoin implements Evaluable {
                 }
             } else if (typeClause.getQueryType() instanceof ArrayType) {
                 context.addAnalyzerError(new InvalidTypeError(ofExpr.getSourceCodeRef(),
-                        new ArrayType(BuiltinScope.ANY_RECORD_TYPE), ofExpr.getType()));
+                        ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_RECORD_TYPE), ofExpr.getType()));
             }
 
 

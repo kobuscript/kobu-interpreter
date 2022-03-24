@@ -24,17 +24,18 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.expr.value;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.HasTargetType;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.symbol.TupleType;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TupleConstructorCallExpr implements Expr, HasTargetType {
 
@@ -69,20 +70,33 @@ public class TupleConstructorCallExpr implements Expr, HasTargetType {
     public void analyze(EvalContext context) {
         if (targetType instanceof TupleType) {
             TupleType targetTupleType = (TupleType) targetType;
-            if (exprList.size() == targetTupleType.getTypes().size()) {
-                for (int i = 0; i < exprList.size(); i++) {
-                    Expr expr = exprList.get(i);
-                    if (expr instanceof HasTargetType) {
-                        ((HasTargetType)expr).setTargetType(targetTupleType.getTypes().get(i));
-                    }
+            TupleTypeElement typeElement = targetTupleType.getTypeElement();
+            for (int i = 0; i < exprList.size() && typeElement != null; i++) {
+                Expr expr = exprList.get(i);
+                if (expr instanceof HasTargetType) {
+                    ((HasTargetType)expr).setTargetType(typeElement.getElementType());
                 }
+                typeElement = typeElement.getNext();
             }
         }
         for (Expr expr : exprList) {
             expr.analyze(context);
         }
 
-        this.type = new TupleType(exprList.stream().map(Expr::getType).collect(Collectors.toList()));
+        TupleTypeElement typeElement = null;
+        TupleTypeElement it = null;
+        for (Expr expr : exprList) {
+            if (typeElement == null) {
+                typeElement = new TupleTypeElement(expr.getType());
+                it = typeElement;
+            } else {
+                TupleTypeElement next = new TupleTypeElement(expr.getType());
+                it.setNext(next);
+                it = next;
+            }
+        }
+
+        this.type = TupleTypeFactory.getTupleTypeFor(typeElement);
     }
 
     @Override

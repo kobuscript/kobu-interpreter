@@ -33,7 +33,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.TemplateValueExpr;
 import dev.kobu.interpreter.ast.query.QueryJoin;
-import dev.kobu.interpreter.ast.symbol.ArrayType;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 
 import java.util.*;
 import java.util.stream.Collectors;

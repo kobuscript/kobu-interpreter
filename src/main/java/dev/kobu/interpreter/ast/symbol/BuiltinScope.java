@@ -33,6 +33,8 @@ import dev.kobu.interpreter.ast.eval.function.global.rules.AddRulesFunctionImpl;
 import dev.kobu.interpreter.ast.eval.function.global.rules.FireRulesFunctionImpl;
 import dev.kobu.interpreter.ast.eval.function.global.rules.InsertFunctionImpl;
 import dev.kobu.interpreter.ast.eval.function.global.rules.UpdateFunctionImpl;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -103,7 +105,7 @@ public class BuiltinScope implements Scope {
         symbols.put(RECORD_TYPE_REF_TYPE.getName(), RECORD_TYPE_REF_TYPE);
         symbols.put(TEMPLATE_TYPE.getName(), TEMPLATE_TYPE);
 
-        var recordArrayType = new ArrayType(BuiltinScope.ANY_RECORD_TYPE);
+        var recordArrayType = ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_RECORD_TYPE);
 
         var envVarFunc = new BuiltinFunctionSymbol("env", new EnvFunctionImpl(), STRING_TYPE,
                 new FunctionParameter("var", STRING_TYPE, false),
@@ -123,7 +125,7 @@ public class BuiltinScope implements Scope {
                 new FunctionParameter("type", RECORD_TYPE_REF_TYPE, false));
 
         var addRulesFunc = new BuiltinFunctionSymbol("addRules", new AddRulesFunctionImpl(),
-                new FunctionParameter("rules", new ArrayType(BuiltinScope.RULE_REF_TYPE), false));
+                new FunctionParameter("rules", ArrayTypeFactory.getArrayTypeFor(BuiltinScope.RULE_REF_TYPE), false));
         var insertFunc = new BuiltinFunctionSymbol("insert", new InsertFunctionImpl(),
                 new FunctionParameter("value", ANY_RECORD_TYPE, false));
         var updateFunc = new BuiltinFunctionSymbol("update", new UpdateFunctionImpl(),

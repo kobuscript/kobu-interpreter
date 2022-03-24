@@ -22,12 +22,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval;
+package dev.kobu.interpreter.ast.symbol.generics;
 
-import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
-public interface HasMethods {
+import java.util.Objects;
 
-    NamedFunction resolveMethod(String methodName);
+public class TypeParameter {
+
+    private final SourceCodeRef sourceCodeRef;
+
+    private final String alias;
+
+    public TypeParameter(SourceCodeRef sourceCodeRef, String alias) {
+        this.sourceCodeRef = sourceCodeRef;
+        this.alias = alias;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public SourceCodeRef getSourceCodeRef() {
+        return sourceCodeRef;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TypeParameter that = (TypeParameter) o;
+        return Objects.equals(sourceCodeRef, that.sourceCodeRef) && Objects.equals(alias, that.alias);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sourceCodeRef, alias);
+    }
 
 }

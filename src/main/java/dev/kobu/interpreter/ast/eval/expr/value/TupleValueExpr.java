@@ -26,8 +26,8 @@ package dev.kobu.interpreter.ast.eval.expr.value;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
-import dev.kobu.interpreter.ast.symbol.NamedFunction;
-import dev.kobu.interpreter.ast.symbol.TupleType;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.eval.HasMethods;

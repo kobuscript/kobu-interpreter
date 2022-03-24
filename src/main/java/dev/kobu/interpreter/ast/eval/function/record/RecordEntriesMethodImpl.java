@@ -32,6 +32,10 @@ import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.TupleValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,12 +57,14 @@ public class RecordEntriesMethodImpl extends BuiltinMethod {
         for (String field : recordExpr.getFields()) {
             ValueExpr value = recordExpr.resolveField(field);
             if (type.isAssignableFrom(value.getType())) {
-                var pairType = new TupleType(List.of(BuiltinScope.STRING_TYPE, value.getType()));
-                result.add(new TupleValueExpr(pairType, List.of(new StringValueExpr(field), value)));
+                TupleTypeElement tupleTypeElement = new TupleTypeElement(BuiltinScope.STRING_TYPE);
+                tupleTypeElement.setNext(new TupleTypeElement(value.getType()));
+                var tupleType = TupleTypeFactory.getTupleTypeFor(tupleTypeElement);
+                result.add(new TupleValueExpr(tupleType, List.of(new StringValueExpr(field), value)));
             }
         }
 
-        return new ArrayValueExpr(new ArrayType(type), result);
+        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(type), result);
     }
 
     @Override

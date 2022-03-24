@@ -31,7 +31,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.TupleType;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.ast.symbol.Type;
 
 import java.util.Map;

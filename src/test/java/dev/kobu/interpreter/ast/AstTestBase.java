@@ -35,6 +35,12 @@ import dev.kobu.interpreter.ast.eval.statement.*;
 import dev.kobu.interpreter.ast.query.Query;
 import dev.kobu.interpreter.ast.query.QueryTypeClause;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.function.FunctionSymbol;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.file_system.ScriptRef;
 import dev.kobu.interpreter.input.FileFetcher;
@@ -162,11 +168,23 @@ public abstract class AstTestBase {
     }
 
     Type arrayType(Type elementType) {
-        return new ArrayType(elementType);
+        return ArrayTypeFactory.getArrayTypeFor(elementType);
     }
 
     Type tupleType(Type... types) {
-        return new TupleType(Arrays.asList(types));
+        TupleTypeElement tupleTypeElement = null;
+        TupleTypeElement it = null;
+        for (Type type : types) {
+            if (tupleTypeElement == null) {
+                tupleTypeElement = new TupleTypeElement(type);
+                it = tupleTypeElement;
+            } else {
+                TupleTypeElement next = new TupleTypeElement(type);
+                it.setNext(next);
+                it = next;
+            }
+        }
+        return TupleTypeFactory.getTupleTypeFor(tupleTypeElement);
     }
 
     StringValueExpr stringVal(String value) {

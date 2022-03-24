@@ -29,6 +29,8 @@ import dev.kobu.database.Database;
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
+import dev.kobu.interpreter.ast.symbol.function.NativeFunctionSymbol;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.error.analyzer.UnreachableCodeError;
 import dev.kobu.interpreter.input.InputReader;

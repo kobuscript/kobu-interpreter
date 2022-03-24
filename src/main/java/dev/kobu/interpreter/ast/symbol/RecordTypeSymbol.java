@@ -33,6 +33,10 @@ import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.function.record.RecordEntriesMethodImpl;
 import dev.kobu.interpreter.ast.eval.function.record.RecordValuesMethodImpl;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.error.analyzer.CyclicRecordInheritanceError;
 import dev.kobu.interpreter.error.analyzer.RecordSuperTypeConflictError;
 import dev.kobu.interpreter.error.analyzer.RecordTypeAttributeConflictError;
@@ -263,6 +267,16 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         return null;
     }
 
+    @Override
+    public Collection<TypeAlias> aliases() {
+        return List.of();
+    }
+
+    @Override
+    public Type constructFor(Map<String, Type> typeArgs) {
+        return this;
+    }
+
     public void buildMethods() {
         var types = new HashSet<String>();
         for (RecordTypeAttribute attribute : attributes.values()) {
@@ -286,14 +300,14 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     private void buildDynamicMethods(Type type) {
-        var valMethodName = "get" + type.getIdentifier() + "Values";
-        methods.put(valMethodName, new BuiltinFunctionSymbol(this, valMethodName,
-                new RecordValuesMethodImpl(type), new ArrayType(type)));
-
-        var entryMethodName = "get" + type.getIdentifier() + "Entries";
-        methods.put(entryMethodName, new BuiltinFunctionSymbol(this, entryMethodName,
-                new RecordEntriesMethodImpl(type),
-                new ArrayType(new TupleType(List.of(BuiltinScope.STRING_TYPE, type)))));
+//        var valMethodName = "get" + type.getIdentifier() + "Values";
+//        methods.put(valMethodName, new BuiltinFunctionSymbol(this, valMethodName,
+//                new RecordValuesMethodImpl(type), ArrayTypeFactory.getArrayTypeFor(type)));
+//
+//        var entryMethodName = "get" + type.getIdentifier() + "Entries";
+//        methods.put(entryMethodName, new BuiltinFunctionSymbol(this, entryMethodName,
+//                new RecordEntriesMethodImpl(type),
+//                ArrayTypeFactory.getArrayTypeFor(new TupleType(List.of(BuiltinScope.STRING_TYPE, type)))));
     }
 
     private RecordTypeAttribute resolveSuperTypeAttribute(String attrName) {

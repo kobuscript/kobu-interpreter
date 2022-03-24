@@ -28,6 +28,7 @@ import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.Evaluable;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
+import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 
 import java.util.List;
 

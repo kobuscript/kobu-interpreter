@@ -26,10 +26,10 @@ package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class UnknownType implements Type {
 
@@ -91,5 +91,15 @@ public class UnknownType implements Type {
     @Override
     public Comparator<ValueExpr> getComparator() {
         return null;
+    }
+
+    @Override
+    public Collection<TypeAlias> aliases() {
+        return List.of();
+    }
+
+    @Override
+    public Type constructFor(Map<String, Type> typeArgs) {
+        return this;
     }
 }

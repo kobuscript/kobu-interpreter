@@ -31,6 +31,8 @@ import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.SymbolDescriptor;
 import dev.kobu.interpreter.ast.eval.function.NativeFunctionId;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.function.FunctionSymbol;
+import dev.kobu.interpreter.ast.symbol.function.NativeFunctionSymbol;
 import dev.kobu.interpreter.ast.utils.DocumentationUtils;
 import dev.kobu.interpreter.ast.utils.SymbolDescriptorUtils;
 import dev.kobu.interpreter.error.AnalyzerError;

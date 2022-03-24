@@ -22,12 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.symbol.function;
 
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
+import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.error.analyzer.DuplicatedFunctionParamError;
 import dev.kobu.interpreter.error.analyzer.FunctionMissingReturnStatError;
 import dev.kobu.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
@@ -85,6 +87,11 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
     @Override
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public Map<String, Type> providedTypeArguments() {
+        return new HashMap<>();
     }
 
     public List<FunctionParameter> getParameters() {

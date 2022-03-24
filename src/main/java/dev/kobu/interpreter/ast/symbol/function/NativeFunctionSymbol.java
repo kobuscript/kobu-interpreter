@@ -22,16 +22,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.symbol.function;
 
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.SymbolDocumentation;
 import dev.kobu.interpreter.ast.eval.SymbolTypeEnum;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.function.NativeFunction;
+import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasExpr {
@@ -53,6 +57,11 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasEx
         this.functionImpl.setFuncDef(this);
         this.documentation = new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.FUNCTION,
                 getName() + getDescription(), docText);
+    }
+
+    @Override
+    public Map<String, Type> providedTypeArguments() {
+        return new HashMap<>();
     }
 
     @Override

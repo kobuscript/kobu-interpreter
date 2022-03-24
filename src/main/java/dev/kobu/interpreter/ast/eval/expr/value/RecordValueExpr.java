@@ -30,7 +30,7 @@ import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.eval.HasFields;
 import dev.kobu.interpreter.ast.eval.HasMethods;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.symbol.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;

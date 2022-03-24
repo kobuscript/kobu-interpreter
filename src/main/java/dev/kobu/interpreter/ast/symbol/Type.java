@@ -27,9 +27,13 @@ package dev.kobu.interpreter.ast.symbol;
 import dev.kobu.interpreter.ast.AstNode;
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public interface Type extends AstNode {
 
@@ -54,5 +58,9 @@ public interface Type extends AstNode {
     Type getCommonSuperType(Type type);
 
     Comparator<ValueExpr> getComparator();
+
+    Collection<TypeAlias> aliases();
+
+    Type constructFor(Map<String, Type> typeArgs);
 
 }

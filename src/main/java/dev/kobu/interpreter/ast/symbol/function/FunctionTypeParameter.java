@@ -22,60 +22,58 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.error.analyzer;
+package dev.kobu.interpreter.ast.symbol.function;
 
-import dev.kobu.interpreter.ast.eval.expr.FunctionArgExpr;
-import dev.kobu.interpreter.ast.symbol.function.FunctionType;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.error.AnalyzerError;
+import dev.kobu.interpreter.ast.symbol.Type;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
-public class InvalidFunctionCallError extends AnalyzerError {
+public class FunctionTypeParameter {
 
-    private final FunctionType function;
+    private final Type type;
 
-    private final List<FunctionArgExpr> args;
+    private final boolean optional;
 
-    public InvalidFunctionCallError(SourceCodeRef sourceCodeRef, FunctionType function, List<FunctionArgExpr> args) {
-        super(sourceCodeRef);
-        this.function = function;
-        this.args = args;
+    public FunctionTypeParameter(Type type, boolean optional) {
+        this.type = type;
+        this.optional = optional;
     }
 
-    public FunctionType getFunction() {
-        return function;
+    public Type getType() {
+        return type;
     }
 
-    public List<FunctionArgExpr> getArgs() {
-        return args;
+    public boolean isOptional() {
+        return optional;
     }
 
-    @Override
     public String getDescription() {
-        return "Expected " + getArgsNumber() + ", but got " + args.size() + ".";
+        String typeName = type.getName();
+        if (optional) {
+            typeName += "?";
+        }
+        return typeName;
     }
 
-    private String getArgsNumber() {
-        if (function.getParameters().size() == 1) {
-            return "1 argument";
-        } else {
-            return function.getParameters().size() + " arguments";
+    public FunctionTypeParameter constructFor(Map<String, Type> typeArgs) {
+        Type resolvedType = type.constructFor(typeArgs);
+        if (resolvedType == type) {
+            return this;
         }
+        return new FunctionTypeParameter(resolvedType, optional);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        InvalidFunctionCallError that = (InvalidFunctionCallError) o;
-        return Objects.equals(function, that.function);
+        FunctionTypeParameter that = (FunctionTypeParameter) o;
+        return optional == that.optional && Objects.equals(type, that.type);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), function);
+        return Objects.hash(type, optional);
     }
 }

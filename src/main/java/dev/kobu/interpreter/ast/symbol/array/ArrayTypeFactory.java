@@ -22,12 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval;
+package dev.kobu.interpreter.ast.symbol.array;
 
-import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.Type;
 
-public interface HasMethods {
+import java.util.HashMap;
+import java.util.Map;
 
-    NamedFunction resolveMethod(String methodName);
+public class ArrayTypeFactory {
+
+    private final static Map<Type, ArrayType> arrayTypeMap = new HashMap<>();
+
+    public static ArrayType getArrayTypeFor(Type elemType) {
+        return arrayTypeMap.computeIfAbsent(elemType, ArrayType::new);
+    }
 
 }

@@ -33,6 +33,7 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.error.analyzer.InvalidQueryType;
 import dev.kobu.interpreter.error.analyzer.NotArrayTypeError;
 import dev.kobu.interpreter.error.analyzer.UndefinedFieldError;

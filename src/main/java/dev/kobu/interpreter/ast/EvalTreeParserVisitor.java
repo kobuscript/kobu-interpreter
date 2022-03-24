@@ -35,6 +35,13 @@ import dev.kobu.interpreter.ast.file.PathStatement;
 import dev.kobu.interpreter.ast.file.PathStaticSegmentStatement;
 import dev.kobu.interpreter.ast.query.*;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.ast.symbol.function.*;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameterContext;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 import dev.kobu.interpreter.ast.template.TemplateContentStatement;
 import dev.kobu.interpreter.ast.template.TemplateStatement;
 import dev.kobu.interpreter.ast.template.TemplateStaticContentStatement;
@@ -57,6 +64,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     private int scopeEndOffset = 0;
 
     private boolean ruleTypeScope = false;
+
+    private TypeParameterContext typeParameterContext;
 
     public EvalTreeParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, AnalyzerContext context) {
         super(moduleLoader);
@@ -180,6 +189,19 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             scopeEndOffset = ctx.RCB().getSymbol().getStopIndex() + 1;
         }
 
+        if (ctx.typeParameters() != null) {
+            typeParameterContext = new TypeParameterContext();
+            var typeParamCtx = ctx.typeParameters().typeParameter();
+            while (typeParamCtx != null) {
+                SourceCodeRef sourceCodeRef = getSourceCodeRef(typeParamCtx.ID());
+                TypeParameter typeParameter = new TypeParameter(sourceCodeRef, typeParamCtx.ID().getText());
+                if (!typeParameterContext.set(typeParameter)) {
+                    context.getErrorScope().addError(new DuplicatedTypeParamError(sourceCodeRef, typeParameter));
+                }
+                typeParamCtx = typeParamCtx.typeParameter();
+            }
+        }
+
         List<FunctionParameter> parameters = new ArrayList<>();
         if (ctx.functionDeclParam() != null) {
             KobuParser.FunctionDeclParamContext paramCtx = ctx.functionDeclParam();
@@ -195,6 +217,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                 }
             }
         }
+
+        typeParameterContext = null;
 
         function.setParameters(parameters);
         if (ctx.functionDeclRet() != null && ctx.functionDeclRet().type() != null) {
@@ -1375,7 +1399,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
     @Override
     public AstNode visitArrayType(KobuParser.ArrayTypeContext ctx) {
-        return new ArrayType((Type) visit(ctx.type()));
+        return ArrayTypeFactory.getArrayTypeFor((Type) visit(ctx.type()));
     }
 
     @Override
@@ -1384,9 +1408,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             return UnknownType.INSTANCE;
         }
         if (ctx.ID().size() == 1) {
-            var typeName = ctx.ID(0).getText();
-            var symbol = moduleScope.resolve(typeName);
-
             if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
                 moduleScope.registerAutoCompletionSource(ctx.ID(0).getSymbol().getStartIndex(), new AutoCompletionSource() {
                     @Override
@@ -1406,6 +1427,17 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                     }
                 });
             }
+
+            var typeName = ctx.ID(0).getText();
+
+            if (typeParameterContext != null) {
+                var typeAlias = typeParameterContext.get(typeName);
+                if (typeAlias != null) {
+                    return typeAlias;
+                }
+            }
+
+            var symbol = moduleScope.resolve(typeName);
 
             if (!ruleTypeScope) {
                 if (!(symbol instanceof Type)) {
@@ -1470,13 +1502,23 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
     @Override
     public AstNode visitTupleType(KobuParser.TupleTypeContext ctx) {
-        List<Type> typeList = new ArrayList<>();
         if (ctx.type() != null) {
+            TupleTypeElement tupleTypeElement = null;
+            TupleTypeElement it = null;
             for (KobuParser.TypeContext typeContext : ctx.type()) {
-                typeList.add((Type) visit(typeContext));
+                Type type = (Type) visit(typeContext);
+                if (tupleTypeElement == null) {
+                    tupleTypeElement = new TupleTypeElement(type);
+                    it = tupleTypeElement;
+                } else {
+                    TupleTypeElement next = new TupleTypeElement(type);
+                    it.setNext(next);
+                    it = next;
+                }
             }
+            return TupleTypeFactory.getTupleTypeFor(tupleTypeElement);
         }
-        return new TupleType(typeList);
+        return UnknownType.INSTANCE;
     }
 
     @Override

@@ -22,12 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval;
+package dev.kobu.interpreter.ast.symbol.tuple;
 
-import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface HasMethods {
+public class TupleTypeFactory {
 
-    NamedFunction resolveMethod(String methodName);
+    private final static Map<TupleTypeElement, TupleType> tupleTypeMap = new HashMap<>();
+
+    public static TupleType getTupleTypeFor(TupleTypeElement tupleTypeElement) {
+        return tupleTypeMap.computeIfAbsent(tupleTypeElement, TupleType::new);
+    }
 
 }

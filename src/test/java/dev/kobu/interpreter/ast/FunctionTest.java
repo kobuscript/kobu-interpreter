@@ -26,8 +26,8 @@ package dev.kobu.interpreter.ast;
 
 import dev.kobu.interpreter.ast.eval.statement.IfStatement;
 import dev.kobu.interpreter.ast.eval.statement.ReturnStatement;
-import dev.kobu.interpreter.ast.symbol.FunctionParameter;
-import dev.kobu.interpreter.ast.symbol.FunctionType;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.function.FunctionType;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.error.analyzer.*;
 import org.junit.jupiter.api.BeforeEach;

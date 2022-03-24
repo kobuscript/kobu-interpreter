@@ -22,27 +22,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.symbol.tuple;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.symbol.BuiltinScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TupleType implements Type {
 
-    private final List<Type> types;
+    private final TupleTypeElement typeElement;
 
     private final Map<String, NamedFunction> methods = new HashMap<>();
 
-    public TupleType(List<Type> types) {
-        this.types = types;
+    protected TupleType(TupleTypeElement typeElement) {
+        this.typeElement = typeElement;
         buildMethods();
     }
 
-    public List<Type> getTypes() {
-        return types;
+    public TupleTypeElement getTypeElement() {
+        return typeElement;
     }
 
     @Override
@@ -52,7 +56,7 @@ public class TupleType implements Type {
 
     @Override
     public String getName() {
-        return "( " + types.stream().map(Type::getName).collect(Collectors.joining(", ")) + " )";
+        return typeElement.getName();
     }
 
     @Override
@@ -88,15 +92,7 @@ public class TupleType implements Type {
     @Override
     public boolean isAssignableFrom(Type type) {
         if (type instanceof TupleType) {
-            TupleType other = (TupleType) type;
-            if (getTypes().size() == other.getTypes().size()) {
-                for (int i = 0; i < getTypes().size(); i++) {
-                    if (!getTypes().get(i).isAssignableFrom(other.getTypes().get(i))) {
-                        return false;
-                    }
-                }
-                return true;
-            }
+            return typeElement.isAssignableFrom(((TupleType) type).typeElement);
         }
         return false;
     }
@@ -107,12 +103,9 @@ public class TupleType implements Type {
             return this;
         } else if (type instanceof TupleType) {
             TupleType other = (TupleType) type;
-            if (getTypes().size() == other.getTypes().size()) {
-                List<Type> commonTypes = new ArrayList<>();
-                for (int i = 0; i < getTypes().size(); i++) {
-                    commonTypes.add(getTypes().get(i).getCommonSuperType(other.getTypes().get(i)));
-                }
-                return new TupleType(commonTypes);
+            TupleTypeElement elemSuperType = typeElement.getCommonSuperType(other.typeElement);
+            if (elemSuperType != null) {
+                return TupleTypeFactory.getTupleTypeFor(elemSuperType);
             }
         }
         return BuiltinScope.ANY_TYPE;
@@ -121,6 +114,18 @@ public class TupleType implements Type {
     @Override
     public Comparator<ValueExpr> getComparator() {
         return null;
+    }
+
+    @Override
+    public Collection<TypeAlias> aliases() {
+        Set<TypeAlias> aliases = new HashSet<>();
+        typeElement.getAliases(aliases);
+        return aliases;
+    }
+
+    @Override
+    public Type constructFor(Map<String, Type> typeArgs) {
+        return TupleTypeFactory.getTupleTypeFor(typeElement.constructFor(typeArgs));
     }
 
     private void buildMethods() {
@@ -132,12 +137,12 @@ public class TupleType implements Type {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TupleType tupleType = (TupleType) o;
-        return Objects.equals(types, tupleType.types);
+        return Objects.equals(typeElement, tupleType.typeElement);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(types);
+        return Objects.hash(typeElement);
     }
 
 }

@@ -33,10 +33,15 @@ import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.expr.value.AnonymousFunctionValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.FunctionRefValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.function.FunctionType;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 import dev.kobu.interpreter.error.analyzer.*;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
@@ -50,6 +55,8 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
     private final List<FunctionArgExpr> args;
 
     private Type type;
+
+    private Map<String, Type> providedTypeArgs;
 
     public FunctionCallExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef,
                             Expr functionRefExpr, List<FunctionArgExpr> args) {
@@ -74,17 +81,21 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
             this.type = UnknownType.INSTANCE;
             return;
         }
-        this.type = analyzeCall(context, (FunctionType) functionRefExpr.getType());
 
+        providedTypeArgs = new HashMap<>();
         if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && functionRefExpr instanceof FunctionRefValueExpr) {
             var function = ((FunctionRefValueExpr) functionRefExpr).getFunction();
+            providedTypeArgs.putAll(function.providedTypeArguments());
             if (function instanceof BuiltinFunctionSymbol) {
                 moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) function);
             }
         }
+
+        this.type = analyzeCall(context, (FunctionType) functionRefExpr.getType());
     }
 
     private Type analyzeCall(EvalContext context, FunctionType functionType) {
+
         for (int i = 0; i < functionType.getParameters().size(); i++) {
             var parameter = functionType.getParameters().get(i);
             if (i >= args.size()) {
@@ -95,14 +106,27 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
                 break;
             }
             var arg = args.get(i);
-            arg.setTargetType(parameter.getType());
-            arg.analyze(context);
+            Type paramType = parameter.getType();
+            Collection<TypeAlias> aliases = paramType.aliases();
+            if (!aliases.isEmpty()) {
+                if (providedTypeArgs.containsKey(parameter.getType().getName())) {
+                    paramType = providedTypeArgs.get(parameter.getType().getName());
+                    arg.setTargetType(paramType);
+                }
+                arg.analyze(context);
+                paramType = arg.getType();
+                providedTypeArgs.put(parameter.getType().getName(), paramType);
+            } else {
+                arg.setTargetType(parameter.getType());
+                arg.analyze(context);
+            }
+
             if (arg.getType() instanceof UnknownType) {
                 return UnknownType.INSTANCE;
             }
-            if (arg.getType() != null && !parameter.getType().isAssignableFrom(arg.getType())) {
+            if (arg.getType() != null && !paramType.isAssignableFrom(arg.getType())) {
                 context.addAnalyzerError(new InvalidTypeError(arg.getSourceCodeRef(),
-                        parameter.getType(), arg.getType()));
+                        paramType, arg.getType()));
                 return UnknownType.INSTANCE;
             }
         }
