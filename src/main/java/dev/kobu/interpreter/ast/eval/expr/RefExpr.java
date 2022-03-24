@@ -166,17 +166,17 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                 return;
             }
 
+            if (!assignMode) {
+                var method = typeScope.resolveMethod(symbolName);
+                if (method != null) {
+                    this.function = method;
+                    this.type = method.getType();
+                    return;
+                }
+            }
+
             var field = typeScope.resolveField(symbolName);
             if (field == null) {
-                if (!assignMode) {
-                    var method = typeScope.resolveMethod(symbolName);
-                    if (method != null) {
-                        this.function = method;
-                        this.type = method.getType();
-                        return;
-                    }
-                }
-
                 if (undefinedSymbolListener != null) {
                     undefinedSymbolListener.onUndefinedSymbol(context, typeScope, symbolName);
                 } else {
@@ -199,6 +199,9 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             return new RecordTypeRefValueExpr(sourceCodeRef, recordTypeSymbol);
         }
         if (function != null) {
+            if (valueScope instanceof ModuleRefValueExpr) {
+                return new FunctionRefValueExpr(sourceCodeRef, function, null);
+            }
             return new FunctionRefValueExpr(sourceCodeRef, function, valueScope);
         }
         if (valueScope == null) {

@@ -306,7 +306,9 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         }
 
         if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
+            ruleTypeScope = true;
             var parentRule = visit(ctx.ruleExtends().typeName());
+            ruleTypeScope = false;
             if (parentRule instanceof RuleSymbol) {
                 rule.setParentRuleSymbol((RuleSymbol) parentRule);
             } else {
@@ -471,7 +473,9 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         }
 
         if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
+            ruleTypeScope = true;
             Type parentRule = (Type) visit(ctx.ruleExtends().typeName());
+            ruleTypeScope = false;
             if (parentRule instanceof RuleSymbol) {
                 rule.setParentRuleSymbol((RuleSymbol) parentRule);
             } else {
