@@ -26,7 +26,10 @@ package dev.kobu.interpreter.ast.template;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.utils.TemplateIndentation;
+
+import java.util.Map;
 
 public class TemplateStaticContentStatement extends TemplateStatement {
 
@@ -42,6 +45,11 @@ public class TemplateStaticContentStatement extends TemplateStatement {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+
     }
 
     @Override

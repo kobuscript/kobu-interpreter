@@ -277,6 +277,11 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         return this;
     }
 
+    @Override
+    public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
+
+    }
+
     public void buildMethods() {
         var types = new HashSet<String>();
         for (RecordTypeAttribute attribute : attributes.values()) {

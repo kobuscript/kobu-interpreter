@@ -28,9 +28,11 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Evaluable;
 import dev.kobu.interpreter.ast.eval.Expr;
+import dev.kobu.interpreter.ast.symbol.Type;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Query implements Evaluable {
 
@@ -73,6 +75,16 @@ public class Query implements Evaluable {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (typeClause != null) {
+            typeClause.setResolvedTypes(resolvedTypes);
+        }
+        if (whenExpr != null) {
+            whenExpr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

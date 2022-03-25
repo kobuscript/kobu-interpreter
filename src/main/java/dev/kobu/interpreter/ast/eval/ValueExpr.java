@@ -25,11 +25,19 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.eval;
 
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
+import dev.kobu.interpreter.ast.symbol.Type;
+
+import java.util.Map;
 
 public interface ValueExpr extends Expr {
 
     String getStringValue();
 
     SnapshotValue getSnapshotValue();
+
+    @Override
+    default void setResolvedTypes(Map<String, Type> resolvedTypes) {
+
+    }
 
 }

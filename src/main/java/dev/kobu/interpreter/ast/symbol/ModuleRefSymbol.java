@@ -137,6 +137,11 @@ public class ModuleRefSymbol extends Symbol implements Type {
     }
 
     @Override
+    public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
+
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

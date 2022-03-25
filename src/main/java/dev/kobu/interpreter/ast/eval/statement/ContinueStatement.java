@@ -27,8 +27,11 @@ package dev.kobu.interpreter.ast.eval.statement;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.InterruptTypeEnum;
 import dev.kobu.interpreter.ast.eval.Statement;
+import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.error.analyzer.ContinueOutsideLoopError;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+
+import java.util.Map;
 
 public class ContinueStatement implements Statement {
 
@@ -41,6 +44,11 @@ public class ContinueStatement implements Statement {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+
     }
 
     @Override

@@ -26,8 +26,10 @@ package dev.kobu.interpreter.ast.file;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
 
 import java.util.List;
+import java.util.Map;
 
 public class PathStaticSegmentStatement extends PathStatement{
 
@@ -43,6 +45,11 @@ public class PathStaticSegmentStatement extends PathStatement{
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+
     }
 
     @Override

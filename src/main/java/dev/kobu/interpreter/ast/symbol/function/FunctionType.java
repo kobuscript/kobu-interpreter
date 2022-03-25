@@ -165,6 +165,20 @@ public class FunctionType implements Type {
     }
 
     @Override
+    public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
+        if (targetType instanceof FunctionType) {
+            FunctionType targetFunction = (FunctionType) targetType;
+            for (int i = 0; i < parameters.size() && i < targetFunction.parameters.size(); i++) {
+                FunctionTypeParameter param = parameters.get(i);
+                param.getType().resolveAliases(typeArgs, targetFunction.parameters.get(i).getType());
+            }
+            if (returnType != null && targetFunction.returnType != null) {
+                returnType.resolveAliases(typeArgs, returnType);
+            }
+        }
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

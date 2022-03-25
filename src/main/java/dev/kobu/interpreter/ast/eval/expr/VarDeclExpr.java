@@ -33,6 +33,8 @@ import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.HasTargetType;
 import dev.kobu.interpreter.ast.eval.Statement;
 
+import java.util.Map;
+
 public class VarDeclExpr implements Statement {
 
     private final VariableSymbol varSymbol;
@@ -113,6 +115,13 @@ public class VarDeclExpr implements Statement {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return varSymbol.getSourceCodeRef();
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (valueExpr != null) {
+            valueExpr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     public String getName() {

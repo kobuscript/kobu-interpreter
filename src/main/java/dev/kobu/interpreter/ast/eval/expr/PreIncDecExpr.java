@@ -32,6 +32,8 @@ import dev.kobu.interpreter.error.analyzer.InvalidExpressionError;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 
+import java.util.Map;
+
 public class PreIncDecExpr implements Statement, Expr, Assignment {
 
     private final SourceCodeRef sourceCodeRef;
@@ -51,6 +53,13 @@ public class PreIncDecExpr implements Statement, Expr, Assignment {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (refExpr != null) {
+            refExpr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

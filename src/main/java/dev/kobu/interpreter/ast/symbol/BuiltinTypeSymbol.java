@@ -85,6 +85,11 @@ public abstract class BuiltinTypeSymbol extends Symbol implements Type {
         return this;
     }
 
+    @Override
+    public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
+
+    }
+
     protected void addMethod(BuiltinFunctionSymbol method) {
         methods.put(method.getName(), method);
     }

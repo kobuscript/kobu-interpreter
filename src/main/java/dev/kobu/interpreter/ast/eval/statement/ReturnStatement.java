@@ -28,11 +28,14 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.HasTargetType;
 import dev.kobu.interpreter.ast.eval.Statement;
+import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.UnknownType;
 import dev.kobu.interpreter.error.analyzer.FunctionMissingReturnValueError;
 import dev.kobu.interpreter.error.analyzer.InvalidReturnTypeError;
 import dev.kobu.interpreter.error.analyzer.ReturnStatInVoidFunctionError;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+
+import java.util.Map;
 
 public class ReturnStatement implements Statement {
 
@@ -104,5 +107,12 @@ public class ReturnStatement implements Statement {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (expr != null) {
+            expr.setResolvedTypes(resolvedTypes);
+        }
     }
 }

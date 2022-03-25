@@ -28,8 +28,11 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
+import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.utils.TemplateIndentation;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+
+import java.util.Map;
 
 public class TemplateContentStatement extends TemplateStatement {
 
@@ -45,6 +48,13 @@ public class TemplateContentStatement extends TemplateStatement {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (expr != null) {
+            expr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

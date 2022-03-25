@@ -37,10 +37,7 @@ import dev.kobu.interpreter.error.analyzer.UndefinedSymbolError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementRef, UndefinedSymbolNotifier {
 
@@ -245,6 +242,11 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+
     }
 
     @Override

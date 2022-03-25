@@ -132,6 +132,13 @@ public class ArrayType implements Type {
         return ArrayTypeFactory.getArrayTypeFor(elementType.constructFor(typeArgs));
     }
 
+    @Override
+    public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
+        if (targetType instanceof ArrayType) {
+            elementType.resolveAliases(typeArgs, ((ArrayType) targetType).elementType);
+        }
+    }
+
     private void buildMethods() {
         BuiltinTypeSymbol numberType = BuiltinScope.NUMBER_TYPE;
 

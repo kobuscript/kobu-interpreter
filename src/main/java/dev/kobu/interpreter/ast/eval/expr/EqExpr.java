@@ -37,6 +37,8 @@ import dev.kobu.interpreter.ast.eval.EqOperatorEnum;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 
+import java.util.Map;
+
 public class EqExpr implements Expr {
 
     private final SourceCodeRef sourceCodeRef;
@@ -163,6 +165,16 @@ public class EqExpr implements Expr {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (leftExpr != null) {
+            leftExpr.setResolvedTypes(resolvedTypes);
+        }
+        if (rightExpr != null) {
+            rightExpr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

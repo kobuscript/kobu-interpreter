@@ -34,6 +34,7 @@ import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 import dev.kobu.interpreter.ast.symbol.function.FunctionType;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 import dev.kobu.interpreter.error.analyzer.DuplicatedFunctionParamError;
 import dev.kobu.interpreter.error.analyzer.FunctionMissingReturnStatError;
 import dev.kobu.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
@@ -62,6 +63,8 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
 
     private Type targetType;
 
+    private Map<String, Type> resolvedTypes;
+
     public AnonymousFunctionDefinitionExpr(SourceCodeRef sourceCodeRef, SourceCodeRef closeBlockSourceCodeRef,
                                            ModuleScope moduleScope, List<FunctionParameter> parameters,
                                            List<Evaluable> block) {
@@ -75,6 +78,14 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        this.resolvedTypes = resolvedTypes;
+        if (block != null) {
+            block.forEach(evaluable -> evaluable.setResolvedTypes(resolvedTypes));
+        }
     }
 
     @Override
@@ -99,7 +110,14 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
             for (int i = 0; i < targetFunctionType.getParameters().size() && i < parameters.size(); i++) {
                 FunctionParameter param = parameters.get(i);
                 if (param.getType() == null) {
-                    param.setType(targetFunctionType.getParameters().get(i).getType());
+                    Type type = targetFunctionType.getParameters().get(i).getType();
+                    if (type instanceof TypeAlias) {
+                        Type resolvedType = resolvedTypes.get(type.getName());
+                        if (resolvedType != null) {
+                            type = resolvedType;
+                        }
+                    }
+                    param.setType(type);
                 }
             }
             returnType = targetFunctionType.getReturnType();

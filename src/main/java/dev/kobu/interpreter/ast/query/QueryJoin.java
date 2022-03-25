@@ -27,12 +27,15 @@ package dev.kobu.interpreter.ast.query;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Evaluable;
 import dev.kobu.interpreter.ast.eval.Expr;
+import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.UnknownType;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
+
+import java.util.Map;
 
 public class QueryJoin implements Evaluable {
 
@@ -59,6 +62,13 @@ public class QueryJoin implements Evaluable {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (ofExpr != null) {
+            ofExpr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

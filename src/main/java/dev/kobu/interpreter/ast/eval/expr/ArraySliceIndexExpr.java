@@ -31,6 +31,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.ast.symbol.NumberTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.error.eval.ArrayIndexOutOfBoundsError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
@@ -39,6 +40,7 @@ import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class ArraySliceIndexExpr implements ArrayIndexExpr {
 
@@ -57,6 +59,16 @@ public class ArraySliceIndexExpr implements ArrayIndexExpr {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (begin != null) {
+            begin.setResolvedTypes(resolvedTypes);
+        }
+        if (end != null) {
+            end.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

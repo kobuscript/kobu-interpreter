@@ -35,6 +35,8 @@ import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.analyzer.InvalidOperatorError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
 
+import java.util.Map;
+
 public class LogicExpr implements Expr {
 
     private final SourceCodeRef sourceCodeRef;
@@ -111,6 +113,16 @@ public class LogicExpr implements Expr {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (leftExpr != null) {
+            leftExpr.setResolvedTypes(resolvedTypes);
+        }
+        if (rightExpr != null) {
+            rightExpr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

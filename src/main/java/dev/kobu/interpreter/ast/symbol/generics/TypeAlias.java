@@ -87,7 +87,7 @@ public class TypeAlias implements Type {
 
     @Override
     public boolean isAssignableFrom(Type type) {
-        return equals(type);
+        return equals(type) || type == BuiltinScope.ANY_TYPE;
     }
 
     @Override
@@ -112,6 +112,11 @@ public class TypeAlias implements Type {
             return type;
         }
         return this;
+    }
+
+    @Override
+    public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
+        typeArgs.put(typeParameter.getAlias(), targetType);
     }
 
     @Override

@@ -35,6 +35,8 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.UnknownType;
 
+import java.util.Map;
+
 public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope, UndefinedSymbolNotifier {
 
     private final SourceCodeRef sourceCodeRef;
@@ -124,6 +126,16 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope, Und
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (leftExpr != null) {
+            leftExpr.setResolvedTypes(resolvedTypes);
+        }
+        if (rightExpr != null) {
+            rightExpr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

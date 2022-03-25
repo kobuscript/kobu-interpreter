@@ -32,6 +32,8 @@ import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.error.analyzer.InvalidOperatorError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 
+import java.util.Map;
+
 public class NotExpr implements Expr {
 
     private final SourceCodeRef sourceCodeRef;
@@ -76,6 +78,13 @@ public class NotExpr implements Expr {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (expr != null) {
+            expr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

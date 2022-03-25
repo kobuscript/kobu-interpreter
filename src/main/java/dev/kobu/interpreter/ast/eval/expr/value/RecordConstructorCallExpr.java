@@ -64,6 +64,11 @@ public class RecordConstructorCallExpr implements Expr {
     }
 
     @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        fields.forEach(expr -> expr.setResolvedTypes(resolvedTypes));
+    }
+
+    @Override
     public Type getType() {
         return recordType;
     }

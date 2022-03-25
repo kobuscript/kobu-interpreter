@@ -128,6 +128,14 @@ public class TupleType implements Type {
         return TupleTypeFactory.getTupleTypeFor(typeElement.constructFor(typeArgs));
     }
 
+    @Override
+    public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
+        if (targetType instanceof TupleType) {
+            TupleType targetTuple = (TupleType) targetType;
+            typeElement.resolveAliases(typeArgs, targetTuple.typeElement);
+        }
+    }
+
     private void buildMethods() {
 
     }

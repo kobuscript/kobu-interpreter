@@ -26,18 +26,16 @@ package dev.kobu.interpreter.ast.eval.statement;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
-import dev.kobu.interpreter.ast.symbol.BuiltinScope;
-import dev.kobu.interpreter.ast.symbol.UnknownType;
+import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.BooleanTypeSymbol;
 import dev.kobu.interpreter.ast.eval.Evaluable;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.Statement;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 
 import java.util.List;
+import java.util.Map;
 
 public class ElseIfStatement implements Statement {
 
@@ -99,6 +97,19 @@ public class ElseIfStatement implements Statement {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (condExpr != null) {
+            condExpr.setResolvedTypes(resolvedTypes);
+        }
+        if (block != null) {
+            block.forEach(evaluable -> evaluable.setResolvedTypes(resolvedTypes));
+        }
+        if (elseIf != null) {
+            elseIf.setResolvedTypes(resolvedTypes);
+        }
     }
 
     public Expr getCondExpr() {

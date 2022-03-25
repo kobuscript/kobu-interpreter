@@ -35,6 +35,7 @@ import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
 
 import java.util.List;
+import java.util.Map;
 
 public class EnhancedForStatement implements Statement {
 
@@ -53,10 +54,19 @@ public class EnhancedForStatement implements Statement {
         this.block = block;
     }
 
-
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (arrayExpr != null) {
+            arrayExpr.setResolvedTypes(resolvedTypes);
+        }
+        if (block != null) {
+            block.forEach(evaluable -> evaluable.setResolvedTypes(resolvedTypes));
+        }
     }
 
     @Override

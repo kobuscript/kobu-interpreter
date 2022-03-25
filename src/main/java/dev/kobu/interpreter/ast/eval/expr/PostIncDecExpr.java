@@ -32,6 +32,8 @@ import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.analyzer.InvalidExpressionError;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 
+import java.util.Map;
+
 public class PostIncDecExpr implements Statement, Expr, HasTypeScope, Assignment {
 
     private final SourceCodeRef sourceCodeRef;
@@ -55,6 +57,13 @@ public class PostIncDecExpr implements Statement, Expr, HasTypeScope, Assignment
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (refExpr != null) {
+            refExpr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

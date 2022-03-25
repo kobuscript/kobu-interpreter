@@ -35,6 +35,7 @@ import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ArrayConstructorCallExpr implements Expr, HasTargetType {
 
@@ -54,6 +55,13 @@ public class ArrayConstructorCallExpr implements Expr, HasTargetType {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (elements != null) {
+            elements.forEach(expr -> expr.setResolvedTypes(resolvedTypes));
+        }
     }
 
     @Override

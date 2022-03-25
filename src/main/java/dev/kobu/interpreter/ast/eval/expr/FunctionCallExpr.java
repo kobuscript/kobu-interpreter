@@ -56,7 +56,7 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
 
     private Type type;
 
-    private Map<String, Type> providedTypeArgs;
+    private Map<String, Type> resolvedTypeArgs;
 
     public FunctionCallExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef,
                             Expr functionRefExpr, List<FunctionArgExpr> args) {
@@ -82,10 +82,12 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
             return;
         }
 
-        providedTypeArgs = new HashMap<>();
+        if (resolvedTypeArgs == null) {
+            resolvedTypeArgs = new HashMap<>();
+        }
         if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && functionRefExpr instanceof FunctionRefValueExpr) {
             var function = ((FunctionRefValueExpr) functionRefExpr).getFunction();
-            providedTypeArgs.putAll(function.providedTypeArguments());
+            resolvedTypeArgs.putAll(function.providedTypeArguments());
             if (function instanceof BuiltinFunctionSymbol) {
                 moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) function);
             }
@@ -109,14 +111,15 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
             Type paramType = parameter.getType();
             Collection<TypeAlias> aliases = paramType.aliases();
             if (!aliases.isEmpty()) {
-                if (providedTypeArgs.containsKey(parameter.getType().getName())) {
-                    paramType = providedTypeArgs.get(parameter.getType().getName());
-                    arg.setTargetType(paramType);
-                }
+                paramType = paramType.constructFor(resolvedTypeArgs);
+                arg.setResolvedTypes(resolvedTypeArgs);
+                arg.setTargetType(paramType);
                 arg.analyze(context);
-                paramType = arg.getType();
-                providedTypeArgs.put(parameter.getType().getName(), paramType);
+                if (!paramType.aliases().isEmpty()) {
+                    paramType = arg.getType();
+                }
             } else {
+                arg.setResolvedTypes(resolvedTypeArgs);
                 arg.setTargetType(parameter.getType());
                 arg.analyze(context);
             }
@@ -134,7 +137,13 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
             context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, functionType, args));
             return UnknownType.INSTANCE;
         }
-        return functionType.getReturnType();
+
+        Type returnType = functionType.getReturnType();
+        if (returnType != null) {
+            returnType = returnType.constructFor(resolvedTypeArgs);
+        }
+
+        return returnType;
     }
 
     @Override
@@ -164,6 +173,11 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        this.resolvedTypeArgs = resolvedTypes;
     }
 
     @Override

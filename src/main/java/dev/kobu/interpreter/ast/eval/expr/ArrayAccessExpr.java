@@ -40,6 +40,8 @@ import dev.kobu.interpreter.ast.eval.HasTypeScope;
 import dev.kobu.interpreter.ast.eval.MemoryReference;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 
+import java.util.Map;
+
 public class ArrayAccessExpr implements Expr, HasTypeScope, MemoryReference {
 
     private final SourceCodeRef sourceCodeRef;
@@ -113,6 +115,16 @@ public class ArrayAccessExpr implements Expr, HasTypeScope, MemoryReference {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (arrayExpr != null) {
+            arrayExpr.setResolvedTypes(resolvedTypes);
+        }
+        if (indexExpr != null) {
+            indexExpr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

@@ -36,6 +36,7 @@ import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TupleConstructorCallExpr implements Expr, HasTargetType {
 
@@ -59,6 +60,13 @@ public class TupleConstructorCallExpr implements Expr, HasTargetType {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (exprList != null) {
+            exprList.forEach(expr -> expr.setResolvedTypes(resolvedTypes));
+        }
     }
 
     @Override

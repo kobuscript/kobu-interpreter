@@ -40,6 +40,7 @@ import dev.kobu.interpreter.error.analyzer.UndefinedFieldError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class QueryFieldClause implements Evaluable, HasTypeScope {
 
@@ -66,6 +67,16 @@ public class QueryFieldClause implements Evaluable, HasTypeScope {
 
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (arrayItemClause != null) {
+            arrayItemClause.setResolvedTypes(resolvedTypes);
+        }
+        if (next != null) {
+            next.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

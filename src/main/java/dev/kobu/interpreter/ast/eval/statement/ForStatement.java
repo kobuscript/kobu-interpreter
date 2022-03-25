@@ -32,12 +32,14 @@ import dev.kobu.interpreter.ast.eval.expr.VarDeclExpr;
 import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.BooleanTypeSymbol;
+import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.error.analyzer.InvalidExpressionError;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
 
 import java.util.List;
+import java.util.Map;
 
 public class ForStatement implements Statement {
 
@@ -147,6 +149,22 @@ public class ForStatement implements Statement {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (varDeclList != null) {
+            varDeclList.forEach(evaluable -> evaluable.setResolvedTypes(resolvedTypes));
+        }
+        if (condExpr != null) {
+            condExpr.setResolvedTypes(resolvedTypes);
+        }
+        if (stepStatList != null) {
+            stepStatList.forEach(evaluable -> evaluable.setResolvedTypes(resolvedTypes));
+        }
+        if (block != null) {
+            block.forEach(evaluable -> evaluable.setResolvedTypes(resolvedTypes));
+        }
     }
 
     public List<VarDeclExpr> getVarDeclList() {

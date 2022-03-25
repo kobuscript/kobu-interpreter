@@ -27,11 +27,14 @@ package dev.kobu.interpreter.ast.eval.statement;
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.symbol.ModuleRefSymbol;
+import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.error.analyzer.InvalidAssignExprTypeError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.analyzer.InvalidAssignmentError;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.UnknownType;
+
+import java.util.Map;
 
 public class AssignElemValueStatement implements Statement, Assignment {
 
@@ -92,6 +95,16 @@ public class AssignElemValueStatement implements Statement, Assignment {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (exprLeft != null) {
+            exprLeft.setResolvedTypes(resolvedTypes);
+        }
+        if (exprRight != null) {
+            exprRight.setResolvedTypes(resolvedTypes);
+        }
     }
 
 }

@@ -121,6 +121,14 @@ public class TupleTypeElement {
         return tupleTypeElement;
     }
 
+    public void resolveAliases(Map<String, Type> typeArgs, TupleTypeElement targetType) {
+        elementType.resolveAliases(typeArgs, targetType.getElementType());
+
+        if (next != null && targetType.next != null) {
+            next.resolveAliases(typeArgs, targetType.next);
+        }
+    }
+
     public String getName() {
         StringBuilder str = new StringBuilder("(");
         addElemStr(str);

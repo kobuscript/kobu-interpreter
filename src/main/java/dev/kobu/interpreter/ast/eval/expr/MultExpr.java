@@ -35,6 +35,8 @@ import dev.kobu.interpreter.error.eval.ArithmeticError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
 
+import java.util.Map;
+
 public class MultExpr implements Expr {
 
     private final SourceCodeRef sourceCodeRef;
@@ -105,6 +107,16 @@ public class MultExpr implements Expr {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (leftExpr != null) {
+            leftExpr.setResolvedTypes(resolvedTypes);
+        }
+        if (rightExpr != null) {
+            rightExpr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

@@ -31,6 +31,8 @@ import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.error.analyzer.InvalidJoinQueryType;
 import dev.kobu.interpreter.error.analyzer.InvalidQueryType;
 
+import java.util.Map;
+
 public class QueryTypeClause implements Evaluable {
 
     private static final String DEFAULT_BIND = "$_rootRecord";
@@ -107,6 +109,13 @@ public class QueryTypeClause implements Evaluable {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (fieldClause != null) {
+            fieldClause.setResolvedTypes(resolvedTypes);
+        }
     }
 
     public QueryFieldClause getFieldClause() {

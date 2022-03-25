@@ -31,6 +31,8 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 
+import java.util.Map;
+
 public class FunctionArgExpr implements Expr, HasTargetType {
 
     private final SourceCodeRef sourceCodeRef;
@@ -49,6 +51,13 @@ public class FunctionArgExpr implements Expr, HasTargetType {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (expr != null) {
+            expr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

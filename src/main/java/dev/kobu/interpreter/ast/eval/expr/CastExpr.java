@@ -33,6 +33,8 @@ import dev.kobu.interpreter.ast.symbol.UnknownType;
 import dev.kobu.interpreter.error.analyzer.CastTypeError;
 import dev.kobu.interpreter.error.eval.RuntimeCastTypeError;
 
+import java.util.Map;
+
 public class CastExpr implements Expr {
 
     private final SourceCodeRef sourceCodeRef;
@@ -53,6 +55,13 @@ public class CastExpr implements Expr {
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (expr != null) {
+            expr.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

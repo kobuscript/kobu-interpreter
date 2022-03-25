@@ -34,6 +34,7 @@ import dev.kobu.interpreter.ast.symbol.Type;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class QueryArrayIndexClause implements QueryArrayItemClause {
 
@@ -48,6 +49,13 @@ public class QueryArrayIndexClause implements QueryArrayItemClause {
 
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
+    }
+
+    @Override
+    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
+        if (index != null) {
+            index.setResolvedTypes(resolvedTypes);
+        }
     }
 
     @Override

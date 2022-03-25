@@ -27,10 +27,15 @@ package dev.kobu.interpreter.ast.eval;
 import dev.kobu.interpreter.ast.AstNode;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
+
+import java.util.Map;
 
 public interface Evaluable extends AstNode {
 
     SourceCodeRef getSourceCodeRef();
+
+    void setResolvedTypes(Map<String, Type> resolvedTypes);
 
     void analyze(EvalContext context);
 

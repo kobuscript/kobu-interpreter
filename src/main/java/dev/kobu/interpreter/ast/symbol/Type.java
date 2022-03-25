@@ -63,4 +63,6 @@ public interface Type extends AstNode {
 
     Type constructFor(Map<String, Type> typeArgs);
 
+    void resolveAliases(Map<String, Type> typeArgs, Type targetType);
+
 }

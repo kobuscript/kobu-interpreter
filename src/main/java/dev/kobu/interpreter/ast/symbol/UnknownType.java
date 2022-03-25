@@ -102,4 +102,10 @@ public class UnknownType implements Type {
     public Type constructFor(Map<String, Type> typeArgs) {
         return this;
     }
+
+    @Override
+    public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
+
+    }
+    
 }
