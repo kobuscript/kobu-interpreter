@@ -51,20 +51,30 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
 
     private final Map<String, Type> typeArgsMap = new HashMap<>();
 
+    private final List<TypeParameter> typeParameters;
+
     public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
-                                 Type returnType, FunctionParameter... args) {
+                                 List<TypeParameter> typeParameters, Type returnType,
+                                 FunctionParameter... args) {
         super(null,null, name);
         this.enclosingType = enclosingType;
         this.functionImpl = functionImpl;
         this.functionImpl.setFuncDef(this);
+        this.typeParameters = typeParameters;
         this.returnType = returnType;
         this.parameters.addAll(Arrays.asList(args));
         buildType();
     }
 
     public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
+                                 Type returnType,
                                  FunctionParameter... args) {
-        this(enclosingType, name, functionImpl, null, args);
+        this(enclosingType, name, functionImpl, TypeParameter.typeParameters(), returnType, args);
+    }
+
+    public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
+                                 FunctionParameter... args) {
+        this(enclosingType, name, functionImpl, null, null, args);
     }
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl) {
@@ -73,17 +83,22 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl,
                                  Type returnType) {
-        this(null, name, functionImpl, returnType);
+        this(null, name, functionImpl, null, returnType);
     }
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl,
                                  Type returnType, FunctionParameter... args) {
-        this(null, name, functionImpl, returnType, args);
+        this(null, name, functionImpl, null, returnType, args);
     }
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl,
                                  FunctionParameter... args) {
         this(null, name, functionImpl, args);
+    }
+
+    @Override
+    public List<TypeParameter> getTypeParameters() {
+        return typeParameters;
     }
 
     @Override

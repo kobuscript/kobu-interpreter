@@ -33,6 +33,7 @@ import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +66,11 @@ public class AnonymousFunctionValueExpr implements ValueExpr, UserDefinedFunctio
     @Override
     public List<FunctionParameter> getParameters() {
         return definition.getParameters();
+    }
+
+    @Override
+    public List<TypeParameter> getTypeParameters() {
+        return null;
     }
 
     @Override

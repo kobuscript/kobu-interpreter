@@ -36,6 +36,7 @@ import dev.kobu.interpreter.ast.eval.function.record.RecordValuesMethodImpl;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.error.analyzer.CyclicRecordInheritanceError;
 import dev.kobu.interpreter.error.analyzer.RecordSuperTypeConflictError;
@@ -59,6 +60,8 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     private final String docText;
 
     private RecordTypeStarAttribute starAttribute;
+
+    private List<TypeParameter> typeParameters;
 
     private SymbolDocumentation documentation;
 
@@ -89,6 +92,14 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     public SourceCodeRef getSuperTypeSourceCodeRef() {
         return superTypeSourceCodeRef;
+    }
+
+    public List<TypeParameter> getTypeParameters() {
+        return typeParameters;
+    }
+
+    public void setTypeParameters(List<TypeParameter> typeParameters) {
+        this.typeParameters = typeParameters;
     }
 
     @Override

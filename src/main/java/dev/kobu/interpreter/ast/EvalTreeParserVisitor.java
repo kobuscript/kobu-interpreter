@@ -37,9 +37,9 @@ import dev.kobu.interpreter.ast.query.*;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.*;
+import dev.kobu.interpreter.ast.symbol.generics.TypeArgs;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameterContext;
-import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 import dev.kobu.interpreter.ast.template.TemplateContentStatement;
@@ -138,6 +138,21 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             scopeEndOffset = ctx.RCB().getSymbol().getStopIndex() + 1;
         }
 
+        if (ctx.typeParameters() != null) {
+            typeParameterContext = new TypeParameterContext();
+            List<TypeParameter> typeParameters = new ArrayList<>();
+            var typeParamCtx = ctx.typeParameters().typeParameter();
+            while (typeParamCtx != null) {
+                TypeParameter typeParameter = new TypeParameter(getSourceCodeRef(typeParamCtx.ID()), typeParamCtx.ID().getText());
+                typeParameters.add(typeParameter);
+                if (!typeParameterContext.set(typeParameter)) {
+                    context.getErrorScope().addError(new DuplicatedTypeParamError(typeParameter.getSourceCodeRef(), typeParameter));
+                }
+                typeParamCtx = typeParamCtx.typeParameter();
+            }
+            recordType.setTypeParameters(typeParameters);
+        }
+
         if (ctx.attributes() != null) {
 
             KobuParser.AttributesContext attrCtx = ctx.attributes();
@@ -169,6 +184,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                 recordType.setSuperType(new RecordSuperType(getSourceCodeRef(typeNameExpr), (RecordTypeSymbol) superType));
             }
         }
+
+        typeParameterContext = null;
 
         recordType.buildMethods();
 
@@ -253,6 +270,16 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         if (ctx.functionDeclRet().type() != null) {
             function.setReturnType((Type) visit(ctx.functionDeclRet().type()));
+        }
+
+        if (ctx.typeParameters() != null) {
+            List<TypeParameter> typeParameters = new ArrayList<>();
+            var typeParameter = ctx.typeParameters().typeParameter();
+            while (typeParameter != null) {
+                typeParameters.add(new TypeParameter(getSourceCodeRef(typeParameter.ID()), typeParameter.ID().getText()));
+                typeParameter = typeParameter.typeParameter();
+            }
+            function.setTypeParameters(typeParameters);
         }
 
         return null;
@@ -810,6 +837,16 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             fieldCtx = fieldCtx.recordField();
         }
 
+        if (ctx.typeArgs() != null) {
+            List<Type> types = new ArrayList<>();
+            var typeArgCtx = ctx.typeArgs().typeArg();
+            while (typeArgCtx != null) {
+                types.add((Type) visit(typeArgCtx.type()));
+                typeArgCtx = typeArgCtx.typeArg();
+            }
+            recordConstructor.setTypeArgs(new TypeArgs(getSourceCodeRef(ctx.typeArgs()), types));
+        }
+
         topLevelExpression = exprStatus;
 
         return recordConstructor;
@@ -879,12 +916,14 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         FunctionCallExpr functionCallExpr = new FunctionCallExpr(moduleScope, getSourceCodeRef(ctx),
                 refExpr, args);
         if (ctx.typeArgs() != null) {
-            var typeArg = ctx.typeArgs().typeArg();
-            while (typeArg != null) {
-                Type type = (Type) visit(typeArg);
-                functionCallExpr.addTypeArg(type);
-                typeArg = typeArg.typeArg();
+            List<Type> types = new ArrayList<>();
+            var typeArgCtx = ctx.typeArgs().typeArg();
+            while (typeArgCtx != null) {
+                Type type = (Type) visit(typeArgCtx.type());
+                types.add(type);
+                typeArgCtx = typeArgCtx.typeArg();
             }
+            functionCallExpr.setTypeArgs(new TypeArgs(getSourceCodeRef(ctx.typeArgs()), types));
         }
         return functionCallExpr;
     }

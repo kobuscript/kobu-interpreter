@@ -22,27 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol.function;
-
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
-import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
+package dev.kobu.interpreter.ast.symbol.generics;
 
 import java.util.List;
-import java.util.Map;
 
-public interface KobuFunction {
-
-    SourceCodeRef getSourceCodeRef();
-
-    Map<String, Type> providedTypeArguments();
-
-    List<FunctionParameter> getParameters();
+public interface HasTypeParameters {
 
     List<TypeParameter> getTypeParameters();
-
-    Type getReturnType();
-
-    Type getType();
 
 }

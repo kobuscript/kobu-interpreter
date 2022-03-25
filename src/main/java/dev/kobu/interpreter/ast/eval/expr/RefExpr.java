@@ -31,6 +31,8 @@ import dev.kobu.interpreter.ast.eval.expr.value.*;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.generics.HasTypeParameters;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.error.analyzer.InvalidVariableError;
 import dev.kobu.interpreter.error.analyzer.UndefinedFieldError;
 import dev.kobu.interpreter.error.analyzer.UndefinedSymbolError;
@@ -39,7 +41,7 @@ import dev.kobu.interpreter.error.eval.NullPointerError;
 
 import java.util.*;
 
-public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementRef, UndefinedSymbolNotifier {
+public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementRef, UndefinedSymbolNotifier, HasTypeParameters {
 
     private final ModuleScope moduleScope;
 
@@ -320,4 +322,11 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
         this.undefinedSymbolListener = listener;
     }
 
+    @Override
+    public List<TypeParameter> getTypeParameters() {
+        if (function != null) {
+            function.getTypeParameters();
+        }
+        return null;
+    }
 }

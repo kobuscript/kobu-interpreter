@@ -96,7 +96,7 @@ functionDecl : 'fun' ID typeParameters? LP functionDeclParam? RP COLON functionD
                | 'fun' {notifyErrorListenersPrevToken("function name expected");}
                ;
 
-nativeDecl : 'def' 'native' ID LP functionDeclParam? RP COLON functionDeclRet SEMI?;
+nativeDecl : 'def' 'native' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet SEMI?;
 
 functionDeclRet : ( 'void' | type ) ;
 
@@ -154,22 +154,22 @@ continueStat : CONTINUE ;
 
 exprSequence : exprWrapper ( COMMA exprWrapper )* COMMA? ;
 
-deftype : 'def' 'type' ID inheritance? LCB attributes? RCB
-          | 'def' 'type' ID inheritance? LCB attributes? {notifyErrorListenersPrevToken("'}' expected");}
-          | 'def' 'type' ID inheritance? LCB {notifyErrorListenersPrevToken("'}' expected");}
-          | 'def' 'type' ID inheritance? {notifyErrorListenersPrevToken("'{' expected");}
+deftype : 'def' 'type' ID typeParameters? inheritance? LCB attributes? RCB
+          | 'def' 'type' ID typeParameters? inheritance? LCB attributes? {notifyErrorListenersPrevToken("'}' expected");}
+          | 'def' 'type' ID typeParameters? inheritance? LCB {notifyErrorListenersPrevToken("'}' expected");}
+          | 'def' 'type' ID typeParameters? inheritance? {notifyErrorListenersPrevToken("'{' expected");}
           | 'def' 'type' {notifyErrorListenersPrevToken("type name expected");}
           ;
 
-inheritance : 'extends' typeName ;
+inheritance : 'extends' typeName typeArgs? ;
 
 attributes : ( STAR | ID ) COLON type ( COMMA? attributes )?
              | ( STAR | ID ) COLON type COMMA
              | ( STAR | ID ) COLON? {notifyErrorListenersPrevToken("attribute type expected");}
              ;
 
-record : typeName LCB recordField? RCB
-         | typeName LCB recordField? {notifyErrorListenersPrevToken("'}' expected");}
+record : typeName typeArgs? LCB recordField? RCB
+         | typeName typeArgs? LCB recordField? {notifyErrorListenersPrevToken("'}' expected");}
          ;
 
 recordField : ID COLON exprWrapper ( COMMA? recordField )?
@@ -332,7 +332,7 @@ typeParameters : LESS typeParameter GREATER ;
 typeParameter: ID ( COMMA typeParameter )? ;
 
 typeArgs : LESS typeArg GREATER ;
-typeArg: ID ( COMMA typeArg )? ;
+typeArg: type ( COMMA typeArg )? ;
 
 type : typeName                      #typeNameExpr
        | functionType                #functionTypeExpr

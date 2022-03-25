@@ -50,6 +50,8 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasEx
 
     private FunctionType type;
 
+    private List<TypeParameter> typeParameters;
+
     public NativeFunctionSymbol(SourceCodeRef sourceCodeRef, ModuleScope moduleScope, String name,
                                 NativeFunction functionImpl, String docText) {
         super(moduleScope, sourceCodeRef, name);
@@ -77,6 +79,15 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasEx
     @Override
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public List<TypeParameter> getTypeParameters() {
+        return typeParameters;
+    }
+
+    public void setTypeParameters(List<TypeParameter> typeParameters) {
+        this.typeParameters = typeParameters;
     }
 
     @Override

@@ -35,6 +35,7 @@ import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 import dev.kobu.interpreter.ast.symbol.function.FunctionType;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.error.analyzer.DuplicatedFunctionParamError;
 import dev.kobu.interpreter.error.analyzer.FunctionMissingReturnStatError;
 import dev.kobu.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
@@ -96,6 +97,11 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
     @Override
     public List<FunctionParameter> getParameters() {
         return parameters;
+    }
+
+    @Override
+    public List<TypeParameter> getTypeParameters() {
+        return null;
     }
 
     @Override

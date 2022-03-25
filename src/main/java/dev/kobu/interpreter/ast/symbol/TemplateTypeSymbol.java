@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.template.TemplateTrimMethodImpl;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 
 import java.util.Comparator;
 
@@ -53,7 +54,8 @@ public class TemplateTypeSymbol extends BuiltinTypeSymbol {
     }
 
     private void buildMethods() {
-        addMethod(new BuiltinFunctionSymbol(this, "trim", new TemplateTrimMethodImpl(), BuiltinScope.STRING_TYPE));
+        addMethod(new BuiltinFunctionSymbol(this, "trim", new TemplateTrimMethodImpl(),
+                TypeParameter.typeParameters(), BuiltinScope.STRING_TYPE));
     }
 
 }

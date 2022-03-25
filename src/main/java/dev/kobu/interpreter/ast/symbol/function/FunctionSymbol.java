@@ -127,6 +127,7 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
         return closeBlockSourceRef;
     }
 
+    @Override
     public List<TypeParameter> getTypeParameters() {
         return typeParameters;
     }

@@ -25,49 +25,27 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.symbol.generics;
 
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class TypeParameter {
-
-    public static List<TypeParameter> typeParameters(String... aliases) {
-        List<TypeParameter> parameters = new ArrayList<>();
-        for (String alias : aliases) {
-            parameters.add(new TypeParameter(null, alias));
-        }
-        return parameters;
-    }
+public class TypeArgs {
 
     private final SourceCodeRef sourceCodeRef;
 
-    private final String alias;
+    private final List<Type> types;
 
-    public TypeParameter(SourceCodeRef sourceCodeRef, String alias) {
+    public TypeArgs(SourceCodeRef sourceCodeRef, List<Type> types) {
         this.sourceCodeRef = sourceCodeRef;
-        this.alias = alias;
-    }
-
-    public String getAlias() {
-        return alias;
+        this.types = types;
     }
 
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TypeParameter that = (TypeParameter) o;
-        return Objects.equals(sourceCodeRef, that.sourceCodeRef) && Objects.equals(alias, that.alias);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(sourceCodeRef, alias);
+    public List<Type> getTypes() {
+        return types;
     }
 
 }

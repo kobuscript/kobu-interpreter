@@ -32,6 +32,7 @@ import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.UnknownType;
+import dev.kobu.interpreter.ast.symbol.generics.TypeArgs;
 import dev.kobu.interpreter.error.analyzer.InvalidRecordFieldError;
 import dev.kobu.interpreter.error.analyzer.InvalidRecordFieldTypeError;
 import dev.kobu.interpreter.error.analyzer.UndefinedTypeError;
@@ -48,6 +49,8 @@ public class RecordConstructorCallExpr implements Expr {
     private final List<RecordFieldExpr> fields = new ArrayList<>();
 
     private final Type recordType;
+
+    private TypeArgs typeArgs;
 
     public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, Type recordType) {
         this.sourceCodeRef = sourceCodeRef;
@@ -71,6 +74,14 @@ public class RecordConstructorCallExpr implements Expr {
     @Override
     public Type getType() {
         return recordType;
+    }
+
+    public TypeArgs getTypeArgs() {
+        return typeArgs;
+    }
+
+    public void setTypeArgs(TypeArgs typeArgs) {
+        this.typeArgs = typeArgs;
     }
 
     @Override

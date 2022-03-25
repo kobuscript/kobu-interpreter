@@ -22,27 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol.function;
+package dev.kobu.interpreter.error.analyzer;
 
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
-import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
+import dev.kobu.interpreter.error.AnalyzerError;
 
-import java.util.List;
-import java.util.Map;
+public class InvalidTypeArgsError extends AnalyzerError {
 
-public interface KobuFunction {
+    private final int expected;
 
-    SourceCodeRef getSourceCodeRef();
+    private final int found;
 
-    Map<String, Type> providedTypeArguments();
+    public InvalidTypeArgsError(SourceCodeRef sourceCodeRef, int expected, int found) {
+        super(sourceCodeRef);
+        this.expected = expected;
+        this.found = found;
+    }
 
-    List<FunctionParameter> getParameters();
-
-    List<TypeParameter> getTypeParameters();
-
-    Type getReturnType();
-
-    Type getType();
+    @Override
+    public String getDescription() {
+        return "Expected " + expected + " type arguments, but got " + found;
+    }
 
 }

@@ -34,7 +34,9 @@ import dev.kobu.interpreter.ast.eval.expr.value.AnonymousFunctionValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.FunctionRefValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.FunctionType;
+import dev.kobu.interpreter.ast.symbol.generics.HasTypeParameters;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
+import dev.kobu.interpreter.ast.symbol.generics.TypeArgs;
 import dev.kobu.interpreter.error.analyzer.*;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 
@@ -55,7 +57,7 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
 
     private Map<String, Type> resolvedTypeArgs;
 
-    private List<Type> typeArgs;
+    private TypeArgs typeArgs;
 
     public FunctionCallExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef,
                             Expr functionRefExpr, List<FunctionArgExpr> args) {
@@ -81,6 +83,19 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
             return;
         }
 
+        if (typeArgs != null && !typeArgs.getTypes().isEmpty()) {
+            if (functionRefExpr instanceof HasTypeParameters) {
+                var typeParameters = ((HasTypeParameters) functionRefExpr).getTypeParameters();
+                if (typeArgs.getTypes().size() != typeParameters.size()) {
+                    context.addAnalyzerError(new InvalidTypeArgsError(typeArgs.getSourceCodeRef(),
+                            typeParameters.size(), typeArgs.getTypes().size()));
+                }
+            } else {
+                context.addAnalyzerError(new InvalidTypeArgsError(typeArgs.getSourceCodeRef(),
+                        0, typeArgs.getTypes().size()));
+            }
+        }
+
         if (resolvedTypeArgs == null) {
             resolvedTypeArgs = new HashMap<>();
         }
@@ -95,11 +110,8 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
         this.type = analyzeCall(context, (FunctionType) functionRefExpr.getType());
     }
 
-    public void addTypeArg(Type type) {
-        if (typeArgs == null) {
-            typeArgs = new ArrayList<>();
-        }
-        typeArgs.add(type);
+    public void setTypeArgs(TypeArgs typeArgs) {
+        this.typeArgs = typeArgs;
     }
 
     private Type analyzeCall(EvalContext context, FunctionType functionType) {
