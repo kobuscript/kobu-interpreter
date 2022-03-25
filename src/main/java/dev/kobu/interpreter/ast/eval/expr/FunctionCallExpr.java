@@ -38,10 +38,7 @@ import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 import dev.kobu.interpreter.error.analyzer.*;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
@@ -57,6 +54,8 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
     private Type type;
 
     private Map<String, Type> resolvedTypeArgs;
+
+    private List<Type> typeArgs;
 
     public FunctionCallExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef,
                             Expr functionRefExpr, List<FunctionArgExpr> args) {
@@ -94,6 +93,13 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
         }
 
         this.type = analyzeCall(context, (FunctionType) functionRefExpr.getType());
+    }
+
+    public void addTypeArg(Type type) {
+        if (typeArgs == null) {
+            typeArgs = new ArrayList<>();
+        }
+        typeArgs.add(type);
     }
 
     private Type analyzeCall(EvalContext context, FunctionType functionType) {

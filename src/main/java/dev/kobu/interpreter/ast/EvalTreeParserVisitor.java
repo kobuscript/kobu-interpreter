@@ -191,15 +191,18 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         if (ctx.typeParameters() != null) {
             typeParameterContext = new TypeParameterContext();
+            List<TypeParameter> typeParameters = new ArrayList<>();
             var typeParamCtx = ctx.typeParameters().typeParameter();
             while (typeParamCtx != null) {
                 SourceCodeRef sourceCodeRef = getSourceCodeRef(typeParamCtx.ID());
                 TypeParameter typeParameter = new TypeParameter(sourceCodeRef, typeParamCtx.ID().getText());
+                typeParameters.add(typeParameter);
                 if (!typeParameterContext.set(typeParameter)) {
                     context.getErrorScope().addError(new DuplicatedTypeParamError(sourceCodeRef, typeParameter));
                 }
                 typeParamCtx = typeParamCtx.typeParameter();
             }
+            function.setTypeParameters(typeParameters);
         }
 
         List<FunctionParameter> parameters = new ArrayList<>();
@@ -873,8 +876,17 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         Expr refExpr = (Expr) visit(ctx.expr());
         topLevelExpression = exprStatus;
-        return new FunctionCallExpr(moduleScope, getSourceCodeRef(ctx),
+        FunctionCallExpr functionCallExpr = new FunctionCallExpr(moduleScope, getSourceCodeRef(ctx),
                 refExpr, args);
+        if (ctx.typeArgs() != null) {
+            var typeArg = ctx.typeArgs().typeArg();
+            while (typeArg != null) {
+                Type type = (Type) visit(typeArg);
+                functionCallExpr.addTypeArg(type);
+                typeArg = typeArg.typeArg();
+            }
+        }
+        return functionCallExpr;
     }
 
     @Override

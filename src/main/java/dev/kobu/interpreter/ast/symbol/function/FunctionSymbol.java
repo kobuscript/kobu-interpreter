@@ -57,6 +57,8 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
 
     private FunctionType type;
 
+    private List<TypeParameter> typeParameters;
+
     public FunctionSymbol(SourceCodeRef sourceCodeRef, SourceCodeRef closeBlockSourceRef, ModuleScope moduleScope,
                           String name, String docText) {
         super(moduleScope, sourceCodeRef, name);
@@ -123,6 +125,14 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
     @Override
     public SourceCodeRef getCloseBlockSourceRef() {
         return closeBlockSourceRef;
+    }
+
+    public List<TypeParameter> getTypeParameters() {
+        return typeParameters;
+    }
+
+    public void setTypeParameters(List<TypeParameter> typeParameters) {
+        this.typeParameters = typeParameters;
     }
 
     public void buildType() {

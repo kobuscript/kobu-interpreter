@@ -280,8 +280,8 @@ expr : record                                                                   
        | expr DOT expr                                                                              #fieldAccessExpr
        | expr DOT                                                                                   #fieldAccessErr
        | anonymousFunction                                                                          #anonymousFunctionExpr
-       | expr LP exprSequence? RP                                                                   #functionCallExpr
-       | expr LP exprSequence? {notifyErrorListenersPrevToken("')' expected");}                     #functionCallErr
+       | expr typeArgs? LP exprSequence? RP                                                         #functionCallExpr
+       | expr typeArgs? LP exprSequence? {notifyErrorListenersPrevToken("')' expected");}           #functionCallErr
        | expr ( STAR | DIV | MOD ) expr                                                             #factorExpr
        | expr ( STAR | DIV | MOD )                                                                  #factorErr
        | expr ( PLUS | MINUS ) expr                                                                 #addSubExpr
@@ -330,6 +330,9 @@ assignmentSequece : assignment ( COMMA assignment )* ;
 
 typeParameters : LESS typeParameter GREATER ;
 typeParameter: ID ( COMMA typeParameter )? ;
+
+typeArgs : LESS typeArg GREATER ;
+typeArg: ID ( COMMA typeArg )? ;
 
 type : typeName                      #typeNameExpr
        | functionType                #functionTypeExpr
