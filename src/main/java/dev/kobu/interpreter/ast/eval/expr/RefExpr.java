@@ -61,6 +61,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
 
     private KobuFunction function;
 
+    private boolean functionRefMode;
+
     private boolean assignMode;
 
     private SourceCodeRef elementRef;
@@ -167,13 +169,16 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                 return;
             }
 
-            if (!assignMode) {
+            if (functionRefMode) {
                 var method = typeScope.resolveMethod(symbolName);
                 if (method != null) {
                     this.function = method;
                     this.type = method.getType();
-                    return;
+                } else if (undefinedSymbolListener != null) {
+                    undefinedSymbolListener.onUndefinedSymbol(context, typeScope, symbolName);
                 }
+                this.type = UnknownType.INSTANCE;
+                return;
             }
 
             var field = typeScope.resolveField(symbolName);
@@ -268,6 +273,11 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     @Override
     public void setValueScope(ValueExpr valueScope) {
         this.valueScope = valueScope;
+    }
+
+    @Override
+    public void setFunctionRefMode() {
+        this.functionRefMode = true;
     }
 
     @Override

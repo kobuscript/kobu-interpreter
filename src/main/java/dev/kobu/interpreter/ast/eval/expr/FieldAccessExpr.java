@@ -45,7 +45,9 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope, Und
 
     private final Expr rightExpr;
 
-    private boolean assignMode = false;
+    private boolean assignMode;
+
+    private boolean functionRefMode;
 
     private Type type;
 
@@ -96,6 +98,9 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope, Und
                 this.type = UnknownType.INSTANCE;
                 return;
             }
+        }
+        if (functionRefMode && rightExpr instanceof MemoryReference) {
+            ((MemoryReference) rightExpr).setFunctionRefMode();
         }
 
         if (undefinedSymbolListener != null && rightExpr instanceof UndefinedSymbolNotifier) {
@@ -149,6 +154,11 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope, Und
 
     public Expr getRightExpr() {
         return rightExpr;
+    }
+
+    @Override
+    public void setFunctionRefMode() {
+        this.functionRefMode = true;
     }
 
     @Override

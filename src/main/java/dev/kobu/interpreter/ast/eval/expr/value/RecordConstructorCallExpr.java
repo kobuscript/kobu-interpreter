@@ -35,6 +35,7 @@ import dev.kobu.interpreter.ast.symbol.UnknownType;
 import dev.kobu.interpreter.ast.symbol.generics.TypeArgs;
 import dev.kobu.interpreter.error.analyzer.InvalidRecordFieldError;
 import dev.kobu.interpreter.error.analyzer.InvalidRecordFieldTypeError;
+import dev.kobu.interpreter.error.analyzer.InvalidTypeArgsError;
 import dev.kobu.interpreter.error.analyzer.UndefinedTypeError;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class RecordConstructorCallExpr implements Expr {
 
     private final List<RecordFieldExpr> fields = new ArrayList<>();
 
-    private final Type recordType;
+    private Type recordType;
 
     private TypeArgs typeArgs;
 
@@ -90,6 +91,18 @@ public class RecordConstructorCallExpr implements Expr {
             context.addAnalyzerError(new UndefinedTypeError(sourceCodeRef, recordType.getName(),
                     context.getNewGlobalDefinitionOffset()));
             return;
+        }
+        if (typeArgs != null) {
+            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) recordType;
+            if (recordTypeSymbol.getTypeParameters() != null && !recordTypeSymbol.getTypeParameters().isEmpty()) {
+                context.addAnalyzerError(new InvalidTypeArgsError(typeArgs.getSourceCodeRef(),
+                        0, typeArgs.getTypes().size()));
+            } else if (recordTypeSymbol.getTypeParameters().size() != typeArgs.getTypes().size()) {
+                context.addAnalyzerError(new InvalidTypeArgsError(typeArgs.getSourceCodeRef(),
+                        recordTypeSymbol.getTypeParameters().size(), typeArgs.getTypes().size()));
+            } else {
+                this.recordType = new RecordTypeSymbol(recordTypeSymbol, typeArgs.getTypes());
+            }
         }
         for (RecordFieldExpr fieldExpr : fields) {
             Type fieldType = recordType.resolveField(fieldExpr.getFieldName());

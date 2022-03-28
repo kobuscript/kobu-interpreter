@@ -28,6 +28,8 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 
 public interface MemoryReference {
 
+    void setFunctionRefMode();
+
     void setAssignMode();
 
     void assign(EvalContext context, ValueExpr value);

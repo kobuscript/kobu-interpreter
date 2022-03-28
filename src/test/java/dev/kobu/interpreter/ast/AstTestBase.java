@@ -500,6 +500,7 @@ public abstract class AstTestBase {
     FunctionSymbol functionSymbol(ModuleScope module, String name, FunctionParameter... parameters) {
         var fn = new FunctionSymbol(sourceCodeRef("fun_" + name), sourceCodeRef("end-fun_" + name), module, name, null);
         fn.setParameters(Arrays.asList(parameters));
+        fn.buildType();
         module.define(analyzerContext, fn);
         return fn;
     }
@@ -508,6 +509,7 @@ public abstract class AstTestBase {
         var fn = new FunctionSymbol(sourceCodeRef("fun_" + name), sourceCodeRef("end-fun_" + name), module, name, null);
         fn.setParameters(Arrays.asList(parameters));
         fn.setReturnType(returnType);
+        fn.buildType();
         module.define(analyzerContext, fn);
         return fn;
     }

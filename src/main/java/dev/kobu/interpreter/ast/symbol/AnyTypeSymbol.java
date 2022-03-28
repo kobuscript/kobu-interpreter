@@ -35,7 +35,6 @@ public class AnyTypeSymbol extends BuiltinTypeSymbol {
 
     public AnyTypeSymbol() {
         super(ANY_TYPE);
-        buildMethods();
     }
 
     @Override
@@ -53,7 +52,7 @@ public class AnyTypeSymbol extends BuiltinTypeSymbol {
         return null;
     }
 
-    private void buildMethods() {
+    public void buildMethods() {
         addMethod(new BuiltinFunctionSymbol(this,"isString", new TestTypeMethodImpl(BuiltinScope.STRING_TYPE),
                 BuiltinScope.BOOLEAN_TYPE));
         addMethod(new BuiltinFunctionSymbol(this,"isNumber", new TestTypeMethodImpl(BuiltinScope.NUMBER_TYPE),

@@ -95,6 +95,12 @@ public class BuiltinScope implements Scope {
 
     private void buildScope() {
 
+        ANY_TYPE.buildMethods();
+        NUMBER_TYPE.buildMethods();
+        STRING_TYPE.buildMethods();
+        ANY_RECORD_TYPE.buildMethods();
+        TEMPLATE_TYPE.buildMethods();
+
         symbols.put(ANY_TYPE.getName(), ANY_TYPE);
         symbols.put(ANY_VAL_TYPE.getName(), ANY_VAL_TYPE);
         symbols.put(NUMBER_TYPE.getName(), NUMBER_TYPE);

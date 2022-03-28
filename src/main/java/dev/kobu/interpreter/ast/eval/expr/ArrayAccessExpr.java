@@ -143,6 +143,11 @@ public class ArrayAccessExpr implements Expr, HasTypeScope, MemoryReference {
     }
 
     @Override
+    public void setFunctionRefMode() {
+
+    }
+
+    @Override
     public void setAssignMode() {
         this.assignMode = true;
     }

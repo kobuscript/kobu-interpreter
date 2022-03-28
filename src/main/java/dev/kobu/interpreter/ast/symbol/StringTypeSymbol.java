@@ -39,7 +39,6 @@ public class StringTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
     public StringTypeSymbol() {
         super(TYPE_NAME);
-        buildMethods();
     }
 
     @Override
@@ -67,7 +66,7 @@ public class StringTypeSymbol extends BuiltinTypeSymbol implements ValType {
         return "String";
     }
 
-    private void buildMethods() {
+    public void buildMethods() {
         var stringArrayType = ArrayTypeFactory.getArrayTypeFor(this);
 
         addMethod(new BuiltinFunctionSymbol(this,"trim", new TrimMethodImpl(), this));

@@ -53,7 +53,7 @@ public class TemplateTypeSymbol extends BuiltinTypeSymbol {
         return null;
     }
 
-    private void buildMethods() {
+    public void buildMethods() {
         addMethod(new BuiltinFunctionSymbol(this, "trim", new TemplateTrimMethodImpl(),
                 TypeParameter.typeParameters(), BuiltinScope.STRING_TYPE));
     }

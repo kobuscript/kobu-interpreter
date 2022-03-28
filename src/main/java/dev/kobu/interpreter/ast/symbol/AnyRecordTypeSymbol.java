@@ -39,7 +39,6 @@ public class AnyRecordTypeSymbol extends BuiltinTypeSymbol {
 
     public AnyRecordTypeSymbol() {
         super(ANY_RECORD_TYPE);
-        buildMethods();
     }
 
     @Override
@@ -57,7 +56,7 @@ public class AnyRecordTypeSymbol extends BuiltinTypeSymbol {
         return null;
     }
 
-    private void buildMethods() {
+    public void buildMethods() {
         addMethod(new BuiltinFunctionSymbol("put", new RecordPutMethodImpl(),
                 new FunctionParameter("field", BuiltinScope.STRING_TYPE, false),
                 new FunctionParameter("value", BuiltinScope.ANY_TYPE, false)));

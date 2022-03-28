@@ -24,10 +24,7 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.expr;
 
-import dev.kobu.interpreter.ast.eval.Expr;
-import dev.kobu.interpreter.ast.eval.UndefinedSymbolListener;
-import dev.kobu.interpreter.ast.eval.UndefinedSymbolNotifier;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.expr.value.AnonymousFunctionValueExpr;
@@ -71,6 +68,9 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
     public void analyze(EvalContext context) {
         if (functionRefExpr instanceof UndefinedSymbolNotifier) {
             ((UndefinedSymbolNotifier) functionRefExpr).registerUndefinedSymbolListener(this);
+        }
+        if (functionRefExpr instanceof MemoryReference) {
+            ((MemoryReference) functionRefExpr).setFunctionRefMode();
         }
         functionRefExpr.analyze(context);
         if (functionRefExpr.getType() instanceof UnknownType) {

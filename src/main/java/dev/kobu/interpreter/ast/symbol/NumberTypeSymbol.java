@@ -37,7 +37,6 @@ public class NumberTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
     public NumberTypeSymbol() {
         super(TYPE_NAME);
-        buildMethods();
     }
 
     @Override
@@ -65,7 +64,7 @@ public class NumberTypeSymbol extends BuiltinTypeSymbol implements ValType {
         return Comparator.comparingDouble(o -> ((NumberValueExpr) o).toDouble());
     }
 
-    private void buildMethods() {
+    public void buildMethods() {
         addMethod(new BuiltinFunctionSymbol(this,"abs", new AbsMethodImpl(), this));
         addMethod(new BuiltinFunctionSymbol(this,"round", new RoundMethodImpl(), this));
         addMethod(new BuiltinFunctionSymbol(this,"floor", new FloorMethodImpl(), this));
