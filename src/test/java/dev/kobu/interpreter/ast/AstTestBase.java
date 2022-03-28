@@ -38,7 +38,6 @@ import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 import dev.kobu.interpreter.ast.symbol.function.FunctionSymbol;
-import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 import dev.kobu.interpreter.error.AnalyzerError;
@@ -405,7 +404,7 @@ public abstract class AstTestBase {
     RecordTypeSymbol recordType(ModuleScope module, String name, RecordTypeSymbol superType) {
         var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
-        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType, List.of()));
         return recordType;
     }
 
@@ -414,12 +413,12 @@ public abstract class AstTestBase {
         var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
         attributes.forEach(attr -> recordType.addAttribute(analyzerContext, attr));
-        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType, List.of()));
         return recordType;
     }
 
     RecordTypeSymbol setSuperType(RecordTypeSymbol recordType, RecordTypeSymbol superType) {
-        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + recordType.getName()), superType));
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + recordType.getName()), superType, List.of()));
         return recordType;
     }
 
@@ -430,7 +429,7 @@ public abstract class AstTestBase {
         attributes.forEach(attr -> recordType.addAttribute(analyzerContext, attr));
         recordType.setStarAttribute(analyzerContext,
                 new RecordTypeStarAttribute(sourceCodeRef("attr_*"), starAttrType));
-        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType, List.of()));
         return recordType;
     }
 

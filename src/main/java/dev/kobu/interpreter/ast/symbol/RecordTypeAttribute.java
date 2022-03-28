@@ -29,6 +29,7 @@ import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.SymbolDocumentation;
 import dev.kobu.interpreter.ast.eval.SymbolTypeEnum;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class RecordTypeAttribute implements DocumentationSource {
@@ -54,6 +55,13 @@ public class RecordTypeAttribute implements DocumentationSource {
         if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
             moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), this);
         }
+    }
+
+    public RecordTypeAttribute(RecordTypeAttribute typeAttr, Map<String, Type> typeAliasMap) {
+        this.moduleScope = typeAttr.moduleScope;
+        this.sourceCodeRef = typeAttr.sourceCodeRef;
+        this.name = typeAttr.name;
+        this.type = typeAttr.type.constructFor(typeAliasMap);
     }
 
     public SourceCodeRef getSourceCodeRef() {

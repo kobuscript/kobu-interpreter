@@ -181,7 +181,17 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                             typeNameExpr.getText()));
                 }
             } else {
-                recordType.setSuperType(new RecordSuperType(getSourceCodeRef(typeNameExpr), (RecordTypeSymbol) superType));
+                List<Type> typeArgs = new ArrayList<>();
+                if (ctx.inheritance().typeArgs() != null) {
+                    var typeArgCtx = ctx.inheritance().typeArgs().typeArg();
+                    while (typeArgCtx != null) {
+                        Type type = (Type) visit(typeArgCtx.type());
+                        typeArgs.add(type);
+                        typeArgCtx = typeArgCtx.typeArg();
+                    }
+                }
+                recordType.setSuperType(new RecordSuperType(getSourceCodeRef(typeNameExpr),
+                        (RecordTypeSymbol) superType, typeArgs));
             }
         }
 

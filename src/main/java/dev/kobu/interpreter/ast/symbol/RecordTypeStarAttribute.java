@@ -24,6 +24,8 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
+import java.util.Map;
+
 public class RecordTypeStarAttribute {
 
     private final SourceCodeRef sourceCodeRef;
@@ -35,6 +37,11 @@ public class RecordTypeStarAttribute {
     public RecordTypeStarAttribute(SourceCodeRef sourceCodeRef, Type type) {
         this.sourceCodeRef = sourceCodeRef;
         this.type = type;
+    }
+
+    public RecordTypeStarAttribute(RecordTypeStarAttribute starAttr, Map<String, Type> typeAliasMap) {
+        this.sourceCodeRef = starAttr.sourceCodeRef;
+        this.type = starAttr.type.constructFor(typeAliasMap);
     }
 
     public SourceCodeRef getSourceCodeRef() {
