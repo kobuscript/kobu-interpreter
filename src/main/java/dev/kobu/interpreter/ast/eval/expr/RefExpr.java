@@ -176,8 +176,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                     this.type = method.getType();
                 } else if (undefinedSymbolListener != null) {
                     undefinedSymbolListener.onUndefinedSymbol(context, typeScope, symbolName);
+                    this.type = UnknownType.INSTANCE;
                 }
-                this.type = UnknownType.INSTANCE;
                 return;
             }
 
