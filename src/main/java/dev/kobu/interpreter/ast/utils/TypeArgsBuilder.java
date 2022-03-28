@@ -22,40 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.utils;
 
-import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.function.template.TemplateTrimMethodImpl;
-import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
+import dev.kobu.interpreter.ast.symbol.Type;
 
-import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
-public class TemplateTypeSymbol extends BuiltinTypeSymbol {
+public class TypeArgsBuilder {
 
-    private static final String TYPE_NAME = "Template";
+    private final Map<String, Type> typeArgs = new HashMap<>();
 
-    public TemplateTypeSymbol() {
-        super(TYPE_NAME);
+    public TypeArgsBuilder add(String alias, Type type) {
+        typeArgs.put(alias, type);
+        return this;
     }
 
-    @Override
-    public boolean isAssignableFrom(Type type) {
-        return type instanceof TemplateTypeSymbol;
-    }
-
-    @Override
-    public Type getCommonSuperType(Type type) {
-        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
-    }
-
-    public void buildMethods() {
-        addMethod(new BuiltinFunctionSymbol(this, "trim", new TemplateTrimMethodImpl(),
-                BuiltinScope.STRING_TYPE));
+    public Map<String, Type> getTypeArgs() {
+        return typeArgs;
     }
 
 }

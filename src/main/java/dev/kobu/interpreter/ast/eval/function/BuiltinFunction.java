@@ -47,7 +47,7 @@ public abstract class BuiltinFunction {
 
     public ValueExpr run(EvalContext context, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
         try {
-            return run(context, toMap(args, sourceCodeRef), sourceCodeRef);
+            return run(context, toMap(args), sourceCodeRef);
         } catch (EvalError err) {
             throw err;
         } catch (Throwable t) {
@@ -57,7 +57,7 @@ public abstract class BuiltinFunction {
 
     public ValueExpr run(EvalContext context, ValueExpr object, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
         try {
-            return run(context, object, toMap(args, sourceCodeRef), sourceCodeRef);
+            return run(context, object, toMap(args), sourceCodeRef);
         } catch (EvalError err) {
             throw err;
         } catch (Throwable t) {
@@ -75,7 +75,7 @@ public abstract class BuiltinFunction {
 
     public abstract String getDocumentation();
 
-    private Map<String, ValueExpr> toMap(List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
+    private Map<String, ValueExpr> toMap(List<ValueExpr> args) {
         Map<String, ValueExpr> mapArgs = new HashMap<>();
         for (int i = 0; i < funcDef.getParameters().size() && i < args.size(); i++) {
             FunctionParameter param = funcDef.getParameters().get(i);

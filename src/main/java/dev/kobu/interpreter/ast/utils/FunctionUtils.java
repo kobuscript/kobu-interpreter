@@ -22,40 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.utils;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.function.template.TemplateTrimMethodImpl;
-import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
+import dev.kobu.interpreter.ast.eval.expr.value.FunctionRefValueExpr;
+import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
+import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 
-import java.util.Comparator;
+public class FunctionUtils {
 
-public class TemplateTypeSymbol extends BuiltinTypeSymbol {
+    public static KobuFunction toFunction(ValueExpr valueExpr) {
+        if (valueExpr instanceof KobuFunction) {
+            return (KobuFunction) valueExpr;
+        }
+        if (valueExpr instanceof FunctionRefValueExpr) {
+            return ((FunctionRefValueExpr) valueExpr).getFunction();
+        }
 
-    private static final String TYPE_NAME = "Template";
-
-    public TemplateTypeSymbol() {
-        super(TYPE_NAME);
-    }
-
-    @Override
-    public boolean isAssignableFrom(Type type) {
-        return type instanceof TemplateTypeSymbol;
-    }
-
-    @Override
-    public Type getCommonSuperType(Type type) {
-        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
-    }
-
-    public void buildMethods() {
-        addMethod(new BuiltinFunctionSymbol(this, "trim", new TemplateTrimMethodImpl(),
-                BuiltinScope.STRING_TYPE));
+        throw new InternalInterpreterError("Not a function: " + valueExpr.getClass().getName(), null);
     }
 
 }

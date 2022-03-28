@@ -46,6 +46,16 @@ public class FunctionType implements Type {
         this.returnType = returnType;
     }
 
+    public FunctionType(Type returnType, FunctionTypeParameter... parameters) {
+        this.parameters = Arrays.asList(parameters);
+        this.returnType = returnType;
+    }
+
+    public FunctionType(FunctionTypeParameter... parameters) {
+        this.parameters = Arrays.asList(parameters);
+        this.returnType = null;
+    }
+
     public List<FunctionTypeParameter> getParameters() {
         return parameters;
     }

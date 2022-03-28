@@ -30,10 +30,14 @@ import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.eval.function.array.*;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.function.FunctionType;
+import dev.kobu.interpreter.ast.symbol.function.FunctionTypeParameter;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.ast.utils.StringFunctions;
+import dev.kobu.interpreter.ast.utils.TypeArgsBuilder;
 
 import java.util.*;
 
@@ -151,97 +155,18 @@ public class ArrayType implements Type {
         methods.put("addAll", new BuiltinFunctionSymbol(this, "addAll", ADD_ALL_METHOD,
                 new FunctionParameter("arr", this, false)));
         methods.put("distinct", new BuiltinFunctionSymbol(this, "distinct", DISTINCT_METHOD, this));
-
-        if (elementType == null) {
-            return;
-        }
-
-        if (elementType.getComparator() != null) {
-            methods.put("sort", new BuiltinFunctionSymbol(this, "sort", new ArraySortMethodImpl()));
-        } else if (elementType instanceof RecordTypeSymbol) {
-            for (Map.Entry<String, RecordTypeAttribute> attrEntry : ((RecordTypeSymbol) elementType).getAttributes().entrySet()) {
-                if (attrEntry.getValue().getType().getComparator() != null) {
-                    String name = attrEntry.getKey();
-                    String methodName = "sortBy" + name.substring(0, 1).toUpperCase(Locale.ROOT);
-                    if (name.length() > 1) {
-                        methodName += name.substring(1);
-                    }
-                    methods.put(methodName, new BuiltinFunctionSymbol(this, methodName,
-                            new ArraySortMethodImpl(name)));
-                }
-            }
-        } else if (elementType instanceof TupleType) {
-//            if (((TupleType)elementType).getLeftType().getComparator() != null) {
-//                methods.put("sortByLeft", new BuiltinFunctionSymbol(this, "sortByLeft",
-//                        new ArraySortMethodImpl("left")));
-//            }
-//            if (((TupleType)elementType).getRightType().getComparator() != null) {
-//                methods.put("sortByRight", new BuiltinFunctionSymbol(this, "sortByRight",
-//                        new ArraySortMethodImpl("right")));
-//            }
-        }
-
-        if (elementType instanceof TemplateTypeSymbol) {
-            methods.put("trim", new BuiltinFunctionSymbol(this, "trim", new ArrayTemplateTrimMethodImpl(),
-                    new ArrayType(BuiltinScope.STRING_TYPE)));
-            methods.put("strJoin", new BuiltinFunctionSymbol(this, "strJoin", new ArrayTemplateJoinMethodImpl(),
-                    BuiltinScope.STRING_TYPE,
-                    new FunctionParameter("delimiter", BuiltinScope.STRING_TYPE, true)));
-            methods.put("mkString", new BuiltinFunctionSymbol(this, "mkString", new ArrayStringMkMethodImpl(),
-                    BuiltinScope.STRING_TYPE,
-                    new FunctionParameter("prefix", BuiltinScope.STRING_TYPE, false),
-                    new FunctionParameter("delimiter", BuiltinScope.STRING_TYPE, false),
-                    new FunctionParameter("suffix", BuiltinScope.STRING_TYPE, false)));
-        } else if (elementType instanceof StringTypeSymbol) {
-            methods.put("strJoin", new BuiltinFunctionSymbol(this, "strJoin", new ArrayStringJoinMethodImpl(),
-                    BuiltinScope.STRING_TYPE,
-                    new FunctionParameter("delimiter", BuiltinScope.STRING_TYPE, true)));
-            methods.put("mkString", new BuiltinFunctionSymbol(this, "mkString", new ArrayStringMkMethodImpl(),
-                    BuiltinScope.STRING_TYPE,
-                    new FunctionParameter("prefix", BuiltinScope.STRING_TYPE, false),
-                    new FunctionParameter("delimiter", BuiltinScope.STRING_TYPE, false),
-                    new FunctionParameter("suffix", BuiltinScope.STRING_TYPE, false)));
-            methods.put("trim", new BuiltinFunctionSymbol(this, "trim", new ArrayStringTrimMethodImpl(), this));
-
-            methods.put("kebabToCamelCase", new BuiltinFunctionSymbol(this, "kebabToCamelCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::kebabToCamelCase),
-                    this));
-            methods.put("kebabToPascalCase", new BuiltinFunctionSymbol(this, "kebabToPascalCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::kebabToPascalCase),
-                    this));
-            methods.put("kebabToSnakeCase", new BuiltinFunctionSymbol(this, "kebabToSnakeCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::kebabToSnakeCase),
-                    this));
-            methods.put("camelToKebabCase", new BuiltinFunctionSymbol(this, "camelToKebabCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::camelToKebabCase),
-                    this));
-            methods.put("camelToPascalCase", new BuiltinFunctionSymbol(this, "camelToPascalCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::camelToPascalCase),
-                    this));
-            methods.put("camelToSnakeCase", new BuiltinFunctionSymbol(this, "camelToSnakeCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::camelToSnakeCase),
-                    this));
-            methods.put("pascalToKebabCase", new BuiltinFunctionSymbol(this, "pascalToKebabCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::pascalToKebabCase),
-                    this));
-            methods.put("pascalToCamelCase", new BuiltinFunctionSymbol(this, "pascalToCamelCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::pascalToCamelCase),
-                    this));
-            methods.put("pascalToSnakeCase", new BuiltinFunctionSymbol(this, "pascalToSnakeCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::pascalToSnakeCase),
-                    this));
-            methods.put("snakeToKebabCase", new BuiltinFunctionSymbol(this, "snakeToKebabCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::snakeToKebabCase),
-                    this));
-            methods.put("snakeToCamelCase", new BuiltinFunctionSymbol(this, "snakeToCamelCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::snakeToCamelCase),
-                    this));
-            methods.put("snakeToPascalCase", new BuiltinFunctionSymbol(this, "snakeToPascalCase",
-                    new ArrayStringConverterMethodImpl(StringFunctions::snakeToPascalCase),
-                    this));
-        }
-
         methods.put("reverse", new BuiltinFunctionSymbol(this, "reverse", new ArrayReverseMethodImpl()));
+
+        List<TypeParameter> filterTypeParameters = TypeParameter.typeParameters("A", "B");
+        methods.put("filter", new BuiltinFunctionSymbol(this, "filter",
+                new ArrayFilterMethodImpl(this),
+                filterTypeParameters,
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                new TypeAlias(filterTypeParameters.get(1)),
+                new FunctionParameter("pred",
+                        new FunctionType(BuiltinScope.BOOLEAN_TYPE,
+                                new FunctionTypeParameter(new TypeAlias(filterTypeParameters.get(0)), false)),
+                        false)));
     }
 
     @Override
