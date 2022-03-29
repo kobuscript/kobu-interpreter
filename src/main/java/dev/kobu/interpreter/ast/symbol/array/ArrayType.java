@@ -35,6 +35,9 @@ import dev.kobu.interpreter.ast.symbol.function.FunctionTypeParameter;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 import dev.kobu.interpreter.ast.utils.TypeArgsBuilder;
 
 import java.util.*;
@@ -51,12 +54,20 @@ public class ArrayType implements Type {
     private final static BuiltinMethod MAP_METHOD = new ArrayMapMethodImpl();
     private final static BuiltinMethod FLAT_MAP_METHOD = new ArrayFlatMapMethodImpl();
     private final static BuiltinMethod FOR_EACH_METHOD = new ArrayForEachMethodImpl();
+    private final static BuiltinMethod ZIP_METHOD = new ArrayZipMethodImpl();
 
     private final static TypeParameter TYPE_PARAMETER_A = new TypeParameter("A");
     private final static TypeParameter TYPE_PARAMETER_B = new TypeParameter("B");
     private final static TypeAlias TYPE_ALIAS_A = new TypeAlias(TYPE_PARAMETER_A);
     private final static TypeAlias TYPE_ALIAS_B = new TypeAlias(TYPE_PARAMETER_B);
     private final static ArrayType ARRAY_TYPE_ALIAS_B = new ArrayType(TYPE_ALIAS_B);
+    private final static ArrayType ARRAY_PAIR_TYPE_ALIAS_A_B = new ArrayType(getPairTypeAlias());
+
+    private static TupleType getPairTypeAlias() {
+        TupleTypeElement tupleTypeElement = new TupleTypeElement(TYPE_ALIAS_A);
+        tupleTypeElement.setNext(new TupleTypeElement(TYPE_ALIAS_B));
+        return TupleTypeFactory.getTupleTypeFor(tupleTypeElement);
+    }
 
     private final Map<String, BuiltinFunctionSymbol> methods = new HashMap<>();
 
@@ -214,6 +225,13 @@ public class ArrayType implements Type {
                 new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
                 new FunctionParameter("fn",
                         new FunctionType(new FunctionTypeParameter(TYPE_ALIAS_A, false)), false)));
+
+        methods.put("zip", new BuiltinFunctionSymbol(this, "zip",
+                ZIP_METHOD,
+                List.of(TYPE_PARAMETER_A, TYPE_PARAMETER_B),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                ARRAY_PAIR_TYPE_ALIAS_A_B,
+                new FunctionParameter("that", ARRAY_TYPE_ALIAS_B, false)));
     }
 
 }
