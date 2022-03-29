@@ -35,8 +35,6 @@ import dev.kobu.interpreter.ast.symbol.function.FunctionTypeParameter;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
-import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
-import dev.kobu.interpreter.ast.utils.StringFunctions;
 import dev.kobu.interpreter.ast.utils.TypeArgsBuilder;
 
 import java.util.*;
@@ -44,22 +42,28 @@ import java.util.*;
 public class ArrayType implements Type {
 
     private final static BuiltinMethod SIZE_METHOD = new ArraySizeMethodImpl();
-
     private final static BuiltinMethod ADD_METHOD = new ArrayAddMethodImpl();
-
-    private final static BuiltinMethod REMOVE_METHOD = new ArrayRemoveMethodImpl();
-
     private final static BuiltinMethod ADD_ALL_METHOD = new ArrayAddAllMethodImpl();
-
+    private final static BuiltinMethod REMOVE_METHOD = new ArrayRemoveMethodImpl();
     private final static BuiltinMethod DISTINCT_METHOD = new ArrayDistinctMethodImpl();
+    private final static BuiltinMethod REVERSE_METHOD = new ArrayReverseMethodImpl();
+    private final static BuiltinMethod FILTER_METHOD = new ArrayFilterMethodImpl();
+    private final static BuiltinMethod MAP_METHOD = new ArrayMapMethodImpl();
+    private final static BuiltinMethod FLAT_MAP_METHOD = new ArrayFlatMapMethodImpl();
+    private final static BuiltinMethod FOR_EACH_METHOD = new ArrayForEachMethodImpl();
+
+    private final static TypeParameter TYPE_PARAMETER_A = new TypeParameter("A");
+    private final static TypeParameter TYPE_PARAMETER_B = new TypeParameter("B");
+    private final static TypeAlias TYPE_ALIAS_A = new TypeAlias(TYPE_PARAMETER_A);
+    private final static TypeAlias TYPE_ALIAS_B = new TypeAlias(TYPE_PARAMETER_B);
+    private final static ArrayType ARRAY_TYPE_ALIAS_B = new ArrayType(TYPE_ALIAS_B);
+
+    private final Map<String, BuiltinFunctionSymbol> methods = new HashMap<>();
 
     private final Type elementType;
 
-    private final Map<String, NamedFunction> methods = new HashMap<>();
-
     protected ArrayType(Type elementType) {
         this.elementType = elementType;
-        buildMethods();
     }
 
     public Type getElementType() {
@@ -143,32 +147,6 @@ public class ArrayType implements Type {
         }
     }
 
-    private void buildMethods() {
-        BuiltinTypeSymbol numberType = BuiltinScope.NUMBER_TYPE;
-
-        methods.put("size", new BuiltinFunctionSymbol(this, "size", SIZE_METHOD));
-        methods.put("length", new BuiltinFunctionSymbol(this, "length", SIZE_METHOD));
-        methods.put("add", new BuiltinFunctionSymbol(this, "add", ADD_METHOD,
-                new FunctionParameter("elem", elementType, false)));
-        methods.put("remove", new BuiltinFunctionSymbol(this, "remove", REMOVE_METHOD,
-                new FunctionParameter("index", numberType, false)));
-        methods.put("addAll", new BuiltinFunctionSymbol(this, "addAll", ADD_ALL_METHOD,
-                new FunctionParameter("arr", this, false)));
-        methods.put("distinct", new BuiltinFunctionSymbol(this, "distinct", DISTINCT_METHOD, this));
-        methods.put("reverse", new BuiltinFunctionSymbol(this, "reverse", new ArrayReverseMethodImpl()));
-
-        List<TypeParameter> filterTypeParameters = TypeParameter.typeParameters("A", "B");
-        methods.put("filter", new BuiltinFunctionSymbol(this, "filter",
-                new ArrayFilterMethodImpl(this),
-                filterTypeParameters,
-                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
-                new TypeAlias(filterTypeParameters.get(1)),
-                new FunctionParameter("pred",
-                        new FunctionType(BuiltinScope.BOOLEAN_TYPE,
-                                new FunctionTypeParameter(new TypeAlias(filterTypeParameters.get(0)), false)),
-                        false)));
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -180,6 +158,62 @@ public class ArrayType implements Type {
     @Override
     public int hashCode() {
         return Objects.hash(elementType);
+    }
+
+    protected void buildMethods() {
+        if (!methods.isEmpty()) {
+            return;
+        }
+
+        BuiltinTypeSymbol numberType = BuiltinScope.NUMBER_TYPE;
+
+        methods.put("size", new BuiltinFunctionSymbol(this, "size", SIZE_METHOD));
+        methods.put("length", new BuiltinFunctionSymbol(this, "length", SIZE_METHOD));
+        methods.put("add", new BuiltinFunctionSymbol(this, "add", ADD_METHOD,
+                new FunctionParameter("elem", elementType, false)));
+        methods.put("remove", new BuiltinFunctionSymbol(this, "remove", REMOVE_METHOD,
+                new FunctionParameter("index", numberType, false)));
+        methods.put("addAll", new BuiltinFunctionSymbol(this, "addAll", ADD_ALL_METHOD,
+                new FunctionParameter("arr", this, false)));
+        methods.put("distinct", new BuiltinFunctionSymbol(this, "distinct", DISTINCT_METHOD, this));
+        methods.put("reverse", new BuiltinFunctionSymbol(this, "reverse", REVERSE_METHOD));
+
+        methods.put("filter", new BuiltinFunctionSymbol(this, "filter",
+                FILTER_METHOD,
+                List.of(TYPE_PARAMETER_A),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                this,
+                new FunctionParameter("pred",
+                        new FunctionType(BuiltinScope.BOOLEAN_TYPE,
+                                new FunctionTypeParameter(TYPE_ALIAS_A, false)),
+                        false)));
+
+        methods.put("map", new BuiltinFunctionSymbol(this, "map",
+                MAP_METHOD,
+                List.of(TYPE_PARAMETER_A, TYPE_PARAMETER_B),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                ARRAY_TYPE_ALIAS_B,
+                new FunctionParameter("fn",
+                        new FunctionType(TYPE_ALIAS_B,
+                                new FunctionTypeParameter(TYPE_ALIAS_A, false)),
+                        false)));
+
+        methods.put("flatMap", new BuiltinFunctionSymbol(this, "flatMap",
+                FLAT_MAP_METHOD,
+                List.of(TYPE_PARAMETER_A, TYPE_PARAMETER_B),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                ARRAY_TYPE_ALIAS_B,
+                new FunctionParameter("fn",
+                        new FunctionType(ARRAY_TYPE_ALIAS_B,
+                                new FunctionTypeParameter(TYPE_ALIAS_A, false)),
+                        false)));
+
+        methods.put("forEach", new BuiltinFunctionSymbol(this, "forEach",
+                FOR_EACH_METHOD,
+                List.of(TYPE_PARAMETER_A),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                new FunctionParameter("fn",
+                        new FunctionType(new FunctionTypeParameter(TYPE_ALIAS_A, false)), false)));
     }
 
 }

@@ -68,6 +68,12 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
     }
 
     public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
+                                 List<TypeParameter> typeParameters, Map<String, Type> typeArgsMap,
+                                 FunctionParameter... args) {
+        this(enclosingType, name, functionImpl, typeParameters, typeArgsMap, null, args);
+    }
+
+    public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
                                  Type returnType,
                                  FunctionParameter... args) {
         this(enclosingType, name, functionImpl, TypeParameter.typeParameters(), new HashMap<>(), returnType, args);
@@ -135,10 +141,6 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
             }
         }
         return symbolDocumentation;
-    }
-
-    public void setProvidedTypeArg(String typeAlias, Type type) {
-        typeArgsMap.put(typeAlias, type);
     }
 
     public void setReturnType(Type returnType) {

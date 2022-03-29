@@ -27,7 +27,6 @@ package dev.kobu.interpreter.ast.eval.function.array;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
@@ -41,42 +40,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ArrayFilterMethodImpl extends BuiltinMethod {
+public class ArrayFlatMapMethodImpl extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         ArrayValueExpr arrayExpr = (ArrayValueExpr) object;
-        ValueExpr pred = args.get("pred");
+        ValueExpr fn = args.get("fn");
 
-        if (pred == null || pred instanceof NullValueExpr) {
-            throw new IllegalArgumentError("predicate cannot be null", sourceCodeRef);
+        if (fn == null || fn instanceof NullValueExpr) {
+            throw new IllegalArgumentError("function 'fn' cannot be null", sourceCodeRef);
         }
 
-        List<ValueExpr> filtered = new ArrayList<>();
+        KobuFunction transformFn = FunctionUtils.toFunction(fn);
+        List<ValueExpr> newArray = new ArrayList<>();
         for (ValueExpr valueExpr : arrayExpr.getValue()) {
-            if (runPredicate(context, pred, valueExpr, sourceCodeRef)) {
-                filtered.add(valueExpr);
-            }
+            newArray.addAll(runTransform(context, transformFn, valueExpr, sourceCodeRef));
         }
 
-        return new ArrayValueExpr(arrayExpr.getType(), filtered);
+        return new ArrayValueExpr((ArrayType) transformFn.getReturnType(), newArray);
     }
 
-    private boolean runPredicate(EvalContext evalContext, ValueExpr pred, ValueExpr elem, SourceCodeRef sourceCodeRef) {
-        KobuFunction fn = FunctionUtils.toFunction(pred);
-        ValueExpr result = evalContext.evalFunction(fn, List.of(elem), sourceCodeRef);
-        if (result instanceof BooleanValueExpr) {
-            return ((BooleanValueExpr) result).getValue();
+    private List<ValueExpr> runTransform(EvalContext evalContext, KobuFunction transformFn, ValueExpr elem, SourceCodeRef sourceCodeRef) {
+        ValueExpr result = evalContext.evalFunction(transformFn, List.of(elem), sourceCodeRef);
+        if (result instanceof ArrayValueExpr) {
+            return ((ArrayValueExpr) result).getValue();
         }
         if (result instanceof NullValueExpr) {
-            return false;
+            return List.of();
         }
         String name = result != null ? result.getClass().getName() : "'null'";
-        throw new InternalInterpreterError("BooleanValueExpr expected, got " + name, sourceCodeRef);
+        throw new InternalInterpreterError("ArrayValueExpr expected, got " + name, sourceCodeRef);
     }
 
     @Override
     public String getDocumentation() {
-        return "Selects all elements of this array which satisfy a predicate";
+        return "Builds a new array by applying a function to all elements of this array and using the elements of the resulting collections";
     }
+
 }

@@ -27,6 +27,7 @@ package dev.kobu.interpreter.ast.eval.expr;
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.symbol.BuiltinScope;
+import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.analyzer.InvalidAssignmentError;
@@ -159,6 +160,14 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope, Und
     @Override
     public void setFunctionRefMode() {
         this.functionRefMode = true;
+    }
+
+    @Override
+    public KobuFunction getFunction() {
+        if (rightExpr instanceof MemoryReference) {
+            return ((MemoryReference) rightExpr).getFunction();
+        }
+        return null;
     }
 
     @Override

@@ -99,12 +99,14 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
         if (resolvedTypeArgs == null) {
             resolvedTypeArgs = new HashMap<>();
         }
-        if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && functionRefExpr instanceof FunctionRefValueExpr) {
-            var function = ((FunctionRefValueExpr) functionRefExpr).getFunction();
-            resolvedTypeArgs.putAll(function.providedTypeArguments());
-            if (function instanceof BuiltinFunctionSymbol) {
-                moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) function);
+        if (functionRefExpr instanceof MemoryReference) {
+            var function = ((MemoryReference) functionRefExpr).getFunction();
+            if (function != null) {
+                resolvedTypeArgs.putAll(function.providedTypeArguments());
             }
+//            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && function instanceof BuiltinFunctionSymbol) {
+//                moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) function);
+//            }
         }
 
         this.type = analyzeCall(context, (FunctionType) functionRefExpr.getType());

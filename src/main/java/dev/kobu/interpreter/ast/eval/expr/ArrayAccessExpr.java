@@ -31,6 +31,7 @@ import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.UnknownType;
+import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.error.analyzer.InvalidArrayIndexAssignmentError;
 import dev.kobu.interpreter.error.analyzer.NotArrayTypeError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
@@ -145,6 +146,11 @@ public class ArrayAccessExpr implements Expr, HasTypeScope, MemoryReference {
     @Override
     public void setFunctionRefMode() {
 
+    }
+
+    @Override
+    public KobuFunction getFunction() {
+        return null;
     }
 
     @Override

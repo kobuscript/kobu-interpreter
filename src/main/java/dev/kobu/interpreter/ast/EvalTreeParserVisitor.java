@@ -309,7 +309,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         List<Evaluable> block = new ArrayList<>();
         if (ctx.anonymousFunctionBody() != null) {
             if (ctx.anonymousFunctionBody().expr() != null) {
-                block.add((Evaluable) visit(ctx.anonymousFunctionBody().expr()));
+                Expr expr = (Expr) visit(ctx.anonymousFunctionBody().expr());
+                block.add(new ReturnStatement(expr.getSourceCodeRef(), expr));
             } else if (ctx.anonymousFunctionBody().execStat() != null) {
                 for (KobuParser.ExecStatContext execStatContext : ctx.anonymousFunctionBody().execStat()) {
                     block.add((Evaluable) visit(execStatContext));

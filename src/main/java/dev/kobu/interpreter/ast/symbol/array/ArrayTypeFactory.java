@@ -34,7 +34,9 @@ public class ArrayTypeFactory {
     private final static Map<Type, ArrayType> arrayTypeMap = new HashMap<>();
 
     public static ArrayType getArrayTypeFor(Type elemType) {
-        return arrayTypeMap.computeIfAbsent(elemType, ArrayType::new);
+        var arrayType = arrayTypeMap.computeIfAbsent(elemType, ArrayType::new);
+        arrayType.buildMethods();
+        return arrayType;
     }
 
 }

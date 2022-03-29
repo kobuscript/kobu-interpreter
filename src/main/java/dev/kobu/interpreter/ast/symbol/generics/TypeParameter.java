@@ -28,7 +28,6 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class TypeParameter {
 
@@ -39,7 +38,7 @@ public class TypeParameter {
         }
         return parameters;
     }
-
+    
     private final SourceCodeRef sourceCodeRef;
 
     private final String alias;
@@ -49,25 +48,17 @@ public class TypeParameter {
         this.alias = alias;
     }
 
+    public TypeParameter(String alias) {
+        this.sourceCodeRef = null;
+        this.alias = alias;
+    }
+
     public String getAlias() {
         return alias;
     }
 
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TypeParameter that = (TypeParameter) o;
-        return Objects.equals(sourceCodeRef, that.sourceCodeRef) && Objects.equals(alias, that.alias);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(sourceCodeRef, alias);
     }
 
 }

@@ -217,7 +217,14 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
 
     @Override
     public boolean inferReturnType() {
-        return targetType == null;
+        if (targetType == null) {
+            return true;
+        }
+
+        if (targetType instanceof FunctionType) {
+            return ((FunctionType) targetType).getReturnType() instanceof TypeAlias;
+        }
+        return false;
     }
 
 }

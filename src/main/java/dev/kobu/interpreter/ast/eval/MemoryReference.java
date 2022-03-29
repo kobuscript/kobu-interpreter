@@ -25,10 +25,13 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.eval;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 
 public interface MemoryReference {
 
     void setFunctionRefMode();
+
+    KobuFunction getFunction();
 
     void setAssignMode();
 

@@ -281,6 +281,11 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     }
 
     @Override
+    public KobuFunction getFunction() {
+        return function;
+    }
+
+    @Override
     public void setAssignMode() {
         assignMode = true;
     }
