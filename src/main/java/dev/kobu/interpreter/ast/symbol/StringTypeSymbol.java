@@ -24,14 +24,10 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.string.*;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 import dev.kobu.interpreter.ast.utils.StringFunctions;
-
-import java.util.Comparator;
 
 public class StringTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
@@ -54,16 +50,6 @@ public class StringTypeSymbol extends BuiltinTypeSymbol implements ValType {
             return BuiltinScope.ANY_VAL_TYPE;
         }
         return BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return Comparator.comparing(o -> ((StringValueExpr)o).getValue());
-    }
-
-    @Override
-    public String getIdentifier() {
-        return "String";
     }
 
     public void buildMethods() {

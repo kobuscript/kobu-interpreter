@@ -24,11 +24,7 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.template.TemplateTrimMethodImpl;
-import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
-
-import java.util.Comparator;
 
 public class TemplateTypeSymbol extends BuiltinTypeSymbol {
 
@@ -46,11 +42,6 @@ public class TemplateTypeSymbol extends BuiltinTypeSymbol {
     @Override
     public Type getCommonSuperType(Type type) {
         return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
     }
 
     public void buildMethods() {

@@ -24,12 +24,6 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
-
-import java.util.Comparator;
-import java.util.Map;
-
 public class RecordTypeRefTypeSymbol extends BuiltinTypeSymbol {
 
     private static final String TYPE_NAME = "RecordType";
@@ -48,8 +42,4 @@ public class RecordTypeRefTypeSymbol extends BuiltinTypeSymbol {
         return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
     }
 
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
-    }
 }

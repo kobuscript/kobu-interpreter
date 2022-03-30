@@ -24,10 +24,6 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.eval.ValueExpr;
-
-import java.util.Comparator;
-
 public class RuleRefTypeSymbol extends BuiltinTypeSymbol {
 
     private static final String TYPE_NAME = "Rule";
@@ -46,8 +42,4 @@ public class RuleRefTypeSymbol extends BuiltinTypeSymbol {
         return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
     }
 
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
-    }
 }

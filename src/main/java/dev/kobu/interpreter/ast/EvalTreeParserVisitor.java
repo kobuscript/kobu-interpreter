@@ -197,8 +197,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         typeParameterContext = null;
 
-        recordType.buildMethods();
-
         return null;
     }
 
@@ -1595,6 +1593,27 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                             moduleAlias + "." + typeName, scopeEndOffset));
                     return UnknownType.INSTANCE;
                 }
+
+                if (ctx.typeArgs() != null) {
+                    List<Type> typeList = getTypesFrom(ctx.typeArgs());
+                    if (!typeList.isEmpty()) {
+                        if (symbol instanceof RecordTypeSymbol) {
+                            RecordTypeSymbol recordType = (RecordTypeSymbol) symbol;
+                            if (recordType.getTypeParameters() == null) {
+                                context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
+                                        0, typeList.size()));
+                            } else if (recordType.getTypeParameters().size() != typeList.size()) {
+                                context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
+                                        recordType.getTypeParameters().size(), typeList.size()));
+                            } else {
+                                symbol = new RecordTypeSymbol(recordType, typeList);
+                            }
+                        } else {
+                            context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx),
+                                    0, typeList.size()));
+                        }
+                    }
+                }
             } else {
                 if (!(symbol instanceof RuleSymbol)) {
                     return UnknownType.INSTANCE;
@@ -1606,7 +1625,11 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
     private List<Type> getTypesFrom(KobuParser.TypeArgsContext typeArgsCtx) {
         List<Type> types = new ArrayList<>();
-
+        var typeArgCtx = typeArgsCtx.typeArg();
+        while (typeArgCtx != null) {
+            types.add((Type) visit(typeArgCtx.type()));
+            typeArgCtx = typeArgCtx.typeArg();
+        }
         return types;
     }
 

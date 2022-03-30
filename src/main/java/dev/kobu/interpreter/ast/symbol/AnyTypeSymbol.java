@@ -24,10 +24,7 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.any.TestTypeMethodImpl;
-
-import java.util.Comparator;
 
 public class AnyTypeSymbol extends BuiltinTypeSymbol {
 
@@ -45,11 +42,6 @@ public class AnyTypeSymbol extends BuiltinTypeSymbol {
     @Override
     public Type getCommonSuperType(Type type) {
         return this;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
     }
 
     public void buildMethods() {

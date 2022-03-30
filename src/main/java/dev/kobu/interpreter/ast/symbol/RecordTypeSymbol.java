@@ -84,11 +84,6 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         return super.getName();
     }
 
-    @Override
-    public String getIdentifier() {
-        return getName();
-    }
-
     public SourceCodeRef getSuperTypeSourceCodeRef() {
         return superType.getSourceCodeRef();
     }
@@ -326,11 +321,6 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
-    }
-
-    @Override
     public Collection<TypeAlias> aliases() {
         return List.of();
     }
@@ -343,39 +333,6 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     @Override
     public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
 
-    }
-
-    public void buildMethods() {
-        var types = new HashSet<String>();
-        for (RecordTypeAttribute attribute : attributes.values()) {
-            Type attrType = attribute.getType();
-            while (types.add(attrType.getIdentifier())) {
-                buildDynamicMethods(attribute.getType());
-                if (attrType instanceof RecordTypeSymbol) {
-                    attrType = ((RecordTypeSymbol)attrType).getSuperType();
-                    if (attrType == null) {
-                        attrType = BuiltinScope.ANY_RECORD_TYPE;
-                    }
-                } else {
-                    attrType = BuiltinScope.ANY_TYPE;
-                }
-            }
-        }
-
-        if (starAttribute != null && types.add(starAttribute.getType().getIdentifier())) {
-            buildDynamicMethods(starAttribute.getType());
-        }
-    }
-
-    private void buildDynamicMethods(Type type) {
-//        var valMethodName = "get" + type.getIdentifier() + "Values";
-//        methods.put(valMethodName, new BuiltinFunctionSymbol(this, valMethodName,
-//                new RecordValuesMethodImpl(type), ArrayTypeFactory.getArrayTypeFor(type)));
-//
-//        var entryMethodName = "get" + type.getIdentifier() + "Entries";
-//        methods.put(entryMethodName, new BuiltinFunctionSymbol(this, entryMethodName,
-//                new RecordEntriesMethodImpl(type),
-//                ArrayTypeFactory.getArrayTypeFor(new TupleType(List.of(BuiltinScope.STRING_TYPE, type)))));
     }
 
     private RecordTypeAttribute resolveSuperTypeAttribute(String attrName) {

@@ -76,11 +76,6 @@ public class FunctionType implements Type {
     }
 
     @Override
-    public String getIdentifier() {
-        return null;
-    }
-
-    @Override
     public List<FieldDescriptor> getFields() {
         return new ArrayList<>();
     }
@@ -144,11 +139,6 @@ public class FunctionType implements Type {
             return this;
         }
         return BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
     }
 
     @Override

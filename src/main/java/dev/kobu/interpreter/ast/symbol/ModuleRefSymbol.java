@@ -53,11 +53,6 @@ public class ModuleRefSymbol extends Symbol implements Type {
     }
 
     @Override
-    public String getIdentifier() {
-        return getName();
-    }
-
-    @Override
     public String getNameInModule() {
         return alias;
     }
@@ -118,11 +113,6 @@ public class ModuleRefSymbol extends Symbol implements Type {
 
     @Override
     public Type getCommonSuperType(Type type) {
-        return null;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
         return null;
     }
 

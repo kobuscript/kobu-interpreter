@@ -56,11 +56,6 @@ public class TypeAlias implements Type {
     }
 
     @Override
-    public String getIdentifier() {
-        return typeParameter.getAlias();
-    }
-
-    @Override
     public List<FieldDescriptor> getFields() {
         return BuiltinScope.ANY_TYPE.getFields();
     }
@@ -93,11 +88,6 @@ public class TypeAlias implements Type {
     @Override
     public Type getCommonSuperType(Type type) {
         return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
     }
 
     @Override

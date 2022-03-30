@@ -41,8 +41,6 @@ public interface Type extends AstNode {
 
     String getName();
 
-    String getIdentifier();
-
     List<FieldDescriptor> getFields();
 
     List<NamedFunction> getMethods();
@@ -56,8 +54,6 @@ public interface Type extends AstNode {
     boolean isAssignableFrom(Type type);
 
     Type getCommonSuperType(Type type);
-
-    Comparator<ValueExpr> getComparator();
 
     Collection<TypeAlias> aliases();
 

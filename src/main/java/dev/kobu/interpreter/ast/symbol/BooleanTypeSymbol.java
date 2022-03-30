@@ -24,21 +24,12 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.eval.ValueExpr;
-
-import java.util.Comparator;
-
 public class BooleanTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
     private static final String TYPE_NAME = "boolean";
 
     public BooleanTypeSymbol() {
         super(TYPE_NAME);
-    }
-
-    @Override
-    public String getIdentifier() {
-        return "Boolean";
     }
 
     @Override
@@ -54,11 +45,6 @@ public class BooleanTypeSymbol extends BuiltinTypeSymbol implements ValType {
             return BuiltinScope.ANY_VAL_TYPE;
         }
         return BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
     }
 
 }

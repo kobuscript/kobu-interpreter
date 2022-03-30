@@ -24,14 +24,11 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.record.*;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
-
-import java.util.Comparator;
 
 public class AnyRecordTypeSymbol extends BuiltinTypeSymbol {
 
@@ -49,11 +46,6 @@ public class AnyRecordTypeSymbol extends BuiltinTypeSymbol {
     @Override
     public Type getCommonSuperType(Type type) {
         return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
     }
 
     public void buildMethods() {

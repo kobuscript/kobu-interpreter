@@ -98,8 +98,4 @@ public abstract class BuiltinTypeSymbol extends Symbol implements Type {
         fields.put(fieldName, type);
     }
 
-    @Override
-    public String getIdentifier() {
-        return getName();
-    }
 }

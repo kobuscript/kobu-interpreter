@@ -24,12 +24,8 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.number.*;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
-
-import java.util.Comparator;
 
 public class NumberTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
@@ -37,11 +33,6 @@ public class NumberTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
     public NumberTypeSymbol() {
         super(TYPE_NAME);
-    }
-
-    @Override
-    public String getIdentifier() {
-        return "Number";
     }
 
     @Override
@@ -57,11 +48,6 @@ public class NumberTypeSymbol extends BuiltinTypeSymbol implements ValType {
             return BuiltinScope.ANY_VAL_TYPE;
         }
         return BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return Comparator.comparingDouble(o -> ((NumberValueExpr) o).toDouble());
     }
 
     public void buildMethods() {

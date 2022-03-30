@@ -25,7 +25,6 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.symbol.array;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.eval.function.array.*;
 import dev.kobu.interpreter.ast.symbol.*;
@@ -92,11 +91,6 @@ public class ArrayType implements Type {
     }
 
     @Override
-    public String getIdentifier() {
-        return "ArrayOf" + elementType.getIdentifier();
-    }
-
-    @Override
     public List<FieldDescriptor> getFields() {
         return new ArrayList<>();
     }
@@ -134,11 +128,6 @@ public class ArrayType implements Type {
             return ArrayTypeFactory.getArrayTypeFor(elementType.getCommonSuperType(((ArrayType)type).getElementType()));
         }
         return BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
     }
 
     @Override

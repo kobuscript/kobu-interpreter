@@ -25,7 +25,6 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.symbol.tuple;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.tuple.TupleGetMethod;
 import dev.kobu.interpreter.ast.eval.function.tuple.TupleSetMethod;
 import dev.kobu.interpreter.ast.symbol.BuiltinFunctionSymbol;
@@ -61,11 +60,6 @@ public class TupleType implements Type {
     @Override
     public String getName() {
         return typeElement.getName();
-    }
-
-    @Override
-    public String getIdentifier() {
-        return null;
     }
 
     @Override
@@ -113,11 +107,6 @@ public class TupleType implements Type {
             }
         }
         return BuiltinScope.ANY_TYPE;
-    }
-
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
     }
 
     @Override

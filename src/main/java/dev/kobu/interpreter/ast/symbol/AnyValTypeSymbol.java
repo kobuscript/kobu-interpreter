@@ -24,10 +24,6 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.eval.ValueExpr;
-
-import java.util.Comparator;
-
 public class AnyValTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
     private static final String ANY_VAL_TYPE = "AnyVal";
@@ -46,8 +42,4 @@ public class AnyValTypeSymbol extends BuiltinTypeSymbol implements ValType {
         return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
     }
 
-    @Override
-    public Comparator<ValueExpr> getComparator() {
-        return null;
-    }
 }
