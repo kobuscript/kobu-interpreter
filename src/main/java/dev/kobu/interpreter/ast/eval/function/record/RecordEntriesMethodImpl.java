@@ -31,7 +31,9 @@ import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.TupleValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
-import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.BuiltinScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
@@ -43,10 +45,15 @@ import java.util.Map;
 
 public class RecordEntriesMethodImpl extends BuiltinMethod {
 
-    private final Type type;
+    private final TupleType tupleType;
 
-    public RecordEntriesMethodImpl(Type type) {
-        this.type = type;
+    private final ArrayType resultType;
+
+    public RecordEntriesMethodImpl() {
+        TupleTypeElement tupleTypeElement = new TupleTypeElement(BuiltinScope.STRING_TYPE);
+        tupleTypeElement.setNext(new TupleTypeElement(BuiltinScope.ANY_TYPE));
+        tupleType = TupleTypeFactory.getTupleTypeFor(tupleTypeElement);
+        resultType = ArrayTypeFactory.getArrayTypeFor(tupleType);
     }
 
     @Override
@@ -56,20 +63,15 @@ public class RecordEntriesMethodImpl extends BuiltinMethod {
 
         for (String field : recordExpr.getFields()) {
             ValueExpr value = recordExpr.resolveField(field);
-            if (type.isAssignableFrom(value.getType())) {
-                TupleTypeElement tupleTypeElement = new TupleTypeElement(BuiltinScope.STRING_TYPE);
-                tupleTypeElement.setNext(new TupleTypeElement(value.getType()));
-                var tupleType = TupleTypeFactory.getTupleTypeFor(tupleTypeElement);
-                result.add(new TupleValueExpr(tupleType, List.of(new StringValueExpr(field), value)));
-            }
+            result.add(new TupleValueExpr(tupleType, List.of(new StringValueExpr(field), value)));
         }
 
-        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(type), result);
+        return new ArrayValueExpr(resultType, result);
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns all entries of this record";
     }
 
 }

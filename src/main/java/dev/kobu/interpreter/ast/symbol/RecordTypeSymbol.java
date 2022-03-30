@@ -50,8 +50,6 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     private final Map<String, RecordTypeAttribute> attributes = new HashMap<>();
 
-    private final Map<String, NamedFunction> methods = new HashMap<>();
-
     private final String docText;
 
     private final List<Type> typeArgs;
@@ -106,15 +104,26 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     @Override
     public List<FieldDescriptor> getFields() {
         List<FieldDescriptor> fields = new ArrayList<>();
+        Set<String> attrSet = new HashSet<>();
 
-        attributes.forEach((k, v) -> fields.add(new FieldDescriptor(k, v.getType().getName())));
+        RecordTypeSymbol recordType = this;
+        while (recordType != null) {
+            recordType.attributes.forEach((k, v) -> {
+                if (attrSet.add(k)) {
+                    fields.add(new FieldDescriptor(k, v.getType().getName()));
+                }
+            });
+
+            recordType = superType != null ? superType.getType() : null;
+        }
+
 
         return fields;
     }
 
     @Override
     public List<NamedFunction> getMethods() {
-        return new ArrayList<>(methods.values());
+        return BuiltinScope.ANY_RECORD_TYPE.getMethods();
     }
 
     public void setSuperType(RecordSuperType superType) {
@@ -266,13 +275,6 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     @Override
     public NamedFunction resolveMethod(String name) {
-        var method = methods.get(name);
-        if (method != null) {
-            return method;
-        }
-        if (superType != null) {
-            return superType.getType().resolveMethod(name);
-        }
         return BuiltinScope.ANY_RECORD_TYPE.resolveMethod(name);
     }
 

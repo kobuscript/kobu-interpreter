@@ -1523,7 +1523,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                                 symbol = new RecordTypeSymbol(recordType, typeList);
                             }
                         } else {
-                            context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
+                            context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx),
                                     0, typeList.size()));
                         }
                     }

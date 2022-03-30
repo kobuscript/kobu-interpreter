@@ -24,29 +24,40 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.function.record;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
+import dev.kobu.interpreter.ast.symbol.BuiltinScope;
+import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public class RecordHasFieldMethodImpl extends BuiltinMethod {
+public class RecordGetAttributesMethodImpl extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         RecordValueExpr recordValueExpr = (RecordValueExpr) object;
-        StringValueExpr fieldNameExpr = (StringValueExpr) args.get("field");
-        var fieldType = recordValueExpr.getType().resolveField(fieldNameExpr.getValue());
-        return new BooleanValueExpr(fieldType != null);
+        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) recordValueExpr.getType();
+
+        List<ValueExpr> result = new ArrayList<>();
+        for (FieldDescriptor field : recordTypeSymbol.getFields()) {
+            result.add(new StringValueExpr(field.getName()));
+        }
+
+        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(BuiltinScope.STRING_TYPE), result);
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns all attributes defined for this record type";
     }
 
 }

@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.eval.function.record;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
@@ -33,19 +34,19 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.util.Map;
 
-public class RecordGetFieldTypeNameMethodImpl extends BuiltinMethod {
+public class RecordHasAttributeMethodImpl extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         RecordValueExpr recordValueExpr = (RecordValueExpr) object;
-        StringValueExpr fieldNameExpr = (StringValueExpr) args.get("field");
+        StringValueExpr fieldNameExpr = (StringValueExpr) args.get("attr");
         var fieldType = recordValueExpr.getType().resolveField(fieldNameExpr.getValue());
-        return new StringValueExpr(fieldType.getName());
+        return new BooleanValueExpr(fieldType != null);
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns 'true' if the given attribute is defined for this record type, or is compatible with the star attribute ";
     }
 
 }

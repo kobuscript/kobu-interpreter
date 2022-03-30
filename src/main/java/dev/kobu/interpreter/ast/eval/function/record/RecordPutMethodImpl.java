@@ -41,22 +41,22 @@ public class RecordPutMethodImpl extends BuiltinMethod {
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         RecordValueExpr recordExpr = (RecordValueExpr) object;
-        StringValueExpr fieldName = (StringValueExpr) args.get("field");
+        StringValueExpr attrName = (StringValueExpr) args.get("attr");
         ValueExpr value = args.get("value");
-        Type fieldType = recordExpr.getType().resolveField(fieldName.getValue());
+        Type fieldType = recordExpr.getType().resolveField(attrName.getValue());
         if (fieldType == null) {
             throw new InvalidCallError("Type " + recordExpr.getType().getName() +
-                    " does not have a " + fieldName + "field", sourceCodeRef);
+                    " does not have a " + attrName + "field", sourceCodeRef);
         }
         if (value == null || value instanceof NullValueExpr) {
-            recordExpr.updateFieldValue(context, fieldName.getValue(), new NullValueExpr());
+            recordExpr.updateFieldValue(context, attrName.getValue(), new NullValueExpr());
             return null;
         }
         if (!fieldType.isAssignableFrom(value.getType())) {
             throw new InvalidCallError("Invalid value for " + recordExpr.getType().getName() +
-                    "." + fieldName + ": " + value.getType().getName(), sourceCodeRef);
+                    "." + attrName + ": " + value.getType().getName(), sourceCodeRef);
         }
-        recordExpr.updateFieldValue(context, fieldName.getValue(), value);
+        recordExpr.updateFieldValue(context, attrName.getValue(), value);
 
         return null;
     }
