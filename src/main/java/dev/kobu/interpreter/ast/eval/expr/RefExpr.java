@@ -134,7 +134,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                 if (symbol instanceof RecordTypeSymbol) {
                     this.recordTypeSymbol = (RecordTypeSymbol) symbol;
                     this.elementRef = this.recordTypeSymbol.getSourceCodeRef();
-                    this.type = BuiltinScope.RECORD_TYPE_REF_TYPE;
+                    this.type = new RecordTypeRefTypeSymbol(this.recordTypeSymbol);
                     return;
                 }
                 if (symbol instanceof ModuleRefSymbol) {

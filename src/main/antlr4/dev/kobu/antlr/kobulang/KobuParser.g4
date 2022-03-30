@@ -346,7 +346,7 @@ functionType : LP functionTypeParameter? RP FN_ARROW type
                ;
 functionTypeParameter : type QM? ( COMMA functionTypeParameter )? ;
 
-typeName : ID ( DOT ID )?
+typeName : ID ( DOT ID )? typeArgs?
            | ANY {notifyErrorListenersPrevToken("'any' not allowed here. Did you mean 'Any'?");}
            ;
 

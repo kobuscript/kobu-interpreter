@@ -44,6 +44,8 @@ import java.util.stream.Collectors;
 
 public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
+    private static final List<Type> EMPTY_TYPE_ARGS = List.of();
+
     private RecordSuperType superType;
 
     private final Map<String, RecordTypeAttribute> attributes = new HashMap<>();
@@ -51,6 +53,8 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     private final Map<String, NamedFunction> methods = new HashMap<>();
 
     private final String docText;
+
+    private final List<Type> typeArgs;
 
     private RecordTypeStarAttribute starAttribute;
 
@@ -61,11 +65,13 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     public RecordTypeSymbol(SourceCodeRef sourceCodeRef, String name, ModuleScope module, String docText) {
         super(module, sourceCodeRef, name);
         this.docText = docText;
+        this.typeArgs = EMPTY_TYPE_ARGS;
     }
 
     public RecordTypeSymbol(RecordTypeSymbol recordType, List<Type> typeArgs) {
         super(recordType.getModuleScope(), recordType.getSourceCodeRef(), recordType.getName());
         this.docText = recordType.docText;
+        this.typeArgs = typeArgs;
         Map<String, Type> typeAliasMap = getTypeAliasMap(typeArgs);
         addAttributesFrom(recordType, typeAliasMap);
     }
@@ -194,11 +200,23 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         if (superType == null) {
             return false;
         }
-        if (superType.getType().getName().equals(recordTypeSymbol.getName())) {
-            if (path != null) {
-                path.add(superType.getType().getName());
+        if (superType.getType().getModuleScope().equals(recordTypeSymbol.getModuleScope()) &&
+                superType.getType().getName().equals(recordTypeSymbol.getName())) {
+
+            if (superType.getType().typeArgs.size() == recordTypeSymbol.typeArgs.size()) {
+
+                for (int i = 0; i < superType.getType().typeArgs.size(); i++) {
+                    if (!superType.getType().typeArgs.get(i).isAssignableFrom(recordTypeSymbol.typeArgs.get(i))) {
+                        return false;
+                    }
+                }
+
+                if (path != null) {
+                    path.add(superType.getType().getName());
+                }
+                return true;
             }
-            return true;
+            return false;
         }
         return superType.getType().hasSuperType(recordTypeSymbol, path);
     }
@@ -262,6 +280,18 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     public boolean isAssignableFrom(Type type) {
         if (type instanceof RecordTypeSymbol) {
             RecordTypeSymbol otherRecord = (RecordTypeSymbol) type;
+            if (getModuleScope().equals(otherRecord.getModuleScope()) && getName().equals(otherRecord.getName())) {
+                if (typeArgs.size() == otherRecord.typeArgs.size()) {
+                    for (int i = 0; i < typeArgs.size(); i++) {
+                        if (!typeArgs.get(i).isAssignableFrom(otherRecord.typeArgs.get(i))) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            }
+
             return getName().equals(otherRecord.getName()) || otherRecord.hasSuperType(this);
         }
         return false;
@@ -396,14 +426,13 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     @Override
     public boolean equals(Object object) {
         if (object instanceof RecordTypeSymbol) {
-            return getName().equals(((RecordTypeSymbol)object).getName());
+            if (!super.equals(object)) {
+                return false;
+            }
+            RecordTypeSymbol other = (RecordTypeSymbol) object;
+            return typeArgs.equals(other.typeArgs);
         }
         return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return getName().hashCode();
     }
 
 }

@@ -22,34 +22,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.array;
+package dev.kobu.interpreter.ast.eval.function.tuple;
 
+import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.TupleValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-public class ArrayStringTrimMethodImpl extends BuiltinMethod {
+public class TupleGetMethod extends BuiltinMethod {
+
+    private final int index;
+
+    public TupleGetMethod(int index) {
+        this.index = index;
+    }
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        ArrayValueExpr arrayValueExpr = (ArrayValueExpr) object;
-        List<ValueExpr> values = arrayValueExpr.getValue();
-        values = values.stream().map(v -> new StringValueExpr(((StringValueExpr)v).getValue().trim()))
-                .collect(Collectors.toList());
-
-        return new ArrayValueExpr(arrayValueExpr.getType(), values);
+        TupleValueExpr tupleExpr = (TupleValueExpr) object;
+        return tupleExpr.getValueExprList().get(index);
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns the element " + (index + 1) + " of this tuple";
     }
 
 }

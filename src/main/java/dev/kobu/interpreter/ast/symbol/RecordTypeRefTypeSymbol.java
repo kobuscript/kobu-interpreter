@@ -25,25 +25,53 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 
 import java.util.Comparator;
+import java.util.Map;
 
 public class RecordTypeRefTypeSymbol extends BuiltinTypeSymbol {
 
     private static final String TYPE_NAME = "RecordType";
 
+    private final Type typeArg;
+
     public RecordTypeRefTypeSymbol() {
         super(TYPE_NAME);
+        this.typeArg = BuiltinScope.ANY_RECORD_TYPE;
+    }
+
+    public RecordTypeRefTypeSymbol(Type typeArg) {
+        super(TYPE_NAME);
+        this.typeArg = typeArg;
     }
 
     @Override
     public boolean isAssignableFrom(Type type) {
-        return type instanceof RecordTypeRefTypeSymbol;
+        if (type instanceof RecordTypeRefTypeSymbol) {
+            return typeArg.isAssignableFrom(((RecordTypeRefTypeSymbol) type).typeArg);
+        }
+        return false;
     }
 
     @Override
     public Type getCommonSuperType(Type type) {
         return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
+    }
+
+    @Override
+    public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
+        if (typeArg instanceof TypeAlias && targetType instanceof RecordTypeRefTypeSymbol) {
+            typeArgs.put(typeArg.getName(), targetType);
+        }
+    }
+
+    @Override
+    public Type constructFor(Map<String, Type> typeArgs) {
+        if (typeArg instanceof TypeAlias) {
+            return typeArgs.get(typeArg.getName());
+        }
+        return this;
     }
 
     @Override

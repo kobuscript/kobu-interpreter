@@ -92,9 +92,10 @@ public class RecordConstructorCallExpr implements Expr {
                     context.getNewGlobalDefinitionOffset()));
             return;
         }
+
+        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) recordType;
         if (typeArgs != null) {
-            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) recordType;
-            if (recordTypeSymbol.getTypeParameters() != null && !recordTypeSymbol.getTypeParameters().isEmpty()) {
+            if (recordTypeSymbol.getTypeParameters() == null || recordTypeSymbol.getTypeParameters().isEmpty()) {
                 context.addAnalyzerError(new InvalidTypeArgsError(typeArgs.getSourceCodeRef(),
                         0, typeArgs.getTypes().size()));
             } else if (recordTypeSymbol.getTypeParameters().size() != typeArgs.getTypes().size()) {
@@ -103,7 +104,13 @@ public class RecordConstructorCallExpr implements Expr {
             } else {
                 this.recordType = new RecordTypeSymbol(recordTypeSymbol, typeArgs.getTypes());
             }
+        } else {
+            if (recordTypeSymbol.getTypeParameters() != null && !recordTypeSymbol.getTypeParameters().isEmpty()) {
+                context.addAnalyzerError(new InvalidTypeArgsError(typeArgs.getSourceCodeRef(),
+                        recordTypeSymbol.getTypeParameters().size(), 0));
+            }
         }
+
         for (RecordFieldExpr fieldExpr : fields) {
             Type fieldType = recordType.resolveField(fieldExpr.getFieldName());
             if (fieldType != null) {

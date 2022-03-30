@@ -26,9 +26,13 @@ package dev.kobu.interpreter.ast.symbol.tuple;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.function.tuple.TupleGetMethod;
+import dev.kobu.interpreter.ast.eval.function.tuple.TupleSetMethod;
+import dev.kobu.interpreter.ast.symbol.BuiltinFunctionSymbol;
 import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 
@@ -137,7 +141,24 @@ public class TupleType implements Type {
     }
 
     private void buildMethods() {
+        TupleTypeElement elem = typeElement;
+        int index = 0;
 
+        while (elem != null) {
+            String getName = "get" + (index + 1);
+            String setName = "set" + (index + 1);
+
+            methods.put(getName, new BuiltinFunctionSymbol(this, getName,
+                    new TupleGetMethod(index),
+                    elem.getElementType()));
+
+            methods.put(setName, new BuiltinFunctionSymbol(this, setName,
+                    new TupleSetMethod(index),
+                    new FunctionParameter("value", elem.getElementType(), false)));
+
+            elem = elem.getNext();
+            index++;
+        }
     }
 
     @Override
