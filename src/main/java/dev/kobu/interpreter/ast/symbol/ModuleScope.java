@@ -254,7 +254,7 @@ public class ModuleScope implements Scope {
 
             FunctionParameter param = function.getParameters().get(0);
             if (!(param.getType() instanceof ArrayType) &&
-                    !(((ArrayType)param.getType()).getElementType().getName().equals(BuiltinScope.STRING_TYPE.getName()))) {
+                    !(((ArrayType)param.getType()).getElementType().equals(BuiltinScope.STRING_TYPE))) {
                 throw new InvalidTypeError(function.getSourceCodeRef(), ArrayTypeFactory.getArrayTypeFor(BuiltinScope.STRING_TYPE), param.getType());
             }
 

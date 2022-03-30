@@ -72,6 +72,8 @@ public class EvalContext {
 
     private ValueExpr returnValue;
 
+    private ErrorValue errorValue;
+
     protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                           ModuleScope moduleScope, Database database,
                           InputReader inputReader, OutputWriter outputWriter,
@@ -211,7 +213,7 @@ public class EvalContext {
         var branch = pushNewBranch();
 
         for (Evaluable evaluable : block) {
-            if (branch.hasReturnStatement()) {
+            if (branch.hasTerminalStatement()) {
                 branch.setHasUnreachableCode(true);
                 analyzerContext.getErrorScope().addError(new UnreachableCodeError(evaluable.getSourceCodeRef()));
                 break;
@@ -233,7 +235,7 @@ public class EvalContext {
         InterruptTypeEnum interrupt = null;
 
         for (Evaluable evaluable : block) {
-            if (branch.hasReturnStatement()) {
+            if (branch.hasTerminalStatement()) {
                 break;
             }
             if (getCurrentBranch().getInterrupt() != null) {
@@ -275,6 +277,14 @@ public class EvalContext {
 
     public void setReturnValue(ValueExpr returnValue) {
         this.returnValue = returnValue;
+    }
+
+    public ErrorValue getErrorValue() {
+        return errorValue;
+    }
+
+    public void setErrorValue(ErrorValue errorValue) {
+        this.errorValue = errorValue;
     }
 
     public ModuleScope getModuleScope() {

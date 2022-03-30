@@ -51,6 +51,7 @@ singleStat: varDecl
             | assignment
             | breakStat
             | continueStat
+            | throwStat
             | invalidKeyword
             | expr
             | emptyExpr
@@ -64,6 +65,7 @@ blockStat: ifStat
            | forStat
            | enhancedForStat
            | whileStat
+           | tryCatchStat
            ;
 
 functionReturnStat : RETURN exprWrapper
@@ -151,6 +153,24 @@ whileStat : 'while' LP expr RP LCB execStat* RCB
 breakStat: BREAK ;
 
 continueStat : CONTINUE ;
+
+throwStat : THROW exprWrapper ;
+
+tryCatchStat : TRY LCB execStat* RCB catchStat
+               | TRY LCB execStat* RCB {notifyErrorListenersPrevToken("'catch' expected");}
+               | TRY LCB execStat* {notifyErrorListenersPrevToken("')' expected");}
+               | TRY {notifyErrorListenersPrevToken("'(' expected");}
+               ;
+
+catchStat : CATCH LP ID COLON type RP LCB execStat* RCB catchStat?
+            | CATCH LP ID COLON type RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
+            | CATCH LP ID COLON type RP {notifyErrorListenersPrevToken("'{' expected");}
+            | CATCH LP ID COLON type {notifyErrorListenersPrevToken("')' expected");}
+            | CATCH LP ID COLON {notifyErrorListenersPrevToken("type expected");}
+            | CATCH LP ID {notifyErrorListenersPrevToken("':' expected");}
+            | CATCH LP {notifyErrorListenersPrevToken("identifier expected");}
+            | CATCH {notifyErrorListenersPrevToken("'(' expected");}
+            ;
 
 exprSequence : exprWrapper ( COMMA exprWrapper )* COMMA? ;
 

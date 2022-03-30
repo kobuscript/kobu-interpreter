@@ -31,6 +31,8 @@ public class Branch {
 
     private boolean hasReturnStatement;
 
+    private boolean hasThrowStatement;
+
     private boolean hasUnreachableCode;
 
     private boolean canInterrupt;
@@ -54,6 +56,18 @@ public class Branch {
 
     public void setHasReturnStatement(boolean hasReturnStatement) {
         this.hasReturnStatement = hasReturnStatement;
+    }
+
+    public boolean hasThrowStatement() {
+        return hasThrowStatement;
+    }
+
+    public void setHasThrowStatement(boolean hasThrowStatement) {
+        this.hasThrowStatement = hasThrowStatement;
+    }
+
+    public boolean hasTerminalStatement() {
+        return hasReturnStatement || hasThrowStatement;
     }
 
     public boolean hasUnreachableCode() {
@@ -91,7 +105,7 @@ public class Branch {
     }
 
     public void updateReturnStatement() {
-        hasReturnStatement = children.stream().allMatch(Branch::hasReturnStatement);
+        hasReturnStatement = children.stream().allMatch(Branch::hasTerminalStatement);
         hasUnreachableCode = false;
     }
 

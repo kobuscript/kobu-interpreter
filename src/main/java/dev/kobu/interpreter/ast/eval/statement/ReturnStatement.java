@@ -99,8 +99,7 @@ public class ReturnStatement implements Statement {
     public void evalStat(EvalContext context) {
         context.getCurrentBranch().setHasReturnStatement(true);
         if (expr != null) {
-            var value = expr.evalExpr(context);
-            context.setReturnValue(value);
+            context.setReturnValue(expr.evalExpr(context));
         }
     }
 

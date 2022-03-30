@@ -78,6 +78,10 @@ OF : 'of' ;
 
 INSTANCEOF : 'instanceof' ;
 
+TRY : 'try' ;
+CATCH : 'catch' ;
+THROW : 'throw' ;
+
 EQUALS : '==' ;
 NOT_EQUALS : '!=' ;
 LESS : '<' ;

@@ -33,6 +33,7 @@ import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.error.analyzer.DuplicatedFunctionParamError;
 import dev.kobu.interpreter.error.analyzer.FunctionMissingReturnStatError;
 import dev.kobu.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
+import dev.kobu.interpreter.error.eval.UserDefinedError;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -182,7 +183,7 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
         var branch = context.pushNewBranch();
         context.analyzeBlock(block);
 
-        if (closeBlockSourceRef != null && returnType != null && !branch.hasReturnStatement()) {
+        if (closeBlockSourceRef != null && returnType != null && !branch.hasTerminalStatement()) {
             analyzerContext.getErrorScope().addError(new FunctionMissingReturnStatError(closeBlockSourceRef));
         }
 
@@ -210,6 +211,9 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
             }
         }
         context.evalBlock(block);
+        if (context.getErrorValue() != null) {
+            throw new UserDefinedError(context.getErrorValue());
+        }
         return context.getReturnValue();
     }
 

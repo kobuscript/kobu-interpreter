@@ -168,7 +168,7 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
                 parameters.stream().map(FunctionParameter::toFunctionTypeParameter).collect(Collectors.toList()),
                 returnType);
 
-        if (closeBlockSourceCodeRef != null && returnType != null && !branch.hasReturnStatement()) {
+        if (closeBlockSourceCodeRef != null && returnType != null && !branch.hasTerminalStatement()) {
             fnCtx.getAnalyzerContext().getErrorScope().addError(new FunctionMissingReturnStatError(closeBlockSourceCodeRef));
         }
 

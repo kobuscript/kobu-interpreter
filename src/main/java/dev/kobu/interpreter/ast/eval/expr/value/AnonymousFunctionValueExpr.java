@@ -34,6 +34,7 @@ import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
+import dev.kobu.interpreter.error.eval.UserDefinedError;
 
 import java.util.HashMap;
 import java.util.List;
@@ -106,6 +107,9 @@ public class AnonymousFunctionValueExpr implements ValueExpr, UserDefinedFunctio
             }
         }
         context.evalBlock(definition.getBlock());
+        if (context.getErrorValue() != null) {
+            throw new UserDefinedError(context.getErrorValue());
+        }
         return context.getReturnValue();
     }
 

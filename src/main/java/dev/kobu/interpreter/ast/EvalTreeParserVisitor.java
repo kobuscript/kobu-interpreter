@@ -1404,6 +1404,52 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
+    public AstNode visitThrowStat(KobuParser.ThrowStatContext ctx) {
+        topLevelExpression = false;
+        Expr expr = (Expr) visit(ctx.exprWrapper());
+        topLevelExpression = true;
+        return new ThrowStatement(getSourceCodeRef(ctx), expr);
+    }
+
+    @Override
+    public AstNode visitTryCatchStat(KobuParser.TryCatchStatContext ctx) {
+        CatchBlockStatement catchBlock = null;
+        if (ctx.catchStat() != null) {
+            catchBlock = (CatchBlockStatement) visit(ctx.catchStat());
+        }
+
+        List<Evaluable> block = new ArrayList<>();
+        if (ctx.execStat() != null) {
+            for (KobuParser.ExecStatContext execStatContext : ctx.execStat()) {
+                block.add((Evaluable) visit(execStatContext));
+            }
+        }
+
+        return new TryCatchStatement(getSourceCodeRef(ctx), block, catchBlock);
+    }
+
+    @Override
+    public AstNode visitCatchStat(KobuParser.CatchStatContext ctx) {
+        if (ctx.ID() != null && ctx.type() != null) {
+            Type errorType = (Type) visit(ctx.type());
+            List<Evaluable> block = new ArrayList<>();
+            if (ctx.execStat() != null) {
+                for (KobuParser.ExecStatContext execStatContext : ctx.execStat()) {
+                    block.add((Evaluable) visit(execStatContext));
+                }
+            }
+            var catchBlock = new CatchBlockStatement(getSourceCodeRef(ctx), ctx.ID().getText(), errorType, block);
+
+            if (ctx.catchStat() != null) {
+                catchBlock.setNextCatch((CatchBlockStatement) visit(ctx.catchStat()));
+            }
+
+            return catchBlock;
+        }
+        return null;
+    }
+
+    @Override
     public AstNode visitQueryExpr(KobuParser.QueryExprContext ctx) {
         String bind = null;
         SourceCodeRef bindSourceCodeRef = null;
