@@ -274,7 +274,7 @@ expr : record                                                                   
        | LP exprWrapper COMMA {notifyErrorListenersPrevToken("value expected");}                    #tupleErr2
        | LP exprWrapper {notifyErrorListenersPrevToken("',' or ')' expected");}                     #tupleErr3
        | LP {notifyErrorListenersPrevToken("value expected");}                                      #tupleErr4
-       | expr AS typeName                                                                           #castExpr
+       | expr AS type                                                                           #castExpr
        | expr AS {notifyErrorListenersPrevToken("expression expected");}                            #castErr1
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
@@ -282,6 +282,7 @@ expr : record                                                                   
        | anonymousFunction                                                                          #anonymousFunctionExpr
        | expr typeArgs? LP exprSequence? RP                                                         #functionCallExpr
        | expr typeArgs? LP exprSequence? {notifyErrorListenersPrevToken("')' expected");}           #functionCallErr
+       | expr INSTANCEOF type                                                                       #instanceOfExpr
        | expr ( STAR | DIV | MOD ) expr                                                             #factorExpr
        | expr ( STAR | DIV | MOD )                                                                  #factorErr
        | expr ( PLUS | MINUS ) expr                                                                 #addSubExpr

@@ -44,7 +44,7 @@ public class TestTypeMethodImpl extends BuiltinMethod {
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
 
-        return new BooleanValueExpr(type.isAssignableFrom(object.getType()));
+        return BooleanValueExpr.fromValue(type.isAssignableFrom(object.getType()));
 
     }
 

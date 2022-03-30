@@ -24,55 +24,32 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.expr;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
-import dev.kobu.interpreter.ast.symbol.*;
-import dev.kobu.interpreter.error.analyzer.InvalidOperatorError;
-import dev.kobu.interpreter.error.eval.InternalInterpreterError;
+import dev.kobu.interpreter.ast.symbol.BuiltinScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.UnknownType;
+import dev.kobu.interpreter.error.analyzer.CastTypeError;
 
 import java.util.Map;
 
-public class NotExpr implements Expr {
+public class InstanceOfExpr implements Expr {
 
     private final SourceCodeRef sourceCodeRef;
+
+    private final Type testType;
 
     private final Expr expr;
 
     private Type type;
 
-    public NotExpr(SourceCodeRef sourceCodeRef, Expr expr) {
+    public InstanceOfExpr(SourceCodeRef sourceCodeRef, Type testType, Expr expr) {
         this.sourceCodeRef = sourceCodeRef;
+        this.testType = testType;
         this.expr = expr;
-    }
-
-    @Override
-    public void analyze(EvalContext context) {
-        expr.analyze(context);
-
-        if (expr.getType() instanceof UnknownType) {
-            type = UnknownType.INSTANCE;
-            return;
-        }
-
-        var booleanType = BuiltinScope.BOOLEAN_TYPE;
-        if (expr.getType() instanceof BooleanTypeSymbol) {
-            type = booleanType;
-        } else {
-            context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef, "not", expr.getType()));
-            type = UnknownType.INSTANCE;
-        }
-    }
-
-    @Override
-    public ValueExpr evalExpr(EvalContext context) {
-        ValueExpr valueExpr = expr.evalExpr(context);
-        if (!(valueExpr instanceof BooleanValueExpr)) {
-            throw new InternalInterpreterError("Expected: boolean. Found: " + expr.getType(),
-                    expr.getSourceCodeRef());
-        }
-        return BooleanValueExpr.fromValue(!((BooleanValueExpr)valueExpr).getValue());
     }
 
     @Override
@@ -88,7 +65,34 @@ public class NotExpr implements Expr {
     }
 
     @Override
+    public void analyze(EvalContext context) {
+        if (testType != null && expr != null) {
+            expr.analyze(context);
+            if (expr.getType() instanceof UnknownType || testType instanceof UnknownType) {
+                this.type = UnknownType.INSTANCE;
+                return;
+            }
+            if (!expr.getType().isAssignableFrom(testType)) {
+                context.getAnalyzerContext().getErrorScope().addError(new CastTypeError(sourceCodeRef,
+                        testType, expr.getType()));
+                this.type = UnknownType.INSTANCE;
+            } else {
+                this.type = BuiltinScope.BOOLEAN_TYPE;
+            }
+
+        } else {
+            this.type = UnknownType.INSTANCE;
+        }
+    }
+
+    @Override
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public ValueExpr evalExpr(EvalContext context) {
+        ValueExpr value = expr.evalExpr(context);
+        return BooleanValueExpr.fromValue(value.getType().isAssignableFrom(testType));
     }
 }

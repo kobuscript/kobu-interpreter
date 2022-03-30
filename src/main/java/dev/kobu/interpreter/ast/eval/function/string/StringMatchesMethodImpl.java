@@ -40,7 +40,7 @@ public class StringMatchesMethodImpl extends BuiltinMethod {
         StringValueExpr value = (StringValueExpr) object;
         StringValueExpr regex = (StringValueExpr) args.get("regex");
 
-        return new BooleanValueExpr(value.getValue().matches(regex.getValue()));
+        return BooleanValueExpr.fromValue(value.getValue().matches(regex.getValue()));
     }
 
     @Override

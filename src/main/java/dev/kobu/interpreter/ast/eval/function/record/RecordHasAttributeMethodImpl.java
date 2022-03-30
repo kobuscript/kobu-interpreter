@@ -41,7 +41,7 @@ public class RecordHasAttributeMethodImpl extends BuiltinMethod {
         RecordValueExpr recordValueExpr = (RecordValueExpr) object;
         StringValueExpr fieldNameExpr = (StringValueExpr) args.get("attr");
         var fieldType = recordValueExpr.getType().resolveField(fieldNameExpr.getValue());
-        return new BooleanValueExpr(fieldType != null);
+        return BooleanValueExpr.fromValue(fieldType != null);
     }
 
     @Override

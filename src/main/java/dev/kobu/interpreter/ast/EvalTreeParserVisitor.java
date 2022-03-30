@@ -940,6 +940,27 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
+    public AstNode visitInstanceOfExpr(KobuParser.InstanceOfExprContext ctx) {
+        boolean exprStatus = topLevelExpression;
+        if (topLevelExpression) {
+            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            topLevelExpression = false;
+        }
+
+        Type type = null;
+        Expr expr = null;
+        if (ctx.type() != null) {
+            type = (Type) visit(ctx.type());
+        }
+        if (ctx.expr() != null) {
+            expr = (Expr) visit(ctx.expr());
+        }
+
+        topLevelExpression = exprStatus;
+        return new InstanceOfExpr(getSourceCodeRef(ctx), type, expr);
+    }
+
+    @Override
     public AstNode visitCastExpr(KobuParser.CastExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
@@ -949,8 +970,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         Type type = null;
         Expr expr = null;
-        if (ctx.typeName() != null) {
-            type = (Type) visit(ctx.typeName());
+        if (ctx.type() != null) {
+            type = (Type) visit(ctx.type());
         }
         if (ctx.expr() != null) {
             expr = (Expr) visit(ctx.expr());

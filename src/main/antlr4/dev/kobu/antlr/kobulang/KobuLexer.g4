@@ -76,6 +76,8 @@ PLUS : '+' ;
 MINUS : '-' ;
 OF : 'of' ;
 
+INSTANCEOF : 'instanceof' ;
+
 EQUALS : '==' ;
 NOT_EQUALS : '!=' ;
 LESS : '<' ;

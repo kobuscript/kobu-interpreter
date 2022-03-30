@@ -35,13 +35,20 @@ import java.util.Objects;
 
 public class BooleanValueExpr implements ValueExpr, HasMethods {
 
+    public static final BooleanValueExpr TRUE = new BooleanValueExpr(true);
+    public static final BooleanValueExpr FALSE = new BooleanValueExpr(false);
+
+    public static BooleanValueExpr fromValue(boolean value) {
+        return value ? TRUE : FALSE;
+    }
+
     private SourceCodeRef sourceCodeRef;
 
     private final boolean value;
 
     private final BooleanTypeSymbol type = BuiltinScope.BOOLEAN_TYPE;
 
-    public BooleanValueExpr(boolean value) {
+    private BooleanValueExpr(boolean value) {
         this.value = value;
     }
 

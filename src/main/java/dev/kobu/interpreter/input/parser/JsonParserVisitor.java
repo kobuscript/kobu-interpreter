@@ -116,14 +116,14 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
     @Override
     public ValueExpr visitTrueExpr(JSONParser.TrueExprContext ctx) {
         var record = RecordFactory.create(context, JSON_BOOLEAN_TYPE);
-        record.updateFieldValue(context, "value", new BooleanValueExpr(true));
+        record.updateFieldValue(context, "value", BooleanValueExpr.TRUE);
         return record;
     }
 
     @Override
     public ValueExpr visitFalseExpr(JSONParser.FalseExprContext ctx) {
         var record = RecordFactory.create(context, JSON_BOOLEAN_TYPE);
-        record.updateFieldValue(context, "value", new BooleanValueExpr(false));
+        record.updateFieldValue(context, "value", BooleanValueExpr.FALSE);
         return record;
     }
 
