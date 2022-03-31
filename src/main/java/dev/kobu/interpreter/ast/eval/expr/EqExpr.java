@@ -68,11 +68,11 @@ public class EqExpr implements Expr {
         }
 
         type = UnknownType.INSTANCE;
-        if (notComparable(leftExpr.getType()) || notComparable(rightExpr.getType())) {
-            context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef,
-                    leftExpr.getType(), operator.getSymbol(), rightExpr.getType()));
-        } else if (leftExpr.getType() != null && rightExpr.getType() != null) {
-            if (!leftExpr.getType().getName().equals(rightExpr.getType().getName())) {
+        if (leftExpr.getType() != null && rightExpr.getType() != null) {
+            if (notComparable(leftExpr.getType()) || notComparable(rightExpr.getType())) {
+                context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef,
+                        leftExpr.getType(), operator.getSymbol(), rightExpr.getType()));
+            } else if (!leftExpr.getType().equals(rightExpr.getType())) {
                 context.addAnalyzerError(new InvalidOperatorError(sourceCodeRef,
                         leftExpr.getType(), operator.getSymbol(), rightExpr.getType()));
             } else if (leftExpr.getType() instanceof BooleanTypeSymbol &&

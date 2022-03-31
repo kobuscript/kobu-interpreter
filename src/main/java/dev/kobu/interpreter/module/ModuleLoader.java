@@ -54,6 +54,7 @@ public class ModuleLoader {
 
     //TODO: implement a better way to register built-in modules
     private static final String[] BUILTIN_MODULES = new String[]{
+        "dev.kobu.core.functions.ArrayFunctions",
         "dev.kobu.core.types.Csv",
         "dev.kobu.core.types.Json"
     };

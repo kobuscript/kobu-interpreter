@@ -167,8 +167,8 @@ public class ArrayType implements Type {
 
         BuiltinTypeSymbol numberType = BuiltinScope.NUMBER_TYPE;
 
-        methods.put("size", new BuiltinFunctionSymbol(this, "size", SIZE_METHOD));
-        methods.put("length", new BuiltinFunctionSymbol(this, "length", SIZE_METHOD));
+        methods.put("size", new BuiltinFunctionSymbol(this, "size", SIZE_METHOD, numberType));
+        methods.put("length", new BuiltinFunctionSymbol(this, "length", SIZE_METHOD, numberType));
         methods.put("add", new BuiltinFunctionSymbol(this, "add", ADD_METHOD,
                 new FunctionParameter("elem", elementType, false)));
         methods.put("remove", new BuiltinFunctionSymbol(this, "remove", REMOVE_METHOD,
@@ -176,7 +176,7 @@ public class ArrayType implements Type {
         methods.put("addAll", new BuiltinFunctionSymbol(this, "addAll", ADD_ALL_METHOD,
                 new FunctionParameter("arr", this, false)));
         methods.put("distinct", new BuiltinFunctionSymbol(this, "distinct", DISTINCT_METHOD, this));
-        methods.put("reverse", new BuiltinFunctionSymbol(this, "reverse", REVERSE_METHOD));
+        methods.put("reverse", new BuiltinFunctionSymbol(this, "reverse", REVERSE_METHOD, this));
 
         methods.put("filter", new BuiltinFunctionSymbol(this, "filter",
                 FILTER_METHOD,

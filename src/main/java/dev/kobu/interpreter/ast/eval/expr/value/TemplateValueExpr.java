@@ -68,6 +68,10 @@ public class TemplateValueExpr implements ValueExpr, Fact {
         this.targetType = targetType;
     }
 
+    public void buildType() {
+        type = Objects.requireNonNullElse(targetType, BuiltinScope.ANY_TEMPLATE_TYPE);
+    }
+
     @Override
     public int getId() {
         return id;
@@ -91,7 +95,7 @@ public class TemplateValueExpr implements ValueExpr, Fact {
 
     @Override
     public void analyze(EvalContext context) {
-        type = Objects.requireNonNullElse(targetType, BuiltinScope.ANY_TEMPLATE_TYPE);
+
     }
 
     @Override

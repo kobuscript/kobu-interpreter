@@ -96,6 +96,7 @@ public abstract class TemplateStatement implements Statement {
                 executor, rootRecord, rootRecord.getId());
         templateValue.setTargetType((TemplateTypeSymbol) targetType);
         templateValue.setOriginRule(context.getRuleContext().getRuleSymbol().getFullName());
+        templateValue.buildType();
         context.getDatabase().insertFact(templateValue);
 
     }

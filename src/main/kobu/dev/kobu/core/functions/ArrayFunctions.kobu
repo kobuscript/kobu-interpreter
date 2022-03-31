@@ -22,42 +22,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module dev.kobu.core.types.Json
+module dev.kobu.core.functions.ArrayFunctions
 
-type record JsonFile {
-    fileName: string,
-    filePath: string,
-    json: JsonValue
+fun strJoin(arr: Any[], delimiter?: string): string {
+    var str = ""
+    if (arr != null) {
+        for (var elem of arr) {
+            if (delimiter != null and str.length() > 0) {
+                str = str + delimiter
+            }
+            str = str + elem
+        }
+    }
+    return str
 }
 
-type record JsonValue {
-
+fun mkString(arr: Any[], prefix: string, delimiter: string, suffix: string): string {
+    var str = ""
+    if (arr != null and arr.size() > 0) {
+        str = str + prefix
+        str = str + strJoin(arr, delimiter)
+        str = str + suffix
+    }
+    return str
 }
-
-type record JsonObject extends JsonValue {
-    *: JsonValue
-}
-
-type record JsonScalar extends JsonValue {
-
-}
-
-type record JsonString extends JsonScalar {
-    value: string
-}
-
-type record JsonNumber extends JsonScalar {
-    value: number
-}
-
-type record JsonBoolean extends JsonScalar {
-    value: boolean
-}
-
-type record JsonArray extends JsonValue {
-    value: JsonValue[]
-}
-
-def native readJson(dir: string, pattern: string, recursive?: boolean): JsonFile;
-
-def native fetchJson(url: string): JsonFile;
