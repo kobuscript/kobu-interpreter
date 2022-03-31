@@ -83,7 +83,8 @@ public class TryCatchStatement implements Statement {
             }
 
             if (context.getLastUserError() != null) {
-                throw context.getLastUserError();
+                context.setLastUserError(null);
+                throw error;
             }
         }
     }
