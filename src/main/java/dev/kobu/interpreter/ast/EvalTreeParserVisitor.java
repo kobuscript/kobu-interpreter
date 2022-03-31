@@ -1438,7 +1438,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                     block.add((Evaluable) visit(execStatContext));
                 }
             }
-            var catchBlock = new CatchBlockStatement(getSourceCodeRef(ctx), ctx.ID().getText(), errorType, block);
+            var catchBlock = new CatchBlockStatement(getSourceCodeRef(ctx), getSourceCodeRef(ctx.ID()),
+                    moduleScope, ctx.ID().getText(), errorType, block);
 
             if (ctx.catchStat() != null) {
                 catchBlock.setNextCatch((CatchBlockStatement) visit(ctx.catchStat()));

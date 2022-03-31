@@ -37,6 +37,10 @@ public class UserDefinedError extends EvalError {
         this.errorValue = errorValue;
     }
 
+    public ErrorValue getErrorValue() {
+        return errorValue;
+    }
+
     @Override
     public String getDescription() {
         if (errorValue.getValue() instanceof StringValueExpr) {

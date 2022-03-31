@@ -33,6 +33,7 @@ import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.function.NativeFunctionSymbol;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.error.analyzer.UnreachableCodeError;
+import dev.kobu.interpreter.error.eval.UserDefinedError;
 import dev.kobu.interpreter.input.InputReader;
 import dev.kobu.interpreter.writer.OutputWriter;
 
@@ -73,6 +74,8 @@ public class EvalContext {
     private ValueExpr returnValue;
 
     private ErrorValue errorValue;
+
+    private UserDefinedError lastUserError;
 
     protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                           ModuleScope moduleScope, Database database,
@@ -234,23 +237,25 @@ public class EvalContext {
 
         InterruptTypeEnum interrupt = null;
 
-        for (Evaluable evaluable : block) {
-            if (branch.hasTerminalStatement()) {
-                break;
+        try {
+            for (Evaluable evaluable : block) {
+                if (branch.hasTerminalStatement()) {
+                    break;
+                }
+                if (getCurrentBranch().getInterrupt() != null) {
+                    interrupt = getCurrentBranch().getInterrupt();
+                    break;
+                }
+                if (evaluable instanceof Statement) {
+                    ((Statement) evaluable).evalStat(this);
+                } else if (evaluable instanceof Expr) {
+                    ((Expr) evaluable).evalExpr(this);
+                }
             }
-            if (getCurrentBranch().getInterrupt() != null) {
-                interrupt = getCurrentBranch().getInterrupt();
-                break;
-            }
-            if (evaluable instanceof Statement) {
-                ((Statement) evaluable).evalStat(this);
-            } else if (evaluable instanceof Expr) {
-                ((Expr) evaluable).evalExpr(this);
-            }
+        } finally {
+            popBranch();
+            popScope();
         }
-
-        popBranch();
-        popScope();
 
         return interrupt;
     }
@@ -309,6 +314,14 @@ public class EvalContext {
 
     public void addAnalyzerError(AnalyzerError error) {
         analyzerContext.getErrorScope().addError(error);
+    }
+
+    public UserDefinedError getLastUserError() {
+        return lastUserError;
+    }
+
+    public void setLastUserError(UserDefinedError lastUserError) {
+        this.lastUserError = lastUserError;
     }
 
     public int getNewGlobalDefinitionOffset() {

@@ -29,6 +29,7 @@ import dev.kobu.interpreter.ast.eval.Statement;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.error.eval.UserDefinedError;
 
 import java.util.List;
 import java.util.Map;
@@ -64,12 +65,23 @@ public class TryCatchStatement implements Statement {
 
     @Override
     public void analyze(EvalContext context) {
+        context.analyzeBlock(block);
 
+        if (catchBlock != null) {
+            catchBlock.analyze(context);
+        }
     }
 
     @Override
     public void evalStat(EvalContext context) {
-
+        try {
+            context.evalBlock(block);
+        } catch (UserDefinedError error) {
+            context.setLastUserError(error);
+            if (catchBlock != null) {
+                catchBlock.evalStat(context);
+            }
+        }
     }
 
 }

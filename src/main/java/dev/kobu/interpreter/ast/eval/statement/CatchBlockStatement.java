@@ -26,9 +26,12 @@ package dev.kobu.interpreter.ast.eval.statement;
 
 import dev.kobu.interpreter.ast.eval.Evaluable;
 import dev.kobu.interpreter.ast.eval.Statement;
+import dev.kobu.interpreter.ast.eval.context.ErrorValue;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.VariableSymbol;
 
 import java.util.List;
 import java.util.Map;
@@ -36,6 +39,10 @@ import java.util.Map;
 public class CatchBlockStatement implements Statement {
 
     private final SourceCodeRef sourceCodeRef;
+
+    private final SourceCodeRef varSourceCodeRef;
+
+    private final ModuleScope moduleScope;
 
     private final String varName;
 
@@ -45,8 +52,12 @@ public class CatchBlockStatement implements Statement {
 
     private CatchBlockStatement nextCatch;
 
-    public CatchBlockStatement(SourceCodeRef sourceCodeRef, String varName, Type errorType, List<Evaluable> block) {
+    public CatchBlockStatement(SourceCodeRef sourceCodeRef, SourceCodeRef varSourceCodeRef,
+                               ModuleScope moduleScope,
+                               String varName, Type errorType, List<Evaluable> block) {
         this.sourceCodeRef = sourceCodeRef;
+        this.varSourceCodeRef = varSourceCodeRef;
+        this.moduleScope = moduleScope;
         this.varName = varName;
         this.errorType = errorType;
         this.block = block;
@@ -73,12 +84,37 @@ public class CatchBlockStatement implements Statement {
 
     @Override
     public void analyze(EvalContext context) {
+        context.pushNewScope();
+        VariableSymbol varSymbol = new VariableSymbol(moduleScope, varSourceCodeRef, varName, errorType);
+        context.getCurrentScope().define(context.getAnalyzerContext(), varSymbol);
+        context.evalBlock(block);
+        context.popScope();
 
+        if (nextCatch != null) {
+            nextCatch.analyze(context);
+        }
     }
 
     @Override
     public void evalStat(EvalContext context) {
+        if (context.getLastUserError() != null) {
+            ErrorValue errorValue = context.getLastUserError().getErrorValue();
+            if (errorType.isAssignableFrom(errorValue.getValue().getType())) {
+                context.pushNewScope();
+                try {
+                    VariableSymbol varSymbol = new VariableSymbol(moduleScope, varSourceCodeRef, varName, errorType);
+                    context.getCurrentScope().define(context.getAnalyzerContext(), varSymbol);
+                    context.evalBlock(block);
+                } finally {
+                    context.popScope();
+                }
+                return;
+            }
+        }
 
+        if (nextCatch != null) {
+            nextCatch.evalStat(context);
+        }
     }
 
 }
