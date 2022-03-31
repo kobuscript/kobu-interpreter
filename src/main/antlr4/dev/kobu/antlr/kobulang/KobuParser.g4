@@ -181,11 +181,13 @@ typerecord : TYPE TYPE_RECORD ID typeParameters? inheritance? LCB attributes? RC
              | TYPE TYPE_RECORD {notifyErrorListenersPrevToken("type name expected");}
              ;
 
-typetemplate : TYPE TYPE_TEMPLATE ID inheritance? ( LCB RCB? )?
+typetemplate : TYPE TYPE_TEMPLATE ID templateInheritance? ( LCB RCB? )?
                | TYPE TYPE_TEMPLATE {notifyErrorListenersPrevToken("type name expected");}
                ;
 
 inheritance : 'extends' typeName typeArgs? ;
+
+templateInheritance : 'extends' typeName ;
 
 attributes : ( STAR | ID ) COLON type ( COMMA? attributes )?
              | ( STAR | ID ) COLON type COMMA

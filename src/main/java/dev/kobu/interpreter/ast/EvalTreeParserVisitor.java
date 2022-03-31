@@ -138,8 +138,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             context.getErrorScope().addError(new InvalidTemplateTypeError(getSourceCodeRef(ctx.ID())));
         }
 
-        if (ctx.inheritance() != null && ctx.inheritance().typeName() != null) {
-            var typeNameExpr = ctx.inheritance().typeName();
+        if (ctx.templateInheritance() != null && ctx.templateInheritance().typeName() != null) {
+            var typeNameExpr = ctx.templateInheritance().typeName();
             Type superType = (Type) visit(typeNameExpr);
             if (!(superType instanceof TemplateTypeSymbol)) {
                 if (!(superType instanceof AnyTemplateTypeSymbol)) {
