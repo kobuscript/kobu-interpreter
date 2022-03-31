@@ -107,6 +107,7 @@ public class CatchBlockStatement implements Statement {
                     context.evalBlock(block);
                 } finally {
                     context.popScope();
+                    context.setLastUserError(null);
                 }
                 return;
             }

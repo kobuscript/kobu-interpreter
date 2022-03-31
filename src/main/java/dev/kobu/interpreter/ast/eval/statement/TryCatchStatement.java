@@ -81,6 +81,10 @@ public class TryCatchStatement implements Statement {
             if (catchBlock != null) {
                 catchBlock.evalStat(context);
             }
+
+            if (context.getLastUserError() != null) {
+                throw context.getLastUserError();
+            }
         }
     }
 
