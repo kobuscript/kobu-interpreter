@@ -28,13 +28,12 @@ import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.SymbolDocumentation;
 import dev.kobu.interpreter.ast.eval.SymbolTypeEnum;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
-import dev.kobu.interpreter.error.analyzer.CyclicRecordInheritanceError;
+import dev.kobu.interpreter.error.analyzer.CyclicTypeInheritanceError;
 import dev.kobu.interpreter.error.analyzer.RecordSuperTypeConflictError;
 import dev.kobu.interpreter.error.analyzer.RecordTypeAttributeConflictError;
 import dev.kobu.interpreter.error.analyzer.RecordTypeStarAttributeError;
@@ -289,7 +288,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
                 return false;
             }
 
-            return getName().equals(otherRecord.getName()) || otherRecord.hasSuperType(this);
+            return otherRecord.hasSuperType(this);
         }
         return false;
     }
@@ -351,7 +350,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         if (superType != null) {
             List<String> path = new ArrayList<>();
             if (hasSuperType(this, path)) {
-                context.getErrorScope().addError(new CyclicRecordInheritanceError(superType.getSourceCodeRef(), path));
+                context.getErrorScope().addError(new CyclicTypeInheritanceError(superType.getSourceCodeRef(), path));
             } else if (starAttribute != null && superType.getType().hasStarAttribute()) {
                 context.getErrorScope().addError(new RecordSuperTypeConflictError(this,
                         superType.getType()));

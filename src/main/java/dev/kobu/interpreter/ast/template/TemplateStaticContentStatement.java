@@ -57,6 +57,8 @@ public class TemplateStaticContentStatement extends TemplateStatement {
         if (getNext() != null) {
             getNext().analyze(context);
         }
+
+        analyzeTargetType(context);
     }
 
     @Override

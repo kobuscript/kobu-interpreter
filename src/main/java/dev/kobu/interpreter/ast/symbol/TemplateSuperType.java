@@ -22,24 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.error.analyzer;
+package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.error.AnalyzerError;
+public class TemplateSuperType {
 
-import java.util.List;
+    private final SourceCodeRef sourceCodeRef;
 
-public class CyclicRecordInheritanceError extends AnalyzerError {
+    private final TemplateTypeSymbol type;
 
-    private final List<String> path;
-
-    public CyclicRecordInheritanceError(SourceCodeRef sourceCodeRef, List<String> path) {
-        super(sourceCodeRef);
-        this.path = path;
+    public TemplateSuperType(SourceCodeRef sourceCodeRef, TemplateTypeSymbol type) {
+        this.sourceCodeRef = sourceCodeRef;
+        this.type = type;
     }
 
-    @Override
-    public String getDescription() {
-        return "Circular inheritance is not allowed: " + String.join(" -> ", path);
+    public SourceCodeRef getSourceCodeRef() {
+        return sourceCodeRef;
     }
+
+    public TemplateTypeSymbol getType() {
+        return type;
+    }
+
 }

@@ -105,13 +105,13 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitDeftype(KobuParser.DeftypeContext ctx) {
+    public Void visitTyperecord(KobuParser.TyperecordContext ctx) {
         if (!hasNewLineBefore(ctx, false)) {
             out.append("\n");
         }
-        out.append("def ");
-        if (ctx.DEFTYPE() != null) {
-            out.append("type ");
+        out.append("type ");
+        if (ctx.TYPE_RECORD() != null) {
+            out.append("record ");
         }
         if (ctx.ID() != null) {
             printCommentsBefore(ctx.ID());

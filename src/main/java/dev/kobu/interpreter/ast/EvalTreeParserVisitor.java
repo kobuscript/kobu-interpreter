@@ -125,7 +125,38 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitDeftype(KobuParser.DeftypeContext ctx) {
+    public AstNode visitTypetemplate(KobuParser.TypetemplateContext ctx) {
+        if (ctx.ID() == null) {
+            return null;
+        }
+        TemplateTypeSymbol templateType = (TemplateTypeSymbol) moduleScope.resolve(ctx.ID().getText());
+        if (templateType == null) {
+            return null;
+        }
+
+        if (ctx.LCB() != null) {
+            context.getErrorScope().addError(new InvalidTemplateTypeError(getSourceCodeRef(ctx.ID())));
+        }
+
+        if (ctx.inheritance() != null && ctx.inheritance().typeName() != null) {
+            var typeNameExpr = ctx.inheritance().typeName();
+            Type superType = (Type) visit(typeNameExpr);
+            if (!(superType instanceof TemplateTypeSymbol)) {
+                if (!(superType instanceof AnyTemplateTypeSymbol)) {
+                    context.getErrorScope().addError(new TemplateInvalidSuperTypeError(getSourceCodeRef(typeNameExpr),
+                            templateType, typeNameExpr.getText()));
+                }
+            } else {
+                templateType.setSuperType(new TemplateSuperType(getSourceCodeRef(typeNameExpr),
+                        (TemplateTypeSymbol) superType));
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public AstNode visitTyperecord(KobuParser.TyperecordContext ctx) {
         if (ctx.ID() == null) {
             return null;
         }
@@ -199,6 +230,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         return null;
     }
+
 
     @Override
     public AstNode visitFunctionDecl(KobuParser.FunctionDeclContext ctx) {
@@ -401,7 +433,13 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
             List<Evaluable> exprList = new ArrayList<>();
             if (ctx.template() != null) {
-                exprList.add((Evaluable) visit(ctx.template()));
+                TemplateStatement templateStat = (TemplateStatement) visit(ctx.template());
+                if (ctx.templateTargetType() != null && ctx.templateTargetType().typeName() != null) {
+                    Type type = (Type) visit(ctx.templateTargetType().typeName());
+                    templateStat.setTargetType(type);
+                }
+
+                exprList.add(templateStat);
             }
             rule.setBlock(exprList);
         }
@@ -562,7 +600,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             String bind = query.getTypeClause().getBind();
 
             SourceCodeRef sourceCodeRef = getSourceCodeRef(ctx);
-            QueryTypeClause templateClause = new QueryTypeClause(moduleScope, sourceCodeRef, null, BuiltinScope.TEMPLATE_TYPE,
+            QueryTypeClause templateClause = new QueryTypeClause(moduleScope, sourceCodeRef, null, BuiltinScope.ANY_TEMPLATE_TYPE,
                     false, "$_templateRef");
             QueryJoin templateJoin = new QueryJoin(sourceCodeRef, templateClause, new RefExpr(moduleScope, sourceCodeRef, bind));
             query.addJoin(templateJoin);

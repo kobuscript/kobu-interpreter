@@ -29,12 +29,18 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Statement;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.TemplateValueExpr;
+import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 
 public abstract class TemplateStatement implements Statement {
 
     private TemplateStatement next;
 
     private boolean root;
+
+    private Type targetType;
+
+    private SourceCodeRef targetTypeSourceCodeRef;
 
     public TemplateStatement getNext() {
         return next;
@@ -44,10 +50,36 @@ public abstract class TemplateStatement implements Statement {
         this.next = next;
     }
 
+    public Type getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(Type targetType) {
+        this.targetType = targetType;
+    }
+
+    public SourceCodeRef getTargetTypeSourceCodeRef() {
+        return targetTypeSourceCodeRef;
+    }
+
+    public void setTargetTypeSourceCodeRef(SourceCodeRef targetTypeSourceCodeRef) {
+        this.targetTypeSourceCodeRef = targetTypeSourceCodeRef;
+    }
+
     public abstract StringBuilder evalTemplate(EvalContext context, int insertionIndex);
 
     public boolean isRoot() {
         return root;
+    }
+
+    protected void analyzeTargetType(EvalContext context) {
+        if (getTargetType() != null) {
+            if (!(getTargetType() instanceof TemplateTypeSymbol) &&
+                    !(getTargetType() instanceof AnyTemplateTypeSymbol)) {
+                context.addAnalyzerError(new InvalidTypeError(targetTypeSourceCodeRef,
+                        BuiltinScope.ANY_TEMPLATE_TYPE, targetType));
+            }
+        }
     }
 
     @Override
@@ -62,6 +94,7 @@ public abstract class TemplateStatement implements Statement {
         RecordValueExpr rootRecord = match.getRootRecord();
         TemplateValueExpr templateValue = new TemplateValueExpr(context.getDatabase().generateRecordId(),
                 executor, rootRecord, rootRecord.getId());
+        templateValue.setTargetType((TemplateTypeSymbol) targetType);
         templateValue.setOriginRule(context.getRuleContext().getRuleSymbol().getFullName());
         context.getDatabase().insertFact(templateValue);
 

@@ -24,24 +24,24 @@ SOFTWARE.
 
 package dev.kobu.interpreter.error.analyzer;
 
-import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.TemplateTypeSymbol;
 import dev.kobu.interpreter.error.AnalyzerError;
 
-public class RecordInvalidSuperTypeError extends AnalyzerError {
+public class TemplateInvalidSuperTypeError extends AnalyzerError {
 
-    private final RecordTypeSymbol recordType;
+    private final TemplateTypeSymbol templateType;
 
     private final String superType;
 
-    public RecordInvalidSuperTypeError(SourceCodeRef sourceCodeRef, RecordTypeSymbol recordType, String superType) {
+    public TemplateInvalidSuperTypeError(SourceCodeRef sourceCodeRef, TemplateTypeSymbol templateType, String superType) {
         super(sourceCodeRef);
-        this.recordType = recordType;
+        this.templateType = templateType;
         this.superType = superType;
     }
 
-    public RecordTypeSymbol getRecordType() {
-        return recordType;
+    public TemplateTypeSymbol getTemplateType() {
+        return templateType;
     }
 
     public String getSuperType() {
@@ -50,6 +50,7 @@ public class RecordInvalidSuperTypeError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "'" + superType + "' is not a record type";
+        return "'" + superType + "' is not a template type";
     }
+
 }

@@ -22,34 +22,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.error.analyzer;
+package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.error.AnalyzerError;
+import dev.kobu.interpreter.ast.eval.function.template.TemplateTrimMethodImpl;
 
-public class RecordInvalidSuperTypeError extends AnalyzerError {
+public class AnyTemplateTypeSymbol extends BuiltinTypeSymbol {
 
-    private final RecordTypeSymbol recordType;
+    private static final String TYPE_NAME = "AnyTemplate";
 
-    private final String superType;
-
-    public RecordInvalidSuperTypeError(SourceCodeRef sourceCodeRef, RecordTypeSymbol recordType, String superType) {
-        super(sourceCodeRef);
-        this.recordType = recordType;
-        this.superType = superType;
-    }
-
-    public RecordTypeSymbol getRecordType() {
-        return recordType;
-    }
-
-    public String getSuperType() {
-        return superType;
+    public AnyTemplateTypeSymbol() {
+        super(TYPE_NAME);
     }
 
     @Override
-    public String getDescription() {
-        return "'" + superType + "' is not a record type";
+    public boolean isAssignableFrom(Type type) {
+        return type instanceof AnyTemplateTypeSymbol;
     }
+
+    @Override
+    public Type getCommonSuperType(Type type) {
+        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
+    }
+
+    public void buildMethods() {
+        addMethod(new BuiltinFunctionSymbol(this, "trim", new TemplateTrimMethodImpl(),
+                BuiltinScope.STRING_TYPE));
+    }
+
 }

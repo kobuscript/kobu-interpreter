@@ -24,37 +24,37 @@ SOFTWARE.
 
 module dev.kobu.core.types.Json;
 
-def type JsonFile {
+type record JsonFile {
     fileName: string,
     filePath: string,
     json: JsonValue
 }
 
-def type JsonValue {
+type record JsonValue {
 
 }
 
-def type JsonObject extends JsonValue {
+type record JsonObject extends JsonValue {
     *: JsonValue
 }
 
-def type JsonScalar extends JsonValue {
+type record JsonScalar extends JsonValue {
 
 }
 
-def type JsonString extends JsonScalar {
+type record JsonString extends JsonScalar {
     value: string
 }
 
-def type JsonNumber extends JsonScalar {
+type record JsonNumber extends JsonScalar {
     value: number
 }
 
-def type JsonBoolean extends JsonScalar {
+type record JsonBoolean extends JsonScalar {
     value: boolean
 }
 
-def type JsonArray extends JsonValue {
+type record JsonArray extends JsonValue {
     value: JsonValue[]
 }
 

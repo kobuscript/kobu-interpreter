@@ -57,7 +57,7 @@ singleStat: varDecl
             | emptyExpr
             ;
 
-invalidKeyword : keyword=( 'def' | 'fun' | 'template' | 'type' | 'rule' | 'file' ) ;
+invalidKeyword : keyword=( 'def' | 'fun' | DEFTEMPLATE | TYPE | 'rule' | 'file' ) ;
 
 emptyExpr: SEMI ;
 
@@ -73,7 +73,7 @@ functionReturnStat : RETURN exprWrapper
                      | RETURN {notifyErrorListenersPrevToken("';' expected");}
                      ;
 
-stat : deftype
+stat : typerecord
        | deftemplate
        | defrule
        | deffile
@@ -174,12 +174,16 @@ catchStat : CATCH LP ID COLON type RP LCB execStat* RCB catchStat?
 
 exprSequence : exprWrapper ( COMMA exprWrapper )* COMMA? ;
 
-deftype : 'def' 'type' ID typeParameters? inheritance? LCB attributes? RCB
-          | 'def' 'type' ID typeParameters? inheritance? LCB attributes? {notifyErrorListenersPrevToken("'}' expected");}
-          | 'def' 'type' ID typeParameters? inheritance? LCB {notifyErrorListenersPrevToken("'}' expected");}
-          | 'def' 'type' ID typeParameters? inheritance? {notifyErrorListenersPrevToken("'{' expected");}
-          | 'def' 'type' {notifyErrorListenersPrevToken("type name expected");}
-          ;
+typerecord : TYPE TYPE_RECORD ID typeParameters? inheritance? LCB attributes? RCB
+             | TYPE TYPE_RECORD ID typeParameters? inheritance? LCB attributes? {notifyErrorListenersPrevToken("'}' expected");}
+             | TYPE TYPE_RECORD ID typeParameters? inheritance? LCB {notifyErrorListenersPrevToken("'}' expected");}
+             | TYPE TYPE_RECORD ID typeParameters? inheritance? {notifyErrorListenersPrevToken("'{' expected");}
+             | TYPE TYPE_RECORD {notifyErrorListenersPrevToken("type name expected");}
+             ;
+
+typetemplate : TYPE TYPE_TEMPLATE ID inheritance? ( LCB RCB? )?
+               | TYPE TYPE_TEMPLATE {notifyErrorListenersPrevToken("type name expected");}
+               ;
 
 inheritance : 'extends' typeName typeArgs? ;
 
@@ -196,14 +200,18 @@ recordField : ID COLON exprWrapper ( COMMA? recordField )?
               | ID COLON exprWrapper COMMA
               | ID COLON? {notifyErrorListenersPrevToken("value expected");};
 
-deftemplate : 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? TEMPLATE_END
-              | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? RCB? {notifyErrorListenersPrevToken("'|>' expected");}
-              | 'def' 'template' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
-              | 'def' 'template' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'<|' expected");}
-              | 'def' 'template' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query expected");}
-              | 'def' 'template' ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
-              | 'def' 'template' {notifyErrorListenersPrevToken("rule name expected");}
+deftemplate : 'def' DEFTEMPLATE ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? TEMPLATE_END templateTargetType?
+              | 'def' DEFTEMPLATE ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? RCB? {notifyErrorListenersPrevToken("'|>' expected");}
+              | 'def' DEFTEMPLATE ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
+              | 'def' DEFTEMPLATE ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'<|' expected");}
+              | 'def' DEFTEMPLATE ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query expected");}
+              | 'def' DEFTEMPLATE ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
+              | 'def' DEFTEMPLATE {notifyErrorListenersPrevToken("rule name expected");}
               ;
+
+templateTargetType : AS typeName
+                     | AS {notifyErrorListenersPrevToken("type expected");}
+                     ;
 
 deffile : 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? PATH_ARROW pathExpr PATH_END
           | 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? PATH_ARROW pathExpr {notifyMissingEndStatement();}

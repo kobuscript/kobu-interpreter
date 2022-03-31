@@ -60,7 +60,7 @@ public class BuiltinScope implements Scope {
 
     public static final RecordTypeRefTypeSymbol RECORD_TYPE_REF_TYPE = new RecordTypeRefTypeSymbol();
 
-    public static final TemplateTypeSymbol TEMPLATE_TYPE = new TemplateTypeSymbol();
+    public static final AnyTemplateTypeSymbol ANY_TEMPLATE_TYPE = new AnyTemplateTypeSymbol();
 
     private final Map<String, Symbol> symbols = new HashMap<>();
 
@@ -99,7 +99,7 @@ public class BuiltinScope implements Scope {
         NUMBER_TYPE.buildMethods();
         STRING_TYPE.buildMethods();
         ANY_RECORD_TYPE.buildMethods();
-        TEMPLATE_TYPE.buildMethods();
+        ANY_TEMPLATE_TYPE.buildMethods();
 
         symbols.put(ANY_TYPE.getName(), ANY_TYPE);
         symbols.put(ANY_VAL_TYPE.getName(), ANY_VAL_TYPE);
@@ -109,7 +109,7 @@ public class BuiltinScope implements Scope {
         symbols.put(ANY_RECORD_TYPE.getName(), ANY_RECORD_TYPE);
         symbols.put(RULE_REF_TYPE.getName(), RULE_REF_TYPE);
         symbols.put(RECORD_TYPE_REF_TYPE.getName(), RECORD_TYPE_REF_TYPE);
-        symbols.put(TEMPLATE_TYPE.getName(), TEMPLATE_TYPE);
+        symbols.put(ANY_TEMPLATE_TYPE.getName(), ANY_TEMPLATE_TYPE);
 
         var recordArrayType = ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_RECORD_TYPE);
 

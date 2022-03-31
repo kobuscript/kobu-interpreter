@@ -63,6 +63,7 @@ public class TemplateContentStatement extends TemplateStatement {
             getNext().analyze(context);
         }
 
+        analyzeTargetType(context);
         expr.analyze(context);
 
     }

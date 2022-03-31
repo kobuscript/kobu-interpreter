@@ -24,18 +24,18 @@ SOFTWARE.
 
 module dev.kobu.core.types.Csv;
 
-def type CsvFile {
+type record CsvFile {
     filePath: string,
     fileName: string,
     rows: CsvRow[]
 }
 
-def type CsvRow {
+type record CsvRow {
     index: number,
     columns: CsvColumn[]
 }
 
-def type CsvColumn {
+type record CsvColumn {
     rowIndex: number,
     index: number,
     header: boolean,

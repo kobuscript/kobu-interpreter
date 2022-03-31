@@ -163,7 +163,7 @@ public abstract class AstTestBase {
     }
 
     Type templateType() {
-        return BuiltinScope.TEMPLATE_TYPE;
+        return BuiltinScope.ANY_TEMPLATE_TYPE;
     }
 
     Type arrayType(Type elementType) {

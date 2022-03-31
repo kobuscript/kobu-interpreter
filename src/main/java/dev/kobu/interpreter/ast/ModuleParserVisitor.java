@@ -168,7 +168,7 @@ public class ModuleParserVisitor extends KobuParserVisitor<Void> {
     }
 
     @Override
-    public Void visitDeftype(KobuParser.DeftypeContext ctx) {
+    public Void visitTyperecord(KobuParser.TyperecordContext ctx) {
         if (ctx.ID() != null) {
             String docText = null;
             if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
@@ -180,6 +180,23 @@ public class ModuleParserVisitor extends KobuParserVisitor<Void> {
 
             var recordType = new RecordTypeSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), moduleScope, docText);
             moduleScope.define(context, recordType);
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitTypetemplate(KobuParser.TypetemplateContext ctx) {
+        if (ctx.ID() != null) {
+            String docText = null;
+            if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+                var docChannel = tokens.getHiddenTokensToLeft(ctx.start.getTokenIndex(), KobuLexer.BLOCKCOMMENTCHANNEL);
+                if (docChannel != null) {
+                    docText = DocumentationUtils.removeCommentDelimiters(docChannel.get(0).getText());
+                }
+            }
+
+            var templateType = new TemplateTypeSymbol(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText(), docText);
+            moduleScope.define(context, templateType);
         }
         return null;
     }

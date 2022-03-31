@@ -24,32 +24,22 @@ SOFTWARE.
 
 package dev.kobu.interpreter.error.analyzer;
 
-import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.AnalyzerError;
 
-public class RecordInvalidSuperTypeError extends AnalyzerError {
+import java.util.List;
 
-    private final RecordTypeSymbol recordType;
+public class CyclicTypeInheritanceError extends AnalyzerError {
 
-    private final String superType;
+    private final List<String> path;
 
-    public RecordInvalidSuperTypeError(SourceCodeRef sourceCodeRef, RecordTypeSymbol recordType, String superType) {
+    public CyclicTypeInheritanceError(SourceCodeRef sourceCodeRef, List<String> path) {
         super(sourceCodeRef);
-        this.recordType = recordType;
-        this.superType = superType;
-    }
-
-    public RecordTypeSymbol getRecordType() {
-        return recordType;
-    }
-
-    public String getSuperType() {
-        return superType;
+        this.path = path;
     }
 
     @Override
     public String getDescription() {
-        return "'" + superType + "' is not a record type";
+        return "Circular inheritance is not allowed: " + String.join(" -> ", path);
     }
 }

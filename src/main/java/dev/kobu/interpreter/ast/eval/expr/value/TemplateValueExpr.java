@@ -28,10 +28,7 @@ import dev.kobu.database.Fact;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
-import dev.kobu.interpreter.ast.symbol.BuiltinScope;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.TemplateTypeSymbol;
-import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.template.TemplateExecutor;
 
 import java.util.Objects;
@@ -46,7 +43,9 @@ public class TemplateValueExpr implements ValueExpr, Fact {
 
     private int creatorId;
 
-    private final TemplateTypeSymbol type = BuiltinScope.TEMPLATE_TYPE;
+    private Type type;
+
+    private TemplateTypeSymbol targetType;
 
     private String value;
 
@@ -59,6 +58,14 @@ public class TemplateValueExpr implements ValueExpr, Fact {
         this.templateExecutor = templateExecutor;
         this.rootRecord = rootRecord;
         this.creatorId = creatorId;
+    }
+
+    public TemplateTypeSymbol getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(TemplateTypeSymbol targetType) {
+        this.targetType = targetType;
     }
 
     @Override
@@ -84,7 +91,7 @@ public class TemplateValueExpr implements ValueExpr, Fact {
 
     @Override
     public void analyze(EvalContext context) {
-
+        type = Objects.requireNonNullElse(targetType, BuiltinScope.ANY_TEMPLATE_TYPE);
     }
 
     @Override

@@ -212,11 +212,11 @@ public class RecordTest extends AstTestBase {
         recType2.analyze(analyzerContext, evalContextProvider);
         recType3.analyze(analyzerContext, evalContextProvider);
         assertErrors(
-                new CyclicRecordInheritanceError(recType.getSuperTypeSourceCodeRef(),
+                new CyclicTypeInheritanceError(recType.getSuperTypeSourceCodeRef(),
                         List.of("mod.MyRecord", "mod.MyRecord3", "mod.MyRecord2", "mod.MyRecord")),
-                new CyclicRecordInheritanceError(recType2.getSuperTypeSourceCodeRef(),
+                new CyclicTypeInheritanceError(recType2.getSuperTypeSourceCodeRef(),
                         List.of("mod.MyRecord2", "mod.MyRecord", "mod.MyRecord3", "mod.MyRecord2")),
-                new CyclicRecordInheritanceError(recType3.getSuperTypeSourceCodeRef(),
+                new CyclicTypeInheritanceError(recType3.getSuperTypeSourceCodeRef(),
                         List.of("mod.MyRecord3", "mod.MyRecord2", "mod.MyRecord", "mod.MyRecord3"))
         );
     }

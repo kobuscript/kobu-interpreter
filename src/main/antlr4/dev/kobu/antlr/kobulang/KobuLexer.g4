@@ -34,6 +34,7 @@ MODULE : 'module' -> pushMode(MODULE_MODE) ;
 
 IMPORT : 'import' -> pushMode(MODULE_MODE) ;
 
+TYPE : 'type' -> pushMode(TYPE_MODE) ;
 DEF : 'def' -> pushMode(DEF_MODE) ;
 
 EXTENDS : 'extends' ;
@@ -137,9 +138,14 @@ MODULE_ID_BREAK : NEW_LINE -> popMode ;
 MODULE_ID_END : ';' ;
 MODULEWS : [ \t\r]+ -> channel(WSCHANNEL) ;
 
+mode TYPE_MODE;
+
+TYPE_RECORD : 'record' -> popMode ;
+TYPE_TEMPLATE : 'template' -> popMode ;
+TYPEWS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
+
 mode DEF_MODE;
 
-DEFTYPE : 'type' -> popMode ;
 DEFTEMPLATE : 'template' -> popMode ;
 DEFRULE : 'rule' -> popMode ;
 DEFFILE : 'file' -> popMode ;
