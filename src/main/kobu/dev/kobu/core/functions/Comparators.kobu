@@ -20,31 +20,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
- */
+*/
 
-package dev.kobu.interpreter.ast.eval.function.array;
+fun numberComparator(o1: number, o2: number): number {
+    return o1 - o2
+}
 
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-
-import java.util.Map;
-
-public class ArraySizeMethodImpl extends BuiltinMethod {
-
-    @Override
-    protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        ArrayValueExpr arrayExpr = (ArrayValueExpr) object;
-
-        return new NumberValueExpr(arrayExpr.getValue().size());
-    }
-
-    @Override
-    public String getDocumentation() {
-        return "Returns the number of elements in this array";
-    }
-
+fun stringComparator(o1: string, o2: string): number {
+    return o1.compare(o2)
 }

@@ -46,7 +46,7 @@ public class ArrayAddAllMethodImpl extends BuiltinMethod {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Appends all of the elements in the specified array to the end of this array";
     }
 
 }

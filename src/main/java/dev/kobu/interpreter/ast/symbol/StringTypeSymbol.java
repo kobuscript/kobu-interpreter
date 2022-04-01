@@ -71,6 +71,9 @@ public class StringTypeSymbol extends BuiltinTypeSymbol implements ValType {
         addMethod(new BuiltinFunctionSymbol(this,"replace", new StringReplaceMethodImpl(), BuiltinScope.STRING_TYPE,
                 new FunctionParameter("regex", this, false),
                 new FunctionParameter("replacement", this, false)));
+        addMethod(new BuiltinFunctionSymbol("compare", new StringCompareMethodImpl(),
+                BuiltinScope.NUMBER_TYPE,
+                new FunctionParameter("other", this, false)));
 
         addMethod(new BuiltinFunctionSymbol(this,"kebabToCamelCase",
                 new StringConverterMethodImpl(StringFunctions::kebabToCamelCase),

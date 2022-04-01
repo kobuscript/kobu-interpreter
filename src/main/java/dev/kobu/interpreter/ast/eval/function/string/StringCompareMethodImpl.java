@@ -22,29 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.array;
+package dev.kobu.interpreter.ast.eval.function.string;
 
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
+import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.util.Map;
 
-public class ArraySizeMethodImpl extends BuiltinMethod {
+public class StringCompareMethodImpl extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        ArrayValueExpr arrayExpr = (ArrayValueExpr) object;
-
-        return new NumberValueExpr(arrayExpr.getValue().size());
+        StringValueExpr thisStr = (StringValueExpr) object;
+        StringValueExpr otherStr = (StringValueExpr) args.get("other");
+        return new NumberValueExpr(thisStr.getValue().compareTo(otherStr.getValue()));
     }
 
     @Override
     public String getDocumentation() {
-        return "Returns the number of elements in this array";
+        return "Compares two strings lexicographically";
     }
 
 }

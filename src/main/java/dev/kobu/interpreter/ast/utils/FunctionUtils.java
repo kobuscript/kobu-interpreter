@@ -25,9 +25,17 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.utils;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.FunctionRefValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
+import dev.kobu.interpreter.error.eval.NullPointerError;
+
+import java.util.List;
 
 public class FunctionUtils {
 
@@ -42,4 +50,38 @@ public class FunctionUtils {
         throw new InternalInterpreterError("Not a function: " + valueExpr.getClass().getName(), null);
     }
 
+    public static boolean runPredicate(EvalContext evalContext, ValueExpr pred, ValueExpr elem, SourceCodeRef sourceCodeRef) {
+        KobuFunction fn = FunctionUtils.toFunction(pred);
+        ValueExpr result = evalContext.evalFunction(fn, List.of(elem), sourceCodeRef);
+        if (result instanceof BooleanValueExpr) {
+            return ((BooleanValueExpr) result).getValue();
+        }
+        if (result instanceof NullValueExpr) {
+            return false;
+        }
+        String name = result != null ? result.getClass().getName() : "'null'";
+        throw new InternalInterpreterError("BooleanValueExpr expected, got " + name, sourceCodeRef);
+    }
+
+    public static ValueExpr runReducer(EvalContext evalContext, ValueExpr reducer,
+                                       ValueExpr elem1, ValueExpr elem2,
+                                       SourceCodeRef sourceCodeRef) {
+        KobuFunction fn = FunctionUtils.toFunction(reducer);
+        return evalContext.evalFunction(fn, List.of(elem1, elem2), sourceCodeRef);
+    }
+
+    public static NumberValueExpr runComparator(EvalContext evalContext, ValueExpr comparator,
+                                                ValueExpr elem1, ValueExpr elem2,
+                                                SourceCodeRef sourceCodeRef) {
+        KobuFunction fn = FunctionUtils.toFunction(comparator);
+        ValueExpr result = evalContext.evalFunction(fn, List.of(elem1, elem2), sourceCodeRef);
+        if (result instanceof NullValueExpr) {
+            throw new NullPointerError("A comparator function cannot return null", sourceCodeRef);
+        }
+        if (!(result instanceof NumberValueExpr)) {
+            throw new InternalInterpreterError("Invalid comparator response. " +
+                    "Expected NumberValueExpr, got: " + result.getClass().getName(), sourceCodeRef);
+        }
+        return (NumberValueExpr) result;
+    }
 }

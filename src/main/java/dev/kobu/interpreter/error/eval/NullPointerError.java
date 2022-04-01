@@ -30,15 +30,27 @@ import dev.kobu.interpreter.error.EvalError;
 
 public class NullPointerError extends EvalError {
 
+    private final String message;
+
     private final SourceCodeRef nullSubExprSourceCodeRef;
 
     public NullPointerError(SourceCodeRef sourceCodeRef, SourceCodeRef nullSubExprSourceCodeRef) {
         super(sourceCodeRef);
+        this.message = null;
         this.nullSubExprSourceCodeRef = nullSubExprSourceCodeRef;
+    }
+
+    public NullPointerError(String message, SourceCodeRef sourceCodeRef) {
+        super(sourceCodeRef);
+        this.message = message;
+        this.nullSubExprSourceCodeRef = null;
     }
 
     @Override
     public String getDescription() {
+        if (message != null) {
+            return "NullPointerError: " + message;
+        }
         if (nullSubExprSourceCodeRef != null) {
             return "Expression evaluated to null: " + ErrorMessageFormatter.getText(nullSubExprSourceCodeRef);
         }

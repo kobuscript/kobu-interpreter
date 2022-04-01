@@ -47,7 +47,7 @@ public class ArrayReverseMethodImpl extends BuiltinMethod {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Reverses the order of the elements in this array";
     }
     
 }

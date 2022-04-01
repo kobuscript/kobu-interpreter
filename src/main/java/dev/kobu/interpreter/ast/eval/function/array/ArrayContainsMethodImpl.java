@@ -24,27 +24,27 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.function.array;
 
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.util.Map;
 
-public class ArraySizeMethodImpl extends BuiltinMethod {
+public class ArrayContainsMethodImpl extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         ArrayValueExpr arrayExpr = (ArrayValueExpr) object;
-
-        return new NumberValueExpr(arrayExpr.getValue().size());
+        ValueExpr valueExpr = args.get("value");
+        return BooleanValueExpr.fromValue(arrayExpr.getValue().contains(valueExpr));
     }
 
     @Override
     public String getDocumentation() {
-        return "Returns the number of elements in this array";
+        return "Tests whether this array contains a given value as an element";
     }
 
 }

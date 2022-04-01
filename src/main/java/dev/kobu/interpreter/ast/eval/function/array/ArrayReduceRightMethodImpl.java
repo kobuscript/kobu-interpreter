@@ -30,51 +30,44 @@ import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.array.ArrayType;
-import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.ast.utils.FunctionUtils;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
-import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ArrayFlatMapMethodImpl extends BuiltinMethod {
+public class ArrayReduceRightMethodImpl extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         ArrayValueExpr arrayExpr = (ArrayValueExpr) object;
-        ValueExpr fn = args.get("fn");
+        List<ValueExpr> valueList = arrayExpr.getValue();
+        ValueExpr reducer = args.get("reducer");
+        ValueExpr acc = args.get("acc");
 
-        if (fn == null || fn instanceof NullValueExpr) {
-            throw new IllegalArgumentError("function 'fn' cannot be null", sourceCodeRef);
+        if (reducer == null || reducer instanceof NullValueExpr) {
+            throw new IllegalArgumentError("reducer cannot be null", sourceCodeRef);
         }
 
-        KobuFunction transformFn = FunctionUtils.toFunction(fn);
-        List<ValueExpr> newArray = new ArrayList<>();
-        for (ValueExpr valueExpr : arrayExpr.getValue()) {
-            newArray.addAll(runTransform(context, transformFn, valueExpr, sourceCodeRef));
+        ValueExpr result = acc == null || acc instanceof NullValueExpr ? new NullValueExpr() : acc;
+        for (int i = valueList.size() - 1; i >= 0; i--) {
+            if (i == 0) {
+                if (acc == null) {
+                    result = valueList.get(0);
+                    continue;
+                } else {
+                    result = acc;
+                }
+            }
+            result = FunctionUtils.runReducer(context, reducer, result, valueList.get(i), sourceCodeRef);
         }
 
-        return new ArrayValueExpr((ArrayType) transformFn.getReturnType(), newArray);
-    }
-
-    private List<ValueExpr> runTransform(EvalContext evalContext, KobuFunction transformFn, ValueExpr elem, SourceCodeRef sourceCodeRef) {
-        ValueExpr result = evalContext.evalFunction(transformFn, List.of(elem), sourceCodeRef);
-        if (result instanceof ArrayValueExpr) {
-            return ((ArrayValueExpr) result).getValue();
-        }
-        if (result instanceof NullValueExpr) {
-            return List.of();
-        }
-        String name = result != null ? result.getClass().getName() : "'null'";
-        throw new InternalInterpreterError("ArrayValueExpr expected, got " + name, sourceCodeRef);
+        return result;
     }
 
     @Override
     public String getDocumentation() {
-        return "Builds a new array by applying a function to all elements of this array and using the elements of the resulting arrays";
+        return "Reduces the elements of this array (from right to left) using the provided reducer function";
     }
 
 }

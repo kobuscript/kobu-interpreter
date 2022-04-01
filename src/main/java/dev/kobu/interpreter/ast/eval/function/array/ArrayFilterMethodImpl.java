@@ -54,25 +54,12 @@ public class ArrayFilterMethodImpl extends BuiltinMethod {
 
         List<ValueExpr> filtered = new ArrayList<>();
         for (ValueExpr valueExpr : arrayExpr.getValue()) {
-            if (runPredicate(context, pred, valueExpr, sourceCodeRef)) {
+            if (FunctionUtils.runPredicate(context, pred, valueExpr, sourceCodeRef)) {
                 filtered.add(valueExpr);
             }
         }
 
         return new ArrayValueExpr(arrayExpr.getType(), filtered);
-    }
-
-    private boolean runPredicate(EvalContext evalContext, ValueExpr pred, ValueExpr elem, SourceCodeRef sourceCodeRef) {
-        KobuFunction fn = FunctionUtils.toFunction(pred);
-        ValueExpr result = evalContext.evalFunction(fn, List.of(elem), sourceCodeRef);
-        if (result instanceof BooleanValueExpr) {
-            return ((BooleanValueExpr) result).getValue();
-        }
-        if (result instanceof NullValueExpr) {
-            return false;
-        }
-        String name = result != null ? result.getClass().getName() : "'null'";
-        throw new InternalInterpreterError("BooleanValueExpr expected, got " + name, sourceCodeRef);
     }
 
     @Override

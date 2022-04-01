@@ -117,7 +117,7 @@ public class FunctionType implements Type {
                     if (thisParameter.isOptional() && !otherParameter.isOptional()) {
                         return false;
                     }
-                    if (!thisParameter.getType().isAssignableFrom(otherParameter.getType())) {
+                    if (!otherParameter.getType().isAssignableFrom(thisParameter.getType())) {
                         return false;
                     }
                 }
@@ -127,7 +127,7 @@ public class FunctionType implements Type {
                 if (other.getReturnType() == null) {
                     return false;
                 }
-                return getReturnType().isAssignableFrom(other.getReturnType());
+                return other.getReturnType().isAssignableFrom(getReturnType());
             }
         }
         return false;

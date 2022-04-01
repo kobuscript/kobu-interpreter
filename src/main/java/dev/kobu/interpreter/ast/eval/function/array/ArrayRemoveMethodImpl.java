@@ -40,14 +40,13 @@ public class ArrayRemoveMethodImpl extends BuiltinMethod {
         ArrayValueExpr arrayExpr = (ArrayValueExpr) object;
         NumberValueExpr indexExpr = (NumberValueExpr) args.get("index");
 
-        arrayExpr.getValue().remove(indexExpr.getValue().intValue());
-
-        return null;
+        return arrayExpr.getValue().remove(indexExpr.getValue().intValue());
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Removes the element at the specified position in this array, and shifts any subsequent elements to the left. " +
+                "Returns the element that was removed";
     }
 
 }

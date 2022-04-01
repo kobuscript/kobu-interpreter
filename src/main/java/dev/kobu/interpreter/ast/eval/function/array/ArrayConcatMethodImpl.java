@@ -24,27 +24,33 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.function.array;
 
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public class ArraySizeMethodImpl extends BuiltinMethod {
+public class ArrayConcatMethodImpl extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        ArrayValueExpr arrayExpr = (ArrayValueExpr) object;
+        ArrayValueExpr value = (ArrayValueExpr) object;
+        ArrayValueExpr arr = (ArrayValueExpr) args.get("arr");
 
-        return new NumberValueExpr(arrayExpr.getValue().size());
+        List<ValueExpr> valueList = new ArrayList<>();
+        valueList.addAll(value.getValue());
+        valueList.addAll(arr.getValue());
+
+        return new ArrayValueExpr(value.getType(), valueList);
     }
 
     @Override
     public String getDocumentation() {
-        return "Returns the number of elements in this array";
+        return "Returns a new array with the elements of this array and the provided array";
     }
 
 }

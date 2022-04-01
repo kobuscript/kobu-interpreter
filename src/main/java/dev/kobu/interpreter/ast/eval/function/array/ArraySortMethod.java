@@ -27,54 +27,29 @@ package dev.kobu.interpreter.ast.eval.function.array;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.array.ArrayType;
-import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.ast.utils.FunctionUtils;
-import dev.kobu.interpreter.error.eval.IllegalArgumentError;
-import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class ArrayFlatMapMethodImpl extends BuiltinMethod {
+public class ArraySortMethod extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         ArrayValueExpr arrayExpr = (ArrayValueExpr) object;
-        ValueExpr fn = args.get("fn");
+        ValueExpr comparator = args.get("comparator");
 
-        if (fn == null || fn instanceof NullValueExpr) {
-            throw new IllegalArgumentError("function 'fn' cannot be null", sourceCodeRef);
-        }
+        arrayExpr.getValue()
+                .sort((o1, o2) -> FunctionUtils.runComparator(context, comparator, o1, o2, sourceCodeRef)
+                        .getValue().intValue());
 
-        KobuFunction transformFn = FunctionUtils.toFunction(fn);
-        List<ValueExpr> newArray = new ArrayList<>();
-        for (ValueExpr valueExpr : arrayExpr.getValue()) {
-            newArray.addAll(runTransform(context, transformFn, valueExpr, sourceCodeRef));
-        }
-
-        return new ArrayValueExpr((ArrayType) transformFn.getReturnType(), newArray);
-    }
-
-    private List<ValueExpr> runTransform(EvalContext evalContext, KobuFunction transformFn, ValueExpr elem, SourceCodeRef sourceCodeRef) {
-        ValueExpr result = evalContext.evalFunction(transformFn, List.of(elem), sourceCodeRef);
-        if (result instanceof ArrayValueExpr) {
-            return ((ArrayValueExpr) result).getValue();
-        }
-        if (result instanceof NullValueExpr) {
-            return List.of();
-        }
-        String name = result != null ? result.getClass().getName() : "'null'";
-        throw new InternalInterpreterError("ArrayValueExpr expected, got " + name, sourceCodeRef);
+        return null;
     }
 
     @Override
     public String getDocumentation() {
-        return "Builds a new array by applying a function to all elements of this array and using the elements of the resulting arrays";
+        return "Sorts the elements of this array using the given comparator";
     }
 
 }

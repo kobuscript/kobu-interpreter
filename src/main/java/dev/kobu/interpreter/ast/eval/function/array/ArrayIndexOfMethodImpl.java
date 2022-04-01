@@ -24,27 +24,35 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.function.array;
 
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.util.Map;
 
-public class ArraySizeMethodImpl extends BuiltinMethod {
+public class ArrayIndexOfMethodImpl extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         ArrayValueExpr arrayExpr = (ArrayValueExpr) object;
+        ValueExpr valueExpr = args.get("value");
 
-        return new NumberValueExpr(arrayExpr.getValue().size());
+        for (int i = 0; i < arrayExpr.getValue().size(); i++) {
+            ValueExpr obj = arrayExpr.getValue().get(i);
+            if (obj.equals(valueExpr)) {
+                return new NumberValueExpr(i);
+            }
+        }
+
+        return new NumberValueExpr(-1);
     }
 
     @Override
     public String getDocumentation() {
-        return "Returns the number of elements in this array";
+        return "Finds index of first occurrence of value";
     }
 
 }

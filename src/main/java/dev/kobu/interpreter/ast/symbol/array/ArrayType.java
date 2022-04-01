@@ -49,8 +49,18 @@ public class ArrayType implements Type {
     private final static BuiltinMethod REMOVE_METHOD = new ArrayRemoveMethodImpl();
     private final static BuiltinMethod DISTINCT_METHOD = new ArrayDistinctMethodImpl();
     private final static BuiltinMethod REVERSE_METHOD = new ArrayReverseMethodImpl();
+    private final static BuiltinMethod INDEX_OF_METHOD = new ArrayIndexOfMethodImpl();
+    private final static BuiltinMethod CONCAT_METHOD = new ArrayConcatMethodImpl();
+    private final static BuiltinMethod CONTAINS_METHOD = new ArrayContainsMethodImpl();
+    private final static BuiltinMethod SORT_METHOD = new ArraySortMethod();
     private final static BuiltinMethod FILTER_METHOD = new ArrayFilterMethodImpl();
+    private final static BuiltinMethod EVERY_METHOD = new ArrayEveryMethodImpl();
+    private final static BuiltinMethod SOME_METHOD = new ArraySomeMethodImpl();
+    private final static BuiltinMethod FIND_METHOD = new ArrayFindMethodImpl();
+    private final static BuiltinMethod FIND_INDEX_METHOD = new ArrayFindMethodImpl();
     private final static BuiltinMethod MAP_METHOD = new ArrayMapMethodImpl();
+    private final static BuiltinMethod REDUCE_METHOD = new ArrayReduceMethodImpl();
+    private final static BuiltinMethod REDUCE_RIGHT_METHOD = new ArrayReduceRightMethodImpl();
     private final static BuiltinMethod FLAT_MAP_METHOD = new ArrayFlatMapMethodImpl();
     private final static BuiltinMethod FOR_EACH_METHOD = new ArrayForEachMethodImpl();
     private final static BuiltinMethod ZIP_METHOD = new ArrayZipMethodImpl();
@@ -171,18 +181,74 @@ public class ArrayType implements Type {
         methods.put("length", new BuiltinFunctionSymbol(this, "length", SIZE_METHOD, numberType));
         methods.put("add", new BuiltinFunctionSymbol(this, "add", ADD_METHOD,
                 new FunctionParameter("elem", elementType, false)));
-        methods.put("remove", new BuiltinFunctionSymbol(this, "remove", REMOVE_METHOD,
+        methods.put("remove", new BuiltinFunctionSymbol(this, "remove", REMOVE_METHOD, elementType,
                 new FunctionParameter("index", numberType, false)));
         methods.put("addAll", new BuiltinFunctionSymbol(this, "addAll", ADD_ALL_METHOD,
                 new FunctionParameter("arr", this, false)));
         methods.put("distinct", new BuiltinFunctionSymbol(this, "distinct", DISTINCT_METHOD, this));
         methods.put("reverse", new BuiltinFunctionSymbol(this, "reverse", REVERSE_METHOD, this));
+        methods.put("indexOf", new BuiltinFunctionSymbol(this, "indexOf", INDEX_OF_METHOD,
+                BuiltinScope.NUMBER_TYPE, new FunctionParameter("value", elementType, false)));
+        methods.put("contains", new BuiltinFunctionSymbol(this, "contains", CONTAINS_METHOD,
+                BuiltinScope.BOOLEAN_TYPE, new FunctionParameter("value", elementType, false)));
+        methods.put("concat", new BuiltinFunctionSymbol(this, "concat", CONCAT_METHOD, this,
+                new FunctionParameter("arr", this, false)));
+
+        methods.put("sort", new BuiltinFunctionSymbol(this, "sort",
+                SORT_METHOD,
+                List.of(TYPE_PARAMETER_A),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                new FunctionParameter("comparator",
+                        new FunctionType(BuiltinScope.NUMBER_TYPE,
+                                new FunctionTypeParameter(TYPE_ALIAS_A, false),
+                                new FunctionTypeParameter(TYPE_ALIAS_A, false)),
+                        false)));
+
+        methods.put("every", new BuiltinFunctionSymbol(this, "every",
+                EVERY_METHOD,
+                List.of(TYPE_PARAMETER_A),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                BuiltinScope.BOOLEAN_TYPE,
+                new FunctionParameter("pred",
+                        new FunctionType(BuiltinScope.BOOLEAN_TYPE,
+                                new FunctionTypeParameter(TYPE_ALIAS_A, false)),
+                        false)));
+
+        methods.put("some", new BuiltinFunctionSymbol(this, "some",
+                SOME_METHOD,
+                List.of(TYPE_PARAMETER_A),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                BuiltinScope.BOOLEAN_TYPE,
+                new FunctionParameter("pred",
+                        new FunctionType(BuiltinScope.BOOLEAN_TYPE,
+                                new FunctionTypeParameter(TYPE_ALIAS_A, false)),
+                        false)));
 
         methods.put("filter", new BuiltinFunctionSymbol(this, "filter",
                 FILTER_METHOD,
                 List.of(TYPE_PARAMETER_A),
                 new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
                 this,
+                new FunctionParameter("pred",
+                        new FunctionType(BuiltinScope.BOOLEAN_TYPE,
+                                new FunctionTypeParameter(TYPE_ALIAS_A, false)),
+                        false)));
+
+        methods.put("find", new BuiltinFunctionSymbol(this, "find",
+                FIND_METHOD,
+                List.of(TYPE_PARAMETER_A),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                TYPE_ALIAS_A,
+                new FunctionParameter("pred",
+                        new FunctionType(BuiltinScope.BOOLEAN_TYPE,
+                                new FunctionTypeParameter(TYPE_ALIAS_A, false)),
+                        false)));
+
+        methods.put("findIndex", new BuiltinFunctionSymbol(this, "findIndex",
+                FIND_INDEX_METHOD,
+                List.of(TYPE_PARAMETER_A),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                BuiltinScope.NUMBER_TYPE,
                 new FunctionParameter("pred",
                         new FunctionType(BuiltinScope.BOOLEAN_TYPE,
                                 new FunctionTypeParameter(TYPE_ALIAS_A, false)),
@@ -197,6 +263,30 @@ public class ArrayType implements Type {
                         new FunctionType(TYPE_ALIAS_B,
                                 new FunctionTypeParameter(TYPE_ALIAS_A, false)),
                         false)));
+
+        methods.put("reduce", new BuiltinFunctionSymbol(this, "reduce",
+                REDUCE_METHOD,
+                List.of(TYPE_PARAMETER_A, TYPE_PARAMETER_B),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                TYPE_ALIAS_B,
+                new FunctionParameter("reducer",
+                        new FunctionType(TYPE_ALIAS_B,
+                                new FunctionTypeParameter(TYPE_ALIAS_B, false),
+                                new FunctionTypeParameter(TYPE_ALIAS_A, false)),
+                        false),
+                new FunctionParameter("acc", TYPE_ALIAS_B, true)));
+
+        methods.put("reduceRight", new BuiltinFunctionSymbol(this, "reduceRight",
+                REDUCE_RIGHT_METHOD,
+                List.of(TYPE_PARAMETER_A, TYPE_PARAMETER_B),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                TYPE_ALIAS_B,
+                new FunctionParameter("reducer",
+                        new FunctionType(TYPE_ALIAS_B,
+                                new FunctionTypeParameter(TYPE_ALIAS_B, false),
+                                new FunctionTypeParameter(TYPE_ALIAS_A, false)),
+                        false),
+                new FunctionParameter("acc", TYPE_ALIAS_B, true)));
 
         methods.put("flatMap", new BuiltinFunctionSymbol(this, "flatMap",
                 FLAT_MAP_METHOD,
