@@ -1073,21 +1073,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitNotErr(KobuParser.NotErrContext ctx) {
-        boolean exprStatus = topLevelExpression;
-        if (topLevelExpression) {
-            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
-            topLevelExpression = false;
-        }
-
-        var exprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.NOT()), "");
-        context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.NOT())));
-
-        topLevelExpression = exprStatus;
-        return new NotExpr(getSourceCodeRef(ctx), exprNode);
-    }
-
-    @Override
     public AstNode visitFactorExpr(KobuParser.FactorExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
@@ -1111,30 +1096,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitFactorErr(KobuParser.FactorErrContext ctx) {
-        boolean exprStatus = topLevelExpression;
-        if (topLevelExpression) {
-            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
-            topLevelExpression = false;
-        }
-
-        var leftExprNode = visit(ctx.expr());
-        Expr expr;
-        if (ctx.STAR() != null) {
-            var rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.STAR()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.STAR())));
-            expr = new MultExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, rightExprNode);
-        } else {
-            var rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.DIV()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.DIV())));
-            expr = new DivExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, rightExprNode);
-        }
-
-        topLevelExpression = exprStatus;
-        return expr;
-    }
-
-    @Override
     public AstNode visitAddSubExpr(KobuParser.AddSubExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
@@ -1149,30 +1110,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             expr = new AddExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, (Expr) rightExprNode);
         } else {
             expr = new SubExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, (Expr) rightExprNode);
-        }
-
-        topLevelExpression = exprStatus;
-        return expr;
-    }
-
-    @Override
-    public AstNode visitAddSubErr(KobuParser.AddSubErrContext ctx) {
-        boolean exprStatus = topLevelExpression;
-        if (topLevelExpression) {
-            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
-            topLevelExpression = false;
-        }
-
-        var leftExprNode = visit(ctx.expr());
-        Expr expr;
-        if (ctx.PLUS() != null) {
-            var rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.PLUS()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.PLUS())));
-            expr = new AddExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, rightExprNode);
-        } else {
-            var rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.MINUS()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.MINUS())));
-            expr = new SubExpr(getSourceCodeRef(ctx), (Expr) leftExprNode, rightExprNode);
         }
 
         topLevelExpression = exprStatus;
@@ -1211,49 +1148,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitEqErr(KobuParser.EqErrContext ctx) {
-        boolean exprStatus = topLevelExpression;
-        if (topLevelExpression) {
-            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
-            topLevelExpression = false;
-        }
-
-        var leftExprNode = visit(ctx.expr());
-        EqOperatorEnum operator = null;
-
-        Expr rightExprNode = null;
-        if (ctx.EQUALS() != null) {
-            rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.EQUALS()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.EQUALS())));
-            operator = EqOperatorEnum.EQUALS;
-        } else if (ctx.NOT_EQUALS() != null) {
-            rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.NOT_EQUALS()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.NOT_EQUALS())));
-            operator = EqOperatorEnum.NOT_EQUALS;
-        } else if (ctx.LESS() != null) {
-            rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.LESS()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.LESS())));
-            operator = EqOperatorEnum.LESS;
-        } else if (ctx.LESS_OR_EQUALS() != null) {
-            rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.LESS_OR_EQUALS()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.LESS_OR_EQUALS())));
-            operator = EqOperatorEnum.LESS_OR_EQUALS;
-        } else if (ctx.GREATER() != null) {
-            rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.GREATER()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.GREATER())));
-            operator = EqOperatorEnum.GREATER;
-        } else if (ctx.GREATER_OR_EQUALS() != null) {
-            rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.GREATER_OR_EQUALS()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.GREATER_OR_EQUALS())));
-            operator = EqOperatorEnum.GREATER_OR_EQUALS;
-        }
-
-        topLevelExpression = exprStatus;
-        return new EqExpr(getSourceCodeRef(ctx),
-                (Expr) leftExprNode, operator, rightExprNode);
-    }
-
-    @Override
     public AstNode visitLogicExpr(KobuParser.LogicExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         if (topLevelExpression) {
@@ -1277,33 +1171,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitLogicErr(KobuParser.LogicErrContext ctx) {
-        boolean exprStatus = topLevelExpression;
-        if (topLevelExpression) {
-            context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
-            topLevelExpression = false;
-        }
-
-        var leftExprNode = visit(ctx.expr());
-        LogicOperatorEnum operator = null;
-
-        Expr rightExprNode = null;
-        if (ctx.AND() != null) {
-            rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.AND()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.AND())));
-            operator = LogicOperatorEnum.AND;
-        } else if (ctx.OR() != null) {
-            rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.OR()), "");
-            context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.OR())));
-            operator = LogicOperatorEnum.OR;
-        }
-
-        topLevelExpression = exprStatus;
-        return new LogicExpr(getSourceCodeRef(ctx),
-                (Expr) leftExprNode, operator, rightExprNode);
-    }
-
-    @Override
     public AstNode visitFieldAccessExpr(KobuParser.FieldAccessExprContext ctx) {
         boolean exprStatus = topLevelExpression;
         topLevelExpression = false;
@@ -1318,21 +1185,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         return new FieldAccessExpr(getSourceCodeRef(ctx),
                 (Expr) leftExprNode, (Expr) rightExprNode);
-    }
-
-    @Override
-    public AstNode visitFieldAccessErr(KobuParser.FieldAccessErrContext ctx) {
-        boolean exprStatus = topLevelExpression;
-        topLevelExpression = false;
-
-        var leftExprNode = visit(ctx.expr());
-        var rightExprNode = new RefExpr(moduleScope, getSourceCodeRef(ctx.DOT()), "");
-        context.getErrorScope().addError(new IdentifierExpectedError(getSourceCodeRef(ctx.DOT())));
-
-        topLevelExpression = exprStatus;
-
-        return new FieldAccessExpr(getSourceCodeRef(ctx),
-                (Expr) leftExprNode, rightExprNode);
     }
 
     @Override

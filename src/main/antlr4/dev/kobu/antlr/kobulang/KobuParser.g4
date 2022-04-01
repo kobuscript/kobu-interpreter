@@ -74,6 +74,8 @@ functionReturnStat : RETURN exprWrapper
                      ;
 
 stat : typerecord
+       | typetemplate
+       | invalidType
        | deftemplate
        | defrule
        | deffile
@@ -84,19 +86,11 @@ stat : typerecord
        ;
 
 invalidDef : 'def' elem=( INVALID_DEF | DEF_BREAK ) ;
+invalidType : TYPE INVALID_TYPE {notifyErrorListenersPrevToken("'record' or 'template' expected");} ;
 
-invalidStat : ID {notifyErrorListenersPrevToken("'def' or 'fun' expected");} ;
+invalidStat : ID {notifyErrorListenersPrevToken("'type', 'def' or 'fun' expected");} ;
 
-functionDecl : 'fun' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB
-               | 'fun' ID typeParameters? LP functionDeclParam? RP LCB {notifyMissingFunctionReturnType();}
-               | 'fun' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
-               | 'fun' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet {notifyErrorListenersPrevToken("'{' expected");}
-               | 'fun' ID typeParameters? LP functionDeclParam? RP COLON {notifyErrorListenersPrevToken("return type expected");}
-               | 'fun' ID typeParameters? LP functionDeclParam? RP {notifyErrorListenersPrevToken("':' expected");}
-               | 'fun' ID typeParameters? LP functionDeclParam? {notifyErrorListenersPrevToken("')' expected");}
-               | 'fun' ID typeParameters? {notifyErrorListenersPrevToken("'(' expected");}
-               | 'fun' {notifyErrorListenersPrevToken("function name expected");}
-               ;
+functionDecl : 'fun' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB ;
 
 nativeDecl : 'def' 'native' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet SEMI?;
 
@@ -106,49 +100,17 @@ functionDeclParam : ID '?'? COLON type ( COMMA functionDeclParam )?
                     | ID '?'? COLON? {notifyErrorListenersPrevToken("parameter type expected");}
                     ;
 
-ifStat : 'if' LP expr? RP LCB execStat* RCB elseIfStat? elseStat?
-         | 'if' LP expr? RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
-         | 'if' LP expr? RP {notifyErrorListenersPrevToken("'{' expected");}
-         | 'if' LP expr? {notifyErrorListenersPrevToken("')' expected");}
-         | 'if' {notifyErrorListenersPrevToken("'(' expected");}
-         ;
+ifStat : 'if' LP expr? RP LCB execStat* RCB elseIfStat? elseStat? ;
 
-elseIfStat : 'else' 'if' LP expr RP LCB execStat* RCB elseIfStat?
-             | 'else' 'if' LP expr RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
-             | 'else' 'if' LP expr RP {notifyErrorListenersPrevToken("'{' expected");}
-             | 'else' 'if' LP RP {notifyErrorListenersPrevToken("boolean expression expected");}
-             | 'else' 'if' LP expr? {notifyErrorListenersPrevToken("')' expected");}
-             ;
+elseIfStat : 'else' 'if' LP expr RP LCB execStat* RCB elseIfStat? ;
 
-elseStat : 'else' LCB execStat* RCB
-           | 'else' LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
-           | 'else' {notifyErrorListenersPrevToken("'{' expected");}
-           ;
+elseStat : 'else' LCB execStat* RCB ;
 
-forStat : 'for' LP varDeclList? SEMI expr? SEMI assignmentSequece? RP LCB execStat* RCB
-          | 'for' LP varDeclList? SEMI expr? SEMI assignmentSequece? RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
-          | 'for' LP varDeclList? SEMI expr? SEMI assignmentSequece? RP {notifyErrorListenersPrevToken("'{' expected");}
-          | 'for' LP varDeclList? SEMI expr? SEMI assignmentSequece? {notifyErrorListenersPrevToken("')' expected");}
-          | 'for' LP varDeclList? SEMI expr? {notifyErrorListenersPrevToken("';' expected");}
-          | 'for' LP varDeclList? {notifyErrorListenersPrevToken("';' expected");}
-          ;
+forStat : 'for' LP varDeclList? SEMI expr? SEMI assignmentSequece? RP LCB execStat* RCB ;
 
-enhancedForStat : 'for' LP VAR ID ( COLON type )? OF expr RP LCB execStat* RCB
-                  | 'for' LP VAR ID ( COLON type )? OF expr RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
-                  | 'for' LP VAR ID ( COLON type )? OF expr RP {notifyErrorListenersPrevToken("'{' expected");}
-                  | 'for' LP VAR ID ( COLON type )? OF expr {notifyErrorListenersPrevToken("')' expected");}
-                  | 'for' LP VAR ID ( COLON type )? OF RP? {notifyErrorListenersPrevToken("expression expected");}
-                  | 'for' LP VAR ID ( COLON type )? {notifyErrorListenersPrevToken("'of' expected");}
-                  | 'for' LP VAR {notifyErrorListenersPrevToken("identifier expected");}
-                  ;
+enhancedForStat : 'for' LP VAR ID ( COLON type )? OF expr RP LCB execStat* RCB ;
 
-whileStat : 'while' LP expr RP LCB execStat* RCB
-            | 'while' LP expr RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
-            | 'while' LP expr RP {notifyErrorListenersPrevToken("'{' expected");}
-            | 'while' LP expr {notifyErrorListenersPrevToken("')' expected");}
-            | 'while' LP RP {notifyErrorListenersPrevToken("boolean expression expected");}
-            | 'while' {notifyErrorListenersPrevToken("'(' expected");}
-            ;
+whileStat : 'while' LP expr RP LCB execStat* RCB ;
 
 breakStat: BREAK ;
 
@@ -156,73 +118,31 @@ continueStat : CONTINUE ;
 
 throwStat : THROW exprWrapper ;
 
-tryCatchStat : TRY LCB execStat* RCB catchStat
-               | TRY LCB execStat* RCB {notifyErrorListenersPrevToken("'catch' expected");}
-               | TRY LCB execStat* {notifyErrorListenersPrevToken("')' expected");}
-               | TRY {notifyErrorListenersPrevToken("'(' expected");}
-               ;
+tryCatchStat : TRY LCB execStat* RCB catchStat ;
 
-catchStat : CATCH LP ID COLON type RP LCB execStat* RCB catchStat?
-            | CATCH LP ID COLON type RP LCB execStat* {notifyErrorListenersPrevToken("'}' expected");}
-            | CATCH LP ID COLON type RP {notifyErrorListenersPrevToken("'{' expected");}
-            | CATCH LP ID COLON type {notifyErrorListenersPrevToken("')' expected");}
-            | CATCH LP ID COLON {notifyErrorListenersPrevToken("type expected");}
-            | CATCH LP ID {notifyErrorListenersPrevToken("':' expected");}
-            | CATCH LP {notifyErrorListenersPrevToken("identifier expected");}
-            | CATCH {notifyErrorListenersPrevToken("'(' expected");}
-            ;
+catchStat : CATCH LP ID COLON type RP LCB execStat* RCB catchStat? ;
 
 exprSequence : exprWrapper ( COMMA exprWrapper )* COMMA? ;
 
-typerecord : TYPE TYPE_RECORD ID typeParameters? inheritance? LCB attributes? RCB
-             | TYPE TYPE_RECORD ID typeParameters? inheritance? LCB attributes? {notifyErrorListenersPrevToken("'}' expected");}
-             | TYPE TYPE_RECORD ID typeParameters? inheritance? LCB {notifyErrorListenersPrevToken("'}' expected");}
-             | TYPE TYPE_RECORD ID typeParameters? inheritance? {notifyErrorListenersPrevToken("'{' expected");}
-             | TYPE TYPE_RECORD {notifyErrorListenersPrevToken("type name expected");}
-             ;
+typerecord : TYPE TYPE_RECORD ID typeParameters? inheritance? LCB attributes? RCB ;
 
-typetemplate : TYPE TYPE_TEMPLATE ID templateInheritance? ( LCB RCB? )?
-               | TYPE TYPE_TEMPLATE {notifyErrorListenersPrevToken("type name expected");}
-               ;
+typetemplate : TYPE TYPE_TEMPLATE ID templateInheritance? ( LCB RCB? )? ;
 
 inheritance : 'extends' typeName typeArgs? ;
 
 templateInheritance : 'extends' typeName ;
 
-attributes : ( STAR | ID ) COLON type ( COMMA? attributes )?
-             | ( STAR | ID ) COLON type COMMA
-             | ( STAR | ID ) COLON? {notifyErrorListenersPrevToken("attribute type expected");}
-             ;
+attributes : ( STAR | ID ) COLON type ( COMMA? attributes )? ;
 
-record : typeName typeArgs? LCB recordField? RCB
-         | typeName typeArgs? LCB recordField? {notifyErrorListenersPrevToken("'}' expected");}
-         ;
+record : typeName typeArgs? LCB recordField? RCB ;
 
-recordField : ID COLON exprWrapper ( COMMA? recordField )?
-              | ID COLON exprWrapper COMMA
-              | ID COLON? {notifyErrorListenersPrevToken("value expected");};
+recordField : ID COLON exprWrapper ( COMMA? recordField )? ;
 
-deftemplate : 'def' DEFTEMPLATE ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? TEMPLATE_END templateTargetType?
-              | 'def' DEFTEMPLATE ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? RCB? {notifyErrorListenersPrevToken("'|>' expected");}
-              | 'def' DEFTEMPLATE ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
-              | 'def' DEFTEMPLATE ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'<|' expected");}
-              | 'def' DEFTEMPLATE ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query expected");}
-              | 'def' DEFTEMPLATE ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
-              | 'def' DEFTEMPLATE {notifyErrorListenersPrevToken("rule name expected");}
-              ;
+deftemplate : 'def' DEFTEMPLATE ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? TEMPLATE_END templateTargetType? ;
 
-templateTargetType : AS typeName
-                     | AS {notifyErrorListenersPrevToken("type expected");}
-                     ;
+templateTargetType : AS typeName ;
 
-deffile : 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? PATH_ARROW pathExpr PATH_END
-          | 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? PATH_ARROW pathExpr {notifyMissingEndStatement();}
-          | 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
-          | 'def' 'file' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'->' expected");}
-          | 'def' 'file' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query expected");}
-          | 'def' 'file' ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
-          | 'def' 'file' {notifyErrorListenersPrevToken("rule name expected");}
-          ;
+deffile : 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? PATH_ARROW pathExpr PATH_END ;
 
 pathExpr : pathSegmentExpr ( SLASH pathExpr )? ;
 
@@ -235,28 +155,15 @@ pathVariableExpr : PATH_VARIABLE_BEGIN expr? PATH_VARIABLE_END
                    | PATH_VARIABLE_BEGIN expr {notifyErrorListenersPrevToken("'}' expected");}
                    ;
 
-defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block RCB
-          | 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block {notifyErrorListenersPrevToken("'}' expected");}
-          | 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* 'when' {notifyErrorListenersPrevToken("boolean expression expected");}
-          | 'def' 'rule' ID ruleExtends? 'for' queryExpr {notifyErrorListenersPrevToken("'{' expected");}
-          | 'def' 'rule' ID ruleExtends? 'for' {notifyErrorListenersPrevToken("query expected");}
-          | 'def' 'rule' ID ruleExtends? {notifyErrorListenersPrevToken("'for' expected");}
-          | 'def' 'rule' {notifyErrorListenersPrevToken("rule name expected");}
-          ;
+defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block RCB ;
 
 ruleExtends : EXTENDS typeName ;
 
-queryExpr : 'any'? type queryExprAlias? queryExprSegment?
-            | 'any' {notifyErrorListenersPrevToken("type expected");}
-            ;
+queryExpr : 'any'? type queryExprAlias? queryExprSegment? ;
 
-queryExprAlias : AS ID
-                 | AS {notifyErrorListenersPrevToken("alias expected");}
-                 ;
+queryExprAlias : AS ID ;
 
-queryExprSegment : DIV queryFieldExpr queryExprAlias? queryExprSegment?
-                   | DIV {notifyErrorListenersPrevToken("field or selector expected");}
-                   ;
+queryExprSegment : DIV queryFieldExpr queryExprAlias? queryExprSegment? ;
 
 queryFieldExpr : ID queryExprArraySelect? ;
 
@@ -272,13 +179,9 @@ joinOfExpr : 'of' expr ;
 
 block : execStat* ;
 
-varDecl : VAR varDeclBody
-          | VAR {notifyErrorListenersPrevToken("identifier expected");}
-          ;
+varDecl : VAR varDeclBody ;
 
-varDeclBody : ID ( COLON type )? ( '=' exprWrapper )?
-              | ID ( COLON type )? '=' {notifyErrorListenersPrevToken("value expected");}
-              ;
+varDeclBody : ID ( COLON type )? ( '=' exprWrapper )? ;
 
 varDeclList : VAR varDeclBody ( COMMA varDeclBody )* ;
 
@@ -290,40 +193,24 @@ templateExpr : templateStaticContentExpr
 
 templateStaticContentExpr : CONTENT ;
 
-templateContentExpr : TEMPLATE_EXPR_BEGIN expr? TEMPLATE_EXPR_END
-                      | TEMPLATE_EXPR_BEGIN expr {notifyErrorListenersPrevToken("'}' expected");}
-                      ;
+templateContentExpr : TEMPLATE_EXPR_BEGIN expr? TEMPLATE_EXPR_END ;
 
 exprWrapper : expr | assignPostIncDec | assignPreIncDec ;
 
 expr : record                                                                                       #recordExpr
        | LSB exprSequence? RSB                                                                      #arrayExpr
-       | LSB exprSequence? {notifyErrorListenersPrevToken("']' expected");}                         #arrayErr1
        | LP exprWrapper COMMA exprSequence RP                                                       #tupleExpr
-       | LP exprWrapper COMMA exprSequence {notifyErrorListenersPrevToken("')' expected");}         #tupleErr1
-       | LP exprWrapper COMMA {notifyErrorListenersPrevToken("value expected");}                    #tupleErr2
-       | LP exprWrapper {notifyErrorListenersPrevToken("',' or ')' expected");}                     #tupleErr3
-       | LP {notifyErrorListenersPrevToken("value expected");}                                      #tupleErr4
        | expr AS type                                                                               #castExpr
-       | expr AS {notifyErrorListenersPrevToken("expression expected");}                            #castErr1
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
-       | expr DOT                                                                                   #fieldAccessErr
        | anonymousFunction                                                                          #anonymousFunctionExpr
        | expr typeArgs? LP exprSequence? RP                                                         #functionCallExpr
-       | expr typeArgs? LP exprSequence? {notifyErrorListenersPrevToken("')' expected");}           #functionCallErr
        | expr INSTANCEOF type                                                                       #instanceOfExpr
-       | expr INSTANCEOF {notifyErrorListenersPrevToken("expression expected");}                    #instanceOfErr1
        | expr ( STAR | DIV | MOD ) expr                                                             #factorExpr
-       | expr ( STAR | DIV | MOD )                                                                  #factorErr
        | expr ( PLUS | MINUS ) expr                                                                 #addSubExpr
-       | expr ( PLUS | MINUS )                                                                      #addSubErr
        | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS ) expr    #eqExpr
-       | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS )         #eqErr
        | expr ( AND | OR ) expr                                                                     #logicExpr
-       | expr ( AND | OR )                                                                          #logicErr
        | NOT expr                                                                                   #notExpr
-       | NOT                                                                                        #notErr
        | TRUE                                                                                       #trueExpr
        | FALSE                                                                                      #falseExpr
        | NULL                                                                                       #nullExpr
@@ -373,9 +260,7 @@ type : typeName                      #typeNameExpr
        | LP functionType RP          #parenthesizedFunctionTypeExpr
        ;
 
-functionType : LP functionTypeParameter? RP FN_ARROW type
-               | LP functionTypeParameter? RP FN_ARROW {notifyErrorListenersPrevToken("return type expected");}
-               ;
+functionType : LP functionTypeParameter? RP FN_ARROW type ;
 functionTypeParameter : type QM? ( COMMA functionTypeParameter )? ;
 
 typeName : ID ( DOT ID )? typeArgs?

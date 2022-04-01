@@ -137,12 +137,14 @@ MODULE_SEPARATOR : '.' ;
 MODULE_ID_BREAK : NEW_LINE -> popMode ;
 MODULE_ID_END : ';' ;
 MODULEWS : [ \t\r]+ -> channel(WSCHANNEL) ;
+MODULE_BAD_CHARACTER : .+? ;
 
 mode TYPE_MODE;
 
 TYPE_RECORD : 'record' -> popMode ;
 TYPE_TEMPLATE : 'template' -> popMode ;
 TYPEWS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
+INVALID_TYPE : ~[ \t\r\n]+ -> popMode ;
 
 mode DEF_MODE;
 
@@ -150,9 +152,9 @@ DEFTEMPLATE : 'template' -> popMode ;
 DEFRULE : 'rule' -> popMode ;
 DEFFILE : 'file' -> popMode ;
 DEFNATIVE : 'native' -> popMode ;
-INVALID_DEF : [a-zA-Z0-9]+ -> popMode ;
 DEF_BREAK : NEW_LINE -> popMode ;
 DEFWS : [ \t\r]+ -> channel(WSCHANNEL) ;
+INVALID_DEF : ~[ \t\r\n]+ -> popMode ;
 
 mode PATH_MODE;
 
@@ -161,6 +163,7 @@ PATH_VARIABLE_BEGIN : '${' -> pushMode(DEFAULT_MODE) ;
 PATH_SEGMENT : [a-zA-Z0-9_\\-\\.]+ ;
 PATH_END : ';' {this.SetPathMode(false);} -> popMode ;
 PATHWS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
+INVALID_PATH : .+? -> popMode ;
 
 mode TEMPLATE_MODE;
 
