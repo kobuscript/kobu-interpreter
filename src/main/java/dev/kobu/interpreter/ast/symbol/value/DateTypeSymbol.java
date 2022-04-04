@@ -34,7 +34,7 @@ public class DateTypeSymbol extends BuiltinTypeSymbol implements ValType, HasCon
 
     private static final String TYPE_NAME = "Date";
 
-    private final BuiltinFunctionSymbol constructor = new BuiltinFunctionSymbol(this, TYPE_NAME,
+    private final BuiltinFunctionSymbol constructor = new BuiltinFunctionSymbol(TYPE_NAME,
             new DateConstructorImpl(), this,
             new FunctionParameter("date", BuiltinScope.NUMBER_TYPE, true));
 

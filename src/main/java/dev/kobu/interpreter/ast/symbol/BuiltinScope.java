@@ -57,6 +57,8 @@ public class BuiltinScope implements Scope {
 
     public static final DateTypeSymbol DATE_TYPE = new DateTypeSymbol();
 
+    public static final DateFormatterTypeSymbol DATE_FORMATTER_TYPE = new DateFormatterTypeSymbol();
+
     public static final AnyRecordTypeSymbol ANY_RECORD_TYPE = new AnyRecordTypeSymbol();
 
     public static final RuleRefTypeSymbol RULE_REF_TYPE = new RuleRefTypeSymbol();
@@ -104,6 +106,7 @@ public class BuiltinScope implements Scope {
         ANY_RECORD_TYPE.buildMethods();
         ANY_TEMPLATE_TYPE.buildMethods();
         DATE_TYPE.buildMethods();
+        DATE_FORMATTER_TYPE.buildMethods();
 
         symbols.put(ANY_TYPE.getName(), ANY_TYPE);
         symbols.put(ANY_VAL_TYPE.getName(), ANY_VAL_TYPE);
@@ -115,6 +118,7 @@ public class BuiltinScope implements Scope {
         symbols.put(RULE_REF_TYPE.getName(), RULE_REF_TYPE);
         symbols.put(RECORD_TYPE_REF_TYPE.getName(), RECORD_TYPE_REF_TYPE);
         symbols.put(ANY_TEMPLATE_TYPE.getName(), ANY_TEMPLATE_TYPE);
+        symbols.put(DATE_FORMATTER_TYPE.getName(), DATE_FORMATTER_TYPE);
 
         var recordArrayType = ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_RECORD_TYPE);
 
