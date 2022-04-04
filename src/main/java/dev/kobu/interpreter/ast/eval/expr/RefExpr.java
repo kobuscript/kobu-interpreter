@@ -137,6 +137,13 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                     this.type = BuiltinScope.RECORD_TYPE_REF_TYPE;
                     return;
                 }
+                if (functionRefMode && symbol instanceof HasConstructor) {
+                    BuiltinFunctionSymbol constructor = ((HasConstructor) symbol).getConstructor();
+                    this.elementRef = constructor.getSourceCodeRef();
+                    this.function = constructor;
+                    this.type = this.function.getType();
+                    return;
+                }
                 if (symbol instanceof ModuleRefSymbol) {
                     this.elementRef = symbol.getSourceCodeRef();
                     this.type = (ModuleRefSymbol) symbol;

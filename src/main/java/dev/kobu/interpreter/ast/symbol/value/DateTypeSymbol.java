@@ -24,12 +24,19 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol.value;
 
+import dev.kobu.interpreter.ast.eval.HasConstructor;
+import dev.kobu.interpreter.ast.eval.function.date.DateConstructorImpl;
 import dev.kobu.interpreter.ast.eval.function.date.DateGetTimeMethodImpl;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 
-public class DateTypeSymbol extends BuiltinTypeSymbol implements ValType {
+public class DateTypeSymbol extends BuiltinTypeSymbol implements ValType, HasConstructor {
 
     private static final String TYPE_NAME = "Date";
+
+    private final BuiltinFunctionSymbol constructor = new BuiltinFunctionSymbol(this, TYPE_NAME,
+            new DateConstructorImpl(), this,
+            new FunctionParameter("date", BuiltinScope.NUMBER_TYPE, true));
 
     public DateTypeSymbol() {
         super(TYPE_NAME);
@@ -53,6 +60,11 @@ public class DateTypeSymbol extends BuiltinTypeSymbol implements ValType {
     public void buildMethods() {
         addMethod(new BuiltinFunctionSymbol(this, "getTime", new DateGetTimeMethodImpl(),
                 BuiltinScope.NUMBER_TYPE));
+    }
+
+    @Override
+    public BuiltinFunctionSymbol getConstructor() {
+        return constructor;
     }
 
 }

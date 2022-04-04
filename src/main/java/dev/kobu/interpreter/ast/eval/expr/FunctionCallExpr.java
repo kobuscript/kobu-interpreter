@@ -26,10 +26,12 @@ package dev.kobu.interpreter.ast.eval.expr;
 
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.expr.value.AnonymousFunctionValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.FunctionRefValueExpr;
-import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.ModuleRefSymbol;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.UnknownType;
 import dev.kobu.interpreter.ast.symbol.function.FunctionType;
 import dev.kobu.interpreter.ast.symbol.generics.HasTypeParameters;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
@@ -37,12 +39,13 @@ import dev.kobu.interpreter.ast.symbol.generics.TypeArgs;
 import dev.kobu.interpreter.error.analyzer.*;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
-
-    private final ModuleScope moduleScope;
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -56,9 +59,8 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
 
     private TypeArgs typeArgs;
 
-    public FunctionCallExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef,
+    public FunctionCallExpr(SourceCodeRef sourceCodeRef,
                             Expr functionRefExpr, List<FunctionArgExpr> args) {
-        this.moduleScope = moduleScope;
         this.sourceCodeRef = sourceCodeRef;
         this.functionRefExpr = functionRefExpr;
         this.args = args;
