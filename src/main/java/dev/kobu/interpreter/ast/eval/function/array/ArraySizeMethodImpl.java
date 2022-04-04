@@ -24,10 +24,10 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.function.array;
 
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.IntegerValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
@@ -39,7 +39,7 @@ public class ArraySizeMethodImpl extends BuiltinMethod {
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         ArrayValueExpr arrayExpr = (ArrayValueExpr) object;
 
-        return new NumberValueExpr(arrayExpr.getValue().size());
+        return new IntegerValueExpr(arrayExpr.getValue().size());
     }
 
     @Override

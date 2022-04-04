@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.expr.value;
+package dev.kobu.interpreter.ast.eval.expr.value.number;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.HasMethods;
@@ -30,14 +30,15 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.value.NumberTypeSymbol;
 
 import java.util.Objects;
 
-public class NumberValueExpr implements ValueExpr, HasMethods {
+public abstract class NumberValueExpr implements ValueExpr, HasMethods {
 
     private SourceCodeRef sourceCodeRef;
 
-    private final Number value;
+    protected final Number value;
 
     private final NumberTypeSymbol type = BuiltinScope.NUMBER_TYPE;
 
@@ -79,28 +80,86 @@ public class NumberValueExpr implements ValueExpr, HasMethods {
         return value;
     }
 
-    public Number inc() {
-        if (value instanceof Integer) {
-            return ((Integer)value) + 1;
+    public NumberValueExpr add(NumberValueExpr other) {
+        if (other instanceof IntegerValueExpr) {
+            return add((IntegerValueExpr) other);
+        } else if (other instanceof LongValueExpr) {
+            return add((LongValueExpr) other);
         } else {
-            return ((Double)value) + 1;
+            return add((DoubleValueExpr) other);
         }
     }
 
-    public Number dec() {
-        if (value instanceof Integer) {
-            return ((Integer)value) - 1;
+    public NumberValueExpr sub(NumberValueExpr other) {
+        if (other instanceof IntegerValueExpr) {
+            return sub((IntegerValueExpr) other);
+        } else if (other instanceof LongValueExpr) {
+            return sub((LongValueExpr) other);
         } else {
-            return ((Double)value) - 1;
+            return sub((DoubleValueExpr) other);
         }
     }
 
-    public Double toDouble() {
-        if (value instanceof Integer) {
-            return value.doubleValue();
+    public NumberValueExpr mult(NumberValueExpr other) {
+        if (other instanceof IntegerValueExpr) {
+            return mult((IntegerValueExpr) other);
+        } else if (other instanceof LongValueExpr) {
+            return mult((LongValueExpr) other);
+        } else {
+            return mult((DoubleValueExpr) other);
         }
-        return (Double) value;
     }
+
+    public NumberValueExpr div(NumberValueExpr other) {
+        if (other instanceof IntegerValueExpr) {
+            return div((IntegerValueExpr) other);
+        } else if (other instanceof LongValueExpr) {
+            return div((LongValueExpr) other);
+        } else {
+            return div((DoubleValueExpr) other);
+        }
+    }
+
+    public NumberValueExpr mod(NumberValueExpr other) {
+        return new DoubleValueExpr(value.doubleValue() % other.value.doubleValue());
+    }
+
+    public NumberValueExpr ceil() {
+        return new DoubleValueExpr(Math.ceil(value.doubleValue()));
+    }
+
+    public NumberValueExpr floor() {
+        return new DoubleValueExpr(Math.floor(value.doubleValue()));
+    }
+
+    public NumberValueExpr pow(NumberValueExpr exp) {
+        return new DoubleValueExpr(Math.pow(value.doubleValue(), exp.value.doubleValue()));
+    }
+
+    public NumberValueExpr round() {
+        return new LongValueExpr(Math.round(value.doubleValue()));
+    }
+
+    public abstract NumberValueExpr inc();
+    public abstract NumberValueExpr dec();
+
+    public abstract NumberValueExpr abs();
+
+    public abstract NumberValueExpr add(IntegerValueExpr other);
+    public abstract NumberValueExpr add(LongValueExpr other);
+    public abstract NumberValueExpr add(DoubleValueExpr other);
+
+    public abstract NumberValueExpr sub(IntegerValueExpr other);
+    public abstract NumberValueExpr sub(LongValueExpr other);
+    public abstract NumberValueExpr sub(DoubleValueExpr other);
+
+    public abstract NumberValueExpr mult(IntegerValueExpr other);
+    public abstract NumberValueExpr mult(LongValueExpr other);
+    public abstract NumberValueExpr mult(DoubleValueExpr other);
+
+    public abstract NumberValueExpr div(IntegerValueExpr other);
+    public abstract NumberValueExpr div(LongValueExpr other);
+    public abstract NumberValueExpr div(DoubleValueExpr other);
 
     @Override
     public String getStringValue() {

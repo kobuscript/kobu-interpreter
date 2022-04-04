@@ -34,7 +34,7 @@ import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.BooleanTypeSymbol;
+import dev.kobu.interpreter.ast.symbol.value.BooleanTypeSymbol;
 
 import java.util.List;
 import java.util.Map;

@@ -26,8 +26,9 @@ package dev.kobu.interpreter.ast.eval.expr;
 
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.value.NumberTypeSymbol;
 import dev.kobu.interpreter.error.analyzer.InvalidExpressionError;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
@@ -105,15 +106,14 @@ public class PreIncDecExpr implements Statement, Expr, Assignment {
             throw new InternalInterpreterError("Expected 'number', but got '" + val.getType() + "'", sourceCodeRef);
         }
 
-        Number newVal;
+        NumberValueExpr newVal;
         if (operator == IncDecOperatorEnum.INC) {
             newVal = ((NumberValueExpr)val).inc();
         } else {
             newVal = ((NumberValueExpr)val).dec();
         }
 
-        NumberValueExpr newValExpr = new NumberValueExpr(newVal);
-        ((MemoryReference)refExpr).assign(context, newValExpr);
-        return newValExpr;
+        ((MemoryReference)refExpr).assign(context, newVal);
+        return newVal;
     }
 }

@@ -31,6 +31,7 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.value.BooleanTypeSymbol;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.analyzer.InvalidOperatorError;
 import dev.kobu.interpreter.error.eval.NullPointerError;

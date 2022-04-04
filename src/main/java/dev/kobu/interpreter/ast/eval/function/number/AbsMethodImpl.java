@@ -25,7 +25,7 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.eval.function.number;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
@@ -37,17 +37,12 @@ public class AbsMethodImpl extends BuiltinMethod {
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         NumberValueExpr numberExpr = (NumberValueExpr) object;
-
-        if (numberExpr.getValue() instanceof Integer) {
-            return new NumberValueExpr(Math.abs(numberExpr.getValue().intValue()));
-        }
-
-        return new NumberValueExpr(Math.abs(numberExpr.getValue().doubleValue()));
+        return numberExpr.abs();
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns the absolute value of this number";
     }
 
 }

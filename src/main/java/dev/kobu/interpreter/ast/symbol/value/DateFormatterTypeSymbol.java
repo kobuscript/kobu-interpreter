@@ -22,25 +22,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.utils;
+package dev.kobu.interpreter.ast.symbol.value;
 
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.BuiltinTypeSymbol;
+import dev.kobu.interpreter.ast.symbol.Type;
 
-public class NumberParser {
+public class DateFormatterTypeSymbol extends BuiltinTypeSymbol {
 
-    public static NumberValueExpr getNumberValueExpr(String numberText) {
-        return getNumberValueExpr(numberText, null);
+    private static final String TYPE_NAME = "DateFormatter";
+
+    public DateFormatterTypeSymbol() {
+        super(TYPE_NAME);
     }
 
-    public static NumberValueExpr getNumberValueExpr(String numberText, SourceCodeRef sourceCodeRef) {
-        Number numberValue;
-        if (numberText.matches("^-?[0-9]+$")) {
-            numberValue = Integer.valueOf(numberText);
-        } else {
-            numberValue = Double.valueOf(numberText);
-        }
-        return new NumberValueExpr(sourceCodeRef, numberValue);
+    @Override
+    public boolean isAssignableFrom(Type type) {
+        return false;
+    }
+
+    @Override
+    public Type getCommonSuperType(Type type) {
+        return null;
     }
 
 }

@@ -27,6 +27,7 @@ package dev.kobu.interpreter.ast.eval.statement;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.value.BooleanTypeSymbol;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import dev.kobu.interpreter.ast.eval.Evaluable;

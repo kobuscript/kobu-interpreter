@@ -29,6 +29,7 @@ import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.expr.*;
 import dev.kobu.interpreter.ast.eval.expr.value.*;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueFactory;
 import dev.kobu.interpreter.ast.eval.statement.*;
 import dev.kobu.interpreter.ast.file.PathSegmentStatement;
 import dev.kobu.interpreter.ast.file.PathStatement;
@@ -45,7 +46,6 @@ import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 import dev.kobu.interpreter.ast.template.TemplateContentStatement;
 import dev.kobu.interpreter.ast.template.TemplateStatement;
 import dev.kobu.interpreter.ast.template.TemplateStaticContentStatement;
-import dev.kobu.interpreter.ast.utils.NumberParser;
 import dev.kobu.interpreter.ast.utils.SymbolDescriptorUtils;
 import dev.kobu.interpreter.error.analyzer.*;
 import dev.kobu.interpreter.module.ModuleLoader;
@@ -1266,7 +1266,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         }
 
         String numberText = ctx.NUMBER().getText();
-        return NumberParser.getNumberValueExpr(numberText, getSourceCodeRef(ctx.NUMBER()));
+        return NumberValueFactory.parse(getSourceCodeRef(ctx.NUMBER()), numberText);
     }
 
     @Override

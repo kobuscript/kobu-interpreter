@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.eval.expr.value;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;

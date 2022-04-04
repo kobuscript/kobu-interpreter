@@ -22,9 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.symbol.value;
 
 import dev.kobu.interpreter.ast.eval.function.string.*;
+import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 import dev.kobu.interpreter.ast.utils.StringFunctions;

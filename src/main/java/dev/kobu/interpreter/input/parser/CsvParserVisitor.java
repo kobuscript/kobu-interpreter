@@ -29,7 +29,8 @@ import dev.kobu.antlr.csv.CSVParser;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.IntegerValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.symbol.array.ArrayType;
@@ -92,7 +93,7 @@ public class CsvParserVisitor extends CSVBaseVisitor<ValueExpr> {
     }
 
     private void addIndex(int idx, RecordValueExpr rowRec) {
-        NumberValueExpr rowIndex = new NumberValueExpr(idx);
+        NumberValueExpr rowIndex = new IntegerValueExpr(idx);
         rowRec.updateFieldValue(context, "index", rowIndex);
         for (ValueExpr colExpr : ((ArrayValueExpr) rowRec.resolveField("columns")).getValue()) {
             ((RecordValueExpr)colExpr).updateFieldValue(context, "rowIndex", rowIndex);
@@ -108,7 +109,7 @@ public class CsvParserVisitor extends CSVBaseVisitor<ValueExpr> {
             for (CSVParser.FieldContext fieldContext : ctx.field()) {
                 var columnRec = RecordFactory.create(context, CSV_COLUMN_TYPE);
                 StringValueExpr fieldValue = (StringValueExpr) visit(fieldContext);
-                columnRec.updateFieldValue(context, "index", new NumberValueExpr(index++));
+                columnRec.updateFieldValue(context, "index", new IntegerValueExpr(index++));
                 columnRec.updateFieldValue(context, "value", fieldValue);
                 columns.add(columnRec);
             }

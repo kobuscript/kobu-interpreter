@@ -26,7 +26,7 @@ package dev.kobu.interpreter.ast;
 
 import dev.kobu.interpreter.ast.eval.expr.RecordFieldExpr;
 import dev.kobu.interpreter.ast.eval.expr.RefExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.RecordTypeAttribute;
 import dev.kobu.interpreter.error.analyzer.*;

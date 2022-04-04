@@ -31,7 +31,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.VarDeclExpr;
 import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.BooleanTypeSymbol;
+import dev.kobu.interpreter.ast.symbol.value.BooleanTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.error.analyzer.InvalidExpressionError;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;

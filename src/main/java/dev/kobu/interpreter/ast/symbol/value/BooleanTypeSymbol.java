@@ -22,29 +22,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.string;
+package dev.kobu.interpreter.ast.symbol.value;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.number.IntegerValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.BuiltinScope;
+import dev.kobu.interpreter.ast.symbol.BuiltinTypeSymbol;
+import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.ValType;
 
-import java.util.Map;
+public class BooleanTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
-public class StringLengthMethodImpl extends BuiltinMethod {
+    private static final String TYPE_NAME = "boolean";
 
-    @Override
-    protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        StringValueExpr value = (StringValueExpr) object;
-        return new IntegerValueExpr(value.getValue().length());
+    public BooleanTypeSymbol() {
+        super(TYPE_NAME);
     }
 
     @Override
-    public String getDocumentation() {
-        return "";
+    public boolean isAssignableFrom(Type type) {
+        return type instanceof BooleanTypeSymbol;
+    }
+
+    @Override
+    public Type getCommonSuperType(Type type) {
+        if (isAssignableFrom(type)) {
+            return this;
+        } else if (type instanceof ValType) {
+            return BuiltinScope.ANY_VAL_TYPE;
+        }
+        return BuiltinScope.ANY_TYPE;
     }
 
 }

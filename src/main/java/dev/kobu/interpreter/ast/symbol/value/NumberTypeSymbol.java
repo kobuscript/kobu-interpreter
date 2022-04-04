@@ -22,24 +22,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.symbol.value;
 
-public class AnyValTypeSymbol extends BuiltinTypeSymbol implements ValType {
+import dev.kobu.interpreter.ast.eval.function.number.*;
+import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 
-    private static final String ANY_VAL_TYPE = "AnyVal";
+public class NumberTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
-    public AnyValTypeSymbol() {
-        super(ANY_VAL_TYPE);
+    private static final String TYPE_NAME = "number";
+
+    public NumberTypeSymbol() {
+        super(TYPE_NAME);
     }
 
     @Override
     public boolean isAssignableFrom(Type type) {
-        return type instanceof ValType;
+        return type instanceof NumberTypeSymbol;
     }
 
     @Override
     public Type getCommonSuperType(Type type) {
-        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
+        if (isAssignableFrom(type)) {
+            return this;
+        } else if (type instanceof ValType) {
+            return BuiltinScope.ANY_VAL_TYPE;
+        }
+        return BuiltinScope.ANY_TYPE;
     }
 
+    public void buildMethods() {
+        addMethod(new BuiltinFunctionSymbol(this,"abs", new AbsMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"round", new RoundMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"floor", new FloorMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"ceil", new CeilMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"pow", new PowMethodImpl(), this,
+                new FunctionParameter("exp", this, false)));
+    }
 }

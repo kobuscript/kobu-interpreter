@@ -22,29 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.symbol.value;
 
-public class BooleanTypeSymbol extends BuiltinTypeSymbol implements ValType {
+import dev.kobu.interpreter.ast.symbol.BuiltinScope;
+import dev.kobu.interpreter.ast.symbol.BuiltinTypeSymbol;
+import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.ValType;
 
-    private static final String TYPE_NAME = "boolean";
+public class AnyValTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
-    public BooleanTypeSymbol() {
-        super(TYPE_NAME);
+    private static final String ANY_VAL_TYPE = "AnyVal";
+
+    public AnyValTypeSymbol() {
+        super(ANY_VAL_TYPE);
     }
 
     @Override
     public boolean isAssignableFrom(Type type) {
-        return type instanceof BooleanTypeSymbol;
+        return type instanceof ValType;
     }
 
     @Override
     public Type getCommonSuperType(Type type) {
-        if (isAssignableFrom(type)) {
-            return this;
-        } else if (type instanceof ValType) {
-            return BuiltinScope.ANY_VAL_TYPE;
-        }
-        return BuiltinScope.ANY_TYPE;
+        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
     }
 
 }

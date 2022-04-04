@@ -28,7 +28,7 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Evaluable;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 
 public interface ArrayIndexExpr extends Evaluable {
 

@@ -29,7 +29,7 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.FunctionRefValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;

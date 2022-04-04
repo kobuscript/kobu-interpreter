@@ -28,7 +28,7 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.IntegerValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.utils.FunctionUtils;
@@ -57,7 +57,7 @@ public class ArrayFindIndexMethodImpl extends BuiltinMethod {
             count++;
         }
 
-        return new NumberValueExpr(index);
+        return new IntegerValueExpr(index);
 
     }
 

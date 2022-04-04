@@ -35,6 +35,7 @@ import dev.kobu.interpreter.ast.eval.function.global.rules.InsertFunctionImpl;
 import dev.kobu.interpreter.ast.eval.function.global.rules.UpdateFunctionImpl;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.value.*;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,6 +54,8 @@ public class BuiltinScope implements Scope {
     public static final StringTypeSymbol STRING_TYPE = new StringTypeSymbol();
 
     public static final BooleanTypeSymbol BOOLEAN_TYPE = new BooleanTypeSymbol();
+
+    public static final DateTypeSymbol DATE_TYPE = new DateTypeSymbol();
 
     public static final AnyRecordTypeSymbol ANY_RECORD_TYPE = new AnyRecordTypeSymbol();
 
@@ -100,12 +103,14 @@ public class BuiltinScope implements Scope {
         STRING_TYPE.buildMethods();
         ANY_RECORD_TYPE.buildMethods();
         ANY_TEMPLATE_TYPE.buildMethods();
+        DATE_TYPE.buildMethods();
 
         symbols.put(ANY_TYPE.getName(), ANY_TYPE);
         symbols.put(ANY_VAL_TYPE.getName(), ANY_VAL_TYPE);
         symbols.put(NUMBER_TYPE.getName(), NUMBER_TYPE);
         symbols.put(STRING_TYPE.getName(), STRING_TYPE);
         symbols.put(BOOLEAN_TYPE.getName(), BOOLEAN_TYPE);
+        symbols.put(DATE_TYPE.getName(), DATE_TYPE);
         symbols.put(ANY_RECORD_TYPE.getName(), ANY_RECORD_TYPE);
         symbols.put(RULE_REF_TYPE.getName(), RULE_REF_TYPE);
         symbols.put(RECORD_TYPE_REF_TYPE.getName(), RECORD_TYPE_REF_TYPE);

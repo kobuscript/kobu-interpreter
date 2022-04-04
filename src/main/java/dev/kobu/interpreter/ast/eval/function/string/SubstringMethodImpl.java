@@ -25,7 +25,7 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.eval.function.string;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;

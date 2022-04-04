@@ -28,8 +28,9 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.value.NumberTypeSymbol;
 import dev.kobu.interpreter.error.analyzer.InvalidOperatorError;
 import dev.kobu.interpreter.error.eval.ArithmeticError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
@@ -84,17 +85,8 @@ public class SubExpr implements Expr {
         }
 
         if (leftValueExpr instanceof NumberValueExpr && rightValueExpr instanceof NumberValueExpr) {
-            Number leftValue = ((NumberValueExpr)leftValueExpr).getValue();
-            Number rightValue = ((NumberValueExpr)rightValueExpr).getValue();
-
-            if (leftValue instanceof Integer && rightValue instanceof Integer) {
-                return new NumberValueExpr(sourceCodeRef, ((Integer) leftValue) - ((Integer) rightValue));
-            }
-
             try {
-                Number result = ((NumberValueExpr) leftValueExpr).toDouble() -
-                        ((NumberValueExpr) rightValueExpr).toDouble();
-                return new NumberValueExpr(sourceCodeRef, result);
+                return ((NumberValueExpr) leftValueExpr).sub((NumberValueExpr) rightValueExpr);
             } catch (Throwable t) {
                 throw new ArithmeticError(t, sourceCodeRef);
             }

@@ -26,8 +26,10 @@ package dev.kobu.interpreter.ast.eval.expr;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.IntegerValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.value.NumberTypeSymbol;
 import dev.kobu.interpreter.error.analyzer.InvalidOperatorError;
 import dev.kobu.interpreter.error.eval.ArithmeticError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
@@ -84,12 +86,8 @@ public class DivExpr implements Expr {
         }
 
         if (leftValueExpr instanceof NumberValueExpr && rightValueExpr instanceof NumberValueExpr) {
-            Double leftValue = ((NumberValueExpr)leftValueExpr).toDouble();
-            Double rightValue = ((NumberValueExpr)rightValueExpr).toDouble();
-
             try {
-                Number result = leftValue / rightValue;
-                return new NumberValueExpr(sourceCodeRef, result);
+                return ((NumberValueExpr) leftValueExpr).div((NumberValueExpr) rightValueExpr);
             } catch (Throwable t) {
                 throw new ArithmeticError(t, sourceCodeRef);
             }

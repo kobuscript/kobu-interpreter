@@ -24,48 +24,38 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.expr.value;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.HasMethods;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
-import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.BuiltinScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
-import dev.kobu.interpreter.ast.symbol.value.BooleanTypeSymbol;
+import dev.kobu.interpreter.ast.symbol.value.DateTypeSymbol;
 
+import java.util.Date;
 import java.util.Objects;
 
-public class BooleanValueExpr implements ValueExpr, HasMethods {
-
-    public static final BooleanValueExpr TRUE = new BooleanValueExpr(true);
-    public static final BooleanValueExpr FALSE = new BooleanValueExpr(false);
-
-    public static BooleanValueExpr fromValue(boolean value) {
-        return value ? TRUE : FALSE;
-    }
+public class DateValueExpr implements ValueExpr, HasMethods {
 
     private SourceCodeRef sourceCodeRef;
 
-    private final boolean value;
+    private final Date value;
 
-    private final BooleanTypeSymbol type = BuiltinScope.BOOLEAN_TYPE;
+    private final DateTypeSymbol type = BuiltinScope.DATE_TYPE;
 
-    private BooleanValueExpr(boolean value) {
+    public DateValueExpr(Date value) {
         this.value = value;
     }
 
-    public BooleanValueExpr(SourceCodeRef sourceCodeRef, boolean value) {
+    public DateValueExpr(SourceCodeRef sourceCodeRef, Date value) {
         this.sourceCodeRef = sourceCodeRef;
         this.value = value;
     }
 
-    @Override
-    public void analyze(EvalContext context) {
-
-    }
-
-    @Override
-    public ValueExpr evalExpr(EvalContext context) {
-        return this;
+    public Date getValue() {
+        return value;
     }
 
     @Override
@@ -74,8 +64,18 @@ public class BooleanValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
+    public void analyze(EvalContext context) {
+
+    }
+
+    @Override
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public ValueExpr evalExpr(EvalContext context) {
+        return this;
     }
 
     @Override
@@ -83,38 +83,21 @@ public class BooleanValueExpr implements ValueExpr, HasMethods {
         return type.resolveMethod(methodName);
     }
 
-    public boolean getValue() {
-        return value;
-    }
-
     @Override
     public String getStringValue() {
-        return String.valueOf(value);
+        return value.toString();
     }
 
     @Override
     public SnapshotValue getSnapshotValue() {
-        return new BooleanSnapshotValue(value);
+        return new DateSnapshotValue(new Date(this.value.getTime()));
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BooleanValueExpr that = (BooleanValueExpr) o;
-        return value == that.value;
-    }
+    private static class DateSnapshotValue implements SnapshotValue {
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(value);
-    }
+        private final Date value;
 
-    private static class BooleanSnapshotValue implements SnapshotValue {
-
-        private final Boolean value;
-
-        private BooleanSnapshotValue(Boolean value) {
+        public DateSnapshotValue(Date value) {
             this.value = value;
         }
 
@@ -122,7 +105,7 @@ public class BooleanValueExpr implements ValueExpr, HasMethods {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            BooleanSnapshotValue that = (BooleanSnapshotValue) o;
+            DateSnapshotValue that = (DateSnapshotValue) o;
             return Objects.equals(value, that.value);
         }
 
@@ -132,5 +115,4 @@ public class BooleanValueExpr implements ValueExpr, HasMethods {
         }
 
     }
-
 }

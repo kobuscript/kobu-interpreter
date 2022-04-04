@@ -25,7 +25,7 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.eval.function.number;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
@@ -37,17 +37,12 @@ public class FloorMethodImpl extends BuiltinMethod {
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         NumberValueExpr value = (NumberValueExpr) object;
-
-        if (value.getValue() instanceof Integer) {
-            return new NumberValueExpr(value.getValue());
-        }
-
-        return new NumberValueExpr(Math.floor(value.getValue().doubleValue()));
+        return value.floor();
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns the largest integer less than or equal to this number";
     }
 
 }

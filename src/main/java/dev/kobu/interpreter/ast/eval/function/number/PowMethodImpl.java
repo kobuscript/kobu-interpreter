@@ -25,10 +25,12 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.eval.function.number;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.util.Map;
 
@@ -37,14 +39,18 @@ public class PowMethodImpl extends BuiltinMethod {
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         NumberValueExpr value = (NumberValueExpr) object;
-        NumberValueExpr exp = (NumberValueExpr) args.get("exp");
+        ValueExpr exp = args.get("exp");
 
-        return new NumberValueExpr(Math.pow(value.toDouble(), exp.toDouble()));
+        if (exp == null || exp instanceof NullValueExpr) {
+            throw new IllegalArgumentError("exp cannot be null", sourceCodeRef);
+        }
+
+        return value.pow((NumberValueExpr) exp);
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns the value of this number raised to the power of the argument";
     }
 
 }

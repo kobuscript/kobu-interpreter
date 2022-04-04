@@ -30,6 +30,7 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.value.StringTypeSymbol;
 
 import java.util.Objects;
 

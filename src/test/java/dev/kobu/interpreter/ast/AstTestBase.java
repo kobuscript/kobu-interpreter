@@ -31,6 +31,10 @@ import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.expr.*;
 import dev.kobu.interpreter.ast.eval.expr.value.*;
+import dev.kobu.interpreter.ast.eval.expr.value.number.DoubleValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.IntegerValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.LongValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.statement.*;
 import dev.kobu.interpreter.ast.query.Query;
 import dev.kobu.interpreter.ast.query.QueryTypeClause;
@@ -190,8 +194,16 @@ public abstract class AstTestBase {
         return new StringValueExpr(sourceCodeRef("string-literal"), value);
     }
 
-    NumberValueExpr numberVal(Number value) {
-        return new NumberValueExpr(sourceCodeRef("number-literal"), value);
+    NumberValueExpr numberVal(Integer value) {
+        return new IntegerValueExpr(sourceCodeRef("number-literal"), value);
+    }
+
+    NumberValueExpr numberVal(Long value) {
+        return new LongValueExpr(sourceCodeRef("number-literal"), value);
+    }
+
+    NumberValueExpr numberVal(Double value) {
+        return new DoubleValueExpr(sourceCodeRef("number-literal"), value);
     }
 
     BooleanValueExpr booleanVal(Boolean value) {

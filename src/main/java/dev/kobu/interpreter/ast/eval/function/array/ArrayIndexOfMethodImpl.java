@@ -27,7 +27,7 @@ package dev.kobu.interpreter.ast.eval.function.array;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.IntegerValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
@@ -43,11 +43,11 @@ public class ArrayIndexOfMethodImpl extends BuiltinMethod {
         for (int i = 0; i < arrayExpr.getValue().size(); i++) {
             ValueExpr obj = arrayExpr.getValue().get(i);
             if (obj.equals(valueExpr)) {
-                return new NumberValueExpr(i);
+                return new IntegerValueExpr(i);
             }
         }
 
-        return new NumberValueExpr(-1);
+        return new IntegerValueExpr(-1);
     }
 
     @Override

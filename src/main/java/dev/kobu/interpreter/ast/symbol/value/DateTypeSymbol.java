@@ -22,28 +22,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.interpreter.ast.symbol.value;
 
-import dev.kobu.interpreter.ast.eval.function.number.*;
-import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.eval.function.date.DateGetTimeMethodImpl;
+import dev.kobu.interpreter.ast.symbol.*;
 
-public class NumberTypeSymbol extends BuiltinTypeSymbol implements ValType {
+public class DateTypeSymbol extends BuiltinTypeSymbol implements ValType {
 
-    private static final String TYPE_NAME = "number";
+    private static final String TYPE_NAME = "Date";
 
-    public NumberTypeSymbol() {
+    public DateTypeSymbol() {
         super(TYPE_NAME);
     }
 
     @Override
     public boolean isAssignableFrom(Type type) {
-        return type instanceof NumberTypeSymbol;
+        return type instanceof DateTypeSymbol;
     }
 
     @Override
     public Type getCommonSuperType(Type type) {
         if (isAssignableFrom(type)) {
-            return this;
+            return type;
         } else if (type instanceof ValType) {
             return BuiltinScope.ANY_VAL_TYPE;
         }
@@ -51,11 +51,8 @@ public class NumberTypeSymbol extends BuiltinTypeSymbol implements ValType {
     }
 
     public void buildMethods() {
-        addMethod(new BuiltinFunctionSymbol(this,"abs", new AbsMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol(this,"round", new RoundMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol(this,"floor", new FloorMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol(this,"ceil", new CeilMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol(this,"pow", new PowMethodImpl(), this,
-                new FunctionParameter("exp", this, false)));
+        addMethod(new BuiltinFunctionSymbol(this, "getTime", new DateGetTimeMethodImpl(),
+                BuiltinScope.NUMBER_TYPE));
     }
+
 }

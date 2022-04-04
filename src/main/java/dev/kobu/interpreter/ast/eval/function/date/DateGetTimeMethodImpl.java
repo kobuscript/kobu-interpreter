@@ -22,29 +22,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.string;
+package dev.kobu.interpreter.ast.eval.function.date;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.number.IntegerValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.DateValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.LongValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.util.Map;
 
-public class StringLengthMethodImpl extends BuiltinMethod {
+public class DateGetTimeMethodImpl extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        StringValueExpr value = (StringValueExpr) object;
-        return new IntegerValueExpr(value.getValue().length());
+        DateValueExpr dateValue = (DateValueExpr) object;
+        return new LongValueExpr(dateValue.getValue().getTime());
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns the number of milliseconds since January 1, 1970, 00:00:00 GMT represented by this Date";
     }
 
 }

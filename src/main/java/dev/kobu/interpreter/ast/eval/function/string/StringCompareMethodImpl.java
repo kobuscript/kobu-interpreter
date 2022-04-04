@@ -26,7 +26,8 @@ package dev.kobu.interpreter.ast.eval.function.string;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.NumberValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.IntegerValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
@@ -39,7 +40,7 @@ public class StringCompareMethodImpl extends BuiltinMethod {
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         StringValueExpr thisStr = (StringValueExpr) object;
         StringValueExpr otherStr = (StringValueExpr) args.get("other");
-        return new NumberValueExpr(thisStr.getValue().compareTo(otherStr.getValue()));
+        return new IntegerValueExpr(thisStr.getValue().compareTo(otherStr.getValue()));
     }
 
     @Override
