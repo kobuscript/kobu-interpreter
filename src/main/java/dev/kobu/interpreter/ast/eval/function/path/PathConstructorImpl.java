@@ -22,34 +22,54 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.global.conf;
+package dev.kobu.interpreter.ast.eval.function.path;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.PathValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
-import dev.kobu.interpreter.file_system.local.LocalKobuScriptFile;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
-public class MainScriptDirFunctionImpl extends BuiltinGlobalFunction {
+public class PathConstructorImpl extends BuiltinGlobalFunction {
 
     @Override
     protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        var script = context.getModuleScope().getScript();
-        if (script instanceof LocalKobuScriptFile) {
-            return new PathValueExpr(Path.of(((LocalKobuScriptFile)script).getFile().getParentFile().getAbsolutePath()));
+        ValueExpr segmentsExpr = args.get("segments");
+
+        if (segmentsExpr == null || segmentsExpr instanceof NullValueExpr) {
+            throw new IllegalArgumentError("'segments' cannot be null", sourceCodeRef);
         }
-        return new NullValueExpr();
+
+        List<ValueExpr> segments = ((ArrayValueExpr) segmentsExpr).getValue();
+
+        if (segments.size() == 0) {
+            throw new IllegalArgumentError("'segments' cannot be empty", sourceCodeRef);
+        }
+
+        String first = ((StringValueExpr)segments.get(0)).getValue();
+
+        Path path;
+        if (segments.size() == 1) {
+            path = Path.of(first);
+        } else {
+            path = Path.of(first, segments.subList(1, segments.size()).stream()
+                    .map(v -> ((StringValueExpr) v).getValue()).toArray(String[]::new));
+        }
+
+        return new PathValueExpr(sourceCodeRef, path);
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns a Path by converting a sequence of strings that when joined form a path string";
     }
 
 }

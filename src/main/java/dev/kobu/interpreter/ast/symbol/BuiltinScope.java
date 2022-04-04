@@ -67,6 +67,8 @@ public class BuiltinScope implements Scope {
 
     public static final AnyTemplateTypeSymbol ANY_TEMPLATE_TYPE = new AnyTemplateTypeSymbol();
 
+    public static final PathTypeSymbol PATH_TYPE = new PathTypeSymbol();
+
     private final Map<String, Symbol> symbols = new HashMap<>();
 
     public BuiltinScope() {
@@ -107,6 +109,7 @@ public class BuiltinScope implements Scope {
         ANY_TEMPLATE_TYPE.buildMethods();
         DATE_TYPE.buildMethods();
         DATE_FORMATTER_TYPE.buildMethods();
+        PATH_TYPE.buildMethods();
 
         symbols.put(ANY_TYPE.getName(), ANY_TYPE);
         symbols.put(ANY_VAL_TYPE.getName(), ANY_VAL_TYPE);
@@ -119,6 +122,7 @@ public class BuiltinScope implements Scope {
         symbols.put(RECORD_TYPE_REF_TYPE.getName(), RECORD_TYPE_REF_TYPE);
         symbols.put(ANY_TEMPLATE_TYPE.getName(), ANY_TEMPLATE_TYPE);
         symbols.put(DATE_FORMATTER_TYPE.getName(), DATE_FORMATTER_TYPE);
+        symbols.put(PATH_TYPE.getName(), PATH_TYPE);
 
         var recordArrayType = ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_RECORD_TYPE);
 
@@ -132,9 +136,9 @@ public class BuiltinScope implements Scope {
                 new FunctionParameter("name", STRING_TYPE, false),
                 new FunctionParameter("default", STRING_TYPE, true));
         var projectRootDirFunc = new BuiltinFunctionSymbol("projectRootDir", new ProjectRootDirFunctionImpl(),
-                STRING_TYPE);
+                PATH_TYPE);
         var mainScriptRootDirFunc = new BuiltinFunctionSymbol("mainScriptDir", new MainScriptDirFunctionImpl(),
-                STRING_TYPE);
+                PATH_TYPE);
 
         var newRecordFunc = new BuiltinFunctionSymbol("newRecord", new NewRecordFunctionImpl(), ANY_RECORD_TYPE,
                 new FunctionParameter("type", RECORD_TYPE_REF_TYPE, false));

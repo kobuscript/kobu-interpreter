@@ -22,28 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.global.conf;
+package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.PathValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-
-import java.nio.file.Path;
-import java.util.Map;
-
-public class ProjectRootDirFunctionImpl extends BuiltinGlobalFunction {
-
-    @Override
-    protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        return new PathValueExpr(Path.of(context.getModuleScope().getProjectDir()));
-    }
-
-    @Override
-    public String getDocumentation() {
-        return "";
-    }
-
+public class FileTypeSymbol {
 }

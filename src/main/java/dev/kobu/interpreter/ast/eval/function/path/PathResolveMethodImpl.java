@@ -22,34 +22,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.global.conf;
+package dev.kobu.interpreter.ast.eval.function.path;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.PathValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
-import dev.kobu.interpreter.file_system.local.LocalKobuScriptFile;
+import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.nio.file.Path;
 import java.util.Map;
 
-public class MainScriptDirFunctionImpl extends BuiltinGlobalFunction {
+public class PathResolveMethodImpl extends BuiltinMethod {
 
     @Override
-    protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        var script = context.getModuleScope().getScript();
-        if (script instanceof LocalKobuScriptFile) {
-            return new PathValueExpr(Path.of(((LocalKobuScriptFile)script).getFile().getParentFile().getAbsolutePath()));
+    protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
+        PathValueExpr pathExpr = (PathValueExpr) object;
+        ValueExpr other = args.get("other");
+
+        if (other == null || other instanceof NullValueExpr) {
+            throw new IllegalArgumentError("'other' cannot be null", sourceCodeRef);
         }
-        return new NullValueExpr();
+
+        Path path = pathExpr.getPath().resolve(((PathValueExpr)other).getPath());
+
+        return new PathValueExpr(path);
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Resolve the given path against this path";
     }
 
 }
