@@ -29,9 +29,11 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 public interface InputParser {
 
-    ValueExpr parse(EvalContext context, String filePath, String fileName, InputStream in) throws IOException;
+    ValueExpr parse(EvalContext context, String filePath, String fileName, InputStream in,
+                    Map<String, ValueExpr> args) throws IOException;
 
 }

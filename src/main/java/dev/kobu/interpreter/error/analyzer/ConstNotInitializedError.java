@@ -20,32 +20,26 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
-
-module dev.kobu.core.types.Csv
-
-type record CsvFile {
-    file: File,
-    rows: CsvRow[]
-}
-
-type record CsvRow {
-    index: number,
-    columns: CsvColumn[]
-}
-
-type record CsvColumn {
-    rowIndex: number,
-    index: number,
-    header: boolean,
-    value: string
-}
-
-/*
- * Read CSV files from disk.
- *
- * The 'pattern' argument can be a single filename or a glob pattern (like *.csv), If 'recursive' is
- * true, then all subdirectories will be scanned. Use 'delimiter' to change the delimiter
- * character (defaults to ','), and 'charset' to specify the file charset.
  */
-def native readCsv(dir: Path, pattern: string, recursive?: boolean, delimiter?: string, charset?: string): CsvFile[];
+
+package dev.kobu.interpreter.error.analyzer;
+
+import dev.kobu.interpreter.ast.symbol.ConstantSymbol;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.AnalyzerError;
+
+public class ConstNotInitializedError extends AnalyzerError {
+
+    private final ConstantSymbol constSymbol;
+
+    public ConstNotInitializedError(SourceCodeRef sourceCodeRef, ConstantSymbol constSymbol) {
+        super(sourceCodeRef);
+        this.constSymbol = constSymbol;
+    }
+
+    @Override
+    public String getDescription() {
+        return "const '" + constSymbol.getName() + "' not initialized";
+    }
+
+}

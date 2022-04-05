@@ -20,32 +20,34 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
-
-module dev.kobu.core.types.Csv
-
-type record CsvFile {
-    file: File,
-    rows: CsvRow[]
-}
-
-type record CsvRow {
-    index: number,
-    columns: CsvColumn[]
-}
-
-type record CsvColumn {
-    rowIndex: number,
-    index: number,
-    header: boolean,
-    value: string
-}
-
-/*
- * Read CSV files from disk.
- *
- * The 'pattern' argument can be a single filename or a glob pattern (like *.csv), If 'recursive' is
- * true, then all subdirectories will be scanned. Use 'delimiter' to change the delimiter
- * character (defaults to ','), and 'charset' to specify the file charset.
  */
-def native readCsv(dir: Path, pattern: string, recursive?: boolean, delimiter?: string, charset?: string): CsvFile[];
+
+package dev.kobu.interpreter.input.parser;
+
+import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.FileValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
+import dev.kobu.interpreter.ast.utils.RecordFactory;
+
+import java.io.File;
+import java.io.InputStream;
+
+public class CsvFileParser {
+
+    public static final String CSV_FILE_TYPE = "CsvFile";
+
+    private static final String CSV_ROW_TYPE = "CsvRow";
+
+    private static final String CSV_COLUMN_TYPE = "CsvColumn";
+
+    private static final String DEFAULT_DELIMITER = ",";
+
+    public static ValueExpr parse(EvalContext evalContext, String filePath, InputStream in,
+                                  StringValueExpr delimiterExpr, StringValueExpr charsetExpr) {
+        var record = RecordFactory.create(evalContext, CSV_FILE_TYPE);
+        FileValueExpr fileExpr = new FileValueExpr(new File(filePath));
+        return null;
+    }
+
+}

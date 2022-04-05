@@ -228,6 +228,58 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         return null;
     }
 
+    @Override
+    public AstNode visitGlobalConstDecl(KobuParser.GlobalConstDeclContext ctx) {
+        if (ctx.varDeclBody() != null && ctx.varDeclBody().ID() != null) {
+
+            String varName = ctx.varDeclBody().ID().getText();
+            Type type = null;
+            Expr expr = null;
+
+            topLevelExpression = false;
+
+            if (ctx.varDeclBody().type() != null) {
+                type = (Type) visit(ctx.varDeclBody().type());
+            }
+            if (ctx.varDeclBody().exprWrapper() != null) {
+                expr = (Expr) visit(ctx.varDeclBody().exprWrapper());
+            }
+
+            topLevelExpression = true;
+
+            ConstantSymbol constSymbol = new ConstantSymbol(moduleScope, getSourceCodeRef(ctx.varDeclBody().ID()),
+                    varName, expr, type);
+            moduleScope.define(context, constSymbol);
+
+        }
+        return null;
+    }
+
+    @Override
+    public AstNode visitConstDecl(KobuParser.ConstDeclContext ctx) {
+        if (ctx.varDeclBody() != null && ctx.varDeclBody().ID() != null) {
+
+            topLevelExpression = false;
+
+            Type type = null;
+            if (ctx.varDeclBody().type() != null) {
+                type = (Type) visit(ctx.varDeclBody().type());
+            }
+            Expr valueExpr = null;
+            if (ctx.varDeclBody().exprWrapper() != null) {
+                valueExpr = (Expr) visit(ctx.varDeclBody().exprWrapper());
+            }
+
+            ConstDeclExpr expr = new ConstDeclExpr(
+                    new ConstantSymbol(moduleScope, getSourceCodeRef(ctx.varDeclBody().ID()),
+                            ctx.varDeclBody().ID().getText(), valueExpr, type));
+
+            topLevelExpression = true;
+            return expr;
+
+        }
+        return null;
+    }
 
     @Override
     public AstNode visitFunctionDecl(KobuParser.FunctionDeclContext ctx) {

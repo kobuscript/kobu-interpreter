@@ -52,6 +52,7 @@ CONTINUE : 'continue' ;
 VOID : 'void' ;
 NULL : 'null' ;
 
+CONST : 'const' ;
 VAR : 'var' ;
 ASSIGN : '=' ;
 SEMI : ';' ;

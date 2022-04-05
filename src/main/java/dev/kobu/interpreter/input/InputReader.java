@@ -29,9 +29,11 @@ import dev.kobu.antlr.csv.CSVParser;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.input.parser.CsvFileParser;
 import dev.kobu.interpreter.input.parser.CsvParserVisitor;
 import dev.kobu.interpreter.input.parser.JsonParserVisitor;
 import dev.kobu.antlr.json.JSONLexer;
@@ -46,6 +48,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class InputReader {
 
@@ -56,13 +59,13 @@ public class InputReader {
     }
 
     public ValueExpr readFromFile(EvalContext context, InputParser parser, InputType inputType,
-                                  String dir, String pattern, boolean recursive) throws IOException {
+                                  String dir, String pattern, boolean recursive, Map<String, ValueExpr> args) throws IOException {
         List<File> files = fileFetcher.getFiles(context.getModuleScope().getProjectDir(), dir, pattern, recursive);
 
         List<ValueExpr> values = new ArrayList<>();
         for (File file : files) {
             try (InputStream in = context.getFileSystem().getInputStream(file.toPath())) {
-                values.add(parser.parse(context, file.getAbsolutePath(), file.getName(), in));
+                values.add(parser.parse(context, file.getAbsolutePath(), file.getName(), in, args));
             }
         }
 
@@ -73,21 +76,20 @@ public class InputReader {
         return (Type) context.getModuleScope().resolve(CsvParserVisitor.CSV_FILE_TYPE);
     }
 
-    public static ValueExpr parseCsv(EvalContext context, String filePath, String fileName, InputStream in) throws IOException {
-        var input = CharStreams.fromStream(in);
-        var lexer = new CSVLexer(input);
-        var tokens = new CommonTokenStream(lexer);
-        var parser = new CSVParser(tokens);
-        var tree = parser.csvFile();
-        var visitor = new CsvParserVisitor(context, filePath, fileName);
-        return visitor.visit(tree);
+    public static ValueExpr parseCsv(EvalContext context, String filePath, String fileName, InputStream in,
+                                     Map<String, ValueExpr> args) throws IOException {
+        StringValueExpr delimiterExpr = (StringValueExpr) args.get("delimiter");
+        StringValueExpr charsetExpr = (StringValueExpr) args.get("charset");
+
+        return CsvFileParser.parse(context, filePath, in, delimiterExpr, charsetExpr);
     }
 
     public static Type getJsonType(EvalContext context) {
         return (Type) context.getModuleScope().resolve(JsonParserVisitor.JSON_FILE_TYPE);
     }
 
-    public static ValueExpr parseJson(EvalContext context, String filePath, String fileName, InputStream in) throws IOException {
+    public static ValueExpr parseJson(EvalContext context, String filePath, String fileName, InputStream in,
+                                      Map<String, ValueExpr> args) throws IOException {
         var input = CharStreams.fromStream(in);
         var lexer = new JSONLexer(input);
         var tokens = new CommonTokenStream(lexer);

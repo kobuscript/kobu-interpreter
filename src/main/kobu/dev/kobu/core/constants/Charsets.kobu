@@ -22,30 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module dev.kobu.core.types.Csv
+module dev.kobu.core.constants.Charsets
 
-type record CsvFile {
-    file: File,
-    rows: CsvRow[]
-}
+const UTF_8 = "UTF_8"
 
-type record CsvRow {
-    index: number,
-    columns: CsvColumn[]
-}
+const UTF_16 = "UTF_16"
 
-type record CsvColumn {
-    rowIndex: number,
-    index: number,
-    header: boolean,
-    value: string
-}
+const UTF_16BE = "UTF_16BE"
 
-/*
- * Read CSV files from disk.
- *
- * The 'pattern' argument can be a single filename or a glob pattern (like *.csv), If 'recursive' is
- * true, then all subdirectories will be scanned. Use 'delimiter' to change the delimiter
- * character (defaults to ','), and 'charset' to specify the file charset.
- */
-def native readCsv(dir: Path, pattern: string, recursive?: boolean, delimiter?: string, charset?: string): CsvFile[];
+const UTF_16LE = "UTF_16LE"
+
+const ISO_8859_1 = "ISO_8859_1"
+
+const US_ASCII = "US_ASCII"

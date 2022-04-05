@@ -56,6 +56,7 @@ public class ModuleLoader {
     private static final String[] BUILTIN_MODULES = new String[]{
         "dev.kobu.core.functions.ArrayFunctions",
         "dev.kobu.core.functions.Comparators",
+        "dev.kobu.core.constants.Charsets",
         "dev.kobu.core.types.Csv",
         "dev.kobu.core.types.Json"
     };

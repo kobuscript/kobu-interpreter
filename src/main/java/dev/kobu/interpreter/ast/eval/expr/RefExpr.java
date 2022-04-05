@@ -33,6 +33,7 @@ import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.HasTypeParameters;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
+import dev.kobu.interpreter.error.analyzer.ConstAssignError;
 import dev.kobu.interpreter.error.analyzer.InvalidVariableError;
 import dev.kobu.interpreter.error.analyzer.UndefinedFieldError;
 import dev.kobu.interpreter.error.analyzer.UndefinedSymbolError;
@@ -122,6 +123,15 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             if (symbol instanceof VariableSymbol) {
                 this.elementRef = symbol.getSourceCodeRef();
                 this.type = ((VariableSymbol) symbol).getType();
+                return;
+            }
+            if (symbol instanceof ConstantSymbol) {
+                if (assignMode) {
+                    context.addAnalyzerError(new ConstAssignError(sourceCodeRef, (ConstantSymbol) symbol));
+                } else {
+                    this.elementRef = symbol.getSourceCodeRef();
+                    this.type = ((ConstantSymbol) symbol).getType();
+                }
                 return;
             }
             if (!assignMode) {

@@ -27,10 +27,12 @@ package dev.kobu.interpreter.input.function;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.PathValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.function.NativeFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.eval.BuiltinFunctionError;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 import dev.kobu.interpreter.input.InputParser;
 import dev.kobu.interpreter.input.InputType;
 
@@ -50,9 +52,16 @@ public class ReadFromFileFunctionImpl extends NativeFunction {
 
     @Override
     protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        StringValueExpr dir = (StringValueExpr) args.get("dir");
+        PathValueExpr dir = (PathValueExpr) args.get("dir");
         StringValueExpr pattern = (StringValueExpr) args.get("pattern");
         BooleanValueExpr recursiveExpr = (BooleanValueExpr) args.get("recursive");
+
+        if (dir == null) {
+            throw new IllegalArgumentError("'dir' cannot be null", sourceCodeRef);
+        }
+        if (pattern == null) {
+            throw new IllegalArgumentError("'pattern' cannot be null", sourceCodeRef);
+        }
 
         boolean recursive = false;
         if (recursiveExpr != null) {
@@ -61,7 +70,7 @@ public class ReadFromFileFunctionImpl extends NativeFunction {
 
         try {
             return context.getInputParser().readFromFile(context, inputParser, inputType,
-                    dir.getValue(), pattern.getValue(), recursive);
+                    dir.getPath().toAbsolutePath().toString(), pattern.getValue(), recursive, args);
         } catch (IOException e) {
             throw new BuiltinFunctionError(e, sourceCodeRef);
         }

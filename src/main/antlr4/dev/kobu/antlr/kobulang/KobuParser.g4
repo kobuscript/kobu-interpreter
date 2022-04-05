@@ -48,6 +48,7 @@ execStat : singleStat
            ;
 
 singleStat: varDecl
+            | constDecl
             | assignment
             | breakStat
             | continueStat
@@ -76,6 +77,7 @@ functionReturnStat : RETURN exprWrapper
 stat : typerecord
        | typetemplate
        | invalidType
+       | globalConstDecl
        | deftemplate
        | defrule
        | defaction
@@ -167,6 +169,10 @@ joinExpr : 'join' queryExpr joinOfExpr? ;
 joinOfExpr : 'of' expr ;
 
 block : execStat* ;
+
+globalConstDecl : CONST varDeclBody ;
+
+constDecl : CONST varDeclBody ;
 
 varDecl : VAR varDeclBody ;
 
