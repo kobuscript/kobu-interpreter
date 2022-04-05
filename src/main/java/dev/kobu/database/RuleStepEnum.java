@@ -28,7 +28,7 @@ public enum RuleStepEnum {
 
     RULE,
     TEMPLATE,
-    FILE;
+    ACTION;
 
     public RuleStepEnum next() {
         if (ordinal() < values().length - 1) {

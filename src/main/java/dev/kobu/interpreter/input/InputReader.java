@@ -61,19 +61,12 @@ public class InputReader {
 
         List<ValueExpr> values = new ArrayList<>();
         for (File file : files) {
-            try (FileInputStream in = new FileInputStream(file)) {
+            try (InputStream in = context.getFileSystem().getInputStream(file.toPath())) {
                 values.add(parser.parse(context, file.getAbsolutePath(), file.getName(), in));
             }
         }
 
         return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(inputType.getType(context)), values);
-    }
-
-    public ValueExpr readFromUrl(EvalContext context, InputParser parser, String url) throws IOException {
-        URL urlObj = fileFetcher.getUrl(url);
-        try (InputStream in = urlObj.openStream()) {
-            return parser.parse(context, urlObj.getPath(), urlObj.getFile(), in);
-        }
     }
 
     public static Type getCsvType(EvalContext context) {
@@ -109,24 +102,6 @@ public class InputReader {
     }
 
     public static ValueExpr parseXml(EvalContext context, String filePath, String fileName, InputStream in) throws IOException {
-
-        return null;
-    }
-
-    public static Type getHtmlType(EvalContext context) {
-        return null;
-    }
-
-    public static ValueExpr parseHtml(EvalContext context, String filePath, String fileName, InputStream in) throws IOException {
-
-        return null;
-    }
-
-    public static Type getGraphQlType(EvalContext context) {
-        return null;
-    }
-
-    public static ValueExpr parseGraphQl(EvalContext context, String filePath, String fileName, InputStream in) throws IOException {
 
         return null;
     }

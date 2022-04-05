@@ -77,12 +77,12 @@ public class UnknownType implements Type {
 
     @Override
     public boolean isAssignableFrom(Type type) {
-        return false;
+        return type instanceof UnknownType;
     }
 
     @Override
     public Type getCommonSuperType(Type type) {
-        return null;
+        return BuiltinScope.ANY_TYPE;
     }
 
     @Override

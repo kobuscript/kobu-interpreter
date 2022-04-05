@@ -30,6 +30,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 import dev.kobu.interpreter.error.eval.InvalidCallError;
 
 import java.util.HashSet;
@@ -47,6 +48,10 @@ public class FireRulesFunctionImpl extends BuiltinGlobalFunction {
 
         ArrayValueExpr recordsExpr = (ArrayValueExpr) args.get("records");
 
+        if (recordsExpr == null) {
+            throw new IllegalArgumentError("'records' cannot be null", sourceCodeRef);
+        }
+
         context.getDatabase().clear();
         var recordIdSet = new HashSet<Integer>();
         for (ValueExpr valueExpr : recordsExpr.getValue()) {
@@ -56,7 +61,6 @@ public class FireRulesFunctionImpl extends BuiltinGlobalFunction {
         }
         context.getDatabase().linkRules();
         context.getDatabase().fireRules(context);
-        context.getOutputWriter().write();
 
         return null;
     }

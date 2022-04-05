@@ -24,6 +24,10 @@ SOFTWARE.
 
 package dev.kobu.interpreter.file_system;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.List;
 
 public interface KobuFileSystem {
@@ -45,5 +49,13 @@ public interface KobuFileSystem {
     void walkFileTree(KobuDirectory dir, KobuFileVisitor fileWalker);
 
     boolean isBuiltinFile(KobuFile file);
+
+    InputStream getInputStream(Path filePath) throws IOException;
+
+    String loadFileContent(Path filePath, Charset charset) throws IOException;
+
+    void writeFileContent(Path filePath, String content, Charset charset) throws IOException;
+
+    void appendFileContent(Path filePath, String content, Charset charset) throws IOException;
 
 }

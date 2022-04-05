@@ -57,7 +57,7 @@ singleStat: varDecl
             | emptyExpr
             ;
 
-invalidKeyword : keyword=( 'def' | 'fun' | DEFTEMPLATE | TYPE | 'rule' | 'file' ) ;
+invalidKeyword : keyword=( 'def' | 'fun' | DEFTEMPLATE | TYPE | 'rule' | 'action' ) ;
 
 emptyExpr: SEMI ;
 
@@ -78,7 +78,7 @@ stat : typerecord
        | invalidType
        | deftemplate
        | defrule
-       | deffile
+       | defaction
        | nativeDecl
        | invalidDef
        | functionDecl
@@ -142,18 +142,7 @@ deftemplate : 'def' DEFTEMPLATE ID ruleExtends? 'for' queryExpr joinExpr* ( 'whe
 
 templateTargetType : AS typeName ;
 
-deffile : 'def' 'file' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? PATH_ARROW pathExpr PATH_END ;
-
-pathExpr : pathSegmentExpr ( SLASH pathExpr )? ;
-
-pathSegmentExpr : pathStaticSegmentExpr
-                  | pathVariableExpr
-                  ;
-
-pathStaticSegmentExpr : PATH_SEGMENT ;
-pathVariableExpr : PATH_VARIABLE_BEGIN expr? PATH_VARIABLE_END
-                   | PATH_VARIABLE_BEGIN expr {notifyErrorListenersPrevToken("'}' expected");}
-                   ;
+defaction : 'def' 'action' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block RCB ;
 
 defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block RCB ;
 

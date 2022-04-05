@@ -40,10 +40,6 @@ import dev.kobu.interpreter.input.FileFetcher;
 import dev.kobu.interpreter.input.InputNativeFunctionRegistry;
 import dev.kobu.interpreter.input.InputReader;
 import dev.kobu.interpreter.module.ModuleLoader;
-import dev.kobu.interpreter.writer.FileSystemWriterHandler;
-import dev.kobu.interpreter.writer.OutputWriter;
-import dev.kobu.interpreter.writer.OutputWriterLogTypeEnum;
-import dev.kobu.interpreter.writer.OutputWriterModeEnum;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -59,12 +55,6 @@ public class RunCommand implements Callable<Integer> {
 
     @CommandLine.Parameters(index = "1..*", paramLabel = "ARG", description = "Script arguments")
     List<String> scriptArgs;
-
-    @CommandLine.Option(names = "-preview", description = "Do not write generated files to disk")
-    boolean preview;
-
-    @CommandLine.Option(names = "-verbose", description = "Write generated files to the standard output")
-    boolean verbose;
 
     @Override
     public Integer call() throws Exception {
@@ -89,11 +79,7 @@ public class RunCommand implements Callable<Integer> {
 
             Database database = new Database();
             InputReader inputReader = new InputReader(new FileFetcher());
-            OutputWriter outputWriter = new OutputWriter(
-                    preview ? OutputWriterModeEnum.LOG_ONLY : OutputWriterModeEnum.WRITE_TO_DISK,
-                    verbose ? OutputWriterLogTypeEnum.VERBOSE : OutputWriterLogTypeEnum.NORMAL,
-                    new FileSystemWriterHandler(project.getProjectDirectory().getAbsolutePath()));
-            EvalContextProvider evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, database, inputReader, outputWriter);
+            EvalContextProvider evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, fileSystem, database, inputReader);
 
             ModuleLoader moduleLoader = new ModuleLoader(evalContextProvider, fileSystem, project, EvalModeEnum.EXECUTION);
             InputNativeFunctionRegistry.register(moduleLoader);

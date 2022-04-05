@@ -30,6 +30,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.RecordTypeRefValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.utils.RecordFactory;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.util.Map;
 
@@ -38,6 +39,10 @@ public class NewRecordFunctionImpl extends BuiltinGlobalFunction {
     @Override
     protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         RecordTypeRefValueExpr type = (RecordTypeRefValueExpr) args.get("type");
+
+        if (type == null) {
+            throw new IllegalArgumentError("'type' cannot be null", sourceCodeRef);
+        }
 
         return RecordFactory.create(context, type.getValue(), sourceCodeRef);
 

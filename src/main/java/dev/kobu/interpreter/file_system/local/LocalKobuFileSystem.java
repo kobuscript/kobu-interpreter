@@ -26,8 +26,8 @@ package dev.kobu.interpreter.file_system.local;
 
 import dev.kobu.interpreter.file_system.*;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -122,6 +122,33 @@ public class LocalKobuFileSystem implements KobuFileSystem {
     @Override
     public boolean isBuiltinFile(KobuFile file) {
         return false;
+    }
+
+    @Override
+    public InputStream getInputStream(Path filePath) throws IOException {
+        return new FileInputStream(filePath.toFile());
+    }
+
+    @Override
+    public String loadFileContent(Path filePath, Charset charset) throws IOException {
+        return Files.readString(filePath, charset);
+    }
+
+    @Override
+    public void writeFileContent(Path filePath, String content, Charset charset) throws IOException {
+        File file = filePath.toFile();
+        File parentFile = file.getParentFile();
+        parentFile.mkdirs();
+        try (FileWriter fileWriter = new FileWriter(file, charset)) {
+            fileWriter.write(content);
+        }
+    }
+
+    @Override
+    public void appendFileContent(Path filePath, String content, Charset charset) throws IOException {
+        try (FileWriter fileWriter = new FileWriter(filePath.toFile(), charset)) {
+            fileWriter.append(content);
+        }
     }
 
     private KobuFile findProjectRoot(KobuFileSystemEntry entry) {

@@ -46,13 +46,10 @@ import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.file_system.ScriptRef;
+import dev.kobu.interpreter.file_system.local.LocalKobuFileSystem;
 import dev.kobu.interpreter.input.FileFetcher;
 import dev.kobu.interpreter.input.InputReader;
 import dev.kobu.interpreter.module.ModuleIndex;
-import dev.kobu.interpreter.writer.FileSystemWriterHandler;
-import dev.kobu.interpreter.writer.OutputWriter;
-import dev.kobu.interpreter.writer.OutputWriterLogTypeEnum;
-import dev.kobu.interpreter.writer.OutputWriterModeEnum;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
@@ -76,11 +73,7 @@ public abstract class AstTestBase {
     public AstTestBase() {
         Database database = new Database();
         InputReader inputReader = new InputReader(new FileFetcher());
-        OutputWriter outputWriter = new OutputWriter(
-                OutputWriterModeEnum.LOG_ONLY,
-                OutputWriterLogTypeEnum.NORMAL,
-                new FileSystemWriterHandler());
-        evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, database, inputReader, outputWriter);
+        evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, new LocalKobuFileSystem(), database, inputReader);
     }
 
     @BeforeEach

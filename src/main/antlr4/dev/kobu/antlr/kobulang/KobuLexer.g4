@@ -107,8 +107,6 @@ FN_ARROW : '=>' ;
 LCB : '{' ;
 TEMPLATE_BEGIN : '<|' {this.SetTemplateMode(true);} -> pushMode(TEMPLATE_MODE) ;
 TEMPLATE_EXPR_END : {this.IsTemplateMode()}? '}' -> popMode ;
-PATH_ARROW : '->' {this.SetPathMode(true);} -> pushMode(PATH_MODE) ;
-PATH_VARIABLE_END : {this.IsPathMode()}? '}' -> popMode ;
 RCB : '}' ;
 
 OPEN_QUOTE : '"' -> pushMode(STRING_MODE) ;
@@ -150,20 +148,11 @@ mode DEF_MODE;
 
 DEFTEMPLATE : 'template' -> popMode ;
 DEFRULE : 'rule' -> popMode ;
-DEFFILE : 'file' -> popMode ;
+DEFACTION : 'action' -> popMode ;
 DEFNATIVE : 'native' -> popMode ;
 DEF_BREAK : NEW_LINE -> popMode ;
 DEFWS : [ \t\r]+ -> channel(WSCHANNEL) ;
 INVALID_DEF : ~[ \t\r\n]+ -> popMode ;
-
-mode PATH_MODE;
-
-SLASH : '/' ;
-PATH_VARIABLE_BEGIN : '${' -> pushMode(DEFAULT_MODE) ;
-PATH_SEGMENT : [a-zA-Z0-9_\\-\\.]+ ;
-PATH_END : ';' {this.SetPathMode(false);} -> popMode ;
-PATHWS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
-INVALID_PATH : .+? -> popMode ;
 
 mode TEMPLATE_MODE;
 

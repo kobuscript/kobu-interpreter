@@ -25,7 +25,6 @@ SOFTWARE.
 package dev.kobu.interpreter.input;
 
 import dev.kobu.interpreter.ast.eval.function.NativeFunctionId;
-import dev.kobu.interpreter.input.function.FetchFromUrlFunctionImpl;
 import dev.kobu.interpreter.input.function.ReadFromFileFunctionImpl;
 import dev.kobu.interpreter.module.ModuleLoader;
 
@@ -35,14 +34,11 @@ public class InputNativeFunctionRegistry {
         //csv
         moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Csv", "readCsv"),
                 new ReadFromFileFunctionImpl(InputReader::parseCsv, InputReader::getCsvType));
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Csv", "fetchCsv"),
-                new FetchFromUrlFunctionImpl(InputReader::parseCsv));
 
         //json
         moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Json", "readJson"),
                 new ReadFromFileFunctionImpl(InputReader::parseJson, InputReader::getJsonType));
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Json", "fetchJson"),
-                new FetchFromUrlFunctionImpl(InputReader::parseJson));
+
     }
 
 }

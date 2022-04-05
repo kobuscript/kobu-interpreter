@@ -24,11 +24,13 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.function.global.rules;
 
+import dev.kobu.database.RuleStepEnum;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 import dev.kobu.interpreter.error.eval.InvalidCallError;
 
 import java.util.Map;
@@ -41,8 +43,16 @@ public class UpdateFunctionImpl extends BuiltinGlobalFunction {
         if (!context.getDatabase().isRunning()) {
             throw new InvalidCallError("Rule engine isn't running", sourceCodeRef);
         }
+        if (context.getDatabase().getCurrentStep() != RuleStepEnum.RULE) {
+            throw new InvalidCallError("Can't change the working memory in this step", sourceCodeRef);
+        }
 
         RecordValueExpr recordExpr = (RecordValueExpr) args.get("value");
+
+        if (recordExpr == null) {
+            throw new IllegalArgumentError("'value' cannot be null", sourceCodeRef);
+        }
+
         context.getDatabase().updateRecord(recordExpr);
 
         return null;

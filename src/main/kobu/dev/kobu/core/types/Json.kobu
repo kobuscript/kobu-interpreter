@@ -59,5 +59,3 @@ type record JsonArray extends JsonValue {
 }
 
 def native readJson(dir: string, pattern: string, recursive?: boolean): JsonFile;
-
-def native fetchJson(url: string): JsonFile;

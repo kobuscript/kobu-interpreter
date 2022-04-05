@@ -46,7 +46,7 @@ public class Database {
 
     private final RuleIndex templateIndex = new RuleIndex();
 
-    private final RuleIndex fileIndex = new RuleIndex();
+    private final RuleIndex actionIndex = new RuleIndex();
 
     private final Queue<Fact> buffer = new LinkedList<>();
 
@@ -73,7 +73,7 @@ public class Database {
         factMap.clear();
         ruleIndex.clear();
         templateIndex.clear();
-        fileIndex.clear();
+        actionIndex.clear();
         iteration = 0;
     }
 
@@ -85,8 +85,8 @@ public class Database {
             case TEMPLATE:
                 templateIndex.addRule(evalContextProvider, analyzerContext, ruleSymbol);
                 break;
-            case FILE:
-                fileIndex.addRule(evalContextProvider, analyzerContext, ruleSymbol);
+            case ACTION:
+                actionIndex.addRule(evalContextProvider, analyzerContext, ruleSymbol);
                 break;
         }
     }
@@ -94,7 +94,7 @@ public class Database {
     public void linkRules() {
         ruleIndex.linkRules();
         templateIndex.linkRules();
-        fileIndex.linkRules();
+        actionIndex.linkRules();
     }
 
     public void insertFact(Fact newFact) {
@@ -153,8 +153,8 @@ public class Database {
                 return ruleIndex;
             case TEMPLATE:
                 return templateIndex;
-            case FILE:
-                return fileIndex;
+            case ACTION:
+                return actionIndex;
             default:
                 return null;
         }
@@ -162,6 +162,10 @@ public class Database {
 
     public boolean isRunning() {
         return running;
+    }
+
+    public RuleStepEnum getCurrentStep() {
+        return currentStep;
     }
 
     private void processBuffer(Queue<Fact> queue, Queue<Fact> buffer) {

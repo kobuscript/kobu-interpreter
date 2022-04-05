@@ -48,10 +48,6 @@ import dev.kobu.interpreter.input.InputNativeFunctionRegistry;
 import dev.kobu.interpreter.input.InputReader;
 import dev.kobu.interpreter.module.KobuElementDescriptor;
 import dev.kobu.interpreter.module.ModuleLoader;
-import dev.kobu.interpreter.writer.FileSystemWriterHandler;
-import dev.kobu.interpreter.writer.OutputWriter;
-import dev.kobu.interpreter.writer.OutputWriterLogTypeEnum;
-import dev.kobu.interpreter.writer.OutputWriterModeEnum;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,11 +69,7 @@ public class KobuAnalyzer {
         this.fileSystem = fileSystem;
         Database database = new Database();
         InputReader inputReader = new InputReader(new FileFetcher());
-        OutputWriter outputWriter = new OutputWriter(
-                OutputWriterModeEnum.LOG_ONLY,
-                OutputWriterLogTypeEnum.NORMAL,
-                new FileSystemWriterHandler());
-        evalContextProvider = new EvalContextProvider(EvalModeEnum.ANALYZER_SERVICE, database, inputReader, outputWriter);
+        evalContextProvider = new EvalContextProvider(EvalModeEnum.ANALYZER_SERVICE, fileSystem, database, inputReader);
     }
 
     public synchronized void removeModule(KobuFile projectFile) {

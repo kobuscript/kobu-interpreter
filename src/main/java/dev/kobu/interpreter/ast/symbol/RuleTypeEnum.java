@@ -27,5 +27,5 @@ package dev.kobu.interpreter.ast.symbol;
 public enum RuleTypeEnum {
     RULE,
     TEMPLATE,
-    FILE
+    ACTION
 }

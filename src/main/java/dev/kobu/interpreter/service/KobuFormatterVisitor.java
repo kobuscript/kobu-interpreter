@@ -444,6 +444,22 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
         return inline;
     }
 
+    private boolean isInline(KobuParser.DefactionContext ctx) {
+        boolean inline = true;
+        if (ctx.block() != null && ctx.block().execStat() != null) {
+            for (KobuParser.ExecStatContext execStatContext : ctx.block().execStat()) {
+                if (hasNewLineBefore(execStatContext)) {
+                    inline = false;
+                    break;
+                }
+            }
+        }
+        if (ctx.RCB() != null && hasNewLineBefore(ctx.RCB())) {
+            inline = false;
+        }
+        return inline;
+    }
+
     @Override
     public Void visitDeftemplate(KobuParser.DeftemplateContext ctx) {
         if (!hasNewLineBefore(ctx, false)) {
@@ -518,16 +534,16 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
     }
 
     @Override
-    public Void visitDeffile(KobuParser.DeffileContext ctx) {
+    public Void visitDefaction(KobuParser.DefactionContext ctx) {
         if (!hasNewLineBefore(ctx, false)) {
             out.append("\n");
         }
 
         out.append("def ");
 
-        if (ctx.DEFFILE() != null) {
-            printCommentsBefore(ctx.DEFFILE());
-            out.append("template ");
+        if (ctx.DEFACTION() != null) {
+            printCommentsBefore(ctx.DEFACTION());
+            out.append("action ");
         }
         if (ctx.ID() != null) {
             printCommentsBefore(ctx.ID());
@@ -575,14 +591,44 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             popIndentation();
         }
 
-        if (ctx.PATH_ARROW() != null) {
-            out.append(" -> ");
+        if (ctx.LCB() != null) {
+            printCommentsBefore(ctx.LCB());
+            out.append(" {");
+            if (hasNewLineAfter(ctx.LCB(), false)) {
+                printHiddenTextAfter(ctx.LCB());
+            } else {
+                out.append("\n");
+            }
         }
-        if (ctx.pathExpr() != null) {
-            out.append(ctx.pathExpr().getText());
+
+        boolean inline = isInline(ctx);
+        if (inline) {
+            out.append(" ");
+        } else {
+            pushIndentation(tabSize);
         }
-        if (ctx.PATH_END() != null) {
-            out.append(";");
+
+        if (ctx.block() != null && ctx.block().execStat() != null) {
+            for (KobuParser.ExecStatContext execStatContext : ctx.block().execStat()) {
+                if (!inline) {
+                    printIndentation();
+                }
+                printStat(execStatContext, !inline);
+            }
+        }
+
+        if (inline) {
+            out.append(" ");
+        } else {
+            out.append("\n");
+            popIndentation();
+        }
+
+        if (ctx.RCB() != null) {
+            if (!hasNewLineBefore(ctx.RCB())) {
+                out.append("\n");
+            }
+            out.append("}");
         }
 
         printHiddenTextAfter(ctx);

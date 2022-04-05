@@ -27,9 +27,12 @@ package dev.kobu.interpreter.ast.eval.function.global.rules;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RuleRefValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
+import dev.kobu.interpreter.error.eval.InvalidCallError;
 
 import java.util.Map;
 
@@ -38,6 +41,14 @@ public class AddRulesFunctionImpl extends BuiltinGlobalFunction {
     @Override
     protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         ArrayValueExpr rulesExpr = (ArrayValueExpr) args.get("rules");
+
+        if (rulesExpr == null) {
+            throw new IllegalArgumentError("'rules' cannot be null", sourceCodeRef);
+        }
+
+        if (context.getDatabase().isRunning()) {
+            throw new InvalidCallError("Rule engine is already running", sourceCodeRef);
+        }
 
         for (ValueExpr valueExpr : rulesExpr.getValue()) {
             context.getDatabase().addRule(context.getProvider(), context.getAnalyzerContext(),

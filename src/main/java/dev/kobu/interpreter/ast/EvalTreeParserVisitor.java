@@ -31,9 +31,6 @@ import dev.kobu.interpreter.ast.eval.expr.*;
 import dev.kobu.interpreter.ast.eval.expr.value.*;
 import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueFactory;
 import dev.kobu.interpreter.ast.eval.statement.*;
-import dev.kobu.interpreter.ast.file.PathSegmentStatement;
-import dev.kobu.interpreter.ast.file.PathStatement;
-import dev.kobu.interpreter.ast.file.PathStaticSegmentStatement;
 import dev.kobu.interpreter.ast.query.*;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
@@ -481,34 +478,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitPathExpr(KobuParser.PathExprContext ctx) {
-        PathStatement pathStatement = (PathStatement) visit(ctx.pathSegmentExpr());
-        PathStatement root = pathStatement;
-        var nextCtx = ctx.pathExpr();
-        while (nextCtx != null) {
-            PathStatement next = (PathStatement) visit(nextCtx.pathSegmentExpr());
-            pathStatement.setNext(next);
-            pathStatement = next;
-            nextCtx = nextCtx.pathExpr();
-        }
-
-        return root;
-    }
-
-    @Override
-    public AstNode visitPathStaticSegmentExpr(KobuParser.PathStaticSegmentExprContext ctx) {
-        return new PathStaticSegmentStatement(getSourceCodeRef(ctx.PATH_SEGMENT()), ctx.PATH_SEGMENT().getText());
-    }
-
-    @Override
-    public AstNode visitPathVariableExpr(KobuParser.PathVariableExprContext ctx) {
-        topLevelExpression = false;
-        Expr expr = (Expr) visit(ctx.expr());
-        topLevelExpression = true;
-        return new PathSegmentStatement(getSourceCodeRef(ctx.expr()), expr);
-    }
-
-    @Override
     public AstNode visitDefrule(KobuParser.DefruleContext ctx) {
         if (ctx.ID() == null) {
             return null;
@@ -564,7 +533,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitDeffile(KobuParser.DeffileContext ctx) {
+    public AstNode visitDefaction(KobuParser.DefactionContext ctx) {
         if (ctx.ID() == null) {
             return null;
         }
@@ -585,8 +554,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             }
         }
 
-        if (ctx.PATH_END() != null) {
-            scopeEndOffset = ctx.PATH_END().getSymbol().getStopIndex() + 1;
+        if (ctx.RCB() != null) {
+            scopeEndOffset = ctx.RCB().getSymbol().getStopIndex() + 1;
         }
 
         if (ctx.queryExpr() != null) {
@@ -597,14 +566,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                 query.addJoin((QueryJoin) visit(joinExprContext));
             }
 
-            String bind = query.getTypeClause().getBind();
-
-            SourceCodeRef sourceCodeRef = getSourceCodeRef(ctx);
-            QueryTypeClause templateClause = new QueryTypeClause(moduleScope, sourceCodeRef, null, BuiltinScope.ANY_TEMPLATE_TYPE,
-                    false, "$_templateRef");
-            QueryJoin templateJoin = new QueryJoin(sourceCodeRef, templateClause, new RefExpr(moduleScope, sourceCodeRef, bind));
-            query.addJoin(templateJoin);
-
             if (ctx.expr() != null) {
                 query.setWhenExpr((Expr) visit(ctx.expr()));
             }
@@ -613,7 +574,14 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         }
 
         List<Evaluable> exprList = new ArrayList<>();
-        exprList.add((Evaluable) visit(ctx.pathExpr()));
+        if (ctx.block() != null && ctx.block().execStat() != null) {
+            for (KobuParser.ExecStatContext execStatContext : ctx.block().execStat()) {
+                Evaluable evaluable = (Evaluable) visit(execStatContext);
+                if (evaluable != null) {
+                    exprList.add(evaluable);
+                }
+            }
+        }
         rule.setBlock(exprList);
 
         return null;

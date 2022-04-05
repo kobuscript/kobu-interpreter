@@ -63,7 +63,7 @@ public class FileTypeSymbol extends BuiltinTypeSymbol implements HasConstructor 
                 new FunctionParameter("charset", BuiltinScope.STRING_TYPE, true)));
         addMethod(new BuiltinFunctionSymbol("appendTemplate", new FileAppendTemplateMethodImpl(),
                 new FunctionParameter("template", BuiltinScope.ANY_TEMPLATE_TYPE, false),
-                new FunctionParameter("charset", BuiltinScope.STRING_TYPE, false)));
+                new FunctionParameter("charset", BuiltinScope.STRING_TYPE, true)));
         addMethod(new BuiltinFunctionSymbol("getExt", new FileGetExtMethodImpl(),
                 BuiltinScope.STRING_TYPE));
         addMethod(new BuiltinFunctionSymbol("getName", new FileGetNameMethodImpl(),
@@ -84,7 +84,7 @@ public class FileTypeSymbol extends BuiltinTypeSymbol implements HasConstructor 
                 new FunctionParameter("charset", BuiltinScope.STRING_TYPE, true)));
         addMethod(new BuiltinFunctionSymbol("writeTemplate", new FileWriteTemplateMethodImpl(),
                 new FunctionParameter("template", BuiltinScope.ANY_TEMPLATE_TYPE, false),
-                new FunctionParameter("charset", BuiltinScope.STRING_TYPE, false)));
+                new FunctionParameter("charset", BuiltinScope.STRING_TYPE, true)));
 
     }
 }

@@ -288,7 +288,7 @@ public class ModuleParserVisitor extends KobuParserVisitor<Void> {
     }
 
     @Override
-    public Void visitDeffile(KobuParser.DeffileContext ctx) {
+    public Void visitDefaction(KobuParser.DefactionContext ctx) {
         if (ctx.ID() == null) {
             return null;
         }
@@ -301,8 +301,8 @@ public class ModuleParserVisitor extends KobuParserVisitor<Void> {
             }
         }
 
-        var fileRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.PATH_END()),
-                moduleScope, RuleTypeEnum.FILE, docText);
+        var fileRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.RCB()),
+                moduleScope, RuleTypeEnum.ACTION, docText);
         moduleScope.define(context, fileRule);
         return null;
     }

@@ -45,10 +45,6 @@ public class FileFetcher {
         return visitor.files;
     }
 
-    public URL getUrl(String url) throws IOException {
-        return new URL(url);
-    }
-
     private static class FileVisitor extends SimpleFileVisitor<Path> {
 
         private final Path sourcePath;
