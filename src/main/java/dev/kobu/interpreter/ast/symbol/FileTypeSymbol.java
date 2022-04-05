@@ -24,5 +24,67 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-public class FileTypeSymbol {
+import dev.kobu.interpreter.ast.eval.HasConstructor;
+import dev.kobu.interpreter.ast.eval.function.file.*;
+import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+
+public class FileTypeSymbol extends BuiltinTypeSymbol implements HasConstructor {
+
+    private static final String TYPE_NAME = "File";
+
+    private final BuiltinFunctionSymbol constructor = new BuiltinFunctionSymbol(TYPE_NAME, new FileConstructorImpl(),
+            this, new FunctionParameter("path", BuiltinScope.PATH_TYPE, false));
+
+    public FileTypeSymbol() {
+        super(TYPE_NAME);
+    }
+
+    @Override
+    public boolean isAssignableFrom(Type type) {
+        return type instanceof FileTypeSymbol;
+    }
+
+    @Override
+    public Type getCommonSuperType(Type type) {
+        if (isAssignableFrom(type)) {
+            return type;
+        }
+        return BuiltinScope.ANY_TYPE;
+    }
+
+    @Override
+    public BuiltinFunctionSymbol getConstructor() {
+        return constructor;
+    }
+
+    public void buildMethods() {
+        addMethod(new BuiltinFunctionSymbol("appendString", new FileAppendStringMethodImpl(),
+                new FunctionParameter("text", BuiltinScope.STRING_TYPE, false),
+                new FunctionParameter("charset", BuiltinScope.STRING_TYPE, true)));
+        addMethod(new BuiltinFunctionSymbol("appendTemplate", new FileAppendTemplateMethodImpl(),
+                new FunctionParameter("template", BuiltinScope.ANY_TEMPLATE_TYPE, false),
+                new FunctionParameter("charset", BuiltinScope.STRING_TYPE, false)));
+        addMethod(new BuiltinFunctionSymbol("getExt", new FileGetExtMethodImpl(),
+                BuiltinScope.STRING_TYPE));
+        addMethod(new BuiltinFunctionSymbol("getName", new FileGetNameMethodImpl(),
+                BuiltinScope.STRING_TYPE));
+        addMethod(new BuiltinFunctionSymbol("exists", new FileExistsMethodImpl(),
+                BuiltinScope.BOOLEAN_TYPE));
+        addMethod(new BuiltinFunctionSymbol("getPath", new FileGetPathMethodImpl(),
+                BuiltinScope.PATH_TYPE));
+        addMethod(new BuiltinFunctionSymbol("isDirectory", new FileIsDirectoryMethodImpl(),
+                BuiltinScope.BOOLEAN_TYPE));
+        addMethod(new BuiltinFunctionSymbol("isFile", new FileIsFileMethodImpl(),
+                BuiltinScope.BOOLEAN_TYPE));
+        addMethod(new BuiltinFunctionSymbol("read", new FileReadMethodImpl(),
+                BuiltinScope.STRING_TYPE,
+                new FunctionParameter("charset", BuiltinScope.STRING_TYPE, true)));
+        addMethod(new BuiltinFunctionSymbol("writeString", new FileWriteStringMethodImpl(),
+                new FunctionParameter("text", BuiltinScope.STRING_TYPE, false),
+                new FunctionParameter("charset", BuiltinScope.STRING_TYPE, true)));
+        addMethod(new BuiltinFunctionSymbol("writeTemplate", new FileWriteTemplateMethodImpl(),
+                new FunctionParameter("template", BuiltinScope.ANY_TEMPLATE_TYPE, false),
+                new FunctionParameter("charset", BuiltinScope.STRING_TYPE, false)));
+
+    }
 }
