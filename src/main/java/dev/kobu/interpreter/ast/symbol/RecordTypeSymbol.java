@@ -72,6 +72,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         super(recordType.getModuleScope(), recordType.getSourceCodeRef(), recordType.getName());
         this.originalType = recordType;
         this.docText = recordType.docText;
+        this.typeParameters = recordType.typeParameters;
         this.typeArgs = typeArgs;
         Map<String, Type> typeAliasMap = getTypeAliasMap(typeArgs);
         addAttributesFrom(recordType, typeAliasMap);
@@ -260,7 +261,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
             attributes.put(name, new RecordTypeAttribute(attrType, typeAliasMap));
         });
         if (recordType.starAttribute != null) {
-            recordType.starAttribute = new RecordTypeStarAttribute(recordType.starAttribute, typeAliasMap);
+            starAttribute = new RecordTypeStarAttribute(recordType.starAttribute, typeAliasMap);
         }
     }
 

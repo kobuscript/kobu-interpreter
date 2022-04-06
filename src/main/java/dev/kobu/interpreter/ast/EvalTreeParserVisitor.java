@@ -342,6 +342,23 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         if (function == null) {
             return null;
         }
+
+        if (ctx.typeParameters() != null) {
+            typeParameterContext = new TypeParameterContext();
+            List<TypeParameter> typeParameters = new ArrayList<>();
+            var typeParamCtx = ctx.typeParameters().typeParameter();
+            while (typeParamCtx != null) {
+                SourceCodeRef sourceCodeRef = getSourceCodeRef(typeParamCtx.ID());
+                TypeParameter typeParameter = new TypeParameter(sourceCodeRef, typeParamCtx.ID().getText());
+                typeParameters.add(typeParameter);
+                if (!typeParameterContext.set(typeParameter)) {
+                    context.getErrorScope().addError(new DuplicatedTypeParamError(sourceCodeRef, typeParameter));
+                }
+                typeParamCtx = typeParamCtx.typeParameter();
+            }
+            function.setTypeParameters(typeParameters);
+        }
+
         List<FunctionParameter> parameters = new ArrayList<>();
         if (ctx.functionDeclParam() != null) {
             KobuParser.FunctionDeclParamContext paramCtx = ctx.functionDeclParam();
@@ -353,15 +370,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             function.setReturnType((Type) visit(ctx.functionDeclRet().type()));
         }
 
-        if (ctx.typeParameters() != null) {
-            List<TypeParameter> typeParameters = new ArrayList<>();
-            var typeParameter = ctx.typeParameters().typeParameter();
-            while (typeParameter != null) {
-                typeParameters.add(new TypeParameter(getSourceCodeRef(typeParameter.ID()), typeParameter.ID().getText()));
-                typeParameter = typeParameter.typeParameter();
-            }
-            function.setTypeParameters(typeParameters);
-        }
+        typeParameterContext = null;
 
         return null;
     }
