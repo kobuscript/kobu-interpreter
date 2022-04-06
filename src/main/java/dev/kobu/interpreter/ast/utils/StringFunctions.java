@@ -28,6 +28,44 @@ import java.util.Locale;
 
 public class StringFunctions {
 
+    public static String parseLiteralString(String source) {
+        StringBuilder str = new StringBuilder();
+        boolean escape = false;
+        StringBuilder unicode = null;
+        for (int i = 1; i < source.length() - 1; i++) {
+            char c = source.charAt(i);
+            if (c == '\\') {
+                escape = true;
+            } else if (escape) {
+                if (c == 'n') {
+                    str.append('\n');
+                } else if (c == 'r') {
+                    str.append('\r');
+                } else if (c == 't') {
+                    str.append('\t');
+                } else if (c == 'b') {
+                    str.append('\b');
+                } else if (c == 'f') {
+                    str.append('\f');
+                } else if (c == '"') {
+                    str.append('"');
+                } else if (c == 'u') {
+                    unicode = new StringBuilder();
+                }
+                escape = false;
+            } else if (unicode != null) {
+                unicode.append(c);
+                if (unicode.length() == 4) {
+                    str.append(Character.toChars(Integer.parseInt(unicode.toString(), 16)));
+                }
+            } else {
+                str.append(c);
+            }
+        }
+
+        return str.toString();
+    }
+
     public static String capitalize(String str) {
         if (str.length() == 0) {
             return "";

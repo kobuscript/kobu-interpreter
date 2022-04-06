@@ -88,12 +88,12 @@ public class VarTest extends AstTestBase {
     }
 
     @Test
-    @DisplayName("Type inference (Record type reference) -> MyRecord = Type")
+    @DisplayName("Type inference (Record type reference) -> MyRecord = RecordType<MyRecord>")
     void testTypeRefInference() {
         var recType = recordType(module, "MyRecord");
         recType.analyze(analyzerContext, evalContextProvider);
 
-        testVar(var(module, "typeVar", ref(module, "MyRecord")), recordTypeRefType(), typeRef(recType));
+        testVar(var(module, "typeVar", ref(module, "MyRecord")), recordTypeRefType(recType), typeRef(recType));
     }
 
     @Test

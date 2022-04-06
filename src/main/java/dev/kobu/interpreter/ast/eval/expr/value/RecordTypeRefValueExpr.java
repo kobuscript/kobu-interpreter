@@ -37,7 +37,7 @@ public class RecordTypeRefValueExpr implements ValueExpr {
 
     private final RecordTypeSymbol value;
 
-    private final RecordTypeRefTypeSymbol type = BuiltinScope.RECORD_TYPE_REF_TYPE;
+    private Type type;
 
     public RecordTypeRefValueExpr(SourceCodeRef sourceCodeRef, RecordTypeSymbol value) {
         this.sourceCodeRef = sourceCodeRef;
@@ -55,7 +55,7 @@ public class RecordTypeRefValueExpr implements ValueExpr {
 
     @Override
     public void analyze(EvalContext context) {
-
+        type = new ParameterizedRecordTypeRef(value);
     }
 
     @Override

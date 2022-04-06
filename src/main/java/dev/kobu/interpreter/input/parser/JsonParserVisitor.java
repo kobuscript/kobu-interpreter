@@ -26,62 +26,57 @@ package dev.kobu.interpreter.input.parser;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.*;
 import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueFactory;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
+import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.utils.RecordFactory;
 import dev.kobu.antlr.json.JSONBaseVisitor;
 import dev.kobu.antlr.json.JSONParser;
+import dev.kobu.interpreter.ast.utils.StringFunctions;
+import dev.kobu.interpreter.error.eval.InvalidCallError;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     public static final String JSON_FILE_TYPE = "JsonFile";
 
-    private static final String JSON_VALUE_TYPE = "JsonValue";
-
-    private static final String JSON_OBJECT_TYPE = "JsonObject";
-
-    private static final String JSON_STRING_TYPE = "JsonString";
-
-    private static final String JSON_NUMBER_TYPE = "JsonNumber";
-
-    private static final String JSON_BOOLEAN_TYPE = "JsonBoolean";
-
-    private static final String JSON_ARRAY_TYPE = "JsonArray";
-
     private final ModuleScope moduleScope;
 
     private final EvalContext context;
 
+    private final RecordTypeSymbol recordType;
+
     private final String filePath;
 
-    private final String fileName;
+    private final SourceCodeRef sourceCodeRef;
 
-    public JsonParserVisitor(ModuleScope moduleScope, EvalContext context, String filePath, String fileName) {
+    private RecordTypeSymbol currentType;
+
+    private final Stack<String> path = new Stack<>();
+
+    public JsonParserVisitor(ModuleScope moduleScope, EvalContext context, RecordTypeSymbol recordType,
+                             String filePath, SourceCodeRef sourceCodeRef) {
         this.moduleScope = moduleScope;
         this.context = context;
+        this.recordType = recordType;
         this.filePath = filePath;
-        this.fileName = fileName;
+        this.sourceCodeRef = sourceCodeRef;
     }
 
     @Override
     public ValueExpr visitJson(JSONParser.JsonContext ctx) {
+        this.currentType = recordType;
         var record = RecordFactory.create(moduleScope, context, JSON_FILE_TYPE);
-        if (filePath != null) {
-            record.updateFieldValue(context, "filePath", new StringValueExpr(filePath));
-        }
-        if (fileName != null) {
-            record.updateFieldValue(context, "fileName", new StringValueExpr(fileName));
-        }
-
+        FileValueExpr fileExpr = new FileValueExpr(new File(filePath));
+        record.updateFieldValue(context, "file", fileExpr);
         record.updateFieldValue(context, "json", visit(ctx.value()));
 
         return record;
@@ -89,13 +84,24 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitObj(JSONParser.ObjContext ctx) {
-        var record = RecordFactory.create(moduleScope, context, JSON_OBJECT_TYPE);
+        var record = RecordFactory.create(context, currentType);
 
         if (ctx.pair() != null) {
             for (JSONParser.PairContext pairContext : ctx.pair()) {
-                var field = pairContext.STRING().getText()
+                var field = StringFunctions.parseLiteralString(pairContext.STRING().getText())
                         .replaceAll("[^a-zA-Z0-9_]+", "_");
-                record.updateFieldValue(context, field, visit(pairContext.value()));
+
+                Type fieldType = currentType.resolveField(field);
+                if (fieldType != null) {
+                    path.push(field);
+                    ValueExpr fieldValue = visit(pairContext.value());
+                    if (fieldType.isAssignableFrom(fieldValue.getType())) {
+                        record.updateFieldValue(context, field, fieldValue);
+                    } else {
+                        throwInvalidPathError(fieldType, fieldValue.getType(), sourceCodeRef);
+                    }
+                    path.pop();
+                }
             }
         }
 
@@ -104,30 +110,34 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitStringExpr(JSONParser.StringExprContext ctx) {
-        var record = RecordFactory.create(moduleScope, context, JSON_STRING_TYPE);
-        record.updateFieldValue(context, "value", new StringValueExpr(ctx.STRING().getText()));
-        return record;
+//        var record = RecordFactory.create(moduleScope, context, JSON_STRING_TYPE);
+//        record.updateFieldValue(context, "value", new StringValueExpr(ctx.STRING().getText()));
+//        return record;
+        return null;
     }
 
     @Override
     public ValueExpr visitNumberExpr(JSONParser.NumberExprContext ctx) {
-        var record = RecordFactory.create(moduleScope, context, JSON_NUMBER_TYPE);
-        record.updateFieldValue(context, "value", NumberValueFactory.parse(ctx.NUMBER().getText()));
-        return record;
+//        var record = RecordFactory.create(moduleScope, context, JSON_NUMBER_TYPE);
+//        record.updateFieldValue(context, "value", NumberValueFactory.parse(ctx.NUMBER().getText()));
+//        return record;
+        return null;
     }
 
     @Override
     public ValueExpr visitTrueExpr(JSONParser.TrueExprContext ctx) {
-        var record = RecordFactory.create(moduleScope, context, JSON_BOOLEAN_TYPE);
-        record.updateFieldValue(context, "value", BooleanValueExpr.TRUE);
-        return record;
+//        var record = RecordFactory.create(moduleScope, context, JSON_BOOLEAN_TYPE);
+//        record.updateFieldValue(context, "value", BooleanValueExpr.TRUE);
+//        return record;
+        return null;
     }
 
     @Override
     public ValueExpr visitFalseExpr(JSONParser.FalseExprContext ctx) {
-        var record = RecordFactory.create(moduleScope, context, JSON_BOOLEAN_TYPE);
-        record.updateFieldValue(context, "value", BooleanValueExpr.FALSE);
-        return record;
+//        var record = RecordFactory.create(moduleScope, context, JSON_BOOLEAN_TYPE);
+//        record.updateFieldValue(context, "value", BooleanValueExpr.FALSE);
+//        return record;
+        return null;
     }
 
     @Override
@@ -137,18 +147,25 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitArr(JSONParser.ArrContext ctx) {
-        var record = RecordFactory.create(moduleScope, context, JSON_ARRAY_TYPE);
+//        var record = RecordFactory.create(moduleScope, context, JSON_ARRAY_TYPE);
+//
+//        List<ValueExpr> values = new ArrayList<>();
+//        if (ctx.value() != null) {
+//            for (JSONParser.ValueContext valueContext : ctx.value()) {
+//                values.add(visit(valueContext));
+//            }
+//        }
+//        var jsonValueType = (Type) context.getModuleScope().resolve(JSON_VALUE_TYPE);
+//        record.updateFieldValue(context, "value", new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(jsonValueType), values));
+//
+//        return record;
+        return null;
+    }
 
-        List<ValueExpr> values = new ArrayList<>();
-        if (ctx.value() != null) {
-            for (JSONParser.ValueContext valueContext : ctx.value()) {
-                values.add(visit(valueContext));
-            }
-        }
-        var jsonValueType = (Type) context.getModuleScope().resolve(JSON_VALUE_TYPE);
-        record.updateFieldValue(context, "value", new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(jsonValueType), values));
-
-        return record;
+    private void throwInvalidPathError(Type expected, Type found, SourceCodeRef sourceCodeRef) {
+        String pathStr = String.join(".", path);
+        throw new InvalidCallError(pathStr + ": expected '" + expected.getName() +
+                "', but got '" + found.getName() + "'", sourceCodeRef);
     }
 
 }

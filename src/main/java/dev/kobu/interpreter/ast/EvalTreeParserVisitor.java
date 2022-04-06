@@ -43,6 +43,7 @@ import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 import dev.kobu.interpreter.ast.template.TemplateContentStatement;
 import dev.kobu.interpreter.ast.template.TemplateStatement;
 import dev.kobu.interpreter.ast.template.TemplateStaticContentStatement;
+import dev.kobu.interpreter.ast.utils.StringFunctions;
 import dev.kobu.interpreter.ast.utils.SymbolDescriptorUtils;
 import dev.kobu.interpreter.error.analyzer.*;
 import dev.kobu.interpreter.module.ModuleLoader;
@@ -209,17 +210,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                             typeNameExpr.getText()));
                 }
             } else {
-                List<Type> typeArgs = new ArrayList<>();
-                if (ctx.inheritance().typeArgs() != null) {
-                    var typeArgCtx = ctx.inheritance().typeArgs().typeArg();
-                    while (typeArgCtx != null) {
-                        Type type = (Type) visit(typeArgCtx.type());
-                        typeArgs.add(type);
-                        typeArgCtx = typeArgCtx.typeArg();
-                    }
-                }
                 recordType.setSuperType(new RecordSuperType(getSourceCodeRef(typeNameExpr),
-                        (RecordTypeSymbol) superType, typeArgs));
+                        (RecordTypeSymbol) superType));
             }
         }
 
@@ -904,16 +896,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             fieldCtx = fieldCtx.recordField();
         }
 
-        if (ctx.typeArgs() != null) {
-            List<Type> types = new ArrayList<>();
-            var typeArgCtx = ctx.typeArgs().typeArg();
-            while (typeArgCtx != null) {
-                types.add((Type) visit(typeArgCtx.type()));
-                typeArgCtx = typeArgCtx.typeArg();
-            }
-            recordConstructor.setTypeArgs(new TypeArgs(getSourceCodeRef(ctx.typeArgs()), types));
-        }
-
         topLevelExpression = exprStatus;
 
         return recordConstructor;
@@ -1226,41 +1208,10 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
         }
 
-        StringBuilder str = new StringBuilder();
         String source = ctx.stringLiteral().getText();
-        boolean escape = false;
-        StringBuilder unicode = null;
-        for (int i = 1; i < source.length() - 1; i++) {
-            char c = source.charAt(i);
-            if (c == '\\') {
-                escape = true;
-            } else if (escape) {
-                if (c == 'n') {
-                    str.append('\n');
-                } else if (c == 'r') {
-                    str.append('\r');
-                } else if (c == 't') {
-                    str.append('\t');
-                } else if (c == 'b') {
-                    str.append('\b');
-                } else if (c == 'f') {
-                    str.append('\f');
-                } else if (c == '"') {
-                    str.append('"');
-                } else if (c == 'u') {
-                    unicode = new StringBuilder();
-                }
-                escape = false;
-            } else if (unicode != null) {
-                unicode.append(c);
-                if (unicode.length() == 4) {
-                    str.append(Character.toChars(Integer.parseInt(unicode.toString(), 16)));
-                }
-            } else {
-                str.append(c);
-            }
-        }
-        return new StringValueExpr(getSourceCodeRef(ctx.stringLiteral()), str.toString());
+        String str = StringFunctions.parseLiteralString(source);
+
+        return new StringValueExpr(getSourceCodeRef(ctx.stringLiteral()), str);
     }
 
     @Override
@@ -1484,33 +1435,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                     return UnknownType.INSTANCE;
                 }
 
-                if (ctx.typeArgs() != null) {
-                    List<Type> typeList = getTypesFrom(ctx.typeArgs());
-                    if (!typeList.isEmpty()) {
-                        if (symbol instanceof RecordTypeSymbol) {
-                            RecordTypeSymbol recordType = (RecordTypeSymbol) symbol;
-                            if (recordType.getTypeParameters() == null) {
-                                context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
-                                        0, typeList.size()));
-                            } else if (recordType.getTypeParameters().size() != typeList.size()) {
-                                context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
-                                        recordType.getTypeParameters().size(), typeList.size()));
-                            } else {
-                                symbol = new RecordTypeSymbol(recordType, typeList);
-                            }
-                        } else if (symbol instanceof RecordTypeRefTypeSymbol) {
-                            if (typeList.size() != 1) {
-                                context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
-                                        1, typeList.size()));
-                            } else {
-                                return new ParameterizedRecordTypeRef(symbol.getSourceCodeRef(), typeList.get(0));
-                            }
-                        } else {
-                            context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx),
-                                    0, typeList.size()));
-                        }
-                    }
-                }
+                return getType(ctx, (Type) symbol);
             } else {
                 if (!(symbol instanceof RuleSymbol)) {
                     return UnknownType.INSTANCE;
@@ -1558,32 +1483,56 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                     return UnknownType.INSTANCE;
                 }
 
-                if (ctx.typeArgs() != null) {
-                    List<Type> typeList = getTypesFrom(ctx.typeArgs());
-                    if (!typeList.isEmpty()) {
-                        if (symbol instanceof RecordTypeSymbol) {
-                            RecordTypeSymbol recordType = (RecordTypeSymbol) symbol;
-                            if (recordType.getTypeParameters() == null) {
-                                context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
-                                        0, typeList.size()));
-                            } else if (recordType.getTypeParameters().size() != typeList.size()) {
-                                context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
-                                        recordType.getTypeParameters().size(), typeList.size()));
-                            } else {
-                                symbol = new RecordTypeSymbol(recordType, typeList);
-                            }
-                        } else {
-                            context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx),
-                                    0, typeList.size()));
-                        }
-                    }
-                }
+                return getType(ctx, (Type) symbol);
             } else {
                 if (!(symbol instanceof RuleSymbol)) {
                     return UnknownType.INSTANCE;
                 }
             }
             return (AstNode) symbol;
+        }
+    }
+
+    private Type getType(KobuParser.TypeNameContext ctx, Type symbol) {
+        Type nodeType = symbol;
+
+        if (ctx.typeArgs() != null) {
+            List<Type> typeList = getTypesFrom(ctx.typeArgs());
+            if (nodeType instanceof RecordTypeSymbol) {
+                RecordTypeSymbol recordType = (RecordTypeSymbol) nodeType;
+                if (recordType.getTypeParameters() == null && !typeList.isEmpty()) {
+                    context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
+                            0, typeList.size()));
+                } else if (recordType.getTypeParameters().size() != typeList.size()) {
+                    context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
+                            recordType.getTypeParameters().size(), typeList.size()));
+                } else if (!typeList.isEmpty()) {
+                    nodeType = new RecordTypeSymbol(recordType, typeList);
+                }
+            } else if (nodeType instanceof RecordTypeRefTypeSymbol) {
+                if (typeList.size() != 1) {
+                    context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
+                            1, typeList.size()));
+                } else {
+                    nodeType = new ParameterizedRecordTypeRef(nodeType.getSourceCodeRef(), typeList.get(0));
+                }
+            } else {
+                context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx),
+                        0, typeList.size()));
+            }
+            return nodeType;
+        } else {
+            if (nodeType instanceof RecordTypeSymbol) {
+                RecordTypeSymbol recordType = (RecordTypeSymbol) nodeType;
+                if (recordType.getTypeParameters() != null && !recordType.getTypeParameters().isEmpty()) {
+                    context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
+                            recordType.getTypeParameters().size(), 0));
+                }
+            } else if (nodeType instanceof RecordTypeRefTypeSymbol) {
+                context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
+                        1, 0));
+            }
+            return nodeType;
         }
     }
 

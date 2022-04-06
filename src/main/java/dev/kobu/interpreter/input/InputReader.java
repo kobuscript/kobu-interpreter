@@ -29,11 +29,13 @@ import dev.kobu.antlr.json.JSONParser;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.RecordTypeRefValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 import dev.kobu.interpreter.input.parser.CsvFileParser;
 import dev.kobu.interpreter.input.parser.JsonParserVisitor;
 import org.antlr.v4.runtime.CharStreams;
@@ -42,6 +44,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +65,7 @@ public class InputReader {
         List<ValueExpr> values = new ArrayList<>();
         for (File file : files) {
             try (InputStream in = context.getFileSystem().getInputStream(file.toPath())) {
-                values.add(parser.parse(moduleScope, context, file.getAbsolutePath(), file.getName(), in, args, sourceCodeRef));
+                values.add(parser.parse(moduleScope, context, file.getAbsolutePath(), in, args, sourceCodeRef));
             }
         }
 
@@ -73,7 +76,7 @@ public class InputReader {
         return (Type) context.getModuleScope().resolve(CsvFileParser.CSV_FILE_TYPE);
     }
 
-    public static ValueExpr parseCsv(ModuleScope moduleScope, EvalContext context, String filePath, String fileName,
+    public static ValueExpr parseCsv(ModuleScope moduleScope, EvalContext context, String filePath,
                                      InputStream in, Map<String, ValueExpr> args,
                                      SourceCodeRef sourceCodeRef) throws IOException {
         StringValueExpr formatExpr = (StringValueExpr) args.get("format");
@@ -86,14 +89,26 @@ public class InputReader {
         return (Type) context.getModuleScope().resolve(JsonParserVisitor.JSON_FILE_TYPE);
     }
 
-    public static ValueExpr parseJson(ModuleScope moduleScope, EvalContext context, String filePath, String fileName, InputStream in,
+    public static ValueExpr parseJson(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
                                       Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException {
-        var input = CharStreams.fromStream(in);
+        RecordTypeRefValueExpr recordTypeExpr = (RecordTypeRefValueExpr) args.get("recordType");
+        StringValueExpr charsetExpr = (StringValueExpr) args.get("charset");
+
+        if (recordTypeExpr == null) {
+            throw new IllegalArgumentError("'recordType' cannot be null", sourceCodeRef);
+        }
+
+        Charset charset = Charset.defaultCharset();
+        if (charsetExpr != null) {
+            charset = Charset.forName(charsetExpr.getValue());
+        }
+
+        var input = CharStreams.fromStream(in, charset);
         var lexer = new JSONLexer(input);
         var tokens = new CommonTokenStream(lexer);
         var parser = new JSONParser(tokens);
         var tree = parser.json();
-        var visitor = new JsonParserVisitor(moduleScope, context, filePath, fileName);
+        var visitor = new JsonParserVisitor(moduleScope, context, recordTypeExpr.getValue(), filePath, sourceCodeRef);
         return visitor.visit(tree);
     }
 

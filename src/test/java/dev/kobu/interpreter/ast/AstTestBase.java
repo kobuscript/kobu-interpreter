@@ -143,8 +143,8 @@ public abstract class AstTestBase {
         return BuiltinScope.BOOLEAN_TYPE;
     }
 
-    Type recordTypeRefType() {
-        return BuiltinScope.RECORD_TYPE_REF_TYPE;
+    Type recordTypeRefType(RecordTypeSymbol recordType) {
+        return new ParameterizedRecordTypeRef(recordType);
     }
 
     Type ruleRefType() {
@@ -409,7 +409,7 @@ public abstract class AstTestBase {
     RecordTypeSymbol recordType(ModuleScope module, String name, RecordTypeSymbol superType) {
         var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
-        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType, List.of()));
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
         return recordType;
     }
 
@@ -418,12 +418,12 @@ public abstract class AstTestBase {
         var recordType = new RecordTypeSymbol(sourceCodeRef("deftype_" + name), name, module, null);
         module.define(analyzerContext, recordType);
         attributes.forEach(attr -> recordType.addAttribute(analyzerContext, attr));
-        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType, List.of()));
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
         return recordType;
     }
 
     RecordTypeSymbol setSuperType(RecordTypeSymbol recordType, RecordTypeSymbol superType) {
-        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + recordType.getName()), superType, List.of()));
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + recordType.getName()), superType));
         return recordType;
     }
 
@@ -434,7 +434,7 @@ public abstract class AstTestBase {
         attributes.forEach(attr -> recordType.addAttribute(analyzerContext, attr));
         recordType.setStarAttribute(analyzerContext,
                 new RecordTypeStarAttribute(sourceCodeRef("attr_*"), starAttrType));
-        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType, List.of()));
+        recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
         return recordType;
     }
 

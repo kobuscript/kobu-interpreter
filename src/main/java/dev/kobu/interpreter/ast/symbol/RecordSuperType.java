@@ -24,50 +24,15 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.interpreter.ast.AnalyzerContext;
-import dev.kobu.interpreter.error.analyzer.InvalidTypeArgsError;
-
-import java.util.List;
-
 public class RecordSuperType {
 
     private final SourceCodeRef sourceCodeRef;
 
-    private RecordTypeSymbol type;
+    private final RecordTypeSymbol type;
 
-    private final List<Type> typeArgs;
-
-    public RecordSuperType(SourceCodeRef sourceCodeRef, RecordTypeSymbol type, List<Type> typeArgs) {
+    public RecordSuperType(SourceCodeRef sourceCodeRef, RecordTypeSymbol type) {
         this.sourceCodeRef = sourceCodeRef;
         this.type = type;
-        this.typeArgs = typeArgs;
-    }
-
-    public void applyTypeArgs(AnalyzerContext analyzerContext) {
-        if (typeArgs != null && !typeArgs.isEmpty()) {
-            if (type.getTypeParameters() == null || type.getTypeParameters().isEmpty()) {
-                analyzerContext.getErrorScope().addError(new InvalidTypeArgsError(sourceCodeRef,
-                        0, typeArgs.size()));
-                return;
-            }
-            createNewType(analyzerContext);
-        } else if (type.getTypeParameters() != null && !type.getTypeParameters().isEmpty()) {
-            if (typeArgs == null || typeArgs.isEmpty()) {
-                analyzerContext.getErrorScope().addError(new InvalidTypeArgsError(sourceCodeRef,
-                        type.getTypeParameters().size(), 0));
-                return;
-            }
-            createNewType(analyzerContext);
-        }
-    }
-
-    private void createNewType(AnalyzerContext analyzerContext) {
-        if (typeArgs.size() != type.getTypeParameters().size()) {
-            analyzerContext.getErrorScope().addError(new InvalidTypeArgsError(sourceCodeRef,
-                    type.getTypeParameters().size(), typeArgs.size()));
-            return;
-        }
-        this.type = new RecordTypeSymbol(this.type, typeArgs);
     }
 
     public SourceCodeRef getSourceCodeRef() {
@@ -76,10 +41,6 @@ public class RecordSuperType {
 
     public RecordTypeSymbol getType() {
         return type;
-    }
-
-    public List<Type> getTypeArgs() {
-        return typeArgs;
     }
 
 }

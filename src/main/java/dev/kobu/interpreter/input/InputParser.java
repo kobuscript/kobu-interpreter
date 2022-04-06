@@ -35,7 +35,7 @@ import java.util.Map;
 
 public interface InputParser {
 
-    ValueExpr parse(ModuleScope moduleScope, EvalContext context, String filePath, String fileName, InputStream in,
+    ValueExpr parse(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
                     Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException;
 
 }

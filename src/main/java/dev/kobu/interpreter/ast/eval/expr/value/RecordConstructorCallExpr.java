@@ -51,8 +51,6 @@ public class RecordConstructorCallExpr implements Expr {
 
     private Type recordType;
 
-    private TypeArgs typeArgs;
-
     public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, Type recordType) {
         this.sourceCodeRef = sourceCodeRef;
         this.recordType = recordType;
@@ -77,38 +75,12 @@ public class RecordConstructorCallExpr implements Expr {
         return recordType;
     }
 
-    public TypeArgs getTypeArgs() {
-        return typeArgs;
-    }
-
-    public void setTypeArgs(TypeArgs typeArgs) {
-        this.typeArgs = typeArgs;
-    }
-
     @Override
     public void analyze(EvalContext context) {
         if (!(recordType instanceof RecordTypeSymbol)) {
             context.addAnalyzerError(new UndefinedTypeError(sourceCodeRef, recordType.getName(),
                     context.getNewGlobalDefinitionOffset()));
             return;
-        }
-
-        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) recordType;
-        if (typeArgs != null) {
-            if (recordTypeSymbol.getTypeParameters() == null || recordTypeSymbol.getTypeParameters().isEmpty()) {
-                context.addAnalyzerError(new InvalidTypeArgsError(typeArgs.getSourceCodeRef(),
-                        0, typeArgs.getTypes().size()));
-            } else if (recordTypeSymbol.getTypeParameters().size() != typeArgs.getTypes().size()) {
-                context.addAnalyzerError(new InvalidTypeArgsError(typeArgs.getSourceCodeRef(),
-                        recordTypeSymbol.getTypeParameters().size(), typeArgs.getTypes().size()));
-            } else {
-                this.recordType = new RecordTypeSymbol(recordTypeSymbol, typeArgs.getTypes());
-            }
-        } else {
-            if (recordTypeSymbol.getTypeParameters() != null && !recordTypeSymbol.getTypeParameters().isEmpty()) {
-                context.addAnalyzerError(new InvalidTypeArgsError(typeArgs.getSourceCodeRef(),
-                        recordTypeSymbol.getTypeParameters().size(), 0));
-            }
         }
 
         for (RecordFieldExpr fieldExpr : fields) {

@@ -130,13 +130,13 @@ typerecord : TYPE TYPE_RECORD ID typeParameters? inheritance? LCB attributes? RC
 
 typetemplate : TYPE TYPE_TEMPLATE ID templateInheritance? ( LCB RCB? )? ;
 
-inheritance : 'extends' typeName typeArgs? ;
+inheritance : 'extends' typeName ;
 
 templateInheritance : 'extends' typeName ;
 
 attributes : ( STAR | ID ) COLON type ( COMMA? attributes )? ;
 
-record : typeName typeArgs? LCB recordField? RCB ;
+record : typeName LCB recordField? RCB ;
 
 recordField : ID COLON exprWrapper ( COMMA? recordField )? ;
 

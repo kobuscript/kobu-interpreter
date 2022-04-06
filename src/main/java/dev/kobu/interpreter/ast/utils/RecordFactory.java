@@ -44,10 +44,10 @@ public class RecordFactory {
         if (!(typeSymbol instanceof RecordTypeSymbol)) {
             throw new InvalidCallError("Invalid record type: " + typeName, sourceCodeRef);
         }
-        return create(context, (RecordTypeSymbol) typeSymbol, sourceCodeRef);
+        return create(context, (RecordTypeSymbol) typeSymbol);
     }
 
-    public static RecordValueExpr create(EvalContext context, RecordTypeSymbol typeSymbol, SourceCodeRef sourceCodeRef) {
+    public static RecordValueExpr create(EvalContext context, RecordTypeSymbol typeSymbol) {
         return new RecordValueExpr(typeSymbol, new HashMap<>(), context.getDatabase().generateRecordId());
     }
 

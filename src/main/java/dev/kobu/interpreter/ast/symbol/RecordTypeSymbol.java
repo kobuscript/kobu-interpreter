@@ -379,8 +379,6 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
                     context.getErrorScope().addError(new RecordTypeAttributeConflictError(attr, attrSuperType));
                 }
             }
-
-            superType.applyTypeArgs(context);
         }
 
         if (getModuleScope().getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {

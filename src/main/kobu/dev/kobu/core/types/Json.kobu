@@ -29,4 +29,5 @@ type record JsonFile<T> {
     json: T
 }
 
-def native readJson<T>(dir: Path, pattern: string, recursive?: boolean): JsonFile;
+def native readJson<T>(dir: Path, pattern: string, recordType: RecordType<T>,
+                       recursive?: boolean, charset: string): JsonFile<T>;

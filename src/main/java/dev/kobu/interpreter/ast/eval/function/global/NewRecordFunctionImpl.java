@@ -44,7 +44,7 @@ public class NewRecordFunctionImpl extends BuiltinGlobalFunction {
             throw new IllegalArgumentError("'type' cannot be null", sourceCodeRef);
         }
 
-        return RecordFactory.create(context, type.getValue(), sourceCodeRef);
+        return RecordFactory.create(context, type.getValue());
 
     }
 
