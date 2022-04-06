@@ -69,8 +69,8 @@ public class ReadFromFileFunctionImpl extends NativeFunction {
         }
 
         try {
-            return context.getInputParser().readFromFile(context, inputParser, inputType,
-                    dir.getPath().toAbsolutePath().toString(), pattern.getValue(), recursive, args);
+            return context.getInputParser().readFromFile(getModuleScope(), context, inputParser, inputType,
+                    dir.getPath().toAbsolutePath().toString(), pattern.getValue(), recursive, args, sourceCodeRef);
         } catch (IOException e) {
             throw new BuiltinFunctionError(e, sourceCodeRef);
         }

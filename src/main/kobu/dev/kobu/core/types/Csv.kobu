@@ -24,6 +24,28 @@ SOFTWARE.
 
 module dev.kobu.core.types.Csv
 
+// CSV predefined formats
+
+const CSV_DEFAULT_FORMAT = "Default"
+
+const CSV_EXCEL_FORMAT = "Excel"
+
+const CSV_MONGO_FORMAT = "MongoDBCsv"
+
+const TSV_MONGO_FORMAT = "MongoDBTsv"
+
+const CSV_MYSQL_FORMAT = "MySQL"
+
+const CSV_ORACLE_FORMAT = "Oracle"
+
+const CSV_POSTGRESSQL_FORMAT = "PostgreSQLCsv"
+
+const CSV_POSGRESSQL_TEXT_FORMAT = "PostgreSQLText"
+
+const TDF_FORMAT = "TDF"
+
+// CSV record types
+
 type record CsvFile {
     file: File,
     rows: CsvRow[]
@@ -37,15 +59,14 @@ type record CsvRow {
 type record CsvColumn {
     rowIndex: number,
     index: number,
-    header: boolean,
     value: string
 }
 
 /*
- * Read CSV files from disk.
+ * Read CSV files.
  *
- * The 'pattern' argument can be a single filename or a glob pattern (like *.csv), If 'recursive' is
- * true, then all subdirectories will be scanned. Use 'delimiter' to change the delimiter
- * character (defaults to ','), and 'charset' to specify the file charset.
+ * The 'pattern' argument can be a single filename or a glob pattern (like "*.csv"), If 'recursive' is
+ * true, then all subdirectories will be scanned. Use 'format' to specify the file format,
+ * and 'charset' to specify the file charset.
  */
-def native readCsv(dir: Path, pattern: string, recursive?: boolean, delimiter?: string, charset?: string): CsvFile[];
+def native readCsv(dir: Path, pattern: string, recursive?: boolean, format?: string, charset?: string): CsvFile[];

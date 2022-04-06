@@ -26,6 +26,8 @@ package dev.kobu.interpreter.input;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +35,7 @@ import java.util.Map;
 
 public interface InputParser {
 
-    ValueExpr parse(EvalContext context, String filePath, String fileName, InputStream in,
-                    Map<String, ValueExpr> args) throws IOException;
+    ValueExpr parse(ModuleScope moduleScope, EvalContext context, String filePath, String fileName, InputStream in,
+                    Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException;
 
 }

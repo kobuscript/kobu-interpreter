@@ -26,12 +26,26 @@ package dev.kobu.interpreter.input.parser;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.FileValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.IntegerValueExpr;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.utils.RecordFactory;
+import dev.kobu.interpreter.error.eval.BuiltinFunctionError;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CsvFileParser {
 
@@ -41,13 +55,58 @@ public class CsvFileParser {
 
     private static final String CSV_COLUMN_TYPE = "CsvColumn";
 
-    private static final String DEFAULT_DELIMITER = ",";
-
-    public static ValueExpr parse(EvalContext evalContext, String filePath, InputStream in,
-                                  StringValueExpr delimiterExpr, StringValueExpr charsetExpr) {
-        var record = RecordFactory.create(evalContext, CSV_FILE_TYPE);
+    public static ValueExpr parse(ModuleScope moduleScope, EvalContext evalContext, String filePath, InputStream in,
+                                  StringValueExpr formatExpr, StringValueExpr charsetExpr,
+                                  SourceCodeRef sourceCodeRef) {
+        var record = RecordFactory.create(moduleScope, evalContext, CSV_FILE_TYPE);
         FileValueExpr fileExpr = new FileValueExpr(new File(filePath));
-        return null;
+        record.updateFieldValue(evalContext, "file", fileExpr);
+
+        CSVFormat csvFormat;
+        if (formatExpr != null) {
+            csvFormat = CSVFormat.valueOf(formatExpr.getValue());
+        } else {
+            csvFormat = CSVFormat.DEFAULT;
+        }
+
+        Charset charset = Charset.defaultCharset();
+        if (charsetExpr != null) {
+            charset = Charset.forName(charsetExpr.getValue());
+        }
+
+        InputStreamReader reader = new InputStreamReader(in, charset);
+
+        try {
+            Iterable<CSVRecord> csvRows = csvFormat.parse(reader);
+            List<ValueExpr> rows = new ArrayList<>();
+            int rowIndex = 0;
+            for (CSVRecord csvRow : csvRows) {
+                var rowRecord = RecordFactory.create(moduleScope, evalContext, CSV_ROW_TYPE);
+                rowRecord.updateFieldValue(evalContext, "index", new IntegerValueExpr(rowIndex));
+                List<ValueExpr> cols = new ArrayList<>();
+                int colIndex = 0;
+                for (String column : csvRow) {
+                    var colRecord = RecordFactory.create(moduleScope, evalContext, CSV_COLUMN_TYPE);
+                    colRecord.updateFieldValue(evalContext, "rowIndex", new IntegerValueExpr(rowIndex));
+                    colRecord.updateFieldValue(evalContext, "index", new IntegerValueExpr(colIndex));
+                    colRecord.updateFieldValue(evalContext, "value", new StringValueExpr(column));
+                    cols.add(colRecord);
+
+                    colIndex++;
+                }
+                rowRecord.updateFieldValue(evalContext, "columns",
+                        new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(CSV_COLUMN_TYPE)), cols));
+                rows.add(rowRecord);
+                rowIndex++;
+            }
+            record.updateFieldValue(evalContext, "rows",
+                    new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(CSV_ROW_TYPE)), rows));
+
+        } catch (IOException ex) {
+            throw new BuiltinFunctionError(ex, sourceCodeRef);
+        }
+
+        return record;
     }
 
 }

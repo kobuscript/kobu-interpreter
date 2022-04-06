@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.utils;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.eval.InvalidCallError;
@@ -34,12 +35,12 @@ import java.util.HashMap;
 
 public class RecordFactory {
 
-    public static RecordValueExpr create(EvalContext context, String typeName) {
-        return create(context, typeName, null);
+    public static RecordValueExpr create(ModuleScope moduleScope, EvalContext context, String typeName) {
+        return create(moduleScope, context, typeName, null);
     }
 
-    public static RecordValueExpr create(EvalContext context, String typeName, SourceCodeRef sourceCodeRef) {
-        var typeSymbol = context.getModuleScope().resolve(typeName);
+    public static RecordValueExpr create(ModuleScope moduleScope, EvalContext context, String typeName, SourceCodeRef sourceCodeRef) {
+        var typeSymbol = moduleScope.resolve(typeName);
         if (!(typeSymbol instanceof RecordTypeSymbol)) {
             throw new InvalidCallError("Invalid record type: " + typeName, sourceCodeRef);
         }

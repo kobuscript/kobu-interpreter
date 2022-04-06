@@ -31,6 +31,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueFactory;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.utils.RecordFactory;
@@ -56,13 +57,16 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     private static final String JSON_ARRAY_TYPE = "JsonArray";
 
+    private final ModuleScope moduleScope;
+
     private final EvalContext context;
 
     private final String filePath;
 
     private final String fileName;
 
-    public JsonParserVisitor(EvalContext context, String filePath, String fileName) {
+    public JsonParserVisitor(ModuleScope moduleScope, EvalContext context, String filePath, String fileName) {
+        this.moduleScope = moduleScope;
         this.context = context;
         this.filePath = filePath;
         this.fileName = fileName;
@@ -70,7 +74,7 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitJson(JSONParser.JsonContext ctx) {
-        var record = RecordFactory.create(context, JSON_FILE_TYPE);
+        var record = RecordFactory.create(moduleScope, context, JSON_FILE_TYPE);
         if (filePath != null) {
             record.updateFieldValue(context, "filePath", new StringValueExpr(filePath));
         }
@@ -85,7 +89,7 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitObj(JSONParser.ObjContext ctx) {
-        var record = RecordFactory.create(context, JSON_OBJECT_TYPE);
+        var record = RecordFactory.create(moduleScope, context, JSON_OBJECT_TYPE);
 
         if (ctx.pair() != null) {
             for (JSONParser.PairContext pairContext : ctx.pair()) {
@@ -100,28 +104,28 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitStringExpr(JSONParser.StringExprContext ctx) {
-        var record = RecordFactory.create(context, JSON_STRING_TYPE);
+        var record = RecordFactory.create(moduleScope, context, JSON_STRING_TYPE);
         record.updateFieldValue(context, "value", new StringValueExpr(ctx.STRING().getText()));
         return record;
     }
 
     @Override
     public ValueExpr visitNumberExpr(JSONParser.NumberExprContext ctx) {
-        var record = RecordFactory.create(context, JSON_NUMBER_TYPE);
+        var record = RecordFactory.create(moduleScope, context, JSON_NUMBER_TYPE);
         record.updateFieldValue(context, "value", NumberValueFactory.parse(ctx.NUMBER().getText()));
         return record;
     }
 
     @Override
     public ValueExpr visitTrueExpr(JSONParser.TrueExprContext ctx) {
-        var record = RecordFactory.create(context, JSON_BOOLEAN_TYPE);
+        var record = RecordFactory.create(moduleScope, context, JSON_BOOLEAN_TYPE);
         record.updateFieldValue(context, "value", BooleanValueExpr.TRUE);
         return record;
     }
 
     @Override
     public ValueExpr visitFalseExpr(JSONParser.FalseExprContext ctx) {
-        var record = RecordFactory.create(context, JSON_BOOLEAN_TYPE);
+        var record = RecordFactory.create(moduleScope, context, JSON_BOOLEAN_TYPE);
         record.updateFieldValue(context, "value", BooleanValueExpr.FALSE);
         return record;
     }
@@ -133,7 +137,7 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitArr(JSONParser.ArrContext ctx) {
-        var record = RecordFactory.create(context, JSON_ARRAY_TYPE);
+        var record = RecordFactory.create(moduleScope, context, JSON_ARRAY_TYPE);
 
         List<ValueExpr> values = new ArrayList<>();
         if (ctx.value() != null) {

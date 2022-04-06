@@ -24,11 +24,23 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.function;
 
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
+
 public abstract class NativeFunction extends BuiltinGlobalFunction {
+
+    private ModuleScope moduleScope;
 
     @Override
     public String getDocumentation() {
         return null;
+    }
+
+    public ModuleScope getModuleScope() {
+        return moduleScope;
+    }
+
+    public void setModuleScope(ModuleScope moduleScope) {
+        this.moduleScope = moduleScope;
     }
 
 }
