@@ -28,11 +28,11 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.*;
 import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueFactory;
-import dev.kobu.interpreter.ast.symbol.ModuleScope;
-import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
 import dev.kobu.interpreter.ast.utils.RecordFactory;
 import dev.kobu.antlr.json.JSONBaseVisitor;
 import dev.kobu.antlr.json.JSONParser;
@@ -58,7 +58,7 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     private final SourceCodeRef sourceCodeRef;
 
-    private RecordTypeSymbol currentType;
+    private Type currentType;
 
     private final Stack<String> path = new Stack<>();
 
@@ -84,9 +84,10 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitObj(JSONParser.ObjContext ctx) {
-        var record = RecordFactory.create(context, currentType);
+        var record = RecordFactory.create(context, (RecordTypeSymbol) currentType);
 
         if (ctx.pair() != null) {
+            Type objType = currentType;
             for (JSONParser.PairContext pairContext : ctx.pair()) {
                 var field = StringFunctions.parseLiteralString(pairContext.STRING().getText())
                         .replaceAll("[^a-zA-Z0-9_]+", "_");
@@ -94,12 +95,14 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
                 Type fieldType = currentType.resolveField(field);
                 if (fieldType != null) {
                     path.push(field);
+                    currentType = fieldType;
                     ValueExpr fieldValue = visit(pairContext.value());
                     if (fieldType.isAssignableFrom(fieldValue.getType())) {
                         record.updateFieldValue(context, field, fieldValue);
                     } else {
                         throwInvalidPathError(fieldType, fieldValue.getType(), sourceCodeRef);
                     }
+                    currentType = objType;
                     path.pop();
                 }
             }
@@ -110,34 +113,22 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitStringExpr(JSONParser.StringExprContext ctx) {
-//        var record = RecordFactory.create(moduleScope, context, JSON_STRING_TYPE);
-//        record.updateFieldValue(context, "value", new StringValueExpr(ctx.STRING().getText()));
-//        return record;
-        return null;
+        return new StringValueExpr(StringFunctions.parseLiteralString(ctx.STRING().getText()));
     }
 
     @Override
     public ValueExpr visitNumberExpr(JSONParser.NumberExprContext ctx) {
-//        var record = RecordFactory.create(moduleScope, context, JSON_NUMBER_TYPE);
-//        record.updateFieldValue(context, "value", NumberValueFactory.parse(ctx.NUMBER().getText()));
-//        return record;
-        return null;
+        return NumberValueFactory.parse(ctx.NUMBER().getText());
     }
 
     @Override
     public ValueExpr visitTrueExpr(JSONParser.TrueExprContext ctx) {
-//        var record = RecordFactory.create(moduleScope, context, JSON_BOOLEAN_TYPE);
-//        record.updateFieldValue(context, "value", BooleanValueExpr.TRUE);
-//        return record;
-        return null;
+        return BooleanValueExpr.TRUE;
     }
 
     @Override
     public ValueExpr visitFalseExpr(JSONParser.FalseExprContext ctx) {
-//        var record = RecordFactory.create(moduleScope, context, JSON_BOOLEAN_TYPE);
-//        record.updateFieldValue(context, "value", BooleanValueExpr.FALSE);
-//        return record;
-        return null;
+        return BooleanValueExpr.FALSE;
     }
 
     @Override
@@ -147,19 +138,39 @@ public class JsonParserVisitor extends JSONBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitArr(JSONParser.ArrContext ctx) {
-//        var record = RecordFactory.create(moduleScope, context, JSON_ARRAY_TYPE);
-//
-//        List<ValueExpr> values = new ArrayList<>();
-//        if (ctx.value() != null) {
-//            for (JSONParser.ValueContext valueContext : ctx.value()) {
-//                values.add(visit(valueContext));
-//            }
-//        }
-//        var jsonValueType = (Type) context.getModuleScope().resolve(JSON_VALUE_TYPE);
-//        record.updateFieldValue(context, "value", new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(jsonValueType), values));
-//
-//        return record;
-        return null;
+        if (currentType instanceof TupleType) {
+            TupleType tupleType = (TupleType) currentType;
+            int index = 0;
+            TupleTypeElement element = ((TupleType) currentType).getTypeElement();
+            List<ValueExpr> valueExprList = new ArrayList<>();
+            if (ctx.value() != null) {
+                while (element != null && index < ctx.value().size()) {
+                    currentType = element.getElementType();
+                    valueExprList.add(visit(ctx.value(index)));
+                    currentType = tupleType;
+                    element = element.getNext();
+                    index++;
+                }
+            }
+
+            return new TupleValueExpr(tupleType, valueExprList);
+        } else {
+            Type objType = currentType;
+            Type elementType = BuiltinScope.ANY_TYPE;
+            if (currentType instanceof ArrayType) {
+                elementType = ((ArrayType) currentType).getElementType();
+            }
+
+            List<ValueExpr> valueExprList = new ArrayList<>();
+            if (ctx.value() != null) {
+                for (JSONParser.ValueContext valueContext : ctx.value()) {
+                    currentType = elementType;
+                    valueExprList.add(visit(valueContext));
+                    currentType = objType;
+                }
+            }
+            return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(elementType), valueExprList);
+        }
     }
 
     private void throwInvalidPathError(Type expected, Type found, SourceCodeRef sourceCodeRef) {
