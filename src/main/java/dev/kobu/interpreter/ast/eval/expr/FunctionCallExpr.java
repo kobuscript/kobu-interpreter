@@ -137,9 +137,8 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
                 arg.setResolvedTypes(resolvedTypeArgs);
                 arg.setTargetType(paramType);
                 arg.analyze(context);
-                if (!paramType.aliases().isEmpty()) {
-                    paramType = arg.getType();
-                }
+                paramType.resolveAliases(resolvedTypeArgs, arg.getType());
+                paramType = arg.getType();
             } else {
                 arg.setResolvedTypes(resolvedTypeArgs);
                 arg.setTargetType(parameter.getType());
@@ -163,6 +162,7 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
         Type returnType = functionType.getReturnType();
         if (returnType != null) {
             returnType = returnType.constructFor(resolvedTypeArgs);
+            returnType.resolveAliases(resolvedTypeArgs, returnType);
         }
 
         return returnType;

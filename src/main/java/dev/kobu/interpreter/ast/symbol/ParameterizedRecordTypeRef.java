@@ -22,104 +22,109 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol.generics;
+package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.symbol.BuiltinScope;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 
 import java.util.*;
 
-public class TypeAlias implements Type {
+public class ParameterizedRecordTypeRef implements Type {
 
-    private final TypeParameter typeParameter;
+    private final SourceCodeRef sourceCodeRef;
 
-    public TypeAlias(TypeParameter typeParameter) {
-        this.typeParameter = typeParameter;
+    private final Type typeArg;
+
+    public ParameterizedRecordTypeRef(SourceCodeRef sourceCodeRef, Type typeArg) {
+        this.sourceCodeRef = sourceCodeRef;
+        this.typeArg = typeArg;
     }
 
-    public TypeParameter getTypeParameter() {
-        return typeParameter;
+    public ParameterizedRecordTypeRef(Type typeArg) {
+        this.typeArg = typeArg;
+        this.sourceCodeRef = null;
     }
 
     @Override
     public SourceCodeRef getSourceCodeRef() {
-        return typeParameter.getSourceCodeRef();
+        return sourceCodeRef;
     }
 
     @Override
     public String getName() {
-        return typeParameter.getAlias();
+        return BuiltinScope.RECORD_TYPE_REF_TYPE.getName() + "<" + typeArg.getName() + ">";
     }
 
     @Override
     public List<FieldDescriptor> getFields() {
-        return BuiltinScope.ANY_TYPE.getFields();
+        return BuiltinScope.RECORD_TYPE_REF_TYPE.getFields();
     }
 
     @Override
     public List<NamedFunction> getMethods() {
-        return BuiltinScope.ANY_TYPE.getMethods();
+        return BuiltinScope.RECORD_TYPE_REF_TYPE.getMethods();
     }
 
     @Override
     public Type resolveField(String name) {
-        return BuiltinScope.ANY_TYPE.resolveField(name);
+        return BuiltinScope.RECORD_TYPE_REF_TYPE.resolveField(name);
     }
 
     @Override
     public SourceCodeRef getFieldRef(String name) {
-        return BuiltinScope.ANY_TYPE.getFieldRef(name);
+        return BuiltinScope.RECORD_TYPE_REF_TYPE.getFieldRef(name);
     }
 
     @Override
     public NamedFunction resolveMethod(String name) {
-        return BuiltinScope.ANY_TYPE.resolveMethod(name);
+        return BuiltinScope.RECORD_TYPE_REF_TYPE.resolveMethod(name);
     }
 
     @Override
     public boolean isAssignableFrom(Type type) {
-        return equals(type) || type == BuiltinScope.ANY_TYPE;
+        if (type instanceof ParameterizedRecordTypeRef) {
+            return typeArg.isAssignableFrom(((ParameterizedRecordTypeRef) type).typeArg);
+        }
+        return false;
     }
 
     @Override
     public Type getCommonSuperType(Type type) {
-        return isAssignableFrom(type) ? this : BuiltinScope.ANY_TYPE;
+        if (isAssignableFrom(type)) {
+            return this;
+        }
+        return BuiltinScope.ANY_TYPE;
     }
 
     @Override
     public Collection<TypeAlias> aliases() {
-        return List.of(this);
+        return new HashSet<>(typeArg.aliases());
     }
 
     @Override
     public Type constructFor(Map<String, Type> typeArgs) {
-        Type type = typeArgs.get(typeParameter.getAlias());
-        if (type != null) {
-            return type;
-        }
-        return this;
+        return new ParameterizedRecordTypeRef(typeArg.constructFor(typeArgs));
     }
 
     @Override
     public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
-        typeArgs.putIfAbsent(typeParameter.getAlias(), targetType);
+        if (targetType instanceof ParameterizedRecordTypeRef) {
+            this.typeArg.resolveAliases(typeArgs, ((ParameterizedRecordTypeRef) targetType).typeArg);
+        }
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TypeAlias typeAlias = (TypeAlias) o;
-        return Objects.equals(typeParameter, typeAlias.typeParameter);
+        ParameterizedRecordTypeRef that = (ParameterizedRecordTypeRef) o;
+        return Objects.equals(typeArg, that.typeArg);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(typeParameter);
+        return Objects.hash(typeArg);
     }
 
 }

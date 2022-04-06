@@ -24,38 +24,9 @@ SOFTWARE.
 
 module dev.kobu.core.types.Json
 
-type record JsonFile {
-    fileName: string,
-    filePath: string,
-    json: JsonValue
+type record JsonFile<T> {
+    file: File,
+    json: T
 }
 
-type record JsonValue {
-
-}
-
-type record JsonObject extends JsonValue {
-    *: JsonValue
-}
-
-type record JsonScalar extends JsonValue {
-
-}
-
-type record JsonString extends JsonScalar {
-    value: string
-}
-
-type record JsonNumber extends JsonScalar {
-    value: number
-}
-
-type record JsonBoolean extends JsonScalar {
-    value: boolean
-}
-
-type record JsonArray extends JsonValue {
-    value: JsonValue[]
-}
-
-def native readJson(dir: string, pattern: string, recursive?: boolean): JsonFile;
+def native readJson<T>(dir: Path, pattern: string, recursive?: boolean): JsonFile;

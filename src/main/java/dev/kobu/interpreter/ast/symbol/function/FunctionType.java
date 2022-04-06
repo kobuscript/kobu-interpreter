@@ -173,7 +173,7 @@ public class FunctionType implements Type {
                 param.getType().resolveAliases(typeArgs, targetFunction.parameters.get(i).getType());
             }
             if (returnType != null && targetFunction.returnType != null) {
-                returnType.resolveAliases(typeArgs, returnType);
+                returnType.resolveAliases(typeArgs, targetFunction.returnType);
             }
         }
     }

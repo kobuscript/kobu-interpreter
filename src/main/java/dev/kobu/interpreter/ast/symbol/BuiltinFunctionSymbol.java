@@ -99,6 +99,12 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
     }
 
     public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl,
+                                 List<TypeParameter> typeParameters, Map<String, Type> typeArgsMap,
+                                 Type returnType, FunctionParameter... args) {
+        this(null, name, functionImpl, typeParameters, typeArgsMap, returnType, args);
+    }
+
+    public BuiltinFunctionSymbol(String name, BuiltinFunction functionImpl,
                                  FunctionParameter... args) {
         this(null, name, functionImpl, args);
     }

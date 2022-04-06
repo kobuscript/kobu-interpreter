@@ -30,6 +30,7 @@ import dev.kobu.interpreter.ast.eval.SymbolDocumentation;
 import dev.kobu.interpreter.ast.eval.SymbolTypeEnum;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
+import dev.kobu.interpreter.ast.symbol.function.FunctionTypeParameter;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
@@ -59,6 +60,8 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     private SymbolDocumentation documentation;
 
+    private RecordTypeSymbol originalType;
+
     public RecordTypeSymbol(SourceCodeRef sourceCodeRef, String name, ModuleScope module, String docText) {
         super(module, sourceCodeRef, name);
         this.docText = docText;
@@ -67,6 +70,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     public RecordTypeSymbol(RecordTypeSymbol recordType, List<Type> typeArgs) {
         super(recordType.getModuleScope(), recordType.getSourceCodeRef(), recordType.getName());
+        this.originalType = recordType;
         this.docText = recordType.docText;
         this.typeArgs = typeArgs;
         Map<String, Type> typeAliasMap = getTypeAliasMap(typeArgs);
@@ -321,17 +325,30 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     @Override
     public Collection<TypeAlias> aliases() {
-        return List.of();
+        Set<TypeAlias> aliases = new HashSet<>();
+        if (typeArgs != null) {
+            for (Type typeArg : typeArgs) {
+                aliases.addAll(typeArg.aliases());
+            }
+        }
+        return aliases;
     }
 
     @Override
     public Type constructFor(Map<String, Type> typeArgs) {
-        return this;
+        List<Type> types = this.typeArgs.stream()
+                .map(t -> t.constructFor(typeArgs))
+                .collect(Collectors.toList());
+        return new RecordTypeSymbol(originalType, types);
     }
 
     @Override
     public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
-
+        if (super.equals(targetType)) {
+            for (Type typeArg : this.typeArgs) {
+                typeArg.resolveAliases(typeArgs, typeArg);
+            }
+        }
     }
 
     private RecordTypeAttribute resolveSuperTypeAttribute(String attrName) {

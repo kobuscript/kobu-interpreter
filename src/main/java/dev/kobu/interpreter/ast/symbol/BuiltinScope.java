@@ -35,10 +35,13 @@ import dev.kobu.interpreter.ast.eval.function.global.rules.InsertFunctionImpl;
 import dev.kobu.interpreter.ast.eval.function.global.rules.UpdateFunctionImpl;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.ast.symbol.value.*;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BuiltinScope implements Scope {
@@ -72,6 +75,9 @@ public class BuiltinScope implements Scope {
     public static final FileTypeSymbol FILE_TYPE = new FileTypeSymbol();
 
     private final Map<String, Symbol> symbols = new HashMap<>();
+
+    private final static TypeParameter TYPE_PARAMETER_A = new TypeParameter("A");
+    private final static TypeAlias TYPE_ALIAS_A = new TypeAlias(TYPE_PARAMETER_A);
 
     public BuiltinScope() {
         buildScope();
@@ -144,8 +150,10 @@ public class BuiltinScope implements Scope {
         var mainScriptRootDirFunc = new BuiltinFunctionSymbol("mainScriptDir", new MainScriptDirFunctionImpl(),
                 PATH_TYPE);
 
-        var newRecordFunc = new BuiltinFunctionSymbol("newRecord", new NewRecordFunctionImpl(), ANY_RECORD_TYPE,
-                new FunctionParameter("type", RECORD_TYPE_REF_TYPE, false));
+        var newRecordFunc = new BuiltinFunctionSymbol("newRecord", new NewRecordFunctionImpl(),
+                List.of(TYPE_PARAMETER_A), new HashMap<>(),
+                TYPE_ALIAS_A,
+                new FunctionParameter("type", new ParameterizedRecordTypeRef(TYPE_ALIAS_A), false));
 
         var addRulesFunc = new BuiltinFunctionSymbol("addRules", new AddRulesFunctionImpl(),
                 new FunctionParameter("rules", ArrayTypeFactory.getArrayTypeFor(BuiltinScope.RULE_REF_TYPE), false));
