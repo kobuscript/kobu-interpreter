@@ -24,8 +24,10 @@ SOFTWARE.
 
 package dev.kobu.interpreter.input.parser;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.antlr.json.JSONBaseVisitor;
+import dev.kobu.antlr.json.JSONParser;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.*;
 import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueFactory;
 import dev.kobu.interpreter.ast.symbol.*;
@@ -34,8 +36,6 @@ import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
 import dev.kobu.interpreter.ast.utils.RecordFactory;
-import dev.kobu.antlr.json.JSONBaseVisitor;
-import dev.kobu.antlr.json.JSONParser;
 import dev.kobu.interpreter.ast.utils.StringFunctions;
 import dev.kobu.interpreter.error.eval.InvalidCallError;
 

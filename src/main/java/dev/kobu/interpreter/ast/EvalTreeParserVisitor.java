@@ -35,6 +35,7 @@ import dev.kobu.interpreter.ast.query.*;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.*;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 import dev.kobu.interpreter.ast.symbol.generics.TypeArgs;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameterContext;
@@ -1523,7 +1524,13 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                     context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
                             1, typeList.size()));
                 } else {
-                    nodeType = new ParameterizedRecordTypeRef(nodeType.getSourceCodeRef(), typeList.get(0));
+                    Type typeArg = typeList.get(0);
+                    if (!(typeArg instanceof AnyRecordTypeSymbol) && !(typeArg instanceof RecordTypeSymbol) &&
+                            !(typeArg instanceof TypeAlias)) {
+                        context.getErrorScope().addError(new InvalidTypeError(nodeType.getSourceCodeRef(),
+                                BuiltinScope.ANY_RECORD_TYPE, typeArg));
+                    }
+                    nodeType = new ParameterizedRecordTypeRef(nodeType.getSourceCodeRef(), typeArg);
                 }
             } else {
                 context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx),

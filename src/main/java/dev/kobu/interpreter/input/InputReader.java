@@ -26,10 +26,13 @@ package dev.kobu.interpreter.input;
 
 import dev.kobu.antlr.json.JSONLexer;
 import dev.kobu.antlr.json.JSONParser;
+import dev.kobu.antlr.xml.XMLLexer;
+import dev.kobu.antlr.xml.XMLParser;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordTypeRefValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
@@ -38,6 +41,7 @@ import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 import dev.kobu.interpreter.input.parser.CsvFileParser;
 import dev.kobu.interpreter.input.parser.JsonParserVisitor;
+import dev.kobu.interpreter.input.parser.XmlFileParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -69,11 +73,11 @@ public class InputReader {
             }
         }
 
-        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(inputType.getType(context)), values);
+        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(inputType.getType(moduleScope)), values);
     }
 
-    public static Type getCsvType(EvalContext context) {
-        return (Type) context.getModuleScope().resolve(CsvFileParser.CSV_FILE_TYPE);
+    public static Type getCsvType(ModuleScope moduleScope) {
+        return (Type) moduleScope.resolve(CsvFileParser.CSV_FILE_TYPE);
     }
 
     public static ValueExpr parseCsv(ModuleScope moduleScope, EvalContext context, String filePath,
@@ -85,8 +89,8 @@ public class InputReader {
         return CsvFileParser.parse(moduleScope, context, filePath, in, formatExpr, charsetExpr, sourceCodeRef);
     }
 
-    public static Type getJsonType(EvalContext context) {
-        return (Type) context.getModuleScope().resolve(JsonParserVisitor.JSON_FILE_TYPE);
+    public static Type getJsonType(ModuleScope moduleScope) {
+        return (Type) moduleScope.resolve(JsonParserVisitor.JSON_FILE_TYPE);
     }
 
     public static ValueExpr parseJson(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
@@ -112,38 +116,54 @@ public class InputReader {
         return visitor.visit(tree);
     }
 
-    public static Type getXmlType(EvalContext context) {
+    public static Type getXmlType(ModuleScope moduleScope) {
+        return (Type) moduleScope.resolve(XmlFileParser.XML_FILE_TYPE);
+    }
+
+    public static ValueExpr parseXml(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
+                                     Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException {
+        RecordValueExpr xmlMappingExpr = (RecordValueExpr) args.get("xmlMapping");
+        StringValueExpr charsetExpr = (StringValueExpr) args.get("charset");
+
+        if (xmlMappingExpr == null) {
+            throw new IllegalArgumentError("'xmlMapping' cannot be null", sourceCodeRef);
+        }
+
+        Charset charset = Charset.defaultCharset();
+        if (charsetExpr != null) {
+            charset = Charset.forName(charsetExpr.getValue());
+        }
+
+        var parser = new XmlFileParser(moduleScope, context, xmlMappingExpr, filePath, charset, sourceCodeRef);
+        return parser.parse(in);
+    }
+
+    public static Type getDartType(ModuleScope moduleScope) {
         return null;
     }
 
-    public static ValueExpr parseXml(EvalContext context, String filePath, String fileName, InputStream in) throws IOException {
+    public static ValueExpr parseDart(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
+                                      Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException {
 
         return null;
     }
 
-    public static Type getDartType(EvalContext context) {
+    public static Type getJavaType(ModuleScope moduleScope) {
         return null;
     }
 
-    public static ValueExpr parseDart(EvalContext context, String filePath, String fileName, InputStream in) throws IOException {
-
-        return null;
-    }
-
-    public static Type getJavaType(EvalContext context) {
-        return null;
-    }
-
-    public static ValueExpr parseJava(EvalContext context, String filePath, String fileName, InputStream in) throws IOException {
+    public static ValueExpr parseJava(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
+                                      Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException {
 
         return null;
     }
 
-    public static Type getTypescriptType(EvalContext context) {
+    public static Type getTypescriptType(ModuleScope moduleScope) {
         return null;
     }
 
-    public static ValueExpr parseTypescript(EvalContext context, String filePath, String fileName, InputStream in) throws IOException {
+    public static ValueExpr parseTypescript(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
+                                            Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException {
 
         return null;
     }

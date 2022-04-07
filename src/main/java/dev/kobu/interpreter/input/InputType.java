@@ -24,11 +24,11 @@ SOFTWARE.
 
 package dev.kobu.interpreter.input;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.Type;
 
 public interface InputType {
 
-    Type getType(EvalContext context);
+    Type getType(ModuleScope moduleScope);
 
 }

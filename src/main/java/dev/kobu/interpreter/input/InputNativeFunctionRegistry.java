@@ -39,6 +39,10 @@ public class InputNativeFunctionRegistry {
         moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Json", "readJson"),
                 new ReadFromFileFunctionImpl(InputReader::parseJson, InputReader::getJsonType));
 
+        //xml
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Xml", "readXml"),
+                new ReadFromFileFunctionImpl(InputReader::parseXml, InputReader::getXmlType));
+
     }
 
 }
