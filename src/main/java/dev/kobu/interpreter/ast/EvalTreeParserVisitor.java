@@ -320,8 +320,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             }
         }
 
-        typeParameterContext = null;
-
         function.setParameters(parameters);
         if (ctx.functionDeclRet() != null && ctx.functionDeclRet().type() != null) {
             functionReturnType = true;
@@ -333,6 +331,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         }
         function.setBlock(exprList);
         function.buildType();
+
+        typeParameterContext = null;
 
         return null;
     }

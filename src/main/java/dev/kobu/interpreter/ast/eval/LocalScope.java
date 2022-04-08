@@ -70,10 +70,6 @@ public class LocalScope implements Scope {
         if (currentSymbol != null) {
             analyzerContext.getErrorScope().addError(new SymbolConflictError(currentSymbol, symbol));
         }
-        Symbol moduleSymbol = moduleScope.resolve(symbol.getName());
-        if (moduleSymbol instanceof FunctionSymbol) {
-            analyzerContext.getErrorScope().addError(new SymbolConflictError(moduleSymbol, symbol));
-        }
         this.symbols.put(symbol.getName(), symbol);
 
     }

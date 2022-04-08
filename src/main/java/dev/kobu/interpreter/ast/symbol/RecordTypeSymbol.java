@@ -337,10 +337,13 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
 
     @Override
     public Type constructFor(Map<String, Type> typeArgs) {
-        List<Type> types = this.typeArgs.stream()
-                .map(t -> t.constructFor(typeArgs))
-                .collect(Collectors.toList());
-        return new RecordTypeSymbol(originalType, types);
+        if (originalType != null) {
+            List<Type> types = this.typeArgs.stream()
+                    .map(t -> t.constructFor(typeArgs))
+                    .collect(Collectors.toList());
+            return new RecordTypeSymbol(originalType, types);
+        }
+        return this;
     }
 
     @Override

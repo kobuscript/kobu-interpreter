@@ -417,10 +417,8 @@ public class VarTest extends AstTestBase {
         var myVar3 = var(module, "myVar2", functionCall);
 
         analyze(module, block(myVar, myVar2, myVar3));
-        assertErrors(
-                new SymbolConflictError(function, myVar.getVarSymbol()),
-                new InvalidFunctionRefError(functionCall.getFunctionRefExpr().getSourceCodeRef(), myVar.getVarSymbol().getType())
-        );
+        assertErrors(new InvalidFunctionRefError(functionCall.getFunctionRefExpr().getSourceCodeRef(),
+                myVar.getVarSymbol().getType()));
     }
 
     @Test
