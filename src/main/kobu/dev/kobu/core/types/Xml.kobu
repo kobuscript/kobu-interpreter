@@ -27,7 +27,9 @@ module dev.kobu.core.types.Xml
 type record XmlMapping<T> {
     rootRecord: RecordType<T>,
     aliases: RecordAlias[],
-    attrAliases: RecordAttributeAlias[]
+    attrAliases: RecordAttributeAlias[],
+    implicitCollections: ImplicitCollection[],
+    tagAttributes: TagAttribute[]
 }
 
 type record RecordAlias {
@@ -38,14 +40,60 @@ type record RecordAlias {
 type record RecordAttributeAlias {
     alias: string,
     record: RecordType<AnyRecord>,
-    recordAttribute: string,
-    asTagAttribute: boolean,
-    implicitCollection: boolean
+    recordAttribute: string
+}
+
+type record ImplicitCollection {
+    record: RecordType<AnyRecord>,
+    recordAttribute: string
+}
+
+type record TagAttribute {
+    record: RecordType<AnyRecord>,
+    recordAttribute: string
 }
 
 type record XmlFile<T> {
     file: File,
     xml: T
+}
+
+fun newXmlMapping<T>(rootRecord: RecordType<T>): XmlMapping<T> {
+    return XmlMapping<T>{
+        rootRecord: rootRecord,
+        aliases: [],
+        attrAliases: [],
+        implicitCollections: [],
+        tagAttributes: []
+    }
+}
+
+fun alias(xmlMapping: XmlMapping<AnyRecord>, alias: string, record: RecordType<AnyRecord>): void {
+    xmlMapping.aliases.add(RecordAlias{ alias: alias, record: record })
+}
+
+fun aliasAttribute(xmlMapping: XmlMapping<AnyRecord>, alias: string, record: RecordType<AnyRecord>,
+                   recordAttribute: string): void {
+    xmlMapping.attrAliases.add(RecordAttributeAlias{
+        alias: alias,
+        record: record,
+        recordAttribute: recordAttribute
+    });
+}
+
+fun addImplicitCollection(xmlMapping: XmlMapping<AnyRecord>, record: RecordType<AnyRecord>,
+                          recordAttribute: string): void {
+    xmlMapping.implicitCollections.add(ImplicitCollection{
+        record: record,
+        recordAttribute: recordAttribute
+    });
+}
+
+fun useAttributeFor(xmlMapping: XmlMapping<AnyRecord>, record: RecordType<AnyRecord>, recordAttribute: string): void {
+    xmlMapping.tagAttributes.add(TagAttribute{
+        record: record,
+        recordAttribute: recordAttribute
+    });
 }
 
 def native readXml<T>(dir: Path, pattern: string, xmlMapping: XmlMapping<T>,

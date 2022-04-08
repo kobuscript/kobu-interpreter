@@ -294,7 +294,7 @@ public class RecordTest extends AstTestBase {
         var assign1 = assign(fieldAccess(ref(module, "rec"), undefRef),
                 numberVal);
         analyze(module, block(recVar, assign1));
-        assertErrors(new UndefinedFieldError(undefRef.getSourceCodeRef(), recType2, "undef"));
+        assertErrors(new UndefinedAttributeError(undefRef.getSourceCodeRef(), recType2, "undef"));
     }
 
     @Test

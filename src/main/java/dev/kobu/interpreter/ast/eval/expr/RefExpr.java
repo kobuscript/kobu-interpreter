@@ -35,7 +35,7 @@ import dev.kobu.interpreter.ast.symbol.generics.HasTypeParameters;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.error.analyzer.ConstAssignError;
 import dev.kobu.interpreter.error.analyzer.InvalidVariableError;
-import dev.kobu.interpreter.error.analyzer.UndefinedFieldError;
+import dev.kobu.interpreter.error.analyzer.UndefinedAttributeError;
 import dev.kobu.interpreter.error.analyzer.UndefinedSymbolError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
@@ -203,7 +203,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                 if (undefinedSymbolListener != null) {
                     undefinedSymbolListener.onUndefinedSymbol(context, typeScope, symbolName);
                 } else {
-                    context.addAnalyzerError(new UndefinedFieldError(sourceCodeRef, typeScope, symbolName));
+                    context.addAnalyzerError(new UndefinedAttributeError(sourceCodeRef, typeScope, symbolName));
                 }
                 this.type = UnknownType.INSTANCE;
                 return;

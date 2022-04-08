@@ -30,21 +30,21 @@ import dev.kobu.interpreter.error.AnalyzerError;
 
 import java.util.Objects;
 
-public class UndefinedFieldError extends AnalyzerError {
+public class UndefinedAttributeError extends AnalyzerError {
 
     private final Type type;
 
-    private final String fieldName;
+    private final String attrName;
 
-    public UndefinedFieldError(SourceCodeRef sourceCodeRef, Type type, String fieldName) {
+    public UndefinedAttributeError(SourceCodeRef sourceCodeRef, Type type, String attrName) {
         super(sourceCodeRef);
         this.type = type;
-        this.fieldName = fieldName;
+        this.attrName = attrName;
     }
 
     @Override
     public String getDescription() {
-        return "Field '" + fieldName + "' does not exist in type '" + type.getName() + "'";
+        return "Attribute '" + attrName + "' does not exist on type '" + type.getName() + "'";
     }
 
     @Override
@@ -52,12 +52,12 @@ public class UndefinedFieldError extends AnalyzerError {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        UndefinedFieldError that = (UndefinedFieldError) o;
-        return Objects.equals(type, that.type) && Objects.equals(fieldName, that.fieldName);
+        UndefinedAttributeError that = (UndefinedAttributeError) o;
+        return Objects.equals(type, that.type) && Objects.equals(attrName, that.attrName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), type, fieldName);
+        return Objects.hash(super.hashCode(), type, attrName);
     }
 }

@@ -36,7 +36,7 @@ import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.error.analyzer.InvalidQueryType;
 import dev.kobu.interpreter.error.analyzer.NotArrayTypeError;
-import dev.kobu.interpreter.error.analyzer.UndefinedFieldError;
+import dev.kobu.interpreter.error.analyzer.UndefinedAttributeError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +83,7 @@ public class QueryFieldClause implements Evaluable, HasTypeScope {
     public void analyze(EvalContext context) {
         var fieldType = typeScope.resolveField(field);
         if (fieldType == null) {
-            context.addAnalyzerError(new UndefinedFieldError(sourceCodeRef, typeScope, field));
+            context.addAnalyzerError(new UndefinedAttributeError(sourceCodeRef, typeScope, field));
             return;
         }
 
