@@ -133,9 +133,38 @@ public class XmlFileParser {
             valueExpr = recordExpr;
 
         } else if (targetType instanceof ArrayType) {
-
+            if (node.hasChildNodes()) {
+                Type elementType = ((ArrayType) targetType).getElementType();
+                String tagName = getRecordAlias((RecordTypeSymbol) elementType);
+                List<ValueExpr> values = new ArrayList<>();
+                for (int i = 0; i < node.getChildNodes().getLength(); i++) {
+                    Node childNode = node.getChildNodes().item(i);
+                    if (childNode instanceof Element && tagName.equals(((Element) childNode).getTagName())) {
+                        ValueExpr elementValueExpr = parseNode(elementType, childNode);
+                        values.add(elementValueExpr);
+                    }
+                }
+                valueExpr = new ArrayValueExpr((ArrayType) targetType, values);
+            }
         } else if (targetType instanceof TupleType) {
-
+            if (node.hasChildNodes()) {
+                TupleTypeElement tupleTypeElement = ((TupleType) targetType).getTypeElement();
+                String tagName = getRecordAlias((RecordTypeSymbol) tupleTypeElement.getElementType());
+                List<ValueExpr> values = new ArrayList<>();
+                for (int i = 0; i < node.getChildNodes().getLength(); i++) {
+                    Node childNode = node.getChildNodes().item(i);
+                    if (childNode instanceof Element && tagName.equals(((Element) childNode).getTagName())) {
+                        ValueExpr elementValueExpr = parseNode(tupleTypeElement.getElementType(), childNode);
+                        values.add(elementValueExpr);
+                        tupleTypeElement = tupleTypeElement.getNext();
+                        if (tupleTypeElement == null) {
+                            break;
+                        }
+                        tagName = getRecordAlias((RecordTypeSymbol) tupleTypeElement.getElementType());
+                    }
+                }
+                valueExpr = new TupleValueExpr((TupleType) targetType, values);
+            }
         } else if (targetType instanceof StringTypeSymbol) {
             return new StringValueExpr(node.getNodeValue());
         } else if (targetType instanceof NumberTypeSymbol) {
@@ -214,11 +243,11 @@ public class XmlFileParser {
                     throw new InvalidCallError("Attribute '" + implicitCol.recordAttr + "' does not exist on type '" +
                             recordType.getName() + "'", sourceCodeRef);
                 }
-                String tagName = getRecordAlias(recordType);
 
                 if (targetType instanceof ArrayType) {
                     validateArrayType((ArrayType) targetType);
                     Type elementType = ((ArrayType) targetType).getElementType();
+                    String tagName = getRecordAlias((RecordTypeSymbol) elementType);
                     List<ValueExpr> values = new ArrayList<>();
                     for (int i = 0; i < element.getChildNodes().getLength(); i++) {
                         Node childNode = element.getChildNodes().item(i);
@@ -232,7 +261,23 @@ public class XmlFileParser {
                 } else if (targetType instanceof TupleType) {
                     validateTupleType((TupleType) targetType);
 
-
+                    TupleTypeElement tupleElement = ((TupleType) targetType).getTypeElement();
+                    String tagName = getRecordAlias((RecordTypeSymbol) tupleElement.getElementType());
+                    List<ValueExpr> values = new ArrayList<>();
+                    for (int i = 0; i < element.getChildNodes().getLength(); i++) {
+                        Node childNode = element.getChildNodes().item(i);
+                        if (childNode instanceof Element && tagName.equals(((Element) childNode).getTagName())) {
+                            ValueExpr valueExpr = parseNode(tupleElement.getElementType(), childNode);
+                            values.add(valueExpr);
+                            tupleElement = tupleElement.getNext();
+                            if (tupleElement == null) {
+                                break;
+                            }
+                            tagName = getRecordAlias((RecordTypeSymbol) tupleElement.getElementType());
+                        }
+                    }
+                    TupleValueExpr tupleValueExpr = new TupleValueExpr((TupleType) targetType, values);
+                    recordExpr.updateFieldValue(context, implicitCol.recordAttr, tupleValueExpr);
                 }
             }
         }
