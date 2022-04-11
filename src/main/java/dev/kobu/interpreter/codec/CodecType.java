@@ -22,20 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.input;
+package dev.kobu.interpreter.codec;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
+public interface CodecType {
 
-public interface InputParser {
-
-    ValueExpr parse(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
-                    Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException;
+    Type getType(ModuleScope moduleScope);
 
 }

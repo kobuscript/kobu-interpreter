@@ -32,13 +32,14 @@ import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.utils.ErrorMessageFormatter;
+import dev.kobu.interpreter.codec.OutputWriter;
 import dev.kobu.interpreter.error.*;
 import dev.kobu.interpreter.file_system.KobuFile;
 import dev.kobu.interpreter.file_system.local.LocalKobuFile;
 import dev.kobu.interpreter.file_system.local.LocalKobuFileSystem;
-import dev.kobu.interpreter.input.FileFetcher;
-import dev.kobu.interpreter.input.InputNativeFunctionRegistry;
-import dev.kobu.interpreter.input.InputReader;
+import dev.kobu.interpreter.codec.FileFetcher;
+import dev.kobu.interpreter.codec.CodecNativeFunctionRegistry;
+import dev.kobu.interpreter.codec.InputReader;
 import dev.kobu.interpreter.module.ModuleLoader;
 import picocli.CommandLine;
 
@@ -79,10 +80,12 @@ public class RunCommand implements Callable<Integer> {
 
             Database database = new Database();
             InputReader inputReader = new InputReader(new FileFetcher());
-            EvalContextProvider evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, fileSystem, database, inputReader);
+            OutputWriter outputWriter = new OutputWriter();
+            EvalContextProvider evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, fileSystem,
+                    database, inputReader, outputWriter);
 
             ModuleLoader moduleLoader = new ModuleLoader(evalContextProvider, fileSystem, project, EvalModeEnum.EXECUTION);
-            InputNativeFunctionRegistry.register(moduleLoader);
+            CodecNativeFunctionRegistry.register(moduleLoader);
             ModuleScope moduleScope = moduleLoader.load(analyzerContext, localFile);
 
             analyzerContext.getParserErrorListener().checkErrors();

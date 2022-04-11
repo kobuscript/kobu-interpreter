@@ -31,11 +31,12 @@ import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.function.NativeFunctionSymbol;
+import dev.kobu.interpreter.codec.OutputWriter;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.error.analyzer.UnreachableCodeError;
 import dev.kobu.interpreter.error.eval.UserDefinedError;
 import dev.kobu.interpreter.file_system.KobuFileSystem;
-import dev.kobu.interpreter.input.InputReader;
+import dev.kobu.interpreter.codec.InputReader;
 
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +57,8 @@ public class EvalContext {
     private final Database database;
 
     private final InputReader inputReader;
+
+    private final OutputWriter outputWriter;
 
     private final Map<String, String> properties = new HashMap<>();
 
@@ -80,7 +83,7 @@ public class EvalContext {
     protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                           ModuleScope moduleScope, KobuFileSystem fileSystem, Database database,
                           InputReader inputReader,
-                          UserDefinedFunction function) {
+                          OutputWriter outputWriter, UserDefinedFunction function) {
         this.provider = provider;
         this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
@@ -88,6 +91,7 @@ public class EvalContext {
         this.fileSystem = fileSystem;
         this.database = database;
         this.inputReader = inputReader;
+        this.outputWriter = outputWriter;
         this.function = function;
         loadProperties();
         pushNewScope();
@@ -96,7 +100,7 @@ public class EvalContext {
     protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                           ModuleScope moduleScope, KobuFileSystem fileSystem, Database database,
                           InputReader inputReader,
-                          RuleContext ruleContext) {
+                          OutputWriter outputWriter, RuleContext ruleContext) {
         this.provider = provider;
         this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
@@ -104,6 +108,7 @@ public class EvalContext {
         this.fileSystem = fileSystem;
         this.database = database;
         this.inputReader = inputReader;
+        this.outputWriter = outputWriter;
         this.ruleContext = ruleContext;
         loadProperties();
         pushNewScope();
@@ -111,7 +116,7 @@ public class EvalContext {
 
     protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                           ModuleScope moduleScope, KobuFileSystem fileSystem, Database database,
-                          InputReader inputReader) {
+                          InputReader inputReader, OutputWriter outputWriter) {
         this.provider = provider;
         this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
@@ -119,6 +124,7 @@ public class EvalContext {
         this.fileSystem = fileSystem;
         this.database = database;
         this.inputReader = inputReader;
+        this.outputWriter = outputWriter;
         loadProperties();
         pushNewScope();
     }
@@ -153,6 +159,10 @@ public class EvalContext {
 
     public InputReader getInputParser() {
         return inputReader;
+    }
+
+    public OutputWriter getOutputWriter() {
+        return outputWriter;
     }
 
     public LocalScope pushNewScope() {

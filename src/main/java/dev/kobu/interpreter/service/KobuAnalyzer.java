@@ -36,6 +36,7 @@ import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.codec.OutputWriter;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.error.KobuError;
 import dev.kobu.interpreter.error.ParserError;
@@ -43,9 +44,9 @@ import dev.kobu.interpreter.error.ParserErrorListener;
 import dev.kobu.interpreter.file_system.KobuFile;
 import dev.kobu.interpreter.file_system.KobuFileSystem;
 import dev.kobu.interpreter.file_system.KobuScriptFile;
-import dev.kobu.interpreter.input.FileFetcher;
-import dev.kobu.interpreter.input.InputNativeFunctionRegistry;
-import dev.kobu.interpreter.input.InputReader;
+import dev.kobu.interpreter.codec.FileFetcher;
+import dev.kobu.interpreter.codec.CodecNativeFunctionRegistry;
+import dev.kobu.interpreter.codec.InputReader;
 import dev.kobu.interpreter.module.KobuElementDescriptor;
 import dev.kobu.interpreter.module.ModuleLoader;
 
@@ -69,7 +70,9 @@ public class KobuAnalyzer {
         this.fileSystem = fileSystem;
         Database database = new Database();
         InputReader inputReader = new InputReader(new FileFetcher());
-        evalContextProvider = new EvalContextProvider(EvalModeEnum.ANALYZER_SERVICE, fileSystem, database, inputReader);
+        OutputWriter outputWriter = new OutputWriter();
+        evalContextProvider = new EvalContextProvider(EvalModeEnum.ANALYZER_SERVICE, fileSystem, database,
+                inputReader, outputWriter);
     }
 
     public synchronized void removeModule(KobuFile projectFile) {
@@ -201,7 +204,7 @@ public class KobuAnalyzer {
             project = projectReader.loadDefaultProject(scriptFile);
         }
         moduleLoader = new ModuleLoader(evalContextProvider, fileSystem, project, EvalModeEnum.ANALYZER_SERVICE);
-        InputNativeFunctionRegistry.register(moduleLoader);
+        CodecNativeFunctionRegistry.register(moduleLoader);
         modules.put(projectPath, moduleLoader);
         return moduleLoader;
     }

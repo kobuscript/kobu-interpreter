@@ -22,27 +22,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.input;
+package dev.kobu.interpreter.codec.function;
 
-import dev.kobu.interpreter.ast.eval.function.NativeFunctionId;
-import dev.kobu.interpreter.input.function.ReadFromFileFunctionImpl;
-import dev.kobu.interpreter.module.ModuleLoader;
+import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
+import dev.kobu.interpreter.ast.eval.function.NativeFunction;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.codec.Writer;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
-public class InputNativeFunctionRegistry {
+import java.util.Map;
 
-    public static void register(ModuleLoader moduleLoader) {
-        //csv
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Csv", "readCsv"),
-                new ReadFromFileFunctionImpl(InputReader::parseCsv, InputReader::getCsvType));
+public class EncodeFunctionImpl extends NativeFunction {
 
-        //json
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Json", "readJson"),
-                new ReadFromFileFunctionImpl(InputReader::parseJson, InputReader::getJsonType));
+    private final Writer writer;
 
-        //xml
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Xml", "readXml"),
-                new ReadFromFileFunctionImpl(InputReader::parseXml, InputReader::getXmlType));
+    public EncodeFunctionImpl(Writer writer) {
+        this.writer = writer;
+    }
 
+    @Override
+    protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
+        StringValueExpr sourceExpr = (StringValueExpr) args.get("value");
+        if (sourceExpr == null) {
+            throw new IllegalArgumentError("'value' cannot be null", sourceCodeRef);
+        }
+
+        return context.getOutputWriter().encode(getModuleScope(), context, writer, sourceExpr, args, sourceCodeRef);
     }
 
 }

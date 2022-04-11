@@ -44,11 +44,12 @@ import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 import dev.kobu.interpreter.ast.symbol.function.FunctionSymbol;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
+import dev.kobu.interpreter.codec.OutputWriter;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.file_system.ScriptRef;
 import dev.kobu.interpreter.file_system.local.LocalKobuFileSystem;
-import dev.kobu.interpreter.input.FileFetcher;
-import dev.kobu.interpreter.input.InputReader;
+import dev.kobu.interpreter.codec.FileFetcher;
+import dev.kobu.interpreter.codec.InputReader;
 import dev.kobu.interpreter.module.ModuleIndex;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -73,7 +74,9 @@ public abstract class AstTestBase {
     public AstTestBase() {
         Database database = new Database();
         InputReader inputReader = new InputReader(new FileFetcher());
-        evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, new LocalKobuFileSystem(), database, inputReader);
+        OutputWriter outputWriter = new OutputWriter();
+        evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, new LocalKobuFileSystem(), database,
+                inputReader, outputWriter);
     }
 
     @BeforeEach

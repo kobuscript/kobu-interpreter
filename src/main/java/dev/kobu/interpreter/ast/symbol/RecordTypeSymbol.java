@@ -163,6 +163,18 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         return attributes.get(name);
     }
 
+    public boolean hasAttribute(String name) {
+        RecordTypeAttribute attr = attributes.get(name);
+        if (attr != null) {
+            return true;
+        }
+        Type fieldType = resolveSuperTypeField(name);
+        if (fieldType != null) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public Type resolveField(String name) {
         RecordTypeAttribute attr = attributes.get(name);

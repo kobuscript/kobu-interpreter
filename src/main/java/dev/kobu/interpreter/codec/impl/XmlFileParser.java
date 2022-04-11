@@ -22,13 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.input.parser;
+package dev.kobu.interpreter.codec.impl;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.*;
 import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueFactory;
-import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
+import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
@@ -37,7 +40,6 @@ import dev.kobu.interpreter.ast.symbol.value.NumberTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.value.StringTypeSymbol;
 import dev.kobu.interpreter.ast.utils.RecordFactory;
 import dev.kobu.interpreter.error.eval.BuiltinFunctionError;
-import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 import dev.kobu.interpreter.error.eval.InvalidCallError;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -52,9 +54,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class XmlFileParser {
+public class XmlFileParser extends XmlCodec {
 
     public static final String XML_FILE_TYPE = "XmlFile";
 
@@ -69,16 +72,6 @@ public class XmlFileParser {
     private final Charset charset;
 
     private final SourceCodeRef sourceCodeRef;
-
-    private final Map<RecordTypeSymbol, RecordAlias> recordAliasMap = new HashMap<>();
-
-    private final Map<RecordAttrAliasKey, RecordAttributeAlias> recordAttributeAliasMap = new HashMap<>();
-
-    private final Map<Type, List<ImplicitCollection>> implicitCollectionMap = new HashMap<>();
-
-    private final Map<RecordAttributeKey, TagAttribute> tagAttributeMap = new HashMap<>();
-
-    private RecordTypeSymbol rootRecordType;
 
     public XmlFileParser(ModuleScope moduleScope, EvalContext context, RecordValueExpr xmlMappingExpr,
                          String filePath, Charset charset, SourceCodeRef sourceCodeRef) {
@@ -95,7 +88,7 @@ public class XmlFileParser {
         FileValueExpr fileExpr = new FileValueExpr(new File(filePath));
         record.updateFieldValue(context, "file", fileExpr);
 
-        readMapping();
+        readMapping(xmlMappingExpr, sourceCodeRef);
 
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -299,261 +292,6 @@ public class XmlFileParser {
             }
             tupleTypeElement = tupleTypeElement.getNext();
         }
-    }
-
-    private String resolveAlias(RecordTypeSymbol recordType, String alias) {
-        RecordAttrAliasKey attrAliasKey = new RecordAttrAliasKey(recordType, alias);
-        RecordAttributeAlias attrAlias = recordAttributeAliasMap.get(attrAliasKey);
-        if (attrAlias != null) {
-            return attrAlias.recordAttr;
-        }
-        return alias;
-    }
-
-    private String getRecordAlias(RecordTypeSymbol recordType) {
-        RecordAlias recordAlias = recordAliasMap.get(recordType);
-        if (recordAlias != null) {
-            return recordAlias.alias;
-        }
-        return recordType.getNameInModule();
-    }
-
-    private void readMapping() {
-        RecordTypeRefValueExpr rootRecordExpr = (RecordTypeRefValueExpr) xmlMappingExpr.resolveField("rootRecord");
-        if (rootRecordExpr == null) {
-            throw new IllegalArgumentError("'xmlMapping.rootRecord' cannot be null", sourceCodeRef);
-        }
-        this.rootRecordType = rootRecordExpr.getValue();
-
-        ArrayValueExpr aliasesExpr = (ArrayValueExpr) xmlMappingExpr.resolveField("aliases");
-
-        if (aliasesExpr != null) {
-            int recIndex = 0;
-            for (ValueExpr recordAliasValueExpr : aliasesExpr.getValue()) {
-                if (recordAliasValueExpr == null) {
-                    recIndex++;
-                    continue;
-                }
-
-                RecordValueExpr recordAliasExpr = (RecordValueExpr) recordAliasValueExpr;
-
-                RecordTypeRefValueExpr recordTypeExpr = (RecordTypeRefValueExpr) recordAliasExpr.resolveField("record");
-                if (recordTypeExpr == null) {
-                    throw new IllegalArgumentError("'xmlMapping.aliases[" + recIndex + "].recordType' cannot be null", sourceCodeRef);
-                }
-                StringValueExpr aliasExpr = (StringValueExpr) recordAliasExpr.resolveField("alias");
-                if (aliasExpr == null) {
-                    throw new IllegalArgumentError("'xmlMapping.aliases[" + recIndex + "].alias' cannot be null", sourceCodeRef);
-                }
-
-                String alias = aliasExpr.getValue();
-                RecordAlias recordAlias = new RecordAlias(alias, recordTypeExpr.getValue());
-                recordAliasMap.put(recordTypeExpr.getValue(), recordAlias);
-
-                recIndex++;
-
-            }
-        }
-
-        ArrayValueExpr attrAliasesExpr = (ArrayValueExpr) xmlMappingExpr.resolveField("attrAliases");
-
-        if (attrAliasesExpr != null) {
-            int recIndex = 0;
-            for (ValueExpr recordAttrAliasvalueExpr : attrAliasesExpr.getValue()) {
-                if (recordAttrAliasvalueExpr == null) {
-                    recIndex++;
-                    continue;
-                }
-
-                RecordValueExpr recordAttrAliasExpr = (RecordValueExpr) recordAttrAliasvalueExpr;
-
-                RecordTypeRefValueExpr recordTypeExpr = (RecordTypeRefValueExpr) recordAttrAliasExpr.resolveField("record");
-                if (recordTypeExpr == null) {
-                    throw new IllegalArgumentError("'xmlMapping.aliases[" + recIndex + "].recordType' cannot be null", sourceCodeRef);
-                }
-                StringValueExpr aliasExpr = (StringValueExpr) recordAttrAliasExpr.resolveField("alias");
-                if (aliasExpr == null) {
-                    throw new IllegalArgumentError("'xmlMapping.aliases[" + recIndex + "].alias' cannot be null", sourceCodeRef);
-                }
-
-                StringValueExpr recordAttributeExpr = (StringValueExpr) recordAttrAliasExpr.resolveField("recordAttribute");
-                if (recordAttributeExpr == null) {
-                    throw new IllegalArgumentError("'xmlMapping.aliases[" + recIndex + "].recordAttribute' cannot be null", sourceCodeRef);
-                }
-
-                RecordAttributeAlias recAttributeAlias = new RecordAttributeAlias(recordAttributeExpr.getValue(),
-                        aliasExpr.getValue(), recordTypeExpr.getValue());
-                recordAttributeAliasMap.put(new RecordAttrAliasKey(recordTypeExpr.getValue(), aliasExpr.getValue()),
-                        recAttributeAlias);
-
-                recIndex++;
-            }
-        }
-
-        ArrayValueExpr implicitCollectionsExpr = (ArrayValueExpr) xmlMappingExpr.resolveField("implicitCollections");
-
-        if (implicitCollectionsExpr != null) {
-            int recIndex = 0;
-            for (ValueExpr implicitColValueExpr : implicitCollectionsExpr.getValue()) {
-                if (implicitColValueExpr == null) {
-                    recIndex++;
-                    continue;
-                }
-
-                RecordValueExpr implicitColExpr = (RecordValueExpr) implicitColValueExpr;
-                RecordTypeRefValueExpr recordTypeExpr = (RecordTypeRefValueExpr) implicitColExpr.resolveField("record");
-                if (recordTypeExpr == null) {
-                    throw new IllegalArgumentError("'xmlMapping.implicitCollections[" + recIndex + "].recordType' cannot be null", sourceCodeRef);
-                }
-                StringValueExpr recordAttributeExpr = (StringValueExpr) implicitColExpr.resolveField("recordAttribute");
-                if (recordAttributeExpr == null) {
-                    throw new IllegalArgumentError("'xmlMapping.implicitCollections[" + recIndex + "].recordAttribute' cannot be null", sourceCodeRef);
-                }
-
-                ImplicitCollection implicitCol = new ImplicitCollection(recordTypeExpr.getValue(),
-                        recordAttributeExpr.getValue());
-
-                List<ImplicitCollection> implicitColList = implicitCollectionMap.computeIfAbsent(recordTypeExpr.getValue(),
-                        k -> new ArrayList<>());
-                implicitColList.add(implicitCol);
-
-            }
-        }
-
-        ArrayValueExpr tagAttributesExpr = (ArrayValueExpr) xmlMappingExpr.resolveField("tagAttributes");
-
-        if (tagAttributesExpr != null) {
-            int recIndex = 0;
-            for (ValueExpr tagAttributeValueExpr : tagAttributesExpr.getValue()) {
-                if (tagAttributeValueExpr == null) {
-                    recIndex++;
-                    continue;
-                }
-
-                RecordValueExpr tagAttributeExpr = (RecordValueExpr) tagAttributeValueExpr;
-                RecordTypeRefValueExpr recordTypeExpr = (RecordTypeRefValueExpr) tagAttributeExpr.resolveField("record");
-                if (recordTypeExpr == null) {
-                    throw new IllegalArgumentError("'xmlMapping.tagAttributes[" + recIndex + "].recordType' cannot be null", sourceCodeRef);
-                }
-                StringValueExpr recordAttributeExpr = (StringValueExpr) tagAttributeExpr.resolveField("recordAttribute");
-                if (recordAttributeExpr == null) {
-                    throw new IllegalArgumentError("'xmlMapping.tagAttributes[" + recIndex + "].recordAttribute' cannot be null", sourceCodeRef);
-                }
-
-                TagAttribute tagAttribute = new TagAttribute(recordTypeExpr.getValue(), recordAttributeExpr.getValue());
-                tagAttributeMap.put(new RecordAttributeKey(recordTypeExpr.getValue(), recordAttributeExpr.getValue()),
-                        tagAttribute);
-
-            }
-        }
-
-    }
-
-    private static class RecordAlias {
-
-        private final String alias;
-
-        private final RecordTypeSymbol recordType;
-
-        public RecordAlias(String alias, RecordTypeSymbol recordType) {
-            this.alias = alias;
-            this.recordType = recordType;
-        }
-
-    }
-
-    private static class RecordAttributeAlias {
-
-        private final String alias;
-
-        private final RecordTypeSymbol recordType;
-
-        private final String recordAttr;
-
-        public RecordAttributeAlias(String recordAttr, String alias, RecordTypeSymbol recordType) {
-            this.recordAttr = recordAttr;
-            this.alias = alias;
-            this.recordType = recordType;
-        }
-
-    }
-
-    private static class ImplicitCollection {
-
-        private final RecordTypeSymbol recordType;
-
-        private final String recordAttr;
-
-        public ImplicitCollection(RecordTypeSymbol recordType, String recordAttr) {
-            this.recordType = recordType;
-            this.recordAttr = recordAttr;
-        }
-
-    }
-
-    private static class TagAttribute {
-
-        private final RecordTypeSymbol recordType;
-
-        private final String recordAttr;
-
-        public TagAttribute(RecordTypeSymbol recordType, String recordAttr) {
-            this.recordType = recordType;
-            this.recordAttr = recordAttr;
-        }
-
-    }
-
-    private static class RecordAttributeKey {
-
-        private final RecordTypeSymbol recordType;
-
-        private final String recordAttribute;
-
-        public RecordAttributeKey(RecordTypeSymbol recordType, String recordAttribute) {
-            this.recordType = recordType;
-            this.recordAttribute = recordAttribute;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            RecordAttributeKey that = (RecordAttributeKey) o;
-            return Objects.equals(recordType, that.recordType) && Objects.equals(recordAttribute, that.recordAttribute);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(recordType, recordAttribute);
-        }
-
-    }
-
-    private static class RecordAttrAliasKey {
-
-        private final RecordTypeSymbol recordType;
-
-        private final String alias;
-
-        public RecordAttrAliasKey(RecordTypeSymbol recordType, String alias) {
-            this.recordType = recordType;
-            this.alias = alias;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            RecordAttrAliasKey that = (RecordAttrAliasKey) o;
-            return Objects.equals(recordType, that.recordType) && Objects.equals(alias, that.alias);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(recordType, alias);
-        }
-
     }
 
 }

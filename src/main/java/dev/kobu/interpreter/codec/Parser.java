@@ -20,21 +20,22 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
+ */
 
-module dev.kobu.core.types.Json
+package dev.kobu.interpreter.codec;
 
-type record JsonFile<T> {
-    file: File,
-    json: T
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+
+public interface Parser {
+
+    ValueExpr parse(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
+                    Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException;
+
 }
-
-def native readJson<T>(dir: Path, pattern: string, recordType: RecordType<T>,
-                       recursive?: boolean, charset?: string): JsonFile<T>;
-
-def native readJsonArray<T>(dir: Path, pattern: string, recordType: RecordType<T>,
-                            recursive?: boolean, charset?: string): JsonFile<T[]>
-
-def native writeJson(file: File, value: Any, charset?: string): void;
-
-def native toJson(value: Any): string;

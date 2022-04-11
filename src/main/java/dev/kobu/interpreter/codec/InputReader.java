@@ -22,12 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.input;
+package dev.kobu.interpreter.codec;
 
 import dev.kobu.antlr.json.JSONLexer;
 import dev.kobu.antlr.json.JSONParser;
-import dev.kobu.antlr.xml.XMLLexer;
-import dev.kobu.antlr.xml.XMLParser;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
@@ -39,9 +37,9 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
-import dev.kobu.interpreter.input.parser.CsvFileParser;
-import dev.kobu.interpreter.input.parser.JsonParserVisitor;
-import dev.kobu.interpreter.input.parser.XmlFileParser;
+import dev.kobu.interpreter.codec.impl.CsvFileParser;
+import dev.kobu.interpreter.codec.impl.JsonParserVisitor;
+import dev.kobu.interpreter.codec.impl.XmlFileParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -61,7 +59,7 @@ public class InputReader {
         this.fileFetcher = fileFetcher;
     }
 
-    public ValueExpr readFromFile(ModuleScope moduleScope, EvalContext context, InputParser parser, InputType inputType,
+    public ValueExpr readFromFile(ModuleScope moduleScope, EvalContext context, Parser parser, CodecType codecType,
                                   String dir, String pattern, boolean recursive, Map<String, ValueExpr> args,
                                   SourceCodeRef sourceCodeRef) throws IOException {
         List<File> files = fileFetcher.getFiles(context.getModuleScope().getProjectDir(), dir, pattern, recursive);
@@ -73,7 +71,7 @@ public class InputReader {
             }
         }
 
-        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(inputType.getType(moduleScope)), values);
+        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(codecType.getType(moduleScope)), values);
     }
 
     public static Type getCsvType(ModuleScope moduleScope) {

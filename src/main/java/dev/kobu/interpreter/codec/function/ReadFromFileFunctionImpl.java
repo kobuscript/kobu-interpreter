@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.input.function;
+package dev.kobu.interpreter.codec.function;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
@@ -33,21 +33,21 @@ import dev.kobu.interpreter.ast.eval.function.NativeFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.eval.BuiltinFunctionError;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
-import dev.kobu.interpreter.input.InputParser;
-import dev.kobu.interpreter.input.InputType;
+import dev.kobu.interpreter.codec.Parser;
+import dev.kobu.interpreter.codec.CodecType;
 
 import java.io.IOException;
 import java.util.Map;
 
 public class ReadFromFileFunctionImpl extends NativeFunction {
 
-    private final InputParser inputParser;
+    private final Parser parser;
 
-    private final InputType inputType;
+    private final CodecType codecType;
 
-    public ReadFromFileFunctionImpl(InputParser inputParser, InputType inputType) {
-        this.inputParser = inputParser;
-        this.inputType = inputType;
+    public ReadFromFileFunctionImpl(Parser parser, CodecType codecType) {
+        this.parser = parser;
+        this.codecType = codecType;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ReadFromFileFunctionImpl extends NativeFunction {
         }
 
         try {
-            return context.getInputParser().readFromFile(getModuleScope(), context, inputParser, inputType,
+            return context.getInputParser().readFromFile(getModuleScope(), context, parser, codecType,
                     dir.getPath().toAbsolutePath().toString(), pattern.getValue(), recursive, args, sourceCodeRef);
         } catch (IOException e) {
             throw new BuiltinFunctionError(e, sourceCodeRef);

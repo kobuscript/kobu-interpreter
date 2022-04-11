@@ -29,8 +29,9 @@ import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.RuleContext;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.UserDefinedFunction;
+import dev.kobu.interpreter.codec.OutputWriter;
 import dev.kobu.interpreter.file_system.KobuFileSystem;
-import dev.kobu.interpreter.input.InputReader;
+import dev.kobu.interpreter.codec.InputReader;
 
 public class EvalContextProvider {
 
@@ -40,38 +41,44 @@ public class EvalContextProvider {
 
     private final InputReader inputReader;
 
+    private final OutputWriter outputWriter;
+
     private final KobuFileSystem fileSystem;
 
     public EvalContextProvider(EvalModeEnum evalMode, KobuFileSystem fileSystem,
-                               Database database, InputReader inputReader) {
+                               Database database, InputReader inputReader, OutputWriter outputWriter) {
         this.evalMode = evalMode;
         this.database = database;
         this.inputReader = inputReader;
         this.fileSystem = fileSystem;
+        this.outputWriter = outputWriter;
     }
 
     public EvalContext newEvalContext(AnalyzerContext analyzerContext, ModuleScope moduleScope) {
-        return new EvalContext(this, analyzerContext, evalMode, moduleScope, fileSystem, database, inputReader);
+        return new EvalContext(this, analyzerContext, evalMode, moduleScope, fileSystem, database,
+                inputReader, outputWriter);
     }
 
     public EvalContext newEvalContext(AnalyzerContext analyzerContext, ModuleScope moduleScope, UserDefinedFunction function) {
-        return new EvalContext(this, analyzerContext, evalMode, moduleScope, fileSystem, database, inputReader, function);
+        return new EvalContext(this, analyzerContext, evalMode, moduleScope, fileSystem, database,
+                inputReader, outputWriter, function);
     }
 
     public EvalContext newEvalContext(AnalyzerContext analyzerContext, ModuleScope moduleScope, RuleContext ruleContext) {
-        return new EvalContext(this, analyzerContext, evalMode, moduleScope, fileSystem, database, inputReader, ruleContext);
+        return new EvalContext(this, analyzerContext, evalMode, moduleScope, fileSystem, database,
+                inputReader, outputWriter, ruleContext);
     }
 
     public EvalContext newEvalContext(EvalContext evalContext) {
         return new EvalContext(this, evalContext.getAnalyzerContext(), evalContext.getEvalMode(),
                 evalContext.getModuleScope(), fileSystem, evalContext.getDatabase(),
-                evalContext.getInputParser());
+                evalContext.getInputParser(), outputWriter);
     }
 
     public EvalContext newEvalContext(EvalContext evalContext, RuleContext ruleContext) {
         return new EvalContext(this, evalContext.getAnalyzerContext(), evalContext.getEvalMode(),
                 evalContext.getModuleScope(), fileSystem, evalContext.getDatabase(),
-                evalContext.getInputParser(), ruleContext);
+                evalContext.getInputParser(), outputWriter, ruleContext);
     }
 
 }
