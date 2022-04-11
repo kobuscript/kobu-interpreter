@@ -30,11 +30,12 @@ import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 public interface Writer {
 
-    void write(ModuleScope moduleScope, EvalContext evalContext, ValueExpr source, OutputStream out,
+    void write(ModuleScope moduleScope, EvalContext evalContext, ValueExpr source, OutputStream out, Charset charset,
                Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef);
 
 }

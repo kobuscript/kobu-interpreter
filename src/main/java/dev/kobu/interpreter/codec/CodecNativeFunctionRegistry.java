@@ -42,6 +42,10 @@ public class CodecNativeFunctionRegistry {
                 new ReadFromFileFunctionImpl(InputReader::parseJson, InputReader::getJsonType));
         moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Json", "readJsonArray"),
                 new ReadFromFileFunctionImpl(InputReader::parseJson, InputReader::getJsonType));
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Json", "writeJson"),
+                new WriteToFileFunctionImpl(OutputWriter::writeJson));
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Json", "toJson"),
+                new EncodeFunctionImpl(OutputWriter::writeJson));
 
         //xml
         moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.types.Xml", "readXml"),

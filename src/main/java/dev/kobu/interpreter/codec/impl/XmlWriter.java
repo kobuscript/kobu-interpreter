@@ -42,12 +42,14 @@ import org.w3c.dom.Node;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 
 public class XmlWriter extends XmlCodec {
@@ -66,7 +68,7 @@ public class XmlWriter extends XmlCodec {
         this.recordValueExpr = recordValueExpr;
     }
 
-    public void write(OutputStream out) {
+    public void write(OutputStream out, Charset charset) {
 
         readMapping(xmlMappingExpr, sourceCodeRef);
 
@@ -81,6 +83,7 @@ public class XmlWriter extends XmlCodec {
 
                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
                 Transformer transformer = transformerFactory.newTransformer();
+                transformer.setOutputProperty(OutputKeys.ENCODING, charset.displayName());
                 DOMSource domSource = new DOMSource(doc);
                 StreamResult streamResult = new StreamResult(out);
                 transformer.transform(domSource, streamResult);
