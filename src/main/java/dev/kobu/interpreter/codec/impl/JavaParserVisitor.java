@@ -29,12 +29,14 @@ import dev.kobu.antlr.java.JavaParserBaseVisitor;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.*;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueFactory;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.utils.RecordFactory;
+import dev.kobu.interpreter.ast.utils.StringFunctions;
 
 import java.io.File;
 import java.util.*;
@@ -362,7 +364,25 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitLiteral(JavaParser.LiteralContext ctx) {
-        return super.visitLiteral(ctx);
+        if (ctx.integerLiteral() != null) {
+            if (ctx.integerLiteral().DECIMAL_LITERAL() != null) {
+                return NumberValueFactory.parse(ctx.integerLiteral().DECIMAL_LITERAL().getText());
+            }
+        } else if (ctx.floatLiteral() != null) {
+            if (ctx.floatLiteral().FLOAT_LITERAL() != null) {
+                return NumberValueFactory.parse(ctx.floatLiteral().FLOAT_LITERAL().getText());
+            }
+        } else if (ctx.CHAR_LITERAL() != null) {
+            return new StringValueExpr(ctx.CHAR_LITERAL().getText());
+        } else if (ctx.STRING_LITERAL() != null) {
+            return new StringValueExpr(StringFunctions.parseLiteralString(ctx.STRING_LITERAL().getText()));
+        } else if (ctx.BOOL_LITERAL() != null) {
+            return BooleanValueExpr.fromValue("true".equals(ctx.BOOL_LITERAL().getText()));
+        } else if (ctx.NULL_LITERAL() != null) {
+            return new NullValueExpr();
+        }
+
+        return new StringValueExpr(ctx.getText());
     }
 
 }
