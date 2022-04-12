@@ -1,0 +1,239 @@
+/*
+MIT License
+
+Copyright (c) 2022 Luiz Mineo
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+module dev.kobu.core.types.Java
+
+type record JavaType {}
+
+type record JavaPrimitiveType {}
+
+type record JavaIntType extends JavaPrimitiveType {}
+
+type record JavaFloatType extends JavaPrimitiveType {}
+
+type record JavaDoubleType extends JavaPrimitiveType {}
+
+type record JavaBooleanType extends JavaPrimitiveType {}
+
+type record JavaVoidType extends JavaType {}
+
+type record JavaObjectType extends JavaType {
+    package: string,
+    name: string
+}
+
+type record JavaImport {
+    package: string
+}
+
+type record JavaFile {
+    imports: JavaImport[],
+    definition: JavaDefinition
+}
+
+type record JavaDefinition { }
+
+type record JavaClass extends JavaDefinition {
+    file: File,
+    package: string,
+    name: string,
+    abstract: boolean,
+    final: boolean,
+    typeParameters: JavaTypeParameter[],
+    annotations: JavaAnnotationValue[],
+    constructors: JavaConstructor[],
+    fields: JavaField[],
+    methods: JavaMethod[],
+    innerClasses: JavaClass[],
+    innerInterfaces: JavaInterface[],
+    innerEnums: JavaEnum[],
+    innerRecords: JavaRecord[]
+}
+
+type record JavaInterface extends JavaDefinition {
+    file: File,
+    package: string,
+    name: string,
+    typeParameters: JavaTypeParameter[],
+    annotations: JavaAnnotationValue[],
+    fields: JavaField[],
+    methods: JavaMethod[],
+    innerClasses: JavaClass[],
+    innerInterfaces: JavaInterface[],
+    innerEnums: JavaEnum[],
+    innerRecords: JavaRecord[]
+}
+
+type record JavaRecord extends JavaDefinition {
+    file: File,
+    package: string,
+    name: string,
+    typeParameters: JavaTypeParameter[],
+    annotations: JavaAnnotationValue[],
+    fields: JavaField[],
+    constructors: JavaConstructor[],
+    methods: JavaMethod[]
+}
+
+type record JavaEnum extends JavaDefinition {
+    file: File,
+    package: string,
+    name: string,
+    values: string[]
+}
+
+type record JavaTypeParameter {
+    alias: string
+}
+
+type record JavaAnnotationValue {
+    package: string,
+    name: string,
+    fields: JavaAnnotationFieldValues
+}
+
+type record JavaAnnotationFieldValues {
+    *: JavaLiteralValue
+}
+
+type record JavaConstructor {
+    public: boolean,
+    private: boolean,
+    protected: boolean,
+    parameters: JavaMethodParameter[]
+}
+
+type record JavaMethod {
+    name: string,
+    static: boolean,
+    final: boolean,
+    abstract: boolean,
+    public: boolean,
+    private: boolean,
+    protected: boolean
+    returnType: JavaType,
+    parameters: JavaMethodParameter[],
+    annotations: JavaAnnotationValue[]
+}
+
+type record JavaMethodParameter {
+    paramName: string,
+    paramType: JavaType,
+    annotations: JavaAnnotationValue[]
+}
+
+type record JavaField {
+    name: string,
+    static: boolean,
+    final: boolean,
+    abstract: boolean,
+    public: boolean,
+    private: boolean,
+    protected: boolean,
+    fieldType: JavaType,
+    annotations: JavaAnnotationValue[],
+    value: JavaLiteralValue
+}
+
+type record JavaLiteralValue {}
+
+type record JavaLiteralString extends JavaLiteralValue {
+    value: string
+}
+
+type record JavaLiteralInt extends JavaLiteralValue {
+    value: number
+}
+
+type record JavaLiteralFloat extends JavaLiteralValue {
+    value: number
+}
+
+type record JavaLiteralDouble extends JavaLiteralValue {
+    value: number
+}
+
+type record JavaLiteralBoolean extends JavaLiteralValue {
+    value: number
+}
+
+type record JavaEnumValue extends JavaLiteralValue {
+    package: string,
+    name: string,
+    value: string
+}
+
+
+type record JavaFilter {
+    typeAnnotations: JavaAnnotationFilter[]
+}
+
+type record JavaAnnotationFilter {
+    package: string,
+    name: string
+}
+
+type record JavaFileCommand {
+    file: File
+}
+
+type record JavaAddOrReplaceMethod extends JavaFileCommand {
+    method: JavaMethod,
+    content: AnyTemplate
+}
+
+type record JavaAddOrReplaceConstructor extends JavaFileCommand {
+    constructor: JavaConstructor,
+    content: AnyTemplate
+}
+
+type record JavaAddOrReplaceField extends JavaFileCommand {
+    field: JavaField
+}
+
+type record JavaAddOrReplaceInnerDefinition extends JavaFileCommand {
+    name: string,
+    content: AnyTemplate
+}
+
+type record JavaAddOrReplaceTypeAnnotation extends JavaFileCommand {
+    annotation: JavaAnnotationValue
+}
+
+fun newJavaFilter(): JavaFilter {
+    return JavaFilter{
+        typeAnnotations: []
+    }
+}
+
+fun addTypeAnnotationFilter(filter: JavaFilter, annPackage: string, annName: string): void {
+    filter.typeAnnotations.add(JavaAnnotationFilter{
+        package: annPackage,
+        name: annName
+    })
+}
+
+def native parseJava(dir: Path, pattern: string, filter?: JavaFilter): JavaFile[];
+
+def native runJavaCommands(commands: JavaFileCommand[]): void;
