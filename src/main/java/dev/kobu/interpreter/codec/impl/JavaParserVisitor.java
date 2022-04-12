@@ -385,4 +385,24 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         return new StringValueExpr(ctx.getText());
     }
 
+    @Override
+    public ValueExpr visitClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
+        return super.visitClassDeclaration(ctx);
+    }
+
+    @Override
+    public ValueExpr visitInterfaceDeclaration(JavaParser.InterfaceDeclarationContext ctx) {
+        return super.visitInterfaceDeclaration(ctx);
+    }
+
+    @Override
+    public ValueExpr visitEnumDeclaration(JavaParser.EnumDeclarationContext ctx) {
+        return super.visitEnumDeclaration(ctx);
+    }
+
+    @Override
+    public ValueExpr visitRecordDeclaration(JavaParser.RecordDeclarationContext ctx) {
+        return super.visitRecordDeclaration(ctx);
+    }
+
 }
