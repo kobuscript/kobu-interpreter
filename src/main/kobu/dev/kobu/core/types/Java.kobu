@@ -44,24 +44,31 @@ type record JavaObjectType extends JavaType {
 }
 
 type record JavaImport {
-    package: string
+    qualifiedName: string
 }
 
 type record JavaFile {
+    file: File,
+    package: string,
     imports: JavaImport[],
-    definition: JavaDefinition
+    definitions: JavaDefinition[]
 }
 
-type record JavaDefinition { }
-
-type record JavaClass extends JavaDefinition {
+type record JavaDefinition {
     file: File,
     package: string,
     name: string,
     abstract: boolean,
     final: boolean,
+    static: boolean,
+    public: boolean,
+    private: boolean,
+    protected: boolean,
+    annotations: JavaAnnotationValue[]
+}
+
+type record JavaClass extends JavaDefinition {
     typeParameters: JavaTypeParameter[],
-    annotations: JavaAnnotationValue[],
     constructors: JavaConstructor[],
     fields: JavaField[],
     methods: JavaMethod[],
@@ -76,7 +83,6 @@ type record JavaInterface extends JavaDefinition {
     package: string,
     name: string,
     typeParameters: JavaTypeParameter[],
-    annotations: JavaAnnotationValue[],
     fields: JavaField[],
     methods: JavaMethod[],
     innerClasses: JavaClass[],
@@ -90,7 +96,6 @@ type record JavaRecord extends JavaDefinition {
     package: string,
     name: string,
     typeParameters: JavaTypeParameter[],
-    annotations: JavaAnnotationValue[],
     fields: JavaField[],
     constructors: JavaConstructor[],
     methods: JavaMethod[]
@@ -114,7 +119,7 @@ type record JavaAnnotationValue {
 }
 
 type record JavaAnnotationFieldValues {
-    *: JavaLiteralValue
+    *: JavaValue
 }
 
 type record JavaConstructor {
@@ -156,7 +161,24 @@ type record JavaField {
     value: JavaLiteralValue
 }
 
-type record JavaLiteralValue {}
+type record JavaValue {}
+
+type record JavaAttributeReference extends JavaValue {
+    typePackage: string,
+    typeName: string,
+    attributeName: string
+}
+
+type record JavaClassReference extends JavaValue {
+    typePackage: string,
+    typeName: string
+}
+
+type record JavaArrayValue extends JavaValue {
+    items: JavaValue[]
+}
+
+type record JavaLiteralValue extends JavaValue {}
 
 type record JavaLiteralString extends JavaLiteralValue {
     value: string
@@ -176,12 +198,6 @@ type record JavaLiteralDouble extends JavaLiteralValue {
 
 type record JavaLiteralBoolean extends JavaLiteralValue {
     value: number
-}
-
-type record JavaEnumValue extends JavaLiteralValue {
-    package: string,
-    name: string,
-    value: string
 }
 
 
@@ -227,7 +243,7 @@ fun newJavaFilter(): JavaFilter {
     }
 }
 
-fun addTypeAnnotationFilter(filter: JavaFilter, annPackage: string, annName: string): void {
+fun addTypeAnnotationFilter(filter: JavaFilter, annName: string, annPackage?: string): void {
     filter.typeAnnotations.add(JavaAnnotationFilter{
         package: annPackage,
         name: annName
