@@ -22,13 +22,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module dev.kobu.core.types.Java
+module dev.kobu.core.parser.java.JavaTypes
 
 type record JavaType {}
 
 type record JavaPrimitiveType {}
 
 type record JavaIntType extends JavaPrimitiveType {}
+
+type record JavaCharType extends JavaPrimitiveType {}
+
+type record JavaByteType extends JavaPrimitiveType {}
+
+type record JavaShortType extends JavaPrimitiveType {}
+
+type record JavaLongType extends JavaPrimitiveType {}
 
 type record JavaFloatType extends JavaPrimitiveType {}
 
@@ -40,7 +48,9 @@ type record JavaVoidType extends JavaType {}
 
 type record JavaObjectType extends JavaType {
     package: string,
-    name: string
+    name: string,
+    typeArgs: JavaObjectType[],
+    innerType: JavaObjectType
 }
 
 type record JavaImport {
@@ -69,6 +79,8 @@ type record JavaDefinition {
 
 type record JavaClass extends JavaDefinition {
     typeParameters: JavaTypeParameter[],
+    extends: JavaObjectType,
+    implements: JavaObjectType[],
     constructors: JavaConstructor[],
     fields: JavaField[],
     methods: JavaMethod[],
@@ -122,21 +134,24 @@ type record JavaAnnotationFieldValues {
     *: JavaValue
 }
 
-type record JavaConstructor {
+type record JavaClassMember {
     public: boolean,
     private: boolean,
     protected: boolean,
+    static: boolean,
+    abstract: boolean,
+    final: boolean,
+    annotations: JavaAnnotationValue[]
+}
+
+type record JavaConstructor extends JavaClassMember {
+    typeParameters: JavaTypeParameter[],
     parameters: JavaMethodParameter[]
 }
 
-type record JavaMethod {
+type record JavaMethod extends JavaClassMember {
+    typeParameters: JavaTypeParameter[],
     name: string,
-    static: boolean,
-    final: boolean,
-    abstract: boolean,
-    public: boolean,
-    private: boolean,
-    protected: boolean
     returnType: JavaType,
     parameters: JavaMethodParameter[],
     annotations: JavaAnnotationValue[]
@@ -145,19 +160,14 @@ type record JavaMethod {
 type record JavaMethodParameter {
     paramName: string,
     paramType: JavaType,
-    annotations: JavaAnnotationValue[]
+    annotations: JavaAnnotationValue[],
+    final: boolean,
+    varArg: boolean
 }
 
-type record JavaField {
+type record JavaField extends JavaClassMember {
     name: string,
-    static: boolean,
-    final: boolean,
-    abstract: boolean,
-    public: boolean,
-    private: boolean,
-    protected: boolean,
     fieldType: JavaType,
-    annotations: JavaAnnotationValue[],
     value: JavaLiteralValue
 }
 
@@ -178,78 +188,28 @@ type record JavaArrayValue extends JavaValue {
     items: JavaValue[]
 }
 
-type record JavaLiteralValue extends JavaValue {}
+type record JavaLiteralValue extends JavaValue {
+    source: string
+}
 
 type record JavaLiteralString extends JavaLiteralValue {
     value: string
 }
 
 type record JavaLiteralInt extends JavaLiteralValue {
+    originalRadix: number,
     value: number
 }
 
 type record JavaLiteralFloat extends JavaLiteralValue {
+    originalRadix: number,
     value: number
 }
 
-type record JavaLiteralDouble extends JavaLiteralValue {
-    value: number
+type record JavaLiteralChar extends JavaLiteralValue {
+    value: string
 }
 
 type record JavaLiteralBoolean extends JavaLiteralValue {
-    value: number
+    value: boolean
 }
-
-
-type record JavaFilter {
-    typeAnnotations: JavaAnnotationFilter[]
-}
-
-type record JavaAnnotationFilter {
-    package: string,
-    name: string
-}
-
-type record JavaFileCommand {
-    file: File
-}
-
-type record JavaAddOrReplaceMethod extends JavaFileCommand {
-    method: JavaMethod,
-    content: AnyTemplate
-}
-
-type record JavaAddOrReplaceConstructor extends JavaFileCommand {
-    constructor: JavaConstructor,
-    content: AnyTemplate
-}
-
-type record JavaAddOrReplaceField extends JavaFileCommand {
-    field: JavaField
-}
-
-type record JavaAddOrReplaceInnerDefinition extends JavaFileCommand {
-    name: string,
-    content: AnyTemplate
-}
-
-type record JavaAddOrReplaceTypeAnnotation extends JavaFileCommand {
-    annotation: JavaAnnotationValue
-}
-
-fun newJavaFilter(): JavaFilter {
-    return JavaFilter{
-        typeAnnotations: []
-    }
-}
-
-fun addTypeAnnotationFilter(filter: JavaFilter, annName: string, annPackage?: string): void {
-    filter.typeAnnotations.add(JavaAnnotationFilter{
-        package: annPackage,
-        name: annName
-    })
-}
-
-def native parseJava(dir: Path, pattern: string, filter?: JavaFilter): JavaFile[];
-
-def native runJavaCommands(commands: JavaFileCommand[]): void;

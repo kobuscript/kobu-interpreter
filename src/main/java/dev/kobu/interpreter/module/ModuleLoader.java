@@ -57,9 +57,12 @@ public class ModuleLoader {
         "dev.kobu.core.functions.ArrayFunctions",
         "dev.kobu.core.functions.Comparators",
         "dev.kobu.core.constants.Charsets",
-        "dev.kobu.core.types.Csv",
-        "dev.kobu.core.types.Json",
-        "dev.kobu.core.types.Xml"
+        "dev.kobu.core.codec.Csv",
+        "dev.kobu.core.codec.Json",
+        "dev.kobu.core.codec.Xml",
+        "dev.kobu.core.parser.java.JavaCommands",
+        "dev.kobu.core.parser.java.JavaTypes",
+        "dev.kobu.core.parser.Java"
     };
 
     private final EvalContextProvider evalContextProvider;

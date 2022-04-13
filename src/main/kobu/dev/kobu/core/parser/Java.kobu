@@ -20,12 +20,35 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
- */
+*/
 
-package dev.kobu.interpreter.ast.eval;
+module dev.kobu.core.parser.Java
 
-public interface Value<T> {
+import dev.kobu.core.parser.java.JavaTypes
+import dev.kobu.core.parser.java.JavaCommands
 
-    T get();
-
+type record JavaFilter {
+    typeAnnotations: JavaAnnotationFilter[]
 }
+
+type record JavaAnnotationFilter {
+    package: string,
+    name: string
+}
+
+fun newJavaFilter(): JavaFilter {
+    return JavaFilter{
+        typeAnnotations: []
+    }
+}
+
+fun addTypeAnnotationFilter(filter: JavaFilter, annName: string, annPackage?: string): void {
+    filter.typeAnnotations.add(JavaAnnotationFilter{
+        package: annPackage,
+        name: annName
+    })
+}
+
+def native parseJava(dir: Path, pattern: string, filter?: JavaFilter): JavaFile[];
+
+def native runJavaCommands(commands: JavaFileCommand[]): void;
