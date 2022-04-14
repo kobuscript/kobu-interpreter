@@ -115,7 +115,7 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     private final String filePath;
 
-    private final SourceCodeRef sourceCodeRef;
+    private final RecordValueExpr filterExpr;
 
     private final Map<String, String> imports = new HashMap<>();
 
@@ -125,11 +125,11 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     private RecordValueExpr currentClassMember;
 
-    public JavaParserVisitor(ModuleScope moduleScope, EvalContext context, String filePath, SourceCodeRef sourceCodeRef) {
+    public JavaParserVisitor(ModuleScope moduleScope, EvalContext context, String filePath, RecordValueExpr filterExpr) {
         this.moduleScope = moduleScope;
         this.context = context;
         this.filePath = filePath;
-        this.sourceCodeRef = sourceCodeRef;
+        this.filterExpr = filterExpr;
     }
 
     @Override
@@ -173,11 +173,16 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
         if (ctx.typeDeclaration() != null) {
             for (JavaParser.TypeDeclarationContext typeDeclarationContext : ctx.typeDeclaration()) {
-                ValueExpr javaDef = visit(typeDeclarationContext);
-                if (javaDef != null) {
+                RecordValueExpr javaDef = (RecordValueExpr) visit(typeDeclarationContext);
+                if (javaDef != null && runFilter(javaDef)) {
+
                     definitionValues.add(javaDef);
                 }
             }
+        }
+
+        if (definitionValues.isEmpty()) {
+            return null;
         }
 
         record.updateFieldValue(context, "definitions",
@@ -185,6 +190,38 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
                         definitionValues));
 
         return record;
+    }
+
+    private boolean runFilter(RecordValueExpr javaDefExpr) {
+        if (filterExpr == null) {
+            return true;
+        }
+        ArrayValueExpr annFilterListExpr = (ArrayValueExpr) filterExpr.resolveField("typeAnnotations");
+        if (annFilterListExpr == null || annFilterListExpr.getValue().isEmpty()) {
+            return true;
+        }
+        List<ValueExpr> annFilterValueList = annFilterListExpr.getValue();
+
+        ArrayValueExpr annListExpr = (ArrayValueExpr) javaDefExpr.resolveField("annotations");
+        if (annListExpr == null || annListExpr.getValue().isEmpty()) {
+            return false;
+        }
+        List<ValueExpr> annValueList = annListExpr.getValue();
+
+        return annFilterValueList.stream().allMatch(annFilterValue -> {
+            RecordValueExpr annFilterValueRec = (RecordValueExpr) annFilterValue;
+            ValueExpr pkgExpr = annFilterValueRec.resolveField("package");
+            ValueExpr nameExpr = annFilterValueRec.resolveField("name");
+
+            return annValueList.stream().anyMatch(annValue -> {
+                RecordValueExpr annValueRec = (RecordValueExpr) annValue;
+                ValueExpr annPkgExpr = annValueRec.resolveField("package");
+                ValueExpr annNameExpr = annValueRec.resolveField("name");
+
+                return (pkgExpr == null || pkgExpr instanceof NullValueExpr || pkgExpr.equals(annPkgExpr)) &&
+                        (nameExpr == null || nameExpr instanceof NullValueExpr || nameExpr.equals(annNameExpr));
+            });
+        });
     }
 
     @Override

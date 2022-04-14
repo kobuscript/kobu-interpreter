@@ -70,7 +70,10 @@ public class InputReader {
         List<ValueExpr> values = new ArrayList<>();
         for (File file : files) {
             try (InputStream in = context.getFileSystem().getInputStream(file.toPath())) {
-                values.add(parser.parse(moduleScope, context, file.getAbsolutePath(), in, args, sourceCodeRef));
+                ValueExpr valueExpr = parser.parse(moduleScope, context, file.getAbsolutePath(), in, args, sourceCodeRef);
+                if (valueExpr != null) {
+                    values.add(valueExpr);
+                }
             }
         }
 
@@ -155,12 +158,14 @@ public class InputReader {
 
     public static ValueExpr parseJava(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
                                       Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException {
+        RecordValueExpr filterExpr = (RecordValueExpr) args.get("filter");
+
         var input = CharStreams.fromStream(in);
         var lexer = new JavaLexer(input);
         var tokens = new CommonTokenStream(lexer);
         var parser = new JavaParser(tokens);
         var tree = parser.compilationUnit();
-        var visitor = new JavaParserVisitor(moduleScope, context, filePath, sourceCodeRef);
+        var visitor = new JavaParserVisitor(moduleScope, context, filePath, filterExpr);
         return visitor.visit(tree);
     }
 
