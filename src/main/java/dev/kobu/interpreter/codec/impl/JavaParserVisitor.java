@@ -514,7 +514,7 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         ));
 
         if (ctx.typeType() != null) {
-            defRecExpr.updateFieldValue(context, "extends", visit(ctx.typeType()));
+            defRecExpr.updateFieldValue(context, "superType", visit(ctx.typeType()));
         }
 
         if (ctx.typeList() != null && ctx.typeList().size() == 1) {
@@ -593,7 +593,7 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
                 for (JavaParser.TypeTypeContext typeTypeContext : typeListContext.typeType()) {
                     interfaceList.add(visit(typeTypeContext));
                 }
-                defRecExpr.updateFieldValue(context, "extends", new ArrayValueExpr(
+                defRecExpr.updateFieldValue(context, "superTypes", new ArrayValueExpr(
                         ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_OBJECT_TYPE)),
                         interfaceList
                 ));

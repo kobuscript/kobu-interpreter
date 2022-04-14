@@ -26,7 +26,7 @@ module dev.kobu.core.parser.java.JavaTypes
 
 type record JavaType {}
 
-type record JavaPrimitiveType {}
+type record JavaPrimitiveType extends JavaType {}
 
 type record JavaIntType extends JavaPrimitiveType {}
 
@@ -92,7 +92,7 @@ type record JavaClass extends JavaDefinition {
 
 type record JavaInterface extends JavaDefinition {
     typeParameters: JavaTypeParameter[],
-    superType: JavaObjectType[],
+    superTypes: JavaObjectType[],
     fields: JavaField[],
     methods: JavaMethod[],
     innerClasses: JavaClass[],
@@ -127,7 +127,7 @@ type record JavaTypeParameter {
     alias: string
 }
 
-type record JavaAnnotationValue {
+type record JavaAnnotationValue extends JavaValue {
     package: string,
     name: string,
     fields: JavaAnnotationFieldValues
