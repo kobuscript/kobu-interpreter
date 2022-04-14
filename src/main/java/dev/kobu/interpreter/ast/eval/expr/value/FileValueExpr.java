@@ -88,6 +88,11 @@ public class FileValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
+    public void prettyPrint(StringBuilder out, int level) {
+        out.append(getStringValue());
+    }
+
+    @Override
     public SnapshotValue getSnapshotValue() {
         return new FileSnapshotValue(file.getAbsolutePath());
     }

@@ -27,6 +27,7 @@ package dev.kobu.interpreter.ast.symbol;
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.context.ContextSnapshot;
 import dev.kobu.interpreter.ast.eval.function.global.NewRecordFunctionImpl;
+import dev.kobu.interpreter.ast.eval.function.global.PrettyPrintFunctionImpl;
 import dev.kobu.interpreter.ast.eval.function.global.PrintFunctionImpl;
 import dev.kobu.interpreter.ast.eval.function.global.conf.*;
 import dev.kobu.interpreter.ast.eval.function.global.rules.AddRulesFunctionImpl;
@@ -166,6 +167,8 @@ public class BuiltinScope implements Scope {
 
         var printFunc = new BuiltinFunctionSymbol("print", new PrintFunctionImpl(),
                 new FunctionParameter("obj", ANY_TYPE, false));
+        var pprintFunc = new BuiltinFunctionSymbol("pprint", new PrettyPrintFunctionImpl(),
+                new FunctionParameter("obj", ANY_TYPE, false));
 
         symbols.put("env", envVarFunc);
         symbols.put("property", propVarFunc);
@@ -178,6 +181,7 @@ public class BuiltinScope implements Scope {
         symbols.put("update", updateFunc);
         symbols.put("fireRules", fireRulesFunc);
         symbols.put("print", printFunc);
+        symbols.put("pprint", pprintFunc);
 
     }
 }

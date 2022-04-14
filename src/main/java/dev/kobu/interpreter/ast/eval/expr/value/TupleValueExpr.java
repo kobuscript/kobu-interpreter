@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.eval.expr.value;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
+import dev.kobu.interpreter.ast.symbol.ValType;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
@@ -81,6 +82,29 @@ public class TupleValueExpr implements ValueExpr, HasMethods {
     @Override
     public String getStringValue() {
         return "(" + valueExprList.stream().map(ValueExpr::getStringValue).collect(Collectors.joining(", ")) + ")";
+    }
+
+    @Override
+    public void prettyPrint(StringBuilder out, int level) {
+        if (valueExprList.stream().allMatch(v -> v.getType() == null || v.getType() instanceof ValType)) {
+            out.append('(');
+            out.append(valueExprList.stream().map(ValueExpr::getStringValue).collect(Collectors.joining(", ")));
+            out.append(')');
+        } else {
+            out.append("(\n");
+            int count = 0;
+            for (ValueExpr valueExpr : valueExprList) {
+                if (count > 0) {
+                    out.append(",\n");
+                }
+                out.append(" ".repeat(level * PRETTY_PRINT_TAB_SIZE));
+                valueExpr.prettyPrint(out, level + 1);
+                count++;
+            }
+            out.append('\n');
+            out.append(" ".repeat(level * PRETTY_PRINT_TAB_SIZE));
+            out.append(')');
+        }
     }
 
     @Override

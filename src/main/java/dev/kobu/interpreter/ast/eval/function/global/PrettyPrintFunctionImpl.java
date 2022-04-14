@@ -22,26 +22,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval;
+package dev.kobu.interpreter.ast.eval.function.global;
 
-import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
-import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.util.Map;
 
-public interface ValueExpr extends Expr {
-
-    public static int PRETTY_PRINT_TAB_SIZE = 4;
-
-    String getStringValue();
-
-    void prettyPrint(StringBuilder out, int level);
-
-    SnapshotValue getSnapshotValue();
+public class PrettyPrintFunctionImpl extends BuiltinGlobalFunction {
 
     @Override
-    default void setResolvedTypes(Map<String, Type> resolvedTypes) {
+    protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
+        ValueExpr valueExpr = args.get("obj");
 
+        StringBuilder out = new StringBuilder();
+        valueExpr.prettyPrint(out, 0);
+        System.out.println(out);
+
+        return null;
     }
 
+    @Override
+    public String getDocumentation() {
+        return "Pretty print an object to the standard output";
+    }
 }

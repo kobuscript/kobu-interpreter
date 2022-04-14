@@ -107,6 +107,26 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods, Fact {
     }
 
     @Override
+    public void prettyPrint(StringBuilder out, int level) {
+        out.append(((RecordTypeSymbol) type).getNameInModule());
+        out.append("{\n");
+        int count = 0;
+        for (Map.Entry<String, ValueExpr> entry : fieldValues.entrySet()) {
+            if (count > 0) {
+                out.append(",\n");
+            }
+            out.append(" ".repeat((level + 1) * PRETTY_PRINT_TAB_SIZE));
+            out.append(entry.getKey());
+            out.append(": ");
+            entry.getValue().prettyPrint(out, level + 1);
+            count++;
+        }
+        out.append('\n');
+        out.append(" ".repeat(level * PRETTY_PRINT_TAB_SIZE));
+        out.append('}');
+    }
+
+    @Override
     public SnapshotValue getSnapshotValue() {
         return new RecordSnapshotValue(this.id, this.version);
     }

@@ -84,6 +84,11 @@ public class FunctionRefValueExpr implements ValueExpr {
     }
 
     @Override
+    public void prettyPrint(StringBuilder out, int level) {
+        out.append(getStringValue());
+    }
+
+    @Override
     public SnapshotValue getSnapshotValue() {
         return null;
     }

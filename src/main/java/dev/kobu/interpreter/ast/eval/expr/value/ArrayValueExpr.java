@@ -94,6 +94,23 @@ public class ArrayValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
+    public void prettyPrint(StringBuilder out, int level) {
+        out.append("[\n");
+        int count = 0;
+        for (ValueExpr valueExpr : value) {
+            if (count > 0) {
+                out.append(",\n");
+            }
+            out.append(" ".repeat((level + 1) * PRETTY_PRINT_TAB_SIZE));
+            valueExpr.prettyPrint(out, level + 1);
+            count++;
+        }
+        out.append('\n');
+        out.append(" ".repeat(level * PRETTY_PRINT_TAB_SIZE));
+        out.append(']');
+    }
+
+    @Override
     public SnapshotValue getSnapshotValue() {
         return new ArraySnapshotValue(value);
     }
