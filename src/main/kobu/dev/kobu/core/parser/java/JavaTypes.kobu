@@ -91,10 +91,8 @@ type record JavaClass extends JavaDefinition {
 }
 
 type record JavaInterface extends JavaDefinition {
-    file: File,
-    package: string,
-    name: string,
     typeParameters: JavaTypeParameter[],
+    extends: JavaObjectType[],
     fields: JavaField[],
     methods: JavaMethod[],
     innerClasses: JavaClass[],
@@ -141,6 +139,7 @@ type record JavaClassMember {
     static: boolean,
     abstract: boolean,
     final: boolean,
+    default: boolean,
     annotations: JavaAnnotationValue[]
 }
 

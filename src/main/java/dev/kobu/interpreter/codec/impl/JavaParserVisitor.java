@@ -124,6 +124,8 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     private final Stack<RecordValueExpr> defStack = new Stack<>();
 
+    private String currentPackage;
+
     private RecordValueExpr currentClassMember;
 
     public JavaParserVisitor(ModuleScope moduleScope, EvalContext context, String filePath, SourceCodeRef sourceCodeRef) {
@@ -140,8 +142,9 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         record.updateFieldValue(context, "file", fileExpr);
 
         if (ctx.packageDeclaration() != null && ctx.packageDeclaration().qualifiedName() != null) {
+            currentPackage = ctx.packageDeclaration().qualifiedName().getText();
             record.updateFieldValue(context, "package",
-                    new StringValueExpr(ctx.packageDeclaration().qualifiedName().getText()));
+                    new StringValueExpr(currentPackage));
         }
 
         List<ValueExpr> importValues = new ArrayList<>();
@@ -464,6 +467,8 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
     @Override
     public ValueExpr visitClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
         RecordValueExpr defRecExpr = defStack.peek();
+        defRecExpr.updateFieldValue(context, "package", new StringValueExpr(currentPackage));
+        defRecExpr.updateFieldValue(context, "name", new StringValueExpr(ctx.identifier().getText()));
 
         List<ValueExpr> typeParametersList = new ArrayList<>();
         if (ctx.typeParameters() != null) {
@@ -534,7 +539,65 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitInterfaceDeclaration(JavaParser.InterfaceDeclarationContext ctx) {
-        return super.visitInterfaceDeclaration(ctx);
+        RecordValueExpr defRecExpr = defStack.peek();
+        defRecExpr.updateFieldValue(context, "package", new StringValueExpr(currentPackage));
+        defRecExpr.updateFieldValue(context, "name", new StringValueExpr(ctx.identifier().getText()));
+
+        List<ValueExpr> typeParametersList = new ArrayList<>();
+        if (ctx.typeParameters() != null) {
+            defRecExpr.updateFieldValue(context, "typeParameters", visit(ctx.typeParameters()));
+        }
+        defRecExpr.updateFieldValue(context, "typeParameters", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_TYPE_PARAMETER)),
+                typeParametersList
+        ));
+
+        if (ctx.typeList() != null) {
+            JavaParser.TypeListContext typeListContext = ctx.typeList();
+            if (typeListContext.typeType() != null) {
+                List<ValueExpr> interfaceList = new ArrayList<>();
+                for (JavaParser.TypeTypeContext typeTypeContext : typeListContext.typeType()) {
+                    interfaceList.add(visit(typeTypeContext));
+                }
+                defRecExpr.updateFieldValue(context, "extends", new ArrayValueExpr(
+                        ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_OBJECT_TYPE)),
+                        interfaceList
+                ));
+            }
+        }
+
+        defRecExpr.updateFieldValue(context, "fields", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_FIELD)),
+                new ArrayList<>()
+        ));
+        defRecExpr.updateFieldValue(context, "methods", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_METHOD)),
+                new ArrayList<>()
+        ));
+        defRecExpr.updateFieldValue(context, "innerClasses", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_CLASS)),
+                new ArrayList<>()
+        ));
+        defRecExpr.updateFieldValue(context, "innerInterfaces", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_INTERFACE)),
+                new ArrayList<>()
+        ));
+        defRecExpr.updateFieldValue(context, "innerEnums", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_ENUM)),
+                new ArrayList<>()
+        ));
+        defRecExpr.updateFieldValue(context, "innerRecords", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_RECORD)),
+                new ArrayList<>()
+        ));
+
+        if (ctx.interfaceBody() != null && ctx.interfaceBody().interfaceBodyDeclaration() != null) {
+            for (JavaParser.InterfaceBodyDeclarationContext interfaceBodyDeclarationContext : ctx.interfaceBody().interfaceBodyDeclaration()) {
+                visit(interfaceBodyDeclarationContext);
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -681,13 +744,37 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
                     }
                 }
             } else if (memberCtx.classDeclaration() != null) {
-
+                RecordValueExpr innerClassRec = RecordFactory.create(moduleScope, context, JAVA_CLASS);
+                defStack.push(innerClassRec);
+                visit(memberCtx.classDeclaration());
+                defStack.pop();
+                ArrayValueExpr classes = (ArrayValueExpr) defRecExpr.resolveField("innerClasses");
+                classes.getValue().add(innerClassRec);
+                currentClassMember = innerClassRec;
             } else if (memberCtx.interfaceDeclaration() != null) {
-
+                RecordValueExpr innerInterfaceRec = RecordFactory.create(moduleScope, context, JAVA_INTERFACE);
+                defStack.push(innerInterfaceRec);
+                visit(memberCtx.interfaceDeclaration());
+                defStack.pop();
+                ArrayValueExpr interfaces = (ArrayValueExpr) defRecExpr.resolveField("innerInterfaces");
+                interfaces.getValue().add(innerInterfaceRec);
+                currentClassMember = innerInterfaceRec;
             } else if (memberCtx.enumDeclaration() != null) {
-
+                RecordValueExpr innerEnumRec = RecordFactory.create(moduleScope, context, JAVA_ENUM);
+                defStack.push(innerEnumRec);
+                visit(memberCtx.enumDeclaration());
+                defStack.pop();
+                ArrayValueExpr enums = (ArrayValueExpr) defRecExpr.resolveField("innerEnums");
+                enums.getValue().add(innerEnumRec);
+                currentClassMember = innerEnumRec;
             } else if (memberCtx.recordDeclaration() != null) {
-
+                RecordValueExpr innerRecordRec = RecordFactory.create(moduleScope, context, JAVA_RECORD);
+                defStack.push(innerRecordRec);
+                visit(memberCtx.recordDeclaration());
+                defStack.pop();
+                ArrayValueExpr records = (ArrayValueExpr) defRecExpr.resolveField("innerRecords");
+                records.getValue().add(innerRecordRec);
+                currentClassMember = innerRecordRec;
             }
         }
 
@@ -701,6 +788,123 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         currentClassMember.updateFieldValue(context, "public", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "private", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "protected", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "default", BooleanValueExpr.FALSE);
+
+        if (ctx.modifier() != null) {
+            for (JavaParser.ModifierContext modifierContext : ctx.modifier()) {
+                JavaParser.ClassOrInterfaceModifierContext ciModifierCtx = modifierContext.classOrInterfaceModifier();
+                if (ciModifierCtx != null) {
+                    if (ciModifierCtx.annotation() != null) {
+                        var recAnn = visit(ciModifierCtx.annotation());
+                        ArrayValueExpr annList = (ArrayValueExpr) currentClassMember.resolveField("annotations");
+                        annList.getValue().add(recAnn);
+                    } else if (ciModifierCtx.PUBLIC() != null) {
+                        currentClassMember.updateFieldValue(context, "public", BooleanValueExpr.TRUE);
+                    } else if (ciModifierCtx.PROTECTED() != null) {
+                        currentClassMember.updateFieldValue(context, "protected", BooleanValueExpr.TRUE);
+                    } else if (ciModifierCtx.PRIVATE() != null) {
+                        currentClassMember.updateFieldValue(context, "private", BooleanValueExpr.TRUE);
+                    } else if (ciModifierCtx.STATIC() != null) {
+                        currentClassMember.updateFieldValue(context, "static", BooleanValueExpr.TRUE);
+                    } else if (ciModifierCtx.ABSTRACT() != null) {
+                        currentClassMember.updateFieldValue(context, "abstract", BooleanValueExpr.TRUE);
+                    } else if (ciModifierCtx.FINAL() != null) {
+                        currentClassMember.updateFieldValue(context, "final", BooleanValueExpr.TRUE);
+                    }
+                }
+            }
+        }
+
+        currentClassMember = null;
+        return null;
+    }
+
+    @Override
+    public ValueExpr visitInterfaceBodyDeclaration(JavaParser.InterfaceBodyDeclarationContext ctx) {
+        RecordValueExpr defRecExpr = defStack.peek();
+
+        if (ctx.interfaceMemberDeclaration() != null) {
+            var memberCtx = ctx.interfaceMemberDeclaration();
+            if (memberCtx.interfaceMethodDeclaration() != null) {
+                currentClassMember = RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_METHOD));
+                visit(memberCtx.interfaceMethodDeclaration());
+                currentClassMember.updateFieldValue(context, "typeParameters", new ArrayValueExpr(
+                        ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_TYPE_PARAMETER)),
+                        new ArrayList<>()
+                ));
+                ArrayValueExpr methods = (ArrayValueExpr) defRecExpr.resolveField("methods");
+                methods.getValue().add(currentClassMember);
+            } else if (memberCtx.genericInterfaceMethodDeclaration() != null) {
+                currentClassMember = RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_METHOD));
+                if (memberCtx.genericInterfaceMethodDeclaration().interfaceMethodModifier() != null) {
+                    for (JavaParser.InterfaceMethodModifierContext modifierCtx : memberCtx.genericInterfaceMethodDeclaration().interfaceMethodModifier()) {
+                        visit(modifierCtx);
+                    }
+                }
+                visit(memberCtx.genericInterfaceMethodDeclaration().interfaceCommonBodyDeclaration());
+                if (memberCtx.genericInterfaceMethodDeclaration().typeParameters() != null) {
+                    currentClassMember.updateFieldValue(context, "typeParameters",
+                            visit(memberCtx.genericInterfaceMethodDeclaration().typeParameters()));
+                }
+                ArrayValueExpr methods = (ArrayValueExpr) defRecExpr.resolveField("methods");
+                methods.getValue().add(currentClassMember);
+            } else if (memberCtx.constDeclaration() != null) {
+                RecordValueExpr typeRec = (RecordValueExpr) visit(memberCtx.constDeclaration().typeType());
+                ArrayValueExpr fields = (ArrayValueExpr) defRecExpr.resolveField("fields");
+                if (memberCtx.constDeclaration().constantDeclarator() != null) {
+                    for (JavaParser.ConstantDeclaratorContext constantDeclaratorContext : memberCtx.constDeclaration().constantDeclarator()) {
+                        currentClassMember = RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_FIELD));
+                        currentClassMember.updateFieldValue(context, "fieldType", typeRec);
+                        visit(constantDeclaratorContext);
+                        fields.getValue().add(currentClassMember);
+                    }
+                }
+            } else if (memberCtx.classDeclaration() != null) {
+                RecordValueExpr innerClassRec = RecordFactory.create(moduleScope, context, JAVA_CLASS);
+                defStack.push(innerClassRec);
+                visit(memberCtx.classDeclaration());
+                defStack.pop();
+                ArrayValueExpr classes = (ArrayValueExpr) defRecExpr.resolveField("innerClasses");
+                classes.getValue().add(innerClassRec);
+                currentClassMember = innerClassRec;
+            } else if (memberCtx.interfaceDeclaration() != null) {
+                RecordValueExpr innerInterfaceRec = RecordFactory.create(moduleScope, context, JAVA_INTERFACE);
+                defStack.push(innerInterfaceRec);
+                visit(memberCtx.interfaceDeclaration());
+                defStack.pop();
+                ArrayValueExpr interfaces = (ArrayValueExpr) defRecExpr.resolveField("innerInterfaces");
+                interfaces.getValue().add(innerInterfaceRec);
+                currentClassMember = innerInterfaceRec;
+            } else if (memberCtx.enumDeclaration() != null) {
+                RecordValueExpr innerEnumRec = RecordFactory.create(moduleScope, context, JAVA_ENUM);
+                defStack.push(innerEnumRec);
+                visit(memberCtx.enumDeclaration());
+                defStack.pop();
+                ArrayValueExpr enums = (ArrayValueExpr) defRecExpr.resolveField("innerEnums");
+                enums.getValue().add(innerEnumRec);
+                currentClassMember = innerEnumRec;
+            } else if (memberCtx.recordDeclaration() != null) {
+                RecordValueExpr innerRecordRec = RecordFactory.create(moduleScope, context, JAVA_RECORD);
+                defStack.push(innerRecordRec);
+                visit(memberCtx.recordDeclaration());
+                defStack.pop();
+                ArrayValueExpr records = (ArrayValueExpr) defRecExpr.resolveField("innerRecords");
+                records.getValue().add(innerRecordRec);
+                currentClassMember = innerRecordRec;
+            }
+        }
+
+        if (currentClassMember == null) {
+            return null;
+        }
+
+        currentClassMember.updateFieldValue(context, "abstract", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "final", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "static", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "public", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "private", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "protected", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "default", BooleanValueExpr.FALSE);
 
         if (ctx.modifier() != null) {
             for (JavaParser.ModifierContext modifierContext : ctx.modifier()) {
@@ -819,6 +1023,19 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
     }
 
     @Override
+    public ValueExpr visitConstantDeclarator(JavaParser.ConstantDeclaratorContext ctx) {
+        currentClassMember.updateFieldValue(context, "name",
+                new StringValueExpr(ctx.identifier().getText()));
+
+        if (ctx.variableInitializer() != null && ctx.variableInitializer().expression() != null) {
+            currentClassMember.updateFieldValue(context, "value",
+                    visit(ctx.variableInitializer().expression()));
+        }
+
+        return null;
+    }
+
+    @Override
     public ValueExpr visitMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
         String name = ctx.identifier().getText();
         RecordValueExpr returnTypeRec = null;
@@ -853,4 +1070,59 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         return null;
     }
 
+    @Override
+    public ValueExpr visitInterfaceMethodDeclaration(JavaParser.InterfaceMethodDeclarationContext ctx) {
+        if (ctx.interfaceMethodModifier() != null) {
+            for (JavaParser.InterfaceMethodModifierContext modifierCtx : ctx.interfaceMethodModifier()) {
+                visit(modifierCtx);
+            }
+        }
+        if (ctx.interfaceCommonBodyDeclaration() != null) {
+            visit(ctx.interfaceCommonBodyDeclaration());
+        }
+        return null;
+    }
+
+    @Override
+    public ValueExpr visitInterfaceMethodModifier(JavaParser.InterfaceMethodModifierContext ctx) {
+        if (ctx.DEFAULT() != null) {
+            currentClassMember.updateFieldValue(context, "default", BooleanValueExpr.TRUE);
+        }
+        return null;
+    }
+
+    @Override
+    public ValueExpr visitInterfaceCommonBodyDeclaration(JavaParser.InterfaceCommonBodyDeclarationContext ctx) {
+        String name = ctx.identifier().getText();
+        RecordValueExpr returnTypeRec = null;
+        if (ctx.typeTypeOrVoid() != null) {
+            if (ctx.typeTypeOrVoid().VOID() != null) {
+                returnTypeRec = RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_VOID_TYPE));
+            } else if (ctx.typeTypeOrVoid().typeType() != null) {
+                returnTypeRec = (RecordValueExpr) visit(ctx.typeTypeOrVoid().typeType());
+            }
+        }
+
+        List<ValueExpr> params = new ArrayList<>();
+        if (ctx.formalParameters() != null && ctx.formalParameters().formalParameterList() != null) {
+            JavaParser.FormalParameterListContext paramListCtx = ctx.formalParameters().formalParameterList();
+            if (paramListCtx.formalParameter() != null) {
+                for (JavaParser.FormalParameterContext paramContext : paramListCtx.formalParameter()) {
+                    params.add(visit(paramContext));
+                }
+            }
+            if (paramListCtx.lastFormalParameter() != null) {
+                params.add(visit(paramListCtx.lastFormalParameter()));
+            }
+
+        }
+
+        currentClassMember.updateFieldValue(context, "name", new StringValueExpr(name));
+        currentClassMember.updateFieldValue(context, "returnType", returnTypeRec);
+        currentClassMember.updateFieldValue(context, "parameters", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_METHOD_PARAMETER)),
+                params
+        ));
+        return null;
+    }
 }
