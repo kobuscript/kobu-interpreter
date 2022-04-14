@@ -101,7 +101,7 @@ LSB : '[' ;
 RSB : ']' ;
 
 COMMENT_BLOCK : '/*' .*? '*/' -> channel(BLOCKCOMMENTCHANNEL) ;
-COMMENT_LINE : '//' .*? '\n' -> channel(COMMENTCHANNEL) ;
+COMMENT_LINE : '//' ~[\r\n]* -> channel(COMMENTCHANNEL) ;
 
 FN_ARROW : '=>' ;
 

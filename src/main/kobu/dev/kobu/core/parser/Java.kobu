@@ -51,4 +51,4 @@ fun addTypeAnnotationFilter(filter: JavaFilter, annName: string, annPackage?: st
 
 def native parseJava(dir: Path, pattern: string, filter?: JavaFilter): JavaFile[];
 
-def native runJavaCommands(commands: JavaFileCommand[]): void;
+//def native runJavaCommands(commands: JavaFileCommand[]): void;

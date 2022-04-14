@@ -24,6 +24,8 @@ SOFTWARE.
 
 package dev.kobu.interpreter.codec;
 
+import dev.kobu.antlr.java.JavaLexer;
+import dev.kobu.antlr.java.JavaParser;
 import dev.kobu.antlr.json.JSONLexer;
 import dev.kobu.antlr.json.JSONParser;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
@@ -154,10 +156,10 @@ public class InputReader {
     public static ValueExpr parseJava(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
                                       Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException {
         var input = CharStreams.fromStream(in);
-        var lexer = new JSONLexer(input);
+        var lexer = new JavaLexer(input);
         var tokens = new CommonTokenStream(lexer);
-        var parser = new JSONParser(tokens);
-        var tree = parser.json();
+        var parser = new JavaParser(tokens);
+        var tree = parser.compilationUnit();
         var visitor = new JavaParserVisitor(moduleScope, context, filePath, sourceCodeRef);
         return visitor.visit(tree);
     }

@@ -79,7 +79,7 @@ type record JavaDefinition {
 
 type record JavaClass extends JavaDefinition {
     typeParameters: JavaTypeParameter[],
-    extends: JavaObjectType,
+    superType: JavaObjectType,
     implements: JavaObjectType[],
     constructors: JavaConstructor[],
     fields: JavaField[],
@@ -92,7 +92,7 @@ type record JavaClass extends JavaDefinition {
 
 type record JavaInterface extends JavaDefinition {
     typeParameters: JavaTypeParameter[],
-    extends: JavaObjectType[],
+    superType: JavaObjectType[],
     fields: JavaField[],
     methods: JavaMethod[],
     innerClasses: JavaClass[],

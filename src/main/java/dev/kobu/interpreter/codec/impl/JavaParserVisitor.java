@@ -864,6 +864,10 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         currentClassMember.updateFieldValue(context, "private", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "protected", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "default", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "annotations", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_ANNOTATION_VALUE)),
+                new ArrayList<>()
+        ));
 
         if (ctx.modifier() != null) {
             for (JavaParser.ModifierContext modifierContext : ctx.modifier()) {

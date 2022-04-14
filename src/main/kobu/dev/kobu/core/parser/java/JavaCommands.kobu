@@ -24,6 +24,8 @@ SOFTWARE.
 
 module dev.kobu.core.parser.java.JavaCommands
 
+import dev.kobu.core.parser.java.JavaTypes
+
 type record JavaFileCommand {
     file: File
 }
