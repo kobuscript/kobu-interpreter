@@ -714,7 +714,9 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
                         name = fullName;
                         pkg = imports.get(name);
                     }
-                    currentType.updateFieldValue(context, "package", new StringValueExpr(pkg));
+                    if (pkg != null) {
+                        currentType.updateFieldValue(context, "package", new StringValueExpr(pkg));
+                    }
                     currentType.updateFieldValue(context, "name", new StringValueExpr(name));
                 } else if (child instanceof JavaParser.TypeArgumentsContext) {
                     if (currentType == null) {

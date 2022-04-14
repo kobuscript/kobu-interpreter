@@ -31,6 +31,7 @@ import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.value.StringTypeSymbol;
+import dev.kobu.interpreter.ast.utils.StringFunctions;
 
 import java.util.Objects;
 
@@ -82,7 +83,7 @@ public class StringValueExpr implements ValueExpr, HasMethods {
 
     @Override
     public String getStringValue() {
-        return '"' + value + '"';
+        return '"' + StringFunctions.encodeString(value) + '"';
     }
 
     @Override
