@@ -106,9 +106,14 @@ type record JavaRecord extends JavaDefinition {
     package: string,
     name: string,
     typeParameters: JavaTypeParameter[],
+    implements: JavaObjectType[],
     fields: JavaField[],
     constructors: JavaConstructor[],
-    methods: JavaMethod[]
+    methods: JavaMethod[],
+    innerClasses: JavaClass[],
+    innerInterfaces: JavaInterface[],
+    innerEnums: JavaEnum[],
+    innerRecords: JavaRecord[]
 }
 
 type record JavaEnum extends JavaDefinition {

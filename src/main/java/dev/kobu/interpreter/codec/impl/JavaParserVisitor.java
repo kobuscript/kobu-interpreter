@@ -31,10 +31,7 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.*;
 import dev.kobu.interpreter.ast.eval.expr.value.number.DoubleValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.number.IntegerValueExpr;
-import dev.kobu.interpreter.ast.symbol.ModuleScope;
-import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.utils.RecordFactory;
 import dev.kobu.interpreter.ast.utils.StringFunctions;
@@ -602,12 +599,90 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitEnumDeclaration(JavaParser.EnumDeclarationContext ctx) {
-        return super.visitEnumDeclaration(ctx);
+        RecordValueExpr defRecExpr = defStack.peek();
+        defRecExpr.updateFieldValue(context, "package", new StringValueExpr(currentPackage));
+        defRecExpr.updateFieldValue(context, "name", new StringValueExpr(ctx.identifier().getText()));
+
+        List<ValueExpr> values = new ArrayList<>();
+        if (ctx.enumConstants() != null) {
+            for (JavaParser.EnumConstantContext enumConstantContext : ctx.enumConstants().enumConstant()) {
+                values.add(new StringValueExpr(enumConstantContext.identifier().getText()));
+            }
+        }
+
+        defRecExpr.updateFieldValue(context, "values", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor(BuiltinScope.STRING_TYPE),
+                values
+        ));
+
+        return null;
     }
 
     @Override
     public ValueExpr visitRecordDeclaration(JavaParser.RecordDeclarationContext ctx) {
-        return super.visitRecordDeclaration(ctx);
+        RecordValueExpr defRecExpr = defStack.peek();
+        defRecExpr.updateFieldValue(context, "package", new StringValueExpr(currentPackage));
+        defRecExpr.updateFieldValue(context, "name", new StringValueExpr(ctx.identifier().getText()));
+
+        List<ValueExpr> typeParametersList = new ArrayList<>();
+        if (ctx.typeParameters() != null) {
+            defRecExpr.updateFieldValue(context, "typeParameters", visit(ctx.typeParameters()));
+        }
+        defRecExpr.updateFieldValue(context, "typeParameters", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_TYPE_PARAMETER)),
+                typeParametersList
+        ));
+
+        if (ctx.typeList() != null) {
+            JavaParser.TypeListContext typeListContext = ctx.typeList();
+            if (typeListContext.typeType() != null) {
+                List<ValueExpr> interfaceList = new ArrayList<>();
+                for (JavaParser.TypeTypeContext typeTypeContext : typeListContext.typeType()) {
+                    interfaceList.add(visit(typeTypeContext));
+                }
+                defRecExpr.updateFieldValue(context, "implements", new ArrayValueExpr(
+                        ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_OBJECT_TYPE)),
+                        interfaceList
+                ));
+            }
+        }
+
+        defRecExpr.updateFieldValue(context, "constructors", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_CONSTRUCTOR)),
+                new ArrayList<>()
+        ));
+        defRecExpr.updateFieldValue(context, "fields", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_FIELD)),
+                new ArrayList<>()
+        ));
+        defRecExpr.updateFieldValue(context, "methods", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_METHOD)),
+                new ArrayList<>()
+        ));
+        defRecExpr.updateFieldValue(context, "innerClasses", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_CLASS)),
+                new ArrayList<>()
+        ));
+        defRecExpr.updateFieldValue(context, "innerInterfaces", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_INTERFACE)),
+                new ArrayList<>()
+        ));
+        defRecExpr.updateFieldValue(context, "innerEnums", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_ENUM)),
+                new ArrayList<>()
+        ));
+        defRecExpr.updateFieldValue(context, "innerRecords", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_RECORD)),
+                new ArrayList<>()
+        ));
+
+        if (ctx.recordBody() != null && ctx.recordBody().classBodyDeclaration() != null) {
+            for (JavaParser.ClassBodyDeclarationContext classBodyDeclarationContext : ctx.recordBody().classBodyDeclaration()) {
+                visit(classBodyDeclarationContext);
+            }
+        }
+
+        return null;
     }
 
     @Override
