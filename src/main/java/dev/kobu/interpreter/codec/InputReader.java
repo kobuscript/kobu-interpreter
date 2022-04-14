@@ -36,6 +36,7 @@ import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.codec.impl.JavaParserVisitor;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 import dev.kobu.interpreter.codec.impl.CsvFileParser;
 import dev.kobu.interpreter.codec.impl.JsonParserVisitor;
@@ -147,13 +148,18 @@ public class InputReader {
     }
 
     public static Type getJavaType(ModuleScope moduleScope) {
-        return null;
+        return (Type) moduleScope.resolve(JavaParserVisitor.JAVA_FILE_TYPE);
     }
 
     public static ValueExpr parseJava(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
                                       Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) throws IOException {
-
-        return null;
+        var input = CharStreams.fromStream(in);
+        var lexer = new JSONLexer(input);
+        var tokens = new CommonTokenStream(lexer);
+        var parser = new JSONParser(tokens);
+        var tree = parser.json();
+        var visitor = new JavaParserVisitor(moduleScope, context, filePath, sourceCodeRef);
+        return visitor.visit(tree);
     }
 
     public static Type getTypescriptType(ModuleScope moduleScope) {

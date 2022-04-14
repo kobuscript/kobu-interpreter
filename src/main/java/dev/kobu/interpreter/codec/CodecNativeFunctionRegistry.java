@@ -54,6 +54,10 @@ public class CodecNativeFunctionRegistry {
                 new WriteToFileFunctionImpl(OutputWriter::writeXml));
         moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.codec.Xml", "toXml"),
                 new EncodeFunctionImpl(OutputWriter::writeXml));
+
+        //java
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.parser.Java", "parseJava"),
+                new ReadFromFileFunctionImpl(InputReader::parseJava, InputReader::getJavaType));
     }
 
 }
