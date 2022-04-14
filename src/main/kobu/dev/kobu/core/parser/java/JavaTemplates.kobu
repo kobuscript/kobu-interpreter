@@ -43,14 +43,41 @@ type record OutputJavaArrayValue extends OutputJavaValue {
 
 type record OutputJavaClass {
     package: string,
-    imports: OutputJavaImport[],
+    imports: string[],
     name: string,
+    annotations: OutputJavaAnnotationValue[],
     modifiers: string[]
-
+    typeParameters: string[]
+    superType: string,
+    implements: string[],
+    constructors: OutputJavaConstructor[],
+    methods: OutputJavaMethod[],
+    fields: OutputJavaField[],
+    innerClasses: OutputJavaClass[]
 }
 
-type record OutputJavaImport {
-    import: string;
+type record OutputJavaConstructor {
+    typeParameters: string[],
+    modifiers: string[],
+    annotations: OutputJavaAnnotationValue[],
+    parameters: OutputJavaMethodParameter[]
+}
+
+type record OutputJavaMethod {
+    typeParameters: string[],
+    name: string,
+    modifiers: string[]
+    returnType: string,
+    parameters: OutputJavaMethodParameter[],
+    annotations: OutputJavaAnnotationValue[]
+}
+
+type record OutputJavaField {
+    name: string,
+    modifiers: string,
+    annotations: OutputJavaAnnotationValue[],
+    fieldType: string,
+    value: OutputJavaValue
 }
 
 type record OutputJavaAnnotationValue OutputJavaValue {
@@ -62,6 +89,14 @@ type record OutputJavaAnnotationValue OutputJavaValue {
 type record OutputJavaAnnotationFieldValue {
     field: string,
     value: OutputJavaValue
+}
+
+type record OutputJavaMethodParameter {
+    paramName: string,
+    paramType: string,
+    annotations: OutputJavaAnnotationValue[],
+    modifier: string,
+    varArg: boolean
 }
 
 
