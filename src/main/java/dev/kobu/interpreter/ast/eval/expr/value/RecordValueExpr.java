@@ -84,7 +84,11 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods, Fact {
 
     @Override
     public ValueExpr resolveField(String fieldName) {
-        return fieldValues.get(fieldName);
+        ValueExpr value = fieldValues.get(fieldName);
+        if (value instanceof NullValueExpr) {
+            return null;
+        }
+        return value;
     }
 
     @Override

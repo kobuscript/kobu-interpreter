@@ -197,18 +197,24 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
             return true;
         }
         ArrayValueExpr annFilterListExpr = (ArrayValueExpr) filterExpr.resolveField("typeAnnotations");
-        if (annFilterListExpr == null || annFilterListExpr.getValue().isEmpty()) {
-            return true;
-        }
-        List<ValueExpr> annFilterValueList = annFilterListExpr.getValue();
+        RecordValueExpr superTypeFilterExpr = (RecordValueExpr) filterExpr.resolveField("superType");
+        ArrayValueExpr implementsFilterExpr = (ArrayValueExpr) filterExpr.resolveField("implements");
+
+        List<ValueExpr> annFilterValueList = annFilterListExpr != null ? annFilterListExpr.getValue() : new ArrayList<>();
+        List<ValueExpr> implementsFilterValueList = implementsFilterExpr != null ? implementsFilterExpr.getValue() : new ArrayList<>();
 
         ArrayValueExpr annListExpr = (ArrayValueExpr) javaDefExpr.resolveField("annotations");
-        if (annListExpr == null || annListExpr.getValue().isEmpty()) {
-            return false;
-        }
-        List<ValueExpr> annValueList = annListExpr.getValue();
+        List<ValueExpr> annValueList = annListExpr != null ? annListExpr.getValue() : new ArrayList<>();
+        ArrayValueExpr implementsListExpr = (ArrayValueExpr) javaDefExpr.resolveField("implements");
+        List<ValueExpr> implementsValueList = implementsListExpr != null ? implementsListExpr.getValue() : new ArrayList<>();
 
-        return annFilterValueList.stream().allMatch(annFilterValue -> {
+        boolean matchAnnotations;
+        boolean matchInterfaces;
+        boolean matchSuperType = false;
+        matchAnnotations = annFilterValueList.stream().allMatch(annFilterValue -> {
+            if (!(annFilterValue instanceof RecordValueExpr)) {
+                return false;
+            }
             RecordValueExpr annFilterValueRec = (RecordValueExpr) annFilterValue;
             ValueExpr pkgExpr = annFilterValueRec.resolveField("package");
             ValueExpr nameExpr = annFilterValueRec.resolveField("name");
@@ -218,10 +224,41 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
                 ValueExpr annPkgExpr = annValueRec.resolveField("package");
                 ValueExpr annNameExpr = annValueRec.resolveField("name");
 
-                return (pkgExpr == null || pkgExpr instanceof NullValueExpr || pkgExpr.equals(annPkgExpr)) &&
-                        (nameExpr == null || nameExpr instanceof NullValueExpr || nameExpr.equals(annNameExpr));
+                return (pkgExpr == null || pkgExpr.equals(annPkgExpr)) &&
+                        (nameExpr == null || nameExpr.equals(annNameExpr));
             });
         });
+        matchInterfaces = implementsFilterValueList.stream().allMatch(interfaceFilterValue -> {
+            if (!(interfaceFilterValue instanceof RecordValueExpr)) {
+                return false;
+            }
+            RecordValueExpr interfaceFilterValueRec = (RecordValueExpr) interfaceFilterValue;
+            ValueExpr pkgExpr = interfaceFilterValueRec.resolveField("package");
+            ValueExpr nameExpr = interfaceFilterValueRec.resolveField("name");
+
+            return implementsValueList.stream().anyMatch(interfaceValue -> {
+                RecordValueExpr interfaceValueRec = (RecordValueExpr) interfaceValue;
+                ValueExpr annPkgExpr = interfaceValueRec.resolveField("package");
+                ValueExpr annNameExpr = interfaceValueRec.resolveField("name");
+
+                return (pkgExpr == null || pkgExpr.equals(annPkgExpr)) &&
+                        (nameExpr == null || nameExpr.equals(annNameExpr));
+            });
+        });
+
+        if (superTypeFilterExpr != null) {
+            RecordValueExpr superTypeExpr = (RecordValueExpr) javaDefExpr.resolveField("superType");
+            if (superTypeExpr != null) {
+                StringValueExpr pkgExpr = (StringValueExpr) superTypeFilterExpr.resolveField("package");
+                StringValueExpr nameExpr = (StringValueExpr) superTypeFilterExpr.resolveField("name");
+                matchSuperType = (pkgExpr == null || pkgExpr.equals(superTypeExpr.resolveField("package"))) &&
+                        (nameExpr == null || nameExpr.equals(superTypeExpr.resolveField("name")));
+            }
+        } else {
+            matchSuperType = true;
+        }
+
+        return matchAnnotations && matchSuperType && matchInterfaces;
     }
 
     @Override

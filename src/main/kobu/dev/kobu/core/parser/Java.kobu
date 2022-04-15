@@ -28,7 +28,9 @@ import dev.kobu.core.parser.java.JavaTypes
 import dev.kobu.core.parser.java.JavaCommands
 
 type record JavaFilter {
-    typeAnnotations: JavaAnnotationFilter[]
+    typeAnnotations: JavaAnnotationFilter[],
+    superType: JavaTypeFilter,
+    implements: JavaTypeFilter[]
 }
 
 type record JavaAnnotationFilter {
@@ -36,9 +38,15 @@ type record JavaAnnotationFilter {
     name: string
 }
 
+type record JavaTypeFilter {
+    package: string,
+    name: string
+}
+
 fun newJavaFilter(): JavaFilter {
     return JavaFilter{
-        typeAnnotations: []
+        typeAnnotations: [],
+        implements: []
     }
 }
 
@@ -46,6 +54,20 @@ fun addTypeAnnotationFilter(filter: JavaFilter, annName: string, annPackage?: st
     filter.typeAnnotations.add(JavaAnnotationFilter{
         package: annPackage,
         name: annName
+    })
+}
+
+fun setSuperTypeFilter(filter: JavaFilter, typeName: string, typePackage?: string): void {
+    filter.superType = JavaTypeFilter{
+        package: typePackage,
+        name: typeName
+    }
+}
+
+fun addInterfaceFilter(filter: JavaFilter, typeName: string, typePackage?: string): void {
+    filter.implements.add(JavaTypeFilter{
+        package: typePackage,
+        name: typeName
     })
 }
 
