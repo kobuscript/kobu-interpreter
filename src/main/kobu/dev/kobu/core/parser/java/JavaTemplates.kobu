@@ -41,19 +41,60 @@ type record OutputJavaArrayValue extends OutputJavaValue {
     value: OutputJavaValue[]
 }
 
-type record OutputJavaClass {
+type record OutputJavaFile {
     package: string,
     imports: string[],
+    definitions: OutputJavaDefinition[]
+}
+
+type record OutputJavaDefinition {
     name: string,
     annotations: OutputJavaAnnotationValue[],
     modifiers: string[]
-    typeParameters: string[]
+}
+
+type record OutputJavaClass extends OutputJavaDefinition {
+    typeParameters: string[],
     superType: string,
     implements: string[],
     constructors: OutputJavaConstructor[],
     methods: OutputJavaMethod[],
     fields: OutputJavaField[],
-    innerClasses: OutputJavaClass[]
+    innerClasses: OutputJavaClass[],
+    innerInterfaces: OutputJavaInterface[],
+    innerEnums: OutputJavaEnum[],
+    innerRecords: OutputJavaRecord[]
+}
+
+type record OutputJavaInterface extends OutputJavaDefinition {
+    typeParameters: string[],
+    superTypes: string[],
+    methods: OutputJavaMethod[],
+    fields: OutputJavaField[],
+    innerClasses: OutputJavaClass[],
+    innerInterfaces: OutputJavaInterface[],
+    innerEnums: OutputJavaEnum[],
+    innerRecords: OutputJavaRecord[]
+}
+
+type record OutputJavaEnum extends OutputJavaDefinition {
+    values: string[],
+    innerClasses: OutputJavaClass[],
+    innerInterfaces: OutputJavaInterface[],
+    innerEnums: OutputJavaEnum[],
+    innerRecords: OutputJavaRecord[]
+}
+
+type record OutputJavaRecord extends OutputJavaDefinition {
+    typeParameters: string[],
+    implements: string[],
+    constructors: OutputJavaConstructor[],
+    methods: OutputJavaMethod[],
+    fields: OutputJavaField[],
+    innerClasses: OutputJavaClass[],
+    innerInterfaces: OutputJavaInterface[],
+    innerEnums: OutputJavaEnum[],
+    innerRecords: OutputJavaRecord[]
 }
 
 type record OutputJavaConstructor {
@@ -74,7 +115,7 @@ type record OutputJavaMethod {
 
 type record OutputJavaField {
     name: string,
-    modifiers: string,
+    modifiers: string[],
     annotations: OutputJavaAnnotationValue[],
     fieldType: string,
     value: OutputJavaValue
