@@ -218,7 +218,7 @@ expr : record                                                                   
 anonymousFunction : ID FN_ARROW anonymousFunctionBody                              #singleArgAnonymousFunction
                     | anonymousFunctionHeader FN_ARROW anonymousFunctionBody       #fullArgsAnonymousFunction;
 
-anonymousFunctionHeader : LP anonymousFunctionParams RP ;
+anonymousFunctionHeader : LP anonymousFunctionParams? RP ;
 anonymousFunctionParams : ID QM? ( COLON type )? ( COMMA anonymousFunctionParams )? ;
 
 anonymousFunctionBody : expr

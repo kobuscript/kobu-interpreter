@@ -53,14 +53,18 @@ fun ifNotBlank(str: string, fn: () => string): string {
     return ""
 }
 
-fun strJoin(arr: Any[], delimiter?: string): string {
+fun strJoin(arr: Any[], delimiter?: string, mapFn?: (Any) => string): string {
     var str = ""
     if (arr != null) {
         for (var elem of arr) {
             if (delimiter != null and str.length() > 0) {
                 str = str + delimiter
             }
-            str = str + elem
+            if (mapFn != null) {
+                str = str + mapFn(elem)
+            } else {
+                str = str + elem
+            }
         }
     }
     return str

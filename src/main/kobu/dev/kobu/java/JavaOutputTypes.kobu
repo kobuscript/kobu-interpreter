@@ -130,7 +130,7 @@ type record OutputJavaField {
     value: OutputJavaValue
 }
 
-type record OutputJavaAnnotationValue OutputJavaValue {
+type record OutputJavaAnnotationValue extends OutputJavaValue {
     package: string,
     name: string,
     fields: OutputJavaAnnotationFieldValue[]

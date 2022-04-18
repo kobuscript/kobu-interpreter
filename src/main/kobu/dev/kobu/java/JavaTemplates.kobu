@@ -24,7 +24,7 @@ SOFTWARE.
 
 module dev.kobu.java.JavaTemplates
 
-import dev.kobu.functions.ArrayFunctions
+import dev.kobu.functions.TemplateFunctions
 import dev.kobu.java.JavaOutputTypes
 
 type template JavaMethodBodyTemplate
@@ -35,23 +35,23 @@ def template JavaFileTemplate for OutputJavaFile as file
                               join AnyTemplate[] as defTmpls of file.definitions <|
 ${ifNotBlank(file.comment, () => file.comment + "\n")}package ${file.package};
 
-${strJoin(file.imports.map(imp -> "import " + imp + ";"), "\n")}
+${strJoin(file.imports, "\n", imp => "import " + imp + ";")}
 ${strJoin(defTmpls, "\n")}
 |>
 
 def template JavaClassTemplate for OutputJavaClass as class
-                               join AnyTemplate[] annTmpls of class.annotations
-                               join JavaMethodTemplate[] consTmpls of class.constructors
-                               join JavaMethodTemplate[] methodsTmpls of class.methods
-                               join AnyTemplate[] fieldsTmpls of class.fields
-                               join AnyTemplate[] innerClassesTmpls of class.innerClasses
-                               join AnyTemplate[] innerInterfacesTmpls of class.innerInterfaces
-                               join AnyTemplate[] innerEnumsTmpls of class.innerEnums
-                               join AnyTemplate[] innerRecordsTmpls of class.innerRecords <|
+                               join AnyTemplate[] as annTmpls of class.annotations
+                               join JavaMethodTemplate[] as consTmpls of class.constructors
+                               join JavaMethodTemplate[] as methodsTmpls of class.methods
+                               join AnyTemplate[] as fieldsTmpls of class.fields
+                               join AnyTemplate[] as innerClassesTmpls of class.innerClasses
+                               join AnyTemplate[] as innerInterfacesTmpls of class.innerInterfaces
+                               join AnyTemplate[] as innerEnumsTmpls of class.innerEnums
+                               join AnyTemplate[] as innerRecordsTmpls of class.innerRecords <|
 ${ifNotBlank(class.comment, () => "\n" + class.comment)}
 ${strJoin(annTmpls, "\n")}
 ${getJavaClassSignature(class)} {
-    ${strJoin(fieldsTmpl, "\n")}
+    ${strJoin(fieldsTmpls, "\n")}
     ${strJoin(consTmpls, "\n")}
     ${strJoin(methodsTmpls, "\n")}
     ${strJoin(innerClassesTmpls, "\n")}
@@ -62,17 +62,17 @@ ${getJavaClassSignature(class)} {
 |>
 
 def template JavaInterfaceTemplate for OutputJavaInterface as interface
-                               join AnyTemplate[] annTmpls of interface.annotations
-                               join JavaMethodTemplate[] methodsTmpls of interface.methods
-                               join AnyTemplate[] fieldsTmpls of interface.fields
-                               join AnyTemplate[] innerClassesTmpls of interface.innerClasses
-                               join AnyTemplate[] innerInterfacesTmpls of interface.innerInterfaces
-                               join AnyTemplate[] innerEnumsTmpls of interface.innerEnums
-                               join AnyTemplate[] innerRecordsTmpls of interface.innerRecords <|
+                               join AnyTemplate[] as annTmpls of interface.annotations
+                               join JavaMethodTemplate[] as methodsTmpls of interface.methods
+                               join AnyTemplate[] as fieldsTmpls of interface.fields
+                               join AnyTemplate[] as innerClassesTmpls of interface.innerClasses
+                               join AnyTemplate[] as innerInterfacesTmpls of interface.innerInterfaces
+                               join AnyTemplate[] as innerEnumsTmpls of interface.innerEnums
+                               join AnyTemplate[] as innerRecordsTmpls of interface.innerRecords <|
 ${ifNotBlank(interface.comment, () => "\n" + interface.comment)}
 ${strJoin(annTmpls, "\n")}
 ${getJavaInterfaceSignature(interface)} {
-    ${strJoin(fieldsTmpl, "\n")}
+    ${strJoin(fieldsTmpls, "\n")}
     ${strJoin(methodsTmpls, "\n")}
     ${strJoin(innerClassesTmpls, "\n")}
     ${strJoin(innerInterfacesTmpls, "\n")}
@@ -96,4 +96,11 @@ fun getJavaInterfaceSignature(javaInterface: OutputJavaInterface): string {
             "interface " + javaInterface.name +
             mkString(javaInterface.typeParameters, "<", ", ", ">") +
             mkString(javaInterface.superTypes, " extends ", ", ", "")
+}
+
+fun getJavaEnumSignature(javaEnum: OutputJavaEnum): string {
+    return mkString(javaEnum.modifiers, "", " ", " ") +
+            "enum " + javaEnum.name +
+            mkString(javaEnum.typeParameters, "<", ", ", ">") +
+            mkString(javaEnum.implements, " implements ", ", ", "")
 }

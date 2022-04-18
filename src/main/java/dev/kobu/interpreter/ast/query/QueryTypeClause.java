@@ -135,7 +135,8 @@ public class QueryTypeClause implements Evaluable {
                     return;
                 }
                 Type elemType = ((ArrayType)type).getElementType();
-                if (!(elemType instanceof RecordTypeSymbol) && !(elemType instanceof AnyTemplateTypeSymbol)) {
+                if (!(elemType instanceof RecordTypeSymbol) && !(elemType instanceof AnyTemplateTypeSymbol) &&
+                        !(elemType instanceof TemplateTypeSymbol)) {
                     context.addAnalyzerError(new InvalidJoinQueryType(sourceCodeRef, type));
                     return;
                 }
