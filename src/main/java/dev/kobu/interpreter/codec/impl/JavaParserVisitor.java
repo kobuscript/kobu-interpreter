@@ -74,6 +74,8 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     private static final String JAVA_RECORD = "JavaRecord";
 
+    private static final String JAVA_RECORD_COMPONENT = "JavaRecordComponent";
+
     private static final String JAVA_ENUM = "JavaEnum";
 
     private static final String JAVA_ENUM_VALUE = "JavaEnumValue";
@@ -764,13 +766,41 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         defRecExpr.updateFieldValue(context, "package", new StringValueExpr(currentPackage));
         defRecExpr.updateFieldValue(context, "name", new StringValueExpr(ctx.identifier().getText()));
 
-        List<ValueExpr> typeParametersList = new ArrayList<>();
         if (ctx.typeParameters() != null) {
             defRecExpr.updateFieldValue(context, "typeParameters", visit(ctx.typeParameters()));
+        } else {
+            defRecExpr.updateFieldValue(context, "typeParameters", new ArrayValueExpr(
+                    ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_TYPE_PARAMETER)),
+                    new ArrayList<>()
+            ));
         }
-        defRecExpr.updateFieldValue(context, "typeParameters", new ArrayValueExpr(
-                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_TYPE_PARAMETER)),
-                typeParametersList
+
+        List<ValueExpr> componentList = new ArrayList<>();
+        if (ctx.recordHeader() != null && ctx.recordHeader().recordComponentList() != null) {
+            for (JavaParser.RecordComponentContext recordComponentContext : ctx.recordHeader().recordComponentList().recordComponent()) {
+                RecordValueExpr compRec = RecordFactory.create(context,
+                        (RecordTypeSymbol) moduleScope.resolve(JAVA_RECORD_COMPONENT));
+                compRec.updateFieldValue(context, "name",
+                        new StringValueExpr(recordComponentContext.identifier().getText()));
+                compRec.updateFieldValue(context, "fieldType", visit(recordComponentContext.typeType()));
+
+                List<ValueExpr> annCompList = new ArrayList<>();
+                if (recordComponentContext.typeType().annotation() != null) {
+                    for (JavaParser.AnnotationContext annCtx : recordComponentContext.typeType().annotation()) {
+                        annCompList.add(visit(annCtx));
+                    }
+                }
+                compRec.updateFieldValue(context, "annotations", new ArrayValueExpr(
+                        ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_ANNOTATION_VALUE)),
+                        annCompList
+                ));
+
+                componentList.add(compRec);
+            }
+        }
+        defRecExpr.updateFieldValue(context, "components", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_RECORD_COMPONENT)),
+                componentList
         ));
 
         if (ctx.typeList() != null) {

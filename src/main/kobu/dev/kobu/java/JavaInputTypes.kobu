@@ -103,6 +103,7 @@ type record JavaInterface extends JavaDefinition {
 type record JavaRecord extends JavaDefinition {
     typeParameters: JavaTypeParameter[],
     implements: JavaObjectType[],
+    components: JavaRecordComponent[],
     fields: JavaField[],
     constructors: JavaConstructor[],
     methods: JavaMethod[],
@@ -110,6 +111,12 @@ type record JavaRecord extends JavaDefinition {
     innerInterfaces: JavaInterface[],
     innerEnums: JavaEnum[],
     innerRecords: JavaRecord[]
+}
+
+type record JavaRecordComponent {
+    annotations: JavaAnnotationValue[],
+    name: string,
+    fieldType: JavaType
 }
 
 type record JavaEnum extends JavaDefinition {

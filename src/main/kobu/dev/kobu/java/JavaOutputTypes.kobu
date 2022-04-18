@@ -103,6 +103,12 @@ type record OutputJavaRecord extends OutputJavaDefinition {
     innerRecords: OutputJavaRecord[]
 }
 
+type record OutputJavaRecordComponent {
+    annotations: OutputJavaAnnotationValue[],
+    name: string,
+    fieldType: string
+}
+
 type record OutputJavaConstructor {
     comment: string,
     typeParameters: string[],

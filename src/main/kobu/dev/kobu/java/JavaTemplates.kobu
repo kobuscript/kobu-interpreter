@@ -81,7 +81,29 @@ ${getJavaInterfaceSignature(interface)} {
 }
 |>
 
-
+def template JavaEnumTemplate for OutputJavaEnum as javaEnum
+                              join AnyTemplate[] as annTmpls of javaEnum.annotations
+                              join AnyTemplate[] as valuesTmpls of javaEnum.values
+                              join JavaMethodTemplate[] as consTmpls of javaEnum.constructors
+                              join JavaMethodTemplate[] as methodsTmpls of javaEnum.methods
+                              join AnyTemplate[] as fieldsTmpls of javaEnum.fields
+                              join AnyTemplate[] as innerClassesTmpls of javaEnum.innerClasses
+                              join AnyTemplate[] as innerInterfacesTmpls of javaEnum.innerInterfaces
+                              join AnyTemplate[] as innerEnumsTmpls of javaEnum.innerEnums
+                              join AnyTemplate[] as innerRecordsTmpls of javaEnum.innerRecords <|
+${ifNotBlank(javaEnum.comment, () => "\n" + javaEnum.comment)}
+${strJoin(annTmpls, "\n")}
+${getJavaEnumSignature(javaEnum)} {
+    ${mkString(valuesTmpls, "", ",\n", ";\n")}
+    ${strJoin(fieldsTmpls, "\n")}
+    ${strJoin(consTmpls, "\n")}
+    ${strJoin(methodsTmpls, "\n")}
+    ${strJoin(innerClassesTmpls, "\n")}
+    ${strJoin(innerInterfacesTmpls, "\n")}
+    ${strJoin(innerEnumsTmpls, "\n")}
+    ${strJoin(innerRecordsTmpls, "\n")}
+}
+|>
 
 fun getJavaClassSignature(javaClass: OutputJavaClass): string {
     return mkString(javaClass.modifiers, "", " ", " ") +
@@ -101,6 +123,5 @@ fun getJavaInterfaceSignature(javaInterface: OutputJavaInterface): string {
 fun getJavaEnumSignature(javaEnum: OutputJavaEnum): string {
     return mkString(javaEnum.modifiers, "", " ", " ") +
             "enum " + javaEnum.name +
-            mkString(javaEnum.typeParameters, "<", ", ", ">") +
             mkString(javaEnum.implements, " implements ", ", ", "")
 }
