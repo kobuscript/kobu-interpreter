@@ -169,6 +169,12 @@ def template LiteralJavaValueTemplate for OutputLiteralJavaValue as javaValue <|
 ${javaValue.value}
 |>
 
+def template LiteralJavaStringTemplate extends LiteralJavaValueTemplate
+                                       for OutputLiteralJavaValue as javaValue
+                                       when javaValue.value instanceof string <|
+"${(javaValue.value as string).escape()}"
+|>
+
 fun getJavaClassSignature(javaClass: OutputJavaClass): string {
     return mkString(javaClass.modifiers, "", " ", " ") +
             "class " + javaClass.name +

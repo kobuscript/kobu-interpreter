@@ -195,9 +195,9 @@ exprWrapper : expr | assignPostIncDec | assignPreIncDec ;
 expr : record                                                                                       #recordExpr
        | LSB exprSequence? RSB                                                                      #arrayExpr
        | LP exprWrapper COMMA exprSequence RP                                                       #tupleExpr
-       | expr AS type                                                                               #castExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
+       | expr AS type                                                                               #castExpr
        | anonymousFunction                                                                          #anonymousFunctionExpr
        | expr typeArgs? LP exprSequence? RP                                                         #functionCallExpr
        | expr INSTANCEOF type                                                                       #instanceOfExpr
