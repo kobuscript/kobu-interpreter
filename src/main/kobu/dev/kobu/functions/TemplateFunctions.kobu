@@ -1,0 +1,77 @@
+/*
+MIT License
+
+Copyright (c) 2022 Luiz Mineo
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+module dev.kobu.functions.TemplateFunctions
+
+fun isBlank(str: string): boolean {
+    return str != null and str.trim().length() > 0
+}
+
+fun isNotBlank(str: string): boolean {
+    return not isBlank(str)
+}
+
+fun ifThenElse(cond: boolean, thenFn: () => string, elseFn: () => string): string {
+    if (cond) {
+        return thenFn()
+    }
+    return elseFn()
+}
+
+fun ifNotNull(value: Any, fn: () => string): string {
+    if (value != null) {
+        return fn()
+    }
+    return ""
+}
+
+fun ifNotBlank(str: string, fn: () => string): string {
+    if (isNotBlank(str)) {
+        return fn()
+    }
+    return ""
+}
+
+fun strJoin(arr: Any[], delimiter?: string): string {
+    var str = ""
+    if (arr != null) {
+        for (var elem of arr) {
+            if (delimiter != null and str.length() > 0) {
+                str = str + delimiter
+            }
+            str = str + elem
+        }
+    }
+    return str
+}
+
+fun mkString(arr: Any[], prefix: string, delimiter: string, suffix: string): string {
+    var str = ""
+    if (arr != null and arr.size() > 0) {
+        str = str + prefix
+        str = str + strJoin(arr, delimiter)
+        str = str + suffix
+    }
+    return str
+}

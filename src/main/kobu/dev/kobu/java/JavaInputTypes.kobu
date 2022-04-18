@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module dev.kobu.core.parser.java.JavaTypes
+module dev.kobu.java.JavaInputTypes
 
 type record JavaType {}
 
@@ -113,11 +113,20 @@ type record JavaRecord extends JavaDefinition {
 }
 
 type record JavaEnum extends JavaDefinition {
-    values: string[],
+    implements: JavaObjectType[],
+    values: JavaEnumValue[],
+    constructors: JavaConstructor[],
+    methods: JavaMethod[],
+    fields: JavaField[],
     innerClasses: JavaClass[],
     innerInterfaces: JavaInterface[],
     innerEnums: JavaEnum[],
     innerRecords: JavaRecord[]
+}
+
+type record JavaEnumValue {
+    name: string,
+    args: JavaValue[]
 }
 
 type record JavaTypeParameter {
@@ -169,7 +178,7 @@ type record JavaMethodParameter {
 type record JavaField extends JavaClassMember {
     name: string,
     fieldType: JavaType,
-    value: JavaLiteralValue
+    value: JavaValue
 }
 
 type record JavaValue {}

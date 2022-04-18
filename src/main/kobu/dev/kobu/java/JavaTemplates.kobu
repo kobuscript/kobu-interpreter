@@ -1,0 +1,99 @@
+/*
+MIT License
+
+Copyright (c) 2022 Luiz Mineo
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+module dev.kobu.java.JavaTemplates
+
+import dev.kobu.functions.ArrayFunctions
+import dev.kobu.java.JavaOutputTypes
+
+type template JavaMethodBodyTemplate
+
+type template JavaMethodTemplate
+
+def template JavaFileTemplate for OutputJavaFile as file
+                              join AnyTemplate[] as defTmpls of file.definitions <|
+${ifNotBlank(file.comment, () => file.comment + "\n")}package ${file.package};
+
+${strJoin(file.imports.map(imp -> "import " + imp + ";"), "\n")}
+${strJoin(defTmpls, "\n")}
+|>
+
+def template JavaClassTemplate for OutputJavaClass as class
+                               join AnyTemplate[] annTmpls of class.annotations
+                               join JavaMethodTemplate[] consTmpls of class.constructors
+                               join JavaMethodTemplate[] methodsTmpls of class.methods
+                               join AnyTemplate[] fieldsTmpls of class.fields
+                               join AnyTemplate[] innerClassesTmpls of class.innerClasses
+                               join AnyTemplate[] innerInterfacesTmpls of class.innerInterfaces
+                               join AnyTemplate[] innerEnumsTmpls of class.innerEnums
+                               join AnyTemplate[] innerRecordsTmpls of class.innerRecords <|
+${ifNotBlank(class.comment, () => "\n" + class.comment)}
+${strJoin(annTmpls, "\n")}
+${getJavaClassSignature(class)} {
+    ${strJoin(fieldsTmpl, "\n")}
+    ${strJoin(consTmpls, "\n")}
+    ${strJoin(methodsTmpls, "\n")}
+    ${strJoin(innerClassesTmpls, "\n")}
+    ${strJoin(innerInterfacesTmpls, "\n")}
+    ${strJoin(innerEnumsTmpls, "\n")}
+    ${strJoin(innerRecordsTmpls, "\n")}
+}
+|>
+
+def template JavaInterfaceTemplate for OutputJavaInterface as interface
+                               join AnyTemplate[] annTmpls of interface.annotations
+                               join JavaMethodTemplate[] methodsTmpls of interface.methods
+                               join AnyTemplate[] fieldsTmpls of interface.fields
+                               join AnyTemplate[] innerClassesTmpls of interface.innerClasses
+                               join AnyTemplate[] innerInterfacesTmpls of interface.innerInterfaces
+                               join AnyTemplate[] innerEnumsTmpls of interface.innerEnums
+                               join AnyTemplate[] innerRecordsTmpls of interface.innerRecords <|
+${ifNotBlank(interface.comment, () => "\n" + interface.comment)}
+${strJoin(annTmpls, "\n")}
+${getJavaInterfaceSignature(interface)} {
+    ${strJoin(fieldsTmpl, "\n")}
+    ${strJoin(methodsTmpls, "\n")}
+    ${strJoin(innerClassesTmpls, "\n")}
+    ${strJoin(innerInterfacesTmpls, "\n")}
+    ${strJoin(innerEnumsTmpls, "\n")}
+    ${strJoin(innerRecordsTmpls, "\n")}
+}
+|>
+
+
+
+fun getJavaClassSignature(javaClass: OutputJavaClass): string {
+    return mkString(javaClass.modifiers, "", " ", " ") +
+            "class " + javaClass.name +
+            mkString(javaClass.typeParameters, "<", ", ", ">") +
+            ifNotBlank(javaClass.superType, () => " extends " + javaClass.superType) +
+            mkString(javaClass.implements, " implements ", ", ", "")
+}
+
+fun getJavaInterfaceSignature(javaInterface: OutputJavaInterface): string {
+    return mkString(javaInterface.modifiers, "", " ", " ") +
+            "interface " + javaInterface.name +
+            mkString(javaInterface.typeParameters, "<", ", ", ">") +
+            mkString(javaInterface.superTypes, " extends ", ", ", "")
+}

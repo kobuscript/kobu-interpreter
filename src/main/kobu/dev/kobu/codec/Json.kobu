@@ -22,10 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-fun numberComparator(o1: number, o2: number): number {
-    return o1 - o2
+module dev.kobu.codec.Json
+
+type record JsonFile<T> {
+    file: File,
+    json: T
 }
 
-fun stringComparator(o1: string, o2: string): number {
-    return o1.compare(o2)
-}
+def native readJson<T>(dir: Path, pattern: string, recordType: RecordType<T>,
+                       recursive?: boolean, charset?: string): JsonFile<T>;
+
+def native readJsonArray<T>(dir: Path, pattern: string, recordType: RecordType<T>,
+                            recursive?: boolean, charset?: string): JsonFile<T[]>
+
+def native writeJson(file: File, value: Any, charset?: string): void;
+
+def native toJson(value: Any): string;

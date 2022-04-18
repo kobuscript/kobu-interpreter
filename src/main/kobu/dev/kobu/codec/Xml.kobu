@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module dev.kobu.core.codec.Xml
+module dev.kobu.codec.Xml
 
 type record XmlMapping<T> {
     rootRecord: RecordType<T>,

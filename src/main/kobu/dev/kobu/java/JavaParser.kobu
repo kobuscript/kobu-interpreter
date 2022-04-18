@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module dev.kobu.core.parser.Java
+module dev.kobu.java.JavaParser
 
-import dev.kobu.core.parser.java.JavaTypes
-import dev.kobu.core.parser.java.JavaCommands
+import dev.kobu.java.JavaInputTypes
+import dev.kobu.java.JavaCommands
 
 type record JavaFilter {
     typeAnnotations: JavaAnnotationFilter[],

@@ -54,15 +54,17 @@ public class ModuleLoader {
 
     //TODO: implement a better way to register built-in modules
     private static final String[] BUILTIN_MODULES = new String[]{
-        "dev.kobu.core.functions.ArrayFunctions",
-        "dev.kobu.core.functions.Comparators",
-        "dev.kobu.core.constants.Charsets",
-        "dev.kobu.core.codec.Csv",
-        "dev.kobu.core.codec.Json",
-        "dev.kobu.core.codec.Xml",
-        "dev.kobu.core.parser.java.JavaCommands",
-        "dev.kobu.core.parser.java.JavaTypes",
-        "dev.kobu.core.parser.Java"
+        "dev.kobu.functions.TemplateFunctions",
+        "dev.kobu.functions.Comparators",
+        "dev.kobu.constants.Charsets",
+        "dev.kobu.codec.Csv",
+        "dev.kobu.codec.Json",
+        "dev.kobu.codec.Xml",
+        "dev.kobu.java.JavaCommands",
+        "dev.kobu.java.JavaInputTypes",
+        "dev.kobu.java.JavaOutputTypes",
+        "dev.kobu.java.JavaTemplates",
+        "dev.kobu.java.JavaParser"
     };
 
     private final EvalContextProvider evalContextProvider;

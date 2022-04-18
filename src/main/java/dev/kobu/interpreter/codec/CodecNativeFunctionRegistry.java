@@ -34,29 +34,29 @@ public class CodecNativeFunctionRegistry {
 
     public static void register(ModuleLoader moduleLoader) {
         //csv
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.codec.Csv", "readCsv"),
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.codec.Csv", "readCsv"),
                 new ReadFromFileFunctionImpl(InputReader::parseCsv, InputReader::getCsvType));
 
         //json
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.codec.Json", "readJson"),
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.codec.Json", "readJson"),
                 new ReadFromFileFunctionImpl(InputReader::parseJson, InputReader::getJsonType));
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.codec.Json", "readJsonArray"),
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.codec.Json", "readJsonArray"),
                 new ReadFromFileFunctionImpl(InputReader::parseJson, InputReader::getJsonType));
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.codec.Json", "writeJson"),
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.codec.Json", "writeJson"),
                 new WriteToFileFunctionImpl(OutputWriter::writeJson));
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.codec.Json", "toJson"),
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.codec.Json", "toJson"),
                 new EncodeFunctionImpl(OutputWriter::writeJson));
 
         //xml
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.codec.Xml", "readXml"),
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.codec.Xml", "readXml"),
                 new ReadFromFileFunctionImpl(InputReader::parseXml, InputReader::getXmlType));
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.codec.Xml", "writeXml"),
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.codec.Xml", "writeXml"),
                 new WriteToFileFunctionImpl(OutputWriter::writeXml));
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.codec.Xml", "toXml"),
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.codec.Xml", "toXml"),
                 new EncodeFunctionImpl(OutputWriter::writeXml));
 
         //java
-        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.core.parser.Java", "parseJava"),
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.java.JavaParser", "parseJava"),
                 new ReadFromFileFunctionImpl(InputReader::parseJava, InputReader::getJavaType));
     }
 

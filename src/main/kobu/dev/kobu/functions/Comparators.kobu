@@ -22,27 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module dev.kobu.core.functions.ArrayFunctions
+module dev.kobu.functions.Comparators
 
-fun strJoin(arr: Any[], delimiter?: string): string {
-    var str = ""
-    if (arr != null) {
-        for (var elem of arr) {
-            if (delimiter != null and str.length() > 0) {
-                str = str + delimiter
-            }
-            str = str + elem
-        }
-    }
-    return str
+fun numberComparator(o1: number, o2: number): number {
+    return o1 - o2
 }
 
-fun mkString(arr: Any[], prefix: string, delimiter: string, suffix: string): string {
-    var str = ""
-    if (arr != null and arr.size() > 0) {
-        str = str + prefix
-        str = str + strJoin(arr, delimiter)
-        str = str + suffix
-    }
-    return str
+fun stringComparator(o1: string, o2: string): number {
+    return o1.compare(o2)
 }

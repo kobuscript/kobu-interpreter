@@ -22,10 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module dev.kobu.core.parser.java.JavaTemplates
-
-import dev.kobu.core.parser.java.JavaTypes
-import dev.kobu.core.functions.ArrayFunctions
+module dev.kobu.java.JavaOutputTypes
 
 type record OutputJavaValue {}
 
@@ -42,19 +39,21 @@ type record OutputJavaArrayValue extends OutputJavaValue {
 }
 
 type record OutputJavaFile {
+    comment: string,
     package: string,
     imports: string[],
     definitions: OutputJavaDefinition[]
 }
 
 type record OutputJavaDefinition {
+    comment: string,
     name: string,
     annotations: OutputJavaAnnotationValue[],
-    modifiers: string[]
+    modifiers: string[],
+    typeParameters: string[]
 }
 
 type record OutputJavaClass extends OutputJavaDefinition {
-    typeParameters: string[],
     superType: string,
     implements: string[],
     constructors: OutputJavaConstructor[],
@@ -67,7 +66,6 @@ type record OutputJavaClass extends OutputJavaDefinition {
 }
 
 type record OutputJavaInterface extends OutputJavaDefinition {
-    typeParameters: string[],
     superTypes: string[],
     methods: OutputJavaMethod[],
     fields: OutputJavaField[],
@@ -78,15 +76,23 @@ type record OutputJavaInterface extends OutputJavaDefinition {
 }
 
 type record OutputJavaEnum extends OutputJavaDefinition {
-    values: string[],
+    implements: string[],
+    values: OutputJavaEnumValue[],
+    constructors: OutputJavaConstructor[],
+    methods: OutputJavaMethod[],
+    fields: OutputJavaField[],
     innerClasses: OutputJavaClass[],
     innerInterfaces: OutputJavaInterface[],
     innerEnums: OutputJavaEnum[],
     innerRecords: OutputJavaRecord[]
 }
 
+type record OutputJavaEnumValue {
+    name: string,
+    args: OutputJavaValue[]
+}
+
 type record OutputJavaRecord extends OutputJavaDefinition {
-    typeParameters: string[],
     implements: string[],
     constructors: OutputJavaConstructor[],
     methods: OutputJavaMethod[],
@@ -98,6 +104,7 @@ type record OutputJavaRecord extends OutputJavaDefinition {
 }
 
 type record OutputJavaConstructor {
+    comment: string,
     typeParameters: string[],
     modifiers: string[],
     annotations: OutputJavaAnnotationValue[],
@@ -105,6 +112,7 @@ type record OutputJavaConstructor {
 }
 
 type record OutputJavaMethod {
+    comment: string,
     typeParameters: string[],
     name: string,
     modifiers: string[]
@@ -114,6 +122,7 @@ type record OutputJavaMethod {
 }
 
 type record OutputJavaField {
+    comment: string,
     name: string,
     modifiers: string[],
     annotations: OutputJavaAnnotationValue[],
@@ -139,9 +148,3 @@ type record OutputJavaMethodParameter {
     modifier: string,
     varArg: boolean
 }
-
-
-type template JavaMethodBodyTemplate
-
-type template JavaMethodDefinitionTemplate
-

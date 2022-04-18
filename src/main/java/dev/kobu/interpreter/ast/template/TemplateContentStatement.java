@@ -27,6 +27,7 @@ package dev.kobu.interpreter.ast.template;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.utils.TemplateIndentation;
@@ -77,7 +78,7 @@ public class TemplateContentStatement extends TemplateStatement {
 
         if (value instanceof StringValueExpr) {
             str.append(TemplateIndentation.indent(((StringValueExpr) value).getValue(), insertionIndex));
-        } else {
+        } else if (!(value instanceof NullValueExpr)) {
             str.append(TemplateIndentation.indent(value.getStringValue(), insertionIndex));
         }
 

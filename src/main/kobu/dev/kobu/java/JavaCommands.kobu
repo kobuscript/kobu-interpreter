@@ -22,19 +22,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module dev.kobu.core.codec.Json
+module dev.kobu.java.JavaCommands
 
-type record JsonFile<T> {
-    file: File,
-    json: T
+import dev.kobu.java.JavaInputTypes
+
+type record JavaFileCommand {
+    file: File
 }
 
-def native readJson<T>(dir: Path, pattern: string, recordType: RecordType<T>,
-                       recursive?: boolean, charset?: string): JsonFile<T>;
+type record JavaAddImport extends JavaFileCommand {
+    qualifiedName: string
+}
 
-def native readJsonArray<T>(dir: Path, pattern: string, recordType: RecordType<T>,
-                            recursive?: boolean, charset?: string): JsonFile<T[]>
+type record JavaAddOrReplaceMethod extends JavaFileCommand {
+    method: JavaMethod,
+    content: AnyTemplate
+}
 
-def native writeJson(file: File, value: Any, charset?: string): void;
+type record JavaAddOrReplaceConstructor extends JavaFileCommand {
+    constructor: JavaConstructor,
+    content: AnyTemplate
+}
 
-def native toJson(value: Any): string;
+type record JavaAddOrReplaceField extends JavaFileCommand {
+    field: JavaField
+}
+
+type record JavaAddOrReplaceInnerDefinition extends JavaFileCommand {
+    name: string,
+    content: AnyTemplate
+}
+
+type record JavaAddOrReplaceTypeAnnotation extends JavaFileCommand {
+    annotation: JavaAnnotationValue
+}
