@@ -188,7 +188,7 @@ templateExpr : templateStaticContentExpr
 
 templateStaticContentExpr : CONTENT ;
 
-templateContentExpr : TEMPLATE_EXPR_BEGIN expr? TEMPLATE_EXPR_END ;
+templateContentExpr : ( TEMPLATE_EXPR_BEGIN | TEMPLATE_SHIFT_EXPR_BEGIN ) expr? TEMPLATE_EXPR_END ;
 
 exprWrapper : expr | assignPostIncDec | assignPreIncDec ;
 

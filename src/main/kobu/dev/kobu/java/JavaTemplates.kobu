@@ -32,77 +32,141 @@ type template JavaMethodBodyTemplate
 type template JavaMethodTemplate
 
 def template JavaFileTemplate for OutputJavaFile as file
-                              join AnyTemplate[] as defTmpls of file.definitions <|
+                              join AnyTemplate[] as defTmpl of file.definitions <|
 ${ifNotBlank(file.comment, () => file.comment + "\n")}package ${file.package};
 
 ${strJoin(file.imports, "\n", imp => "import " + imp + ";")}
-${strJoin(defTmpls, "\n")}
+${strJoin(defTmpl, "\n")}
 |>
 
 def template JavaClassTemplate for OutputJavaClass as class
-                               join AnyTemplate[] as annTmpls of class.annotations
-                               join JavaMethodTemplate[] as consTmpls of class.constructors
-                               join JavaMethodTemplate[] as methodsTmpls of class.methods
-                               join AnyTemplate[] as fieldsTmpls of class.fields
-                               join AnyTemplate[] as innerClassesTmpls of class.innerClasses
-                               join AnyTemplate[] as innerInterfacesTmpls of class.innerInterfaces
-                               join AnyTemplate[] as innerEnumsTmpls of class.innerEnums
-                               join AnyTemplate[] as innerRecordsTmpls of class.innerRecords <|
+                               join AnyTemplate[] as annTmpl of class.annotations
+                               join JavaMethodTemplate[] as consTmpl of class.constructors
+                               join JavaMethodTemplate[] as methodsTmpl of class.methods
+                               join AnyTemplate[] as fieldsTmpl of class.fields
+                               join AnyTemplate[] as innerClassesTmpl of class.innerClasses
+                               join AnyTemplate[] as innerInterfacesTmpl of class.innerInterfaces
+                               join AnyTemplate[] as innerEnumsTmpl of class.innerEnums
+                               join AnyTemplate[] as innerRecordsTmpl of class.innerRecords <|
 ${ifNotBlank(class.comment, () => "\n" + class.comment)}
-${strJoin(annTmpls, "\n")}
+${strJoin(annTmpl, "\n")}
 ${getJavaClassSignature(class)} {
-    ${strJoin(fieldsTmpls, "\n")}
-    ${strJoin(consTmpls, "\n")}
-    ${strJoin(methodsTmpls, "\n")}
-    ${strJoin(innerClassesTmpls, "\n")}
-    ${strJoin(innerInterfacesTmpls, "\n")}
-    ${strJoin(innerEnumsTmpls, "\n")}
-    ${strJoin(innerRecordsTmpls, "\n")}
+    ${strJoin(fieldsTmpl, "\n")}
+    ${strJoin(consTmpl, "\n")}
+    ${strJoin(methodsTmpl, "\n")}
+    ${strJoin(innerClassesTmpl, "\n")}
+    ${strJoin(innerInterfacesTmpl, "\n")}
+    ${strJoin(innerEnumsTmpl, "\n")}
+    ${strJoin(innerRecordsTmpl, "\n")}
 }
 |>
 
 def template JavaInterfaceTemplate for OutputJavaInterface as interface
-                               join AnyTemplate[] as annTmpls of interface.annotations
-                               join JavaMethodTemplate[] as methodsTmpls of interface.methods
-                               join AnyTemplate[] as fieldsTmpls of interface.fields
-                               join AnyTemplate[] as innerClassesTmpls of interface.innerClasses
-                               join AnyTemplate[] as innerInterfacesTmpls of interface.innerInterfaces
-                               join AnyTemplate[] as innerEnumsTmpls of interface.innerEnums
-                               join AnyTemplate[] as innerRecordsTmpls of interface.innerRecords <|
+                               join AnyTemplate[] as annTmpl of interface.annotations
+                               join JavaMethodTemplate[] as methodsTmpl of interface.methods
+                               join AnyTemplate[] as fieldsTmpl of interface.fields
+                               join AnyTemplate[] as innerClassesTmpl of interface.innerClasses
+                               join AnyTemplate[] as innerInterfacesTmpl of interface.innerInterfaces
+                               join AnyTemplate[] as innerEnumsTmpl of interface.innerEnums
+                               join AnyTemplate[] as innerRecordsTmpl of interface.innerRecords <|
 ${ifNotBlank(interface.comment, () => "\n" + interface.comment)}
-${strJoin(annTmpls, "\n")}
+${strJoin(annTmpl, "\n")}
 ${getJavaInterfaceSignature(interface)} {
-    ${strJoin(fieldsTmpls, "\n")}
-    ${strJoin(methodsTmpls, "\n")}
-    ${strJoin(innerClassesTmpls, "\n")}
-    ${strJoin(innerInterfacesTmpls, "\n")}
-    ${strJoin(innerEnumsTmpls, "\n")}
-    ${strJoin(innerRecordsTmpls, "\n")}
+    ${strJoin(fieldsTmpl, "\n")}
+    ${strJoin(methodsTmpl, "\n")}
+    ${strJoin(innerClassesTmpl, "\n")}
+    ${strJoin(innerInterfacesTmpl, "\n")}
+    ${strJoin(innerEnumsTmpl, "\n")}
+    ${strJoin(innerRecordsTmpl, "\n")}
 }
 |>
 
 def template JavaEnumTemplate for OutputJavaEnum as javaEnum
-                              join AnyTemplate[] as annTmpls of javaEnum.annotations
-                              join AnyTemplate[] as valuesTmpls of javaEnum.values
-                              join JavaMethodTemplate[] as consTmpls of javaEnum.constructors
-                              join JavaMethodTemplate[] as methodsTmpls of javaEnum.methods
-                              join AnyTemplate[] as fieldsTmpls of javaEnum.fields
-                              join AnyTemplate[] as innerClassesTmpls of javaEnum.innerClasses
-                              join AnyTemplate[] as innerInterfacesTmpls of javaEnum.innerInterfaces
-                              join AnyTemplate[] as innerEnumsTmpls of javaEnum.innerEnums
-                              join AnyTemplate[] as innerRecordsTmpls of javaEnum.innerRecords <|
+                              join AnyTemplate[] as annTmpl of javaEnum.annotations
+                              join AnyTemplate[] as valuesTmpl of javaEnum.values
+                              join JavaMethodTemplate[] as consTmpl of javaEnum.constructors
+                              join JavaMethodTemplate[] as methodsTmpl of javaEnum.methods
+                              join AnyTemplate[] as fieldsTmpl of javaEnum.fields
+                              join AnyTemplate[] as innerClassesTmpl of javaEnum.innerClasses
+                              join AnyTemplate[] as innerInterfacesTmpl of javaEnum.innerInterfaces
+                              join AnyTemplate[] as innerEnumsTmpl of javaEnum.innerEnums
+                              join AnyTemplate[] as innerRecordsTmpl of javaEnum.innerRecords <|
 ${ifNotBlank(javaEnum.comment, () => "\n" + javaEnum.comment)}
-${strJoin(annTmpls, "\n")}
+${strJoin(annTmpl, "\n")}
 ${getJavaEnumSignature(javaEnum)} {
-    ${mkString(valuesTmpls, "", ",\n", ";\n")}
-    ${strJoin(fieldsTmpls, "\n")}
-    ${strJoin(consTmpls, "\n")}
-    ${strJoin(methodsTmpls, "\n")}
-    ${strJoin(innerClassesTmpls, "\n")}
-    ${strJoin(innerInterfacesTmpls, "\n")}
-    ${strJoin(innerEnumsTmpls, "\n")}
-    ${strJoin(innerRecordsTmpls, "\n")}
+    ${mkString(valuesTmpl, "", ",\n", ";\n")}
+    ${strJoin(fieldsTmpl, "\n")}
+    ${strJoin(consTmpl, "\n")}
+    ${strJoin(methodsTmpl, "\n")}
+    ${strJoin(innerClassesTmpl, "\n")}
+    ${strJoin(innerInterfacesTmpl, "\n")}
+    ${strJoin(innerEnumsTmpl, "\n")}
+    ${strJoin(innerRecordsTmpl, "\n")}
 }
+|>
+
+def template JavaRecordTemplate for OutputJavaRecord as javaRecord
+                                join AnyTemplate[] as annTmpl of javaRecord.annotations
+                                join AnyTemplate[] as compTmpl of javaRecord.components
+                                join JavaMethodTemplate[] as consTmpl of javaRecord.constructors
+                                join JavaMethodTemplate[] as methodsTmpl of javaRecord.methods
+                                join AnyTemplate[] as fieldsTmpl of javaRecord.fields
+                                join AnyTemplate[] as innerClassesTmpl of javaRecord.innerClasses
+                                join AnyTemplate[] as innerInterfacesTmpl of javaRecord.innerInterfaces
+                                join AnyTemplate[] as innerEnumsTmpl of javaRecord.innerEnums
+                                join AnyTemplate[] as innerRecordsTmpl of javaRecord.innerRecords <|
+${ifNotBlank(javaRecord.comment, () => "\n" + javaRecord.comment)}
+${strJoin(annTmpl, "\n")}
+${getJavaRecordHeader(javaRecord)}(${strJoin(compTmpl, ",\n")})${getJavaRecordInterfaces(javaRecord)} {
+    ${strJoin(fieldsTmpl, "\n")}
+    ${strJoin(consTmpl, "\n")}
+    ${strJoin(methodsTmpl, "\n")}
+    ${strJoin(innerClassesTmpl, "\n")}
+    ${strJoin(innerInterfacesTmpl, "\n")}
+    ${strJoin(innerEnumsTmpl, "\n")}
+    ${strJoin(innerRecordsTmpl, "\n")}
+}
+|>
+
+def template JavaAnnotationTemplate for OutputJavaAnnotationValue as ann
+                                    join AnyTemplate[] as fieldsTmpl of ann.fields <|
+@{ann.name}(
+    ${strJoin(fieldsTmpl, ",\n")}
+)
+|>
+
+def template JavaAnnotationSingleValueTemplate extends JavaAnnotationTemplate
+                                               for OutputJavaAnnotationValue as ann
+                                               join AnyTemplate[] as valuesTmpl of ann.fields.map(f => f.value)
+                                               when ann.fields.size() == 1 and ann.fields[0].field == "value" <|
+@${ann.name}($^{valuesTmpl[0]})
+|>
+
+def template avaAnnotationFieldValueTemplate for OutputJavaAnnotationFieldValue as field
+                                             join AnyTemplate as valueTmpl of field.value <|
+${field.field}=$^{valueTmpl}
+|>
+
+def template JavaArrayValueTemplate for OutputJavaArrayValue as arr
+                                    join AnyTemplate[] as valuesTmpl of arr.value <|
+{
+    ${strJoin(valuesTmpl, ",\n")}
+}
+|>
+
+def template JavaArrayLiteralValueTemplate extends JavaArrayValueTemplate
+                                           for OutputJavaArrayValue as arr
+                                           join AnyTemplate[] as valuesTmpl of arr.value
+                                           when arr.value.every(v => v instanceof OutputLiteralJavaValue) <|
+{${strJoin(valuesTmpl, ", ")}}
+|>
+
+def template JavaSourceValueTemplate for OutputJavaSource as javaSource <|
+${javaSource.source}
+|>
+
+def template LiteralJavaValueTemplate for OutputLiteralJavaValue as javaValue <|
+${javaValue.value}
 |>
 
 fun getJavaClassSignature(javaClass: OutputJavaClass): string {
@@ -124,4 +188,14 @@ fun getJavaEnumSignature(javaEnum: OutputJavaEnum): string {
     return mkString(javaEnum.modifiers, "", " ", " ") +
             "enum " + javaEnum.name +
             mkString(javaEnum.implements, " implements ", ", ", "")
+}
+
+fun getJavaRecordHeader(javaRecord: OutputJavaRecord): string {
+    return mkString(javaRecord.modifiers, "", " ", " ") +
+            "record " + javaRecord.name +
+            mkString(javaRecord.typeParameters, "<", ", ", ">")
+}
+
+fun getJavaRecordInterfaces(javaRecord: OutputJavaRecord): string {
+    return mkString(javaRecord.implements, " implements ", ", ", "")
 }

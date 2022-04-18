@@ -162,3 +162,4 @@ CONTENT : (CONT_ESC | ~[|$\\] )+ ;
 fragment CONT_ESC : '\\' ([|$\\]) ;
 
 TEMPLATE_EXPR_BEGIN : '${' -> pushMode(DEFAULT_MODE) ;
+TEMPLATE_SHIFT_EXPR_BEGIN : '$^{' -> pushMode(DEFAULT_MODE) ;

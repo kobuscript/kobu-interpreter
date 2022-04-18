@@ -41,9 +41,12 @@ public class TemplateContentStatement extends TemplateStatement {
 
     private final Expr expr;
 
-    public TemplateContentStatement(SourceCodeRef sourceCodeRef, Expr expr) {
+    private final boolean shiftInsertionPoint;
+
+    public TemplateContentStatement(SourceCodeRef sourceCodeRef, Expr expr, boolean shiftInsertionPoint) {
         this.sourceCodeRef = sourceCodeRef;
         this.expr = expr;
+        this.shiftInsertionPoint = shiftInsertionPoint;
     }
 
     @Override
@@ -83,7 +86,7 @@ public class TemplateContentStatement extends TemplateStatement {
         }
 
         if (getNext() != null) {
-            str.append(getNext().evalTemplate(context, TemplateIndentation.getInsertionIndex(str.toString())));
+            str.append(getNext().evalTemplate(context, TemplateIndentation.getInsertionIndex(str.toString(), shiftInsertionPoint)));
         }
 
         return str;

@@ -528,7 +528,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         topLevelExpression = false;
         Expr expr = (Expr) visit(ctx.expr());
         topLevelExpression = true;
-        return new TemplateContentStatement(getSourceCodeRef(ctx.expr()), expr);
+        return new TemplateContentStatement(getSourceCodeRef(ctx.expr()), expr, ctx.TEMPLATE_SHIFT_EXPR_BEGIN() != null);
     }
 
     @Override

@@ -28,11 +28,16 @@ import java.util.regex.Pattern;
 
 public class TemplateIndentation {
 
-    public static int getInsertionIndex(String str) {
-        var pattern = Pattern.compile("\\n.*$");
+    public static int getInsertionIndex(String str, boolean fromInit) {
+        Pattern pattern;
+        if (fromInit) {
+            pattern = Pattern.compile("(\\n[\\s]*).*$");
+        } else {
+            pattern = Pattern.compile("(\\n.*)$");
+        }
         var matcher = pattern.matcher(str);
         if (matcher.find()) {
-            return matcher.group(0).length() - 1;
+            return matcher.group(1).length() - 1;
         }
         return 0;
     }

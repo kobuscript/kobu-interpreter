@@ -65,7 +65,7 @@ public class TemplateStaticContentStatement extends TemplateStatement {
     public StringBuilder evalTemplate(EvalContext context, int insertionIndex) {
         var str = new StringBuilder(content);
         if (getNext() != null) {
-            str.append(getNext().evalTemplate(context, TemplateIndentation.getInsertionIndex(content)));
+            str.append(getNext().evalTemplate(context, TemplateIndentation.getInsertionIndex(content, false)));
         }
         if (isRoot()) {
             return new StringBuilder(TemplateIndentation.indent(str.toString(), insertionIndex));

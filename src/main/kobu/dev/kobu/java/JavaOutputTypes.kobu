@@ -94,6 +94,7 @@ type record OutputJavaEnumValue {
 
 type record OutputJavaRecord extends OutputJavaDefinition {
     implements: string[],
+    components: OutputJavaRecordComponent[],
     constructors: OutputJavaConstructor[],
     methods: OutputJavaMethod[],
     fields: OutputJavaField[],
