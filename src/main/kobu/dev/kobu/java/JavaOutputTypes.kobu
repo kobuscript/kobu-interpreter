@@ -115,7 +115,8 @@ type record OutputJavaConstructor {
     typeParameters: string[],
     modifiers: string[],
     annotations: OutputJavaAnnotationValue[],
-    parameters: OutputJavaMethodParameter[]
+    parameters: OutputJavaMethodParameter[],
+    throws: string[]
 }
 
 type record OutputJavaMethod {
@@ -125,6 +126,7 @@ type record OutputJavaMethod {
     modifiers: string[]
     returnType: string,
     parameters: OutputJavaMethodParameter[],
+    throws: string[],
     annotations: OutputJavaAnnotationValue[]
 }
 

@@ -64,12 +64,14 @@ public class ArrayType implements Type {
     private final static BuiltinMethod FLAT_MAP_METHOD = new ArrayFlatMapMethodImpl();
     private final static BuiltinMethod FOR_EACH_METHOD = new ArrayForEachMethodImpl();
     private final static BuiltinMethod ZIP_METHOD = new ArrayZipMethodImpl();
+    private final static BuiltinMethod PARTITION_METHOD = new ArrayPartitionMethodImpl();
 
     private final static TypeParameter TYPE_PARAMETER_A = new TypeParameter("A");
     private final static TypeParameter TYPE_PARAMETER_B = new TypeParameter("B");
     private final static TypeAlias TYPE_ALIAS_A = new TypeAlias(TYPE_PARAMETER_A);
     private final static TypeAlias TYPE_ALIAS_B = new TypeAlias(TYPE_PARAMETER_B);
     private final static ArrayType ARRAY_TYPE_ALIAS_B = new ArrayType(TYPE_ALIAS_B);
+    private final static ArrayType ARRAY_ARRAY_TYPE_ALIAS_A = new ArrayType(new ArrayType(TYPE_ALIAS_A));
     private final static ArrayType ARRAY_PAIR_TYPE_ALIAS_A_B = new ArrayType(getPairTypeAlias());
 
     private static TupleType getPairTypeAlias() {
@@ -311,6 +313,12 @@ public class ArrayType implements Type {
                 new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
                 ARRAY_PAIR_TYPE_ALIAS_A_B,
                 new FunctionParameter("that", ARRAY_TYPE_ALIAS_B, false)));
+        methods.put("partition", new BuiltinFunctionSymbol(this, "partition",
+                PARTITION_METHOD,
+                List.of(TYPE_PARAMETER_A),
+                new TypeArgsBuilder().add("A", elementType).getTypeArgs(),
+                ARRAY_ARRAY_TYPE_ALIAS_A,
+                new FunctionParameter("size", BuiltinScope.NUMBER_TYPE, false)));
     }
 
 }

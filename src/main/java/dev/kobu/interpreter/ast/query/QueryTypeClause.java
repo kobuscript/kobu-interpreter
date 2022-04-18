@@ -128,7 +128,8 @@ public class QueryTypeClause implements Evaluable {
 
     @Override
     public void analyze(EvalContext context) {
-        if (!(type instanceof RecordTypeSymbol) && !(type instanceof AnyTemplateTypeSymbol)) {
+        if (!(type instanceof RecordTypeSymbol) && !(type instanceof AnyTemplateTypeSymbol) &&
+                !(type instanceof TemplateTypeSymbol)) {
             if (joinMode) {
                 if (!(type instanceof ArrayType)) {
                     context.addAnalyzerError(new InvalidJoinQueryType(sourceCodeRef, type));

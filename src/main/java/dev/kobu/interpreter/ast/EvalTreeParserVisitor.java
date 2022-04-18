@@ -1373,6 +1373,11 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
+    public AstNode visitQueryExprArraySelect(KobuParser.QueryExprArraySelectContext ctx) {
+        return visit(ctx.queryExprArrayItem());
+    }
+
+    @Override
     public AstNode visitQueryExprArrayItemIndex(KobuParser.QueryExprArrayItemIndexContext ctx) {
         var index = (ArrayIndexExpr) visit(ctx.arrayIndexExpr());
         return new QueryArrayIndexClause(getSourceCodeRef(ctx), index);

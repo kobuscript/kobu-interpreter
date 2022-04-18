@@ -128,6 +128,17 @@ ${getJavaRecordHeader(javaRecord)}(${strJoin(compTmpl, ",\n")})${getJavaRecordIn
 }
 |>
 
+def template JavaConstructorTemplate for OutputJavaClass as class / constructors[*] as cons
+                                     join AnyTemplate[] as annTmpl of cons.annotations
+                                     join AnyTemplate[] as paramTmpl of cons.parameters
+                                     join JavaMethodBodyTemplate as body of cons <|
+${ifNotBlank(cons.comment, () => "\n" + cons.comment)}
+${strJoin(annTmpl, "\n")}
+${getJavaConstructorHeader(class, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")}) {
+    ${body}
+}
+|>
+
 def template JavaAnnotationTemplate for OutputJavaAnnotationValue as ann
                                     join AnyTemplate[] as fieldsTmpl of ann.fields <|
 @{ann.name}(
@@ -146,6 +157,8 @@ def template avaAnnotationFieldValueTemplate for OutputJavaAnnotationFieldValue 
                                              join AnyTemplate as valueTmpl of field.value <|
 ${field.field}=$^{valueTmpl}
 |>
+
+
 
 def template JavaArrayValueTemplate for OutputJavaArrayValue as arr
                                     join AnyTemplate[] as valuesTmpl of arr.value <|
@@ -204,4 +217,10 @@ fun getJavaRecordHeader(javaRecord: OutputJavaRecord): string {
 
 fun getJavaRecordInterfaces(javaRecord: OutputJavaRecord): string {
     return mkString(javaRecord.implements, " implements ", ", ", "")
+}
+
+fun getJavaConstructorHeader(javaClass: OutputJavaClass, constructor: OutputJavaConstructor): string {
+    return mkString(constructor.modifiers, "", " ", " ") +
+           mkString(constructor.typeParameters, "<", ", ", "> ") +
+           javaClass.name
 }
