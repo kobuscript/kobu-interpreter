@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class QueryFieldClause implements Evaluable, HasTypeScope {
+public class QueryFieldClause implements QueryClause {
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -54,7 +54,7 @@ public class QueryFieldClause implements Evaluable, HasTypeScope {
 
     private QueryArrayItemClause arrayItemClause;
 
-    private QueryFieldClause next;
+    private QueryClause next;
 
     private Type typeScope;
 
@@ -111,6 +111,7 @@ public class QueryFieldClause implements Evaluable, HasTypeScope {
         }
     }
 
+    @Override
     public List<Match> eval(Match match) {
 
         List<Match> result = new ArrayList<>();
@@ -149,10 +150,12 @@ public class QueryFieldClause implements Evaluable, HasTypeScope {
         return field;
     }
 
+    @Override
     public String getBind() {
         return bind;
     }
 
+    @Override
     public void setBind(String bind) {
         this.bind = bind;
     }
@@ -169,15 +172,18 @@ public class QueryFieldClause implements Evaluable, HasTypeScope {
         this.arrayItemClause = arrayItemClause;
     }
 
+    @Override
     public Type getType() {
         return type;
     }
 
-    public QueryFieldClause getNext() {
+    @Override
+    public QueryClause getNext() {
         return next;
     }
 
-    public void setNext(QueryFieldClause next) {
+    @Override
+    public void setNext(QueryClause next) {
         this.next = next;
     }
 

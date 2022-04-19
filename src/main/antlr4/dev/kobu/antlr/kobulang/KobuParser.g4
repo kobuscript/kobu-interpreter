@@ -150,11 +150,13 @@ defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )
 
 ruleExtends : EXTENDS typeName ;
 
-queryExpr : 'any'? type queryExprAlias? queryExprSegment? ;
+queryExpr : ANY? type queryExprAlias? queryExprSegment? ;
 
 queryExprAlias : AS ID ;
 
-queryExprSegment : DIV queryFieldExpr queryExprAlias? queryExprSegment? ;
+queryExprSegment : DIV ( queryFieldExpr | queryStarTypeExpr ) queryExprAlias? queryExprSegment? ;
+
+queryStarTypeExpr : ANY? STAR type ;
 
 queryFieldExpr : ID queryExprArraySelect? ;
 

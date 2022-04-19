@@ -229,6 +229,11 @@ public class ModuleScope implements Scope {
                 ((HasExpr) sym).analyze(context, evalContextProvider);
             }
         }
+        for (Symbol sym : symbols.values()) {
+            if (sym instanceof AnalyzerListener) {
+                ((AnalyzerListener) sym).afterAnalyzer(context);
+            }
+        }
     }
 
     public ScriptRef getScript() {

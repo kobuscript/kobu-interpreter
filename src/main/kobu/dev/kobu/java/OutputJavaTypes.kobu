@@ -44,7 +44,15 @@ fun newJavaClass(name: string, modifiers: string[], typeParameters?: string[]): 
         name: name,
         modifiers: modifiers,
         annotations: [],
-        typeParameters: typeParameters
+        typeParameters: typeParameters,
+        implements: [],
+        constructors: [],
+        methods: [],
+        fields: [],
+        innerClasses: [],
+        innerInterfaces: [],
+        innerEnums: [],
+        innerRecords: []
     }
 }
 
@@ -57,7 +65,7 @@ fun newJavaPublicAbstractClass(name: string, typeParameters?: string[]): OutputJ
 }
 
 fun newJavaPublicStaticClass(name: string, typeParameters?: string[]): OutputJavaClass {
-    return newJavaClass(javaFile, name, ["public", "static"], typeParameters)
+    return newJavaClass(name, ["public", "static"], typeParameters)
 }
 
 fun newJavaPrivateStaticClass(name: string, typeParameters?: string[]): OutputJavaClass {
@@ -66,13 +74,12 @@ fun newJavaPrivateStaticClass(name: string, typeParameters?: string[]): OutputJa
 
 fun addAnnotation(javaDef: OutputJavaDefinition,
                   annotation: OutputJavaAnnotationValue): void {
-    addImport(annotation.package, annotation.name)
     javaDef.annotations.add(annotation)
 }
 
 fun addAnnotations(javaDef: OutputJavaDefinition,
                    annotations: OutputJavaAnnotationValue[]): void {
-    annotations.forEach(ann => addAnnotation(javaDef, ann))
+    javaDef.annotations.addAll(annotations)
 }
 
 fun javaAnnotation(package: string, name: string, fields?: (string, OutputJavaValue)[]): OutputJavaAnnotationValue {

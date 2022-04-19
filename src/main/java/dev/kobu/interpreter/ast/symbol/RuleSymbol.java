@@ -39,7 +39,7 @@ import dev.kobu.interpreter.ast.eval.SymbolTypeEnum;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RuleSymbol extends Symbol implements HasExpr, AstNode {
+public class RuleSymbol extends Symbol implements HasExpr, AnalyzerListener, AstNode {
 
     private final SourceCodeRef closeRuleRef;
 
@@ -114,11 +114,6 @@ public class RuleSymbol extends Symbol implements HasExpr, AstNode {
             List<String> path = new ArrayList<>();
             path.add(getName());
             analyzePath(context, this, path);
-
-            if (!query.getTypeClause().compatibleWith(parentRuleSymbol.getQuery().getTypeClause())) {
-                errorScope.addError(new IncompatibleRulesError(getSourceCodeRef(),
-                        this, parentRuleSymbol));
-            }
         }
         var evalContext = evalContextProvider.newEvalContext(context, moduleScope);
         int errors = errorScope.getErrors() != null ? errorScope.getErrors().size() : 0;
@@ -178,4 +173,14 @@ public class RuleSymbol extends Symbol implements HasExpr, AstNode {
         return getFullName().hashCode();
     }
 
+    @Override
+    public void afterAnalyzer(AnalyzerContext context) {
+        if (parentRuleSymbol != null) {
+            AnalyzerErrorScope errorScope = context.getErrorScope();
+            if (!query.getTypeClause().compatibleWith(parentRuleSymbol.getQuery().getTypeClause())) {
+                errorScope.addError(new IncompatibleRulesError(getSourceCodeRef(),
+                        this, parentRuleSymbol));
+            }
+        }
+    }
 }

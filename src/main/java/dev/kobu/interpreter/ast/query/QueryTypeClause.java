@@ -49,7 +49,7 @@ public class QueryTypeClause implements Evaluable {
 
     private final String bind;
 
-    private QueryFieldClause fieldClause;
+    private QueryClause queryClause;
 
     private Type queryType;
 
@@ -113,17 +113,17 @@ public class QueryTypeClause implements Evaluable {
 
     @Override
     public void setResolvedTypes(Map<String, Type> resolvedTypes) {
-        if (fieldClause != null) {
-            fieldClause.setResolvedTypes(resolvedTypes);
+        if (queryClause != null) {
+            queryClause.setResolvedTypes(resolvedTypes);
         }
     }
 
-    public QueryFieldClause getFieldClause() {
-        return fieldClause;
+    public QueryClause getQueryClause() {
+        return queryClause;
     }
 
-    public void setFieldClause(QueryFieldClause fieldClause) {
-        this.fieldClause = fieldClause;
+    public void setQueryClause(QueryClause queryClause) {
+        this.queryClause = queryClause;
     }
 
     @Override
@@ -155,11 +155,11 @@ public class QueryTypeClause implements Evaluable {
         }
         context.getCurrentScope().define(context.getAnalyzerContext(), variableSymbol);
 
-        if (fieldClause != null) {
-            fieldClause.setTypeScope(type);
-            fieldClause.analyze(context);
+        if (queryClause != null) {
+            queryClause.setTypeScope(type);
+            queryClause.analyze(context);
 
-            var clause = fieldClause;
+            var clause = queryClause;
             while (clause != null) {
                 queryType = clause.getType();
                 mainRecordBind = clause.getBind();
@@ -172,7 +172,7 @@ public class QueryTypeClause implements Evaluable {
     }
 
     public boolean compatibleWith(QueryTypeClause typeClause) {
-        return type.isAssignableFrom(typeClause.getType());
+        return queryType.isAssignableFrom(typeClause.getQueryType());
     }
 
     public String getKey() {

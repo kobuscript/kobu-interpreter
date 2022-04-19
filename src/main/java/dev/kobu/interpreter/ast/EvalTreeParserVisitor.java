@@ -1379,8 +1379,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                 ctx.ANY() != null, bind);
 
         if (ctx.queryExprSegment() != null) {
-            QueryFieldClause fieldClause = (QueryFieldClause) visit(ctx.queryExprSegment());
-            queryTypeClause.setFieldClause(fieldClause);
+            QueryClause queryClause = (QueryClause) visit(ctx.queryExprSegment());
+            queryTypeClause.setQueryClause(queryClause);
         }
 
         return new Query(getSourceCodeRef(ctx), queryTypeClause);
@@ -1393,21 +1393,20 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             alias = ctx.queryExprAlias().ID().getText();
         }
 
-        QueryFieldClause pipeClause = (QueryFieldClause) visit(ctx.queryFieldExpr());
+        QueryClause clause = (QueryClause) visit(ctx.queryFieldExpr() != null ? ctx.queryFieldExpr() : ctx.queryStarTypeExpr());
         if (alias != null) {
-            pipeClause.setBind(alias);
+            clause.setBind(alias);
         }
 
         if (ctx.queryExprSegment() != null) {
             QueryFieldClause next = (QueryFieldClause) visit(ctx.queryExprSegment());
-            pipeClause.setNext(next);
+            clause.setNext(next);
         }
-        return pipeClause;
+        return clause;
     }
 
     @Override
     public AstNode visitQueryFieldExpr(KobuParser.QueryFieldExprContext ctx) {
-
         var field = new QueryFieldClause(getSourceCodeRef(ctx), ctx.ID().getText());
         if (ctx.queryExprArraySelect() != null) {
             field.setBind(null);
@@ -1416,6 +1415,11 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         }
 
         return field;
+    }
+
+    @Override
+    public AstNode visitQueryStarTypeExpr(KobuParser.QueryStarTypeExprContext ctx) {
+        return new QueryStarTypeClause(getSourceCodeRef(ctx), (Type) visit(ctx.type()), ctx.ANY() != null);
     }
 
     @Override

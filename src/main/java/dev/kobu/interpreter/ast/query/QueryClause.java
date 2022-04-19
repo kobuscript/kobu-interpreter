@@ -22,27 +22,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.database.index.impl;
+package dev.kobu.interpreter.ast.query;
 
 import dev.kobu.database.index.Match;
-import dev.kobu.database.index.OneInputIndexNode;
-import dev.kobu.interpreter.ast.query.QueryClause;
+import dev.kobu.interpreter.ast.eval.Evaluable;
+import dev.kobu.interpreter.ast.eval.HasTypeScope;
+import dev.kobu.interpreter.ast.symbol.Type;
 
-public class FieldIndexNode extends OneInputIndexNode {
+import java.util.List;
 
-    private final QueryClause queryClause;
+public interface QueryClause extends Evaluable, HasTypeScope {
 
-    public FieldIndexNode(QueryClause queryClause) {
-        this.queryClause = queryClause;
-    }
+    List<Match> eval(Match match);
 
-    @Override
-    public void receive(Match match) {
+    Type getType();
 
-        for (Match fieldMatch : queryClause.eval(match)) {
-            dispatch(fieldMatch);
-        }
+    QueryClause getNext();
 
-    }
+    String getBind();
+
+    void setBind(String bind);
+
+    void setNext(QueryClause next);
 
 }

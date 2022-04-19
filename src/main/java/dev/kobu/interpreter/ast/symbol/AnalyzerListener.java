@@ -22,27 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.database.index.impl;
+package dev.kobu.interpreter.ast.symbol;
 
-import dev.kobu.database.index.Match;
-import dev.kobu.database.index.OneInputIndexNode;
-import dev.kobu.interpreter.ast.query.QueryClause;
+import dev.kobu.interpreter.ast.AnalyzerContext;
 
-public class FieldIndexNode extends OneInputIndexNode {
+public interface AnalyzerListener {
 
-    private final QueryClause queryClause;
-
-    public FieldIndexNode(QueryClause queryClause) {
-        this.queryClause = queryClause;
-    }
-
-    @Override
-    public void receive(Match match) {
-
-        for (Match fieldMatch : queryClause.eval(match)) {
-            dispatch(fieldMatch);
-        }
-
-    }
+    void afterAnalyzer(AnalyzerContext context);
 
 }

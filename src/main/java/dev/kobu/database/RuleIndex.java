@@ -31,10 +31,7 @@ import dev.kobu.database.index.impl.RootTypeIndexNode;
 import dev.kobu.database.index.impl.RuleIndexNode;
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
-import dev.kobu.interpreter.ast.query.Query;
-import dev.kobu.interpreter.ast.query.QueryFieldClause;
-import dev.kobu.interpreter.ast.query.QueryJoin;
-import dev.kobu.interpreter.ast.query.QueryTypeClause;
+import dev.kobu.interpreter.ast.query.*;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.RuleSymbol;
 
@@ -125,7 +122,7 @@ public class RuleIndex {
         RootTypeIndexNode rootNode = new RootTypeIndexNode(evalContextProvider, analyzerContext, moduleScope, queryTypeClause);
         this.index.add(rootNode);
 
-        QueryFieldClause clause = queryTypeClause.getFieldClause();
+        QueryClause clause = queryTypeClause.getQueryClause();
         IndexNode lastNode = rootNode;
         while (clause != null) {
             FieldIndexNode node = new FieldIndexNode(clause);
