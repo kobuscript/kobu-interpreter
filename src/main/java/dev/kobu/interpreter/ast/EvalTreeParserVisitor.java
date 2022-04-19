@@ -29,16 +29,19 @@ import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.expr.*;
 import dev.kobu.interpreter.ast.eval.expr.value.*;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueFactory;
 import dev.kobu.interpreter.ast.eval.statement.*;
 import dev.kobu.interpreter.ast.query.*;
 import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.*;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 import dev.kobu.interpreter.ast.symbol.generics.TypeArgs;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameterContext;
+import dev.kobu.interpreter.ast.symbol.tuple.TupleType;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
 import dev.kobu.interpreter.ast.template.TemplateContentStatement;
@@ -239,6 +242,34 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             }
             if (ctx.varDeclBody().exprWrapper() != null) {
                 expr = (Expr) visit(ctx.varDeclBody().exprWrapper());
+            }
+
+            if (expr instanceof ArrayValueExpr) {
+                Type itemType = ((ArrayType) expr.getType()).getElementType();
+                if (!(itemType instanceof StringValueExpr)
+                    && !(itemType instanceof NumberValueExpr)
+                    && !(itemType instanceof BooleanValueExpr)) {
+                    context.getErrorScope().addError(new InvalidGlobalConstantValueError(
+                            getSourceCodeRef(ctx.varDeclBody().exprWrapper())));
+                }
+            } else if (expr instanceof TupleValueExpr) {
+                TupleTypeElement tupleTypeElement = ((TupleType) expr.getType()).getTypeElement();
+                while (tupleTypeElement != null) {
+                    Type itemType = tupleTypeElement.getElementType();
+                    if (!(itemType instanceof StringValueExpr)
+                            && !(itemType instanceof NumberValueExpr)
+                            && !(itemType instanceof BooleanValueExpr)) {
+                        context.getErrorScope().addError(new InvalidGlobalConstantValueError(
+                                getSourceCodeRef(ctx.varDeclBody().exprWrapper())));
+                        break;
+                    }
+                    tupleTypeElement = tupleTypeElement.getNext();
+                }
+            } else if (!(expr instanceof StringValueExpr)
+                    && !(expr instanceof NumberValueExpr)
+                    && !(expr instanceof BooleanValueExpr)) {
+                context.getErrorScope().addError(new InvalidGlobalConstantValueError(
+                        getSourceCodeRef(ctx.varDeclBody().exprWrapper())));
             }
 
             topLevelExpression = true;
