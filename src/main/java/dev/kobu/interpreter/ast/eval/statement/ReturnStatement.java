@@ -43,9 +43,12 @@ public class ReturnStatement implements Statement {
 
     private final Expr expr;
 
-    public ReturnStatement(SourceCodeRef sourceCodeRef, Expr expr) {
+    private final boolean implicitReturn;
+
+    public ReturnStatement(SourceCodeRef sourceCodeRef, Expr expr, boolean implicitReturn) {
         this.sourceCodeRef = sourceCodeRef;
         this.expr = expr;
+        this.implicitReturn = implicitReturn;
     }
 
     public Expr getExpr() {
@@ -57,12 +60,14 @@ public class ReturnStatement implements Statement {
         context.getCurrentBranch().setHasReturnStatement(true);
         var function = context.getFunction();
         if (!function.inferReturnType()) {
-            if ((function.getReturnType() == null) && expr != null) {
-                context.addAnalyzerError(new ReturnStatInVoidFunctionError(sourceCodeRef, function));
-                return;
-            } else if (function.getReturnType() != null && expr == null) {
-                context.addAnalyzerError(new FunctionMissingReturnValueError(sourceCodeRef, function));
-                return;
+            if (!implicitReturn) {
+                if ((function.getReturnType() == null) && expr != null) {
+                    context.addAnalyzerError(new ReturnStatInVoidFunctionError(sourceCodeRef, function));
+                    return;
+                } else if (function.getReturnType() != null && expr == null) {
+                    context.addAnalyzerError(new FunctionMissingReturnValueError(sourceCodeRef, function));
+                    return;
+                }
             }
         }
         if (expr == null) {

@@ -24,7 +24,7 @@ SOFTWARE.
 
 module dev.kobu.java.JavaCommands
 
-import dev.kobu.java.JavaInputTypes
+import dev.kobu.java.JavaTypes
 
 type record JavaFileCommand {
     file: File

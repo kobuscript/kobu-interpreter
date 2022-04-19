@@ -24,7 +24,7 @@ SOFTWARE.
 
 module dev.kobu.java.JavaParser
 
-import dev.kobu.java.JavaInputTypes
+import dev.kobu.java.JavaTypes
 import dev.kobu.java.JavaCommands
 
 type record JavaFilter {

@@ -22,10 +22,79 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-module dev.kobu.java.JavaOutputTypes
+module dev.kobu.java.OutputJavaTypes
 
-fun newJavaFile(): OutputJavaFile {
-    return OutputJavaFile{}
+fun newJavaFile(package: string): OutputJavaFile {
+    return OutputJavaFile{
+        package: package,
+        imports: [],
+        definitions: []
+    }
+}
+
+fun addImport(javaFile: OutputJavaFile, package: string, name: string): void {
+    var qualifiedName = package + "." + name
+    if (not javaFile.imports.contains(qualifiedName)) {
+        javaFile.imports.add(qualifiedName)
+    }
+}
+
+fun newJavaClass(name: string, modifiers: string[], typeParameters?: string[]): OutputJavaClass {
+    return OutputJavaClass{
+        name: name,
+        modifiers: modifiers,
+        annotations: [],
+        typeParameters: typeParameters
+    }
+}
+
+fun newJavaPublicClass(name: string, typeParameters?: string[]): OutputJavaClass {
+    return newJavaClass(name, ["public"], typeParameters)
+}
+
+fun newJavaPublicAbstractClass(name: string, typeParameters?: string[]): OutputJavaClass {
+    return newJavaClass(name, ["public", "abstract"], typeParameters)
+}
+
+fun newJavaPublicStaticClass(name: string, typeParameters?: string[]): OutputJavaClass {
+    return newJavaClass(javaFile, name, ["public", "static"], typeParameters)
+}
+
+fun newJavaPrivateStaticClass(name: string, typeParameters?: string[]): OutputJavaClass {
+    return newJavaClass(name, ["private", "static"], typeParameters)
+}
+
+fun addAnnotation(javaDef: OutputJavaDefinition,
+                  annotation: OutputJavaAnnotationValue): void {
+    addImport(annotation.package, annotation.name)
+    javaDef.annotations.add(annotation)
+}
+
+fun addAnnotations(javaDef: OutputJavaDefinition,
+                   annotations: OutputJavaAnnotationValue[]): void {
+    annotations.forEach(ann => addAnnotation(javaDef, ann))
+}
+
+fun javaAnnotation(package: string, name: string, fields?: (string, OutputJavaValue)[]): OutputJavaAnnotationValue {
+    var annFields: OutputJavaAnnotationFieldValue[] = []
+    if (fields != null) {
+        fields.forEach(pair => {
+            annFields.add(OutputJavaAnnotationFieldValue{
+                field: pair.get1(),
+                value: pair.get2()
+            })
+        })
+    }
+
+    return OutputJavaAnnotationValue{
+        package: package,
+        name: name,
+        fields: annFields
+    }
+}
+
+fun javaAnnotationWithValue(package: string, name: string, value: OutputJavaValue): OutputJavaAnnotationValue {
+    return javaAnnotation(package, name, [("value", value)])
 }
 
 type record OutputJavaValue {}

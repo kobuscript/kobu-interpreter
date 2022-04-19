@@ -25,7 +25,7 @@ SOFTWARE.
 module dev.kobu.java.JavaTemplates
 
 import dev.kobu.functions.TemplateFunctions
-import dev.kobu.java.JavaOutputTypes
+import dev.kobu.java.OutputJavaTypes
 
 type template JavaMethodBodyTemplate
 

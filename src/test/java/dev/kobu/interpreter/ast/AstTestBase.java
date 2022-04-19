@@ -529,7 +529,7 @@ public abstract class AstTestBase {
     }
 
     ReturnStatement returnStatement(Expr expr) {
-        return new ReturnStatement(sourceCodeRef("return"), expr);
+        return new ReturnStatement(sourceCodeRef("return"), expr, false);
     }
 
     FunctionArgExpr functionArg(Expr expr) {

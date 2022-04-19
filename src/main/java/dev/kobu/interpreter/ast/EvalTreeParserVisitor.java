@@ -428,7 +428,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         if (ctx.anonymousFunctionBody() != null) {
             if (ctx.anonymousFunctionBody().expr() != null) {
                 Expr expr = (Expr) visit(ctx.anonymousFunctionBody().expr());
-                block.add(new ReturnStatement(expr.getSourceCodeRef(), expr));
+                block.add(new ReturnStatement(expr.getSourceCodeRef(), expr, true));
             } else if (ctx.anonymousFunctionBody().execStat() != null) {
                 for (KobuParser.ExecStatContext execStatContext : ctx.anonymousFunctionBody().execStat()) {
                     block.add((Evaluable) visit(execStatContext));
@@ -701,7 +701,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             expr = (Expr) visit(ctx.exprWrapper());
             topLevelExpression = true;
         }
-        return new ReturnStatement(getSourceCodeRef(ctx), expr);
+        return new ReturnStatement(getSourceCodeRef(ctx), expr, false);
     }
 
     @Override
