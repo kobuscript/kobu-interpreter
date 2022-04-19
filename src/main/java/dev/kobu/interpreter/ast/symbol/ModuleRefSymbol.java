@@ -25,7 +25,6 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.symbol.function.FunctionSymbol;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
@@ -39,7 +38,7 @@ public class ModuleRefSymbol extends Symbol implements Type {
     private final ModuleScope moduleScopeRef;
 
     public ModuleRefSymbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String alias, ModuleScope moduleScopeRef) {
-        super(moduleScope, sourceCodeRef, "$" + moduleScopeRef.getModuleId());
+        super(moduleScope, sourceCodeRef, "$" + moduleScopeRef.getModuleId(), false);
         this.alias = alias;
         this.moduleScopeRef = moduleScopeRef;
     }

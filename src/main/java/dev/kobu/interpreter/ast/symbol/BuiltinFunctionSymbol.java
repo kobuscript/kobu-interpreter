@@ -56,7 +56,7 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
     public BuiltinFunctionSymbol(Type enclosingType, String name, BuiltinFunction functionImpl,
                                  List<TypeParameter> typeParameters, Map<String, Type> typeArgsMap,
                                  Type returnType, FunctionParameter... args) {
-        super(null,null, name);
+        super(null,null, name, false);
         this.enclosingType = enclosingType;
         this.functionImpl = functionImpl;
         this.functionImpl.setFuncDef(this);

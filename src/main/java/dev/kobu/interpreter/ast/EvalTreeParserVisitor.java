@@ -244,7 +244,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             topLevelExpression = true;
 
             ConstantSymbol constSymbol = new ConstantSymbol(moduleScope, getSourceCodeRef(ctx.varDeclBody().ID()),
-                    varName, expr, type);
+                    varName, expr, type, ctx.PRIVATE() != null);
             moduleScope.define(context, constSymbol);
 
         }
@@ -268,7 +268,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
             ConstDeclExpr expr = new ConstDeclExpr(
                     new ConstantSymbol(moduleScope, getSourceCodeRef(ctx.varDeclBody().ID()),
-                            ctx.varDeclBody().ID().getText(), valueExpr, type));
+                            ctx.varDeclBody().ID().getText(), valueExpr, type, false));
 
             topLevelExpression = true;
             return expr;

@@ -39,6 +39,7 @@ DEF : 'def' -> pushMode(DEF_MODE) ;
 
 EXTENDS : 'extends' ;
 
+PRIVATE: 'private' ;
 FUN : 'fun' ;
 QM : '?' ;
 RETURN : 'return' ;

@@ -34,12 +34,12 @@ public class VariableSymbol extends Symbol {
     private SymbolDocumentation documentation;
 
     public VariableSymbol(ModuleScope moduleScope, String name, Type type) {
-        super(moduleScope, null, name);
+        super(moduleScope, null, name, false);
         this.type = type;
     }
 
     public VariableSymbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String name, Type type) {
-        super(moduleScope, sourceCodeRef, name);
+        super(moduleScope, sourceCodeRef, name, false);
         this.type = type;
     }
 

@@ -290,9 +290,9 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         defRecExpr.updateFieldValue(context, "abstract", BooleanValueExpr.FALSE);
         defRecExpr.updateFieldValue(context, "final", BooleanValueExpr.FALSE);
         defRecExpr.updateFieldValue(context, "static", BooleanValueExpr.FALSE);
-        defRecExpr.updateFieldValue(context, "public", BooleanValueExpr.FALSE);
-        defRecExpr.updateFieldValue(context, "private", BooleanValueExpr.FALSE);
-        defRecExpr.updateFieldValue(context, "protected", BooleanValueExpr.FALSE);
+        defRecExpr.updateFieldValue(context, "publicAccess", BooleanValueExpr.FALSE);
+        defRecExpr.updateFieldValue(context, "privateAccess", BooleanValueExpr.FALSE);
+        defRecExpr.updateFieldValue(context, "protectedAccess", BooleanValueExpr.FALSE);
 
         defRecExpr.updateFieldValue(context, "annotations", new ArrayValueExpr(
                 ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_ANNOTATION_VALUE)),
@@ -317,11 +317,11 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
             ArrayValueExpr annList = (ArrayValueExpr) defRecExpr.resolveField("annotations");
             annList.getValue().add(recAnn);
         } else if (ctx.PUBLIC() != null) {
-            defRecExpr.updateFieldValue(context, "public", BooleanValueExpr.TRUE);
+            defRecExpr.updateFieldValue(context, "publicAccess", BooleanValueExpr.TRUE);
         } else if (ctx.PROTECTED() != null) {
-            defRecExpr.updateFieldValue(context, "protected", BooleanValueExpr.TRUE);
+            defRecExpr.updateFieldValue(context, "protectedAccess", BooleanValueExpr.TRUE);
         } else if (ctx.PRIVATE() != null) {
-            defRecExpr.updateFieldValue(context, "private", BooleanValueExpr.TRUE);
+            defRecExpr.updateFieldValue(context, "privateAccess", BooleanValueExpr.TRUE);
         } else if (ctx.STATIC() != null) {
             defRecExpr.updateFieldValue(context, "static", BooleanValueExpr.TRUE);
         } else if (ctx.ABSTRACT() != null) {
@@ -1032,9 +1032,9 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         currentClassMember.updateFieldValue(context, "abstract", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "final", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "static", BooleanValueExpr.FALSE);
-        currentClassMember.updateFieldValue(context, "public", BooleanValueExpr.FALSE);
-        currentClassMember.updateFieldValue(context, "private", BooleanValueExpr.FALSE);
-        currentClassMember.updateFieldValue(context, "protected", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "publicAccess", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "privateAccess", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "protectedAccess", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "default", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "annotations", new ArrayValueExpr(
                 ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_ANNOTATION_VALUE)),
@@ -1050,11 +1050,11 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
                         ArrayValueExpr annList = (ArrayValueExpr) currentClassMember.resolveField("annotations");
                         annList.getValue().add(recAnn);
                     } else if (ciModifierCtx.PUBLIC() != null) {
-                        currentClassMember.updateFieldValue(context, "public", BooleanValueExpr.TRUE);
+                        currentClassMember.updateFieldValue(context, "publicAccess", BooleanValueExpr.TRUE);
                     } else if (ciModifierCtx.PROTECTED() != null) {
-                        currentClassMember.updateFieldValue(context, "protected", BooleanValueExpr.TRUE);
+                        currentClassMember.updateFieldValue(context, "protectedAccess", BooleanValueExpr.TRUE);
                     } else if (ciModifierCtx.PRIVATE() != null) {
-                        currentClassMember.updateFieldValue(context, "private", BooleanValueExpr.TRUE);
+                        currentClassMember.updateFieldValue(context, "privateAccess", BooleanValueExpr.TRUE);
                     } else if (ciModifierCtx.STATIC() != null) {
                         currentClassMember.updateFieldValue(context, "static", BooleanValueExpr.TRUE);
                     } else if (ciModifierCtx.ABSTRACT() != null) {
@@ -1152,9 +1152,9 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         currentClassMember.updateFieldValue(context, "abstract", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "final", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "static", BooleanValueExpr.FALSE);
-        currentClassMember.updateFieldValue(context, "public", BooleanValueExpr.FALSE);
-        currentClassMember.updateFieldValue(context, "private", BooleanValueExpr.FALSE);
-        currentClassMember.updateFieldValue(context, "protected", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "publicAccess", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "privateAccess", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "protectedAccess", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "default", BooleanValueExpr.FALSE);
 
         if (ctx.modifier() != null) {
@@ -1166,11 +1166,11 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
                         ArrayValueExpr annList = (ArrayValueExpr) currentClassMember.resolveField("annotations");
                         annList.getValue().add(recAnn);
                     } else if (ciModifierCtx.PUBLIC() != null) {
-                        currentClassMember.updateFieldValue(context, "public", BooleanValueExpr.TRUE);
+                        currentClassMember.updateFieldValue(context, "publicAccess", BooleanValueExpr.TRUE);
                     } else if (ciModifierCtx.PROTECTED() != null) {
-                        currentClassMember.updateFieldValue(context, "protected", BooleanValueExpr.TRUE);
+                        currentClassMember.updateFieldValue(context, "protectedAccess", BooleanValueExpr.TRUE);
                     } else if (ciModifierCtx.PRIVATE() != null) {
-                        currentClassMember.updateFieldValue(context, "private", BooleanValueExpr.TRUE);
+                        currentClassMember.updateFieldValue(context, "privateAccess", BooleanValueExpr.TRUE);
                     } else if (ciModifierCtx.STATIC() != null) {
                         currentClassMember.updateFieldValue(context, "static", BooleanValueExpr.TRUE);
                     } else if (ciModifierCtx.ABSTRACT() != null) {

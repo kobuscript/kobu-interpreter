@@ -41,16 +41,23 @@ public abstract class Symbol implements AutoCompletionSource, DocumentationSourc
 
     private final String name;
 
+    private final boolean privateAccess;
+
     private Scope scope;
 
-    public Symbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String name) {
+    public Symbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String name, boolean privateAccess) {
         this.moduleScope = moduleScope;
         this.sourceCodeRef = sourceCodeRef;
         this.name = name;
+        this.privateAccess = privateAccess;
         if (moduleScope != null && moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && sourceCodeRef != null) {
             moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
             moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), this);
         }
+    }
+
+    public boolean isPrivateAccess() {
+        return privateAccess;
     }
 
     public SourceCodeRef getSourceCodeRef() {

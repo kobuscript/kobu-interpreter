@@ -31,6 +31,23 @@ type template JavaMethodBodyTemplate
 
 type template JavaMethodTemplate
 
+fun javaTemplates(): Rule[] {
+    return [JavaFileTemplate, JavaClassTemplate, JavaInterfaceTemplate, JavaEnumTemplate, JavaRecordTemplate,
+            JavaClassConstructorTemplate, JavaRecordConstructorTemplate, JavaMethodDeclTemplate,
+            JavaFieldTemplate, JavaAnnotationTemplate, JavaAnnotationSingleValueTemplate,
+            JavaAnnotationFieldValueTemplate, JavaArrayValueTemplate, JavaArrayLiteralValueTemplate,
+            JavaSourceValueTemplate, LiteralJavaValueTemplate, LiteralJavaStringTemplate]
+}
+
+fun javaMethodBodyTemplates(): Rule[] {
+    return [JavaDefaultMethodBodyTemplate, JavaDefaultVoidMethodBodyTemplate,
+            JavaDefaultIntMethodBodyTemplate, JavaDefaultFloatMethodBodyTemplate, JavaDefaultDoubleMethodBodyTemplate]
+}
+
+fun javaConstructorBodyTemplates(): Rule[] {
+    return [JavaDefaultConstructorBodyTemplate]
+}
+
 def template JavaDefaultConstructorBodyTemplate for OutputJavaConstructor <|
 
 |> as JavaMethodBodyTemplate
@@ -236,8 +253,6 @@ def template JavaAnnotationFieldValueTemplate
 ${field.field}=$^{valueTmpl}
 |>
 
-
-
 def template JavaArrayValueTemplate
              for OutputJavaArrayValue as arr
              join AnyTemplate[] as valuesTmpl of arr.value <|
@@ -267,7 +282,7 @@ def template LiteralJavaStringTemplate extends LiteralJavaValueTemplate
 "${(javaValue.value as string).escape()}"
 |>
 
-fun getJavaClassSignature(javaClass: OutputJavaClass): string {
+private fun getJavaClassSignature(javaClass: OutputJavaClass): string {
     return mkString(javaClass.modifiers, "", " ", " ") +
             "class " + javaClass.name +
             mkString(javaClass.typeParameters, "<", ", ", ">") +
@@ -275,42 +290,42 @@ fun getJavaClassSignature(javaClass: OutputJavaClass): string {
             mkString(javaClass.implements, " implements ", ", ", "")
 }
 
-fun getJavaInterfaceSignature(javaInterface: OutputJavaInterface): string {
+private fun getJavaInterfaceSignature(javaInterface: OutputJavaInterface): string {
     return mkString(javaInterface.modifiers, "", " ", " ") +
             "interface " + javaInterface.name +
             mkString(javaInterface.typeParameters, "<", ", ", ">") +
             mkString(javaInterface.superTypes, " extends ", ", ", "")
 }
 
-fun getJavaEnumSignature(javaEnum: OutputJavaEnum): string {
+private fun getJavaEnumSignature(javaEnum: OutputJavaEnum): string {
     return mkString(javaEnum.modifiers, "", " ", " ") +
             "enum " + javaEnum.name +
             mkString(javaEnum.implements, " implements ", ", ", "")
 }
 
-fun getJavaRecordHeader(javaRecord: OutputJavaRecord): string {
+private fun getJavaRecordHeader(javaRecord: OutputJavaRecord): string {
     return mkString(javaRecord.modifiers, "", " ", " ") +
             "record " + javaRecord.name +
             mkString(javaRecord.typeParameters, "<", ", ", ">")
 }
 
-fun getJavaRecordInterfaces(javaRecord: OutputJavaRecord): string {
+private fun getJavaRecordInterfaces(javaRecord: OutputJavaRecord): string {
     return mkString(javaRecord.implements, " implements ", ", ", "")
 }
 
-fun getJavaConstructorHeader(name: string, constructor: OutputJavaConstructor): string {
+private fun getJavaConstructorHeader(name: string, constructor: OutputJavaConstructor): string {
     return mkString(constructor.modifiers, "", " ", " ") +
            mkString(constructor.typeParameters, "<", ", ", "> ") +
            name
 }
 
-fun getJavaMethodHeader(method: OutputJavaMethod): string {
+private fun getJavaMethodHeader(method: OutputJavaMethod): string {
     return mkString(method.modifiers, "", " ", " ") +
            mkString(method.typeParameters, "<", ", ", "> ") +
            method.returnType + " " + method.name
 }
 
-fun getJavaFieldDecl(field: OutputJavaField): string {
+private fun getJavaFieldDecl(field: OutputJavaField): string {
     return mkString(field.modifiers, "", " ", " ") +
            field.fieldType + " " + field.name
 }

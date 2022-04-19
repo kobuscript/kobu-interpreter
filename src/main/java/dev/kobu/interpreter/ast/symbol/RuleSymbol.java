@@ -60,7 +60,7 @@ public class RuleSymbol extends Symbol implements HasExpr, AstNode {
     public RuleSymbol(SourceCodeRef sourceCodeRef, String name,
                       SourceCodeRef closeRuleRef, ModuleScope moduleScope, RuleTypeEnum ruleType,
                       String docText) {
-        super(moduleScope, sourceCodeRef, name);
+        super(moduleScope, sourceCodeRef, name, false);
         this.closeRuleRef = closeRuleRef;
         this.moduleScope = moduleScope;
         this.ruleType = ruleType;

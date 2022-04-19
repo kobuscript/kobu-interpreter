@@ -92,7 +92,7 @@ invalidType : TYPE INVALID_TYPE {notifyErrorListenersPrevToken("'record' or 'tem
 
 invalidStat : ID {notifyErrorListenersPrevToken("'type', 'def' or 'fun' expected");} ;
 
-functionDecl : 'fun' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB ;
+functionDecl : 'private'? 'fun' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB ;
 
 nativeDecl : 'def' 'native' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet SEMI?;
 
@@ -170,7 +170,7 @@ joinOfExpr : 'of' expr ;
 
 block : execStat* ;
 
-globalConstDecl : CONST varDeclBody ;
+globalConstDecl : PRIVATE? CONST varDeclBody ;
 
 constDecl : CONST varDeclBody ;
 

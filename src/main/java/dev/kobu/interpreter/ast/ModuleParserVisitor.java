@@ -214,7 +214,7 @@ public class ModuleParserVisitor extends KobuParserVisitor<Void> {
             }
 
             var function = new FunctionSymbol(getSourceCodeRef(ctx.ID()), getSourceCodeRef(ctx.RCB()),
-                    moduleScope, ctx.ID().getText(), docText);
+                    moduleScope, ctx.ID().getText(), docText, ctx.PRIVATE() != null);
             moduleScope.define(context, function);
         }
         return null;

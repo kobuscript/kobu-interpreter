@@ -61,8 +61,8 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
     private List<TypeParameter> typeParameters;
 
     public FunctionSymbol(SourceCodeRef sourceCodeRef, SourceCodeRef closeBlockSourceRef, ModuleScope moduleScope,
-                          String name, String docText) {
-        super(moduleScope, sourceCodeRef, name);
+                          String name, String docText, boolean privateAccess) {
+        super(moduleScope, sourceCodeRef, name, privateAccess);
         this.closeBlockSourceRef = closeBlockSourceRef;
         this.moduleScope = moduleScope;
         this.docText = docText;

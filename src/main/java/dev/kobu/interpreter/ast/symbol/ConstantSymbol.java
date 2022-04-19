@@ -41,14 +41,15 @@ public class ConstantSymbol extends Symbol implements HasExpr {
 
     private ValueExpr valueExpr;
 
-    public ConstantSymbol(ModuleScope moduleScope, String name, ValueExpr expr, Type type) {
-        super(moduleScope, null, name);
+    public ConstantSymbol(ModuleScope moduleScope, String name, ValueExpr expr, Type type, boolean privateAccess) {
+        super(moduleScope, null, name, privateAccess);
         this.type = type;
         this.expr = expr;
     }
 
-    public ConstantSymbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String name, Expr expr, Type type) {
-        super(moduleScope, sourceCodeRef, name);
+    public ConstantSymbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String name, Expr expr,
+                          Type type, boolean privateAccess) {
+        super(moduleScope, sourceCodeRef, name, privateAccess);
         this.type = type;
         this.expr = expr;
     }

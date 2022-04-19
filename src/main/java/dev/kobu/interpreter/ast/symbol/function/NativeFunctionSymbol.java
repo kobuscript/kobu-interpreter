@@ -54,7 +54,7 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasEx
 
     public NativeFunctionSymbol(SourceCodeRef sourceCodeRef, ModuleScope moduleScope, String name,
                                 NativeFunction functionImpl, String docText) {
-        super(moduleScope, sourceCodeRef, name);
+        super(moduleScope, sourceCodeRef, name, false);
         this.functionImpl = functionImpl;
         this.functionImpl.setFuncDef(this);
         this.functionImpl.setModuleScope(moduleScope);

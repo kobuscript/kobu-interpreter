@@ -306,11 +306,13 @@ public class ModuleScope implements Scope {
             }
         } else {
             dependency.getSymbolsMap().forEach((name, symbol) -> {
-                Symbol currentDef = symbols.get(name);
-                if (currentDef != null) {
-                    context.getErrorScope().addError(new SymbolConflictError(currentDef, symbol));
-                } else {
-                    dependenciesSymbols.put(name, symbol);
+                if (!symbol.isPrivateAccess()) {
+                    Symbol currentDef = symbols.get(name);
+                    if (currentDef != null) {
+                        context.getErrorScope().addError(new SymbolConflictError(currentDef, symbol));
+                    } else {
+                        dependenciesSymbols.put(name, symbol);
+                    }
                 }
             });
         }

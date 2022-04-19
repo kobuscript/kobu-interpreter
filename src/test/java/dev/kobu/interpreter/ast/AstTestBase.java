@@ -506,7 +506,8 @@ public abstract class AstTestBase {
     }
 
     FunctionSymbol functionSymbol(ModuleScope module, String name, FunctionParameter... parameters) {
-        var fn = new FunctionSymbol(sourceCodeRef("fun_" + name), sourceCodeRef("end-fun_" + name), module, name, null);
+        var fn = new FunctionSymbol(sourceCodeRef("fun_" + name), sourceCodeRef("end-fun_" + name), module,
+                name, null, false);
         fn.setParameters(Arrays.asList(parameters));
         fn.buildType();
         module.define(analyzerContext, fn);
@@ -514,7 +515,8 @@ public abstract class AstTestBase {
     }
 
     FunctionSymbol functionSymbol(ModuleScope module, String name, Type returnType, FunctionParameter... parameters) {
-        var fn = new FunctionSymbol(sourceCodeRef("fun_" + name), sourceCodeRef("end-fun_" + name), module, name, null);
+        var fn = new FunctionSymbol(sourceCodeRef("fun_" + name), sourceCodeRef("end-fun_" + name), module,
+                name, null, false);
         fn.setParameters(Arrays.asList(parameters));
         fn.setReturnType(returnType);
         fn.buildType();

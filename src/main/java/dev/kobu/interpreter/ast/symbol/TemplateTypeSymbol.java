@@ -48,7 +48,7 @@ public class TemplateTypeSymbol extends Symbol implements Type, HasExpr {
     private SymbolDocumentation documentation;
 
     public TemplateTypeSymbol(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String name, String docText) {
-        super(moduleScope, sourceCodeRef, name);
+        super(moduleScope, sourceCodeRef, name, false);
         this.docText = docText;
     }
 
