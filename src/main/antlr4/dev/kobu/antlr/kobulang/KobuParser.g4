@@ -215,7 +215,7 @@ expr : record                                                                   
        | LP expr RP                                                                                 #parenthesizedExpr
        ;
 
-anonymousFunction : ID FN_ARROW anonymousFunctionBody                              #singleArgAnonymousFunction
+anonymousFunction : ( ID | LP ID RP )? FN_ARROW anonymousFunctionBody                              #singleArgAnonymousFunction
                     | anonymousFunctionHeader FN_ARROW anonymousFunctionBody       #fullArgsAnonymousFunction;
 
 anonymousFunctionHeader : LP anonymousFunctionParams? RP ;
