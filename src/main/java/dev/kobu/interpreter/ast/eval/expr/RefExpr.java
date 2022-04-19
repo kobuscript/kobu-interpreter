@@ -237,6 +237,10 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                 var valueExpr = context.getCurrentScope().getValue(symbol.getName());
                 return Objects.requireNonNullElseGet(valueExpr, () -> new NullValueExpr(sourceCodeRef));
             }
+            if (symbol instanceof ConstantSymbol) {
+                var valueExpr = ((ConstantSymbol) symbol).getValueExpr();
+                return Objects.requireNonNullElseGet(valueExpr, () -> new NullValueExpr(sourceCodeRef));
+            }
             if (symbol instanceof ModuleRefSymbol) {
                 ModuleRefSymbol moduleRefSymbol = (ModuleRefSymbol) symbol;
                 return new ModuleRefValueExpr(moduleRefSymbol, moduleRefSymbol.getModuleScopeRef());

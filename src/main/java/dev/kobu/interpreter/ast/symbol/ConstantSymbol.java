@@ -54,6 +54,10 @@ public class ConstantSymbol extends Symbol implements HasExpr {
         this.expr = expr;
     }
 
+    public ValueExpr getValueExpr() {
+        return valueExpr;
+    }
+
     public Type getType() {
         return type;
     }

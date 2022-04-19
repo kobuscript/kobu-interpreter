@@ -24,6 +24,10 @@ SOFTWARE.
 
 module dev.kobu.java.JavaOutputTypes
 
+fun newJavaFile(): OutputJavaFile {
+    return OutputJavaFile{}
+}
+
 type record OutputJavaValue {}
 
 type record OutputLiteralJavaValue extends OutputJavaValue {
