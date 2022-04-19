@@ -73,12 +73,11 @@ public abstract class TemplateStatement implements Statement {
     }
 
     protected void analyzeTargetType(EvalContext context) {
-        if (getTargetType() != null) {
-            if (!(getTargetType() instanceof TemplateTypeSymbol) &&
-                    !(getTargetType() instanceof AnyTemplateTypeSymbol)) {
-                context.addAnalyzerError(new InvalidTypeError(targetTypeSourceCodeRef,
-                        BuiltinScope.ANY_TEMPLATE_TYPE, targetType));
-            }
+        if (targetType != null && !(targetType instanceof UnknownType) &&
+                !(targetType instanceof TemplateTypeSymbol) &&
+                !(targetType instanceof AnyTemplateTypeSymbol)) {
+                    context.addAnalyzerError(new InvalidTypeError(targetTypeSourceCodeRef,
+                            BuiltinScope.ANY_TEMPLATE_TYPE, targetType));
         }
     }
 

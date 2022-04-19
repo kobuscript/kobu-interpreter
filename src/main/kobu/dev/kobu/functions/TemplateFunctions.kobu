@@ -32,11 +32,14 @@ fun isNotBlank(str: string): boolean {
     return not isBlank(str)
 }
 
-fun ifThenElse(cond: boolean, thenFn: () => string, elseFn: () => string): string {
+fun ifThenElse(cond: boolean, thenFn: () => string, elseFn?: () => string): string {
     if (cond) {
         return thenFn()
     }
-    return elseFn()
+    if (elseFn != null) {
+        return elseFn()
+    }
+    return ""
 }
 
 fun ifNotNull(value: Any, fn: () => string): string {

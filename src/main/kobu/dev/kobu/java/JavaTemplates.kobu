@@ -31,23 +31,62 @@ type template JavaMethodBodyTemplate
 
 type template JavaMethodTemplate
 
-def template JavaFileTemplate for OutputJavaFile as file
-                              join AnyTemplate[] as defTmpl of file.definitions <|
+def template JavaDefaultConstructorBodyTemplate for OutputJavaConstructor <|
+
+|> as JavaMethodBodyTemplate
+
+def template JavaDefaultMethodBodyTemplate for OutputJavaMethod as method <|
+return null;
+|> as JavaMethodBodyTemplate
+
+def template JavaDefaultVoidMethodBodyTemplate extends JavaDefaultMethodBodyTemplate
+             for OutputJavaMethod as method
+             when method.returnType == "void" <|
+
+|> as JavaMethodBodyTemplate
+
+def template JavaDefaultIntMethodBodyTemplate extends JavaDefaultMethodBodyTemplate
+             for OutputJavaMethod as method
+             when method.returnType == "int" or
+                  method.returnType == "byte" or
+                  method.returnType == "short" or
+                  method.returnType == "char" <|
+return 0;
+|> as JavaMethodBodyTemplate
+
+def template JavaDefaultFloatMethodBodyTemplate
+             for OutputJavaMethod as method
+             when method.returnType == "float" <|
+return 0f;
+|> as JavaMethodBodyTemplate
+
+def template JavaDefaultDoubleMethodBodyTemplate
+             for OutputJavaMethod as method
+             when method.returnType == "double" <|
+return 0.0;
+|> as JavaMethodBodyTemplate
+
+
+
+def template JavaFileTemplate
+             for OutputJavaFile as file
+             join AnyTemplate[] as defTmpl of file.definitions <|
 ${ifNotBlank(file.comment, () => file.comment + "\n")}package ${file.package};
 
 ${strJoin(file.imports, "\n", imp => "import " + imp + ";")}
 ${strJoin(defTmpl, "\n")}
 |>
 
-def template JavaClassTemplate for OutputJavaClass as class
-                               join AnyTemplate[] as annTmpl of class.annotations
-                               join JavaMethodTemplate[] as consTmpl of class.constructors
-                               join JavaMethodTemplate[] as methodsTmpl of class.methods
-                               join AnyTemplate[] as fieldsTmpl of class.fields
-                               join AnyTemplate[] as innerClassesTmpl of class.innerClasses
-                               join AnyTemplate[] as innerInterfacesTmpl of class.innerInterfaces
-                               join AnyTemplate[] as innerEnumsTmpl of class.innerEnums
-                               join AnyTemplate[] as innerRecordsTmpl of class.innerRecords <|
+def template JavaClassTemplate
+             for OutputJavaClass as class
+             join AnyTemplate[] as annTmpl of class.annotations
+             join JavaMethodTemplate[] as consTmpl of class.constructors
+             join JavaMethodTemplate[] as methodsTmpl of class.methods
+             join AnyTemplate[] as fieldsTmpl of class.fields
+             join AnyTemplate[] as innerClassesTmpl of class.innerClasses
+             join AnyTemplate[] as innerInterfacesTmpl of class.innerInterfaces
+             join AnyTemplate[] as innerEnumsTmpl of class.innerEnums
+             join AnyTemplate[] as innerRecordsTmpl of class.innerRecords <|
 ${ifNotBlank(class.comment, () => "\n" + class.comment)}
 ${strJoin(annTmpl, "\n")}
 ${getJavaClassSignature(class)} {
@@ -61,14 +100,15 @@ ${getJavaClassSignature(class)} {
 }
 |>
 
-def template JavaInterfaceTemplate for OutputJavaInterface as interface
-                               join AnyTemplate[] as annTmpl of interface.annotations
-                               join JavaMethodTemplate[] as methodsTmpl of interface.methods
-                               join AnyTemplate[] as fieldsTmpl of interface.fields
-                               join AnyTemplate[] as innerClassesTmpl of interface.innerClasses
-                               join AnyTemplate[] as innerInterfacesTmpl of interface.innerInterfaces
-                               join AnyTemplate[] as innerEnumsTmpl of interface.innerEnums
-                               join AnyTemplate[] as innerRecordsTmpl of interface.innerRecords <|
+def template JavaInterfaceTemplate
+             for OutputJavaInterface as interface
+             join AnyTemplate[] as annTmpl of interface.annotations
+             join JavaMethodTemplate[] as methodsTmpl of interface.methods
+             join AnyTemplate[] as fieldsTmpl of interface.fields
+             join AnyTemplate[] as innerClassesTmpl of interface.innerClasses
+             join AnyTemplate[] as innerInterfacesTmpl of interface.innerInterfaces
+             join AnyTemplate[] as innerEnumsTmpl of interface.innerEnums
+             join AnyTemplate[] as innerRecordsTmpl of interface.innerRecords <|
 ${ifNotBlank(interface.comment, () => "\n" + interface.comment)}
 ${strJoin(annTmpl, "\n")}
 ${getJavaInterfaceSignature(interface)} {
@@ -81,16 +121,17 @@ ${getJavaInterfaceSignature(interface)} {
 }
 |>
 
-def template JavaEnumTemplate for OutputJavaEnum as javaEnum
-                              join AnyTemplate[] as annTmpl of javaEnum.annotations
-                              join AnyTemplate[] as valuesTmpl of javaEnum.values
-                              join JavaMethodTemplate[] as consTmpl of javaEnum.constructors
-                              join JavaMethodTemplate[] as methodsTmpl of javaEnum.methods
-                              join AnyTemplate[] as fieldsTmpl of javaEnum.fields
-                              join AnyTemplate[] as innerClassesTmpl of javaEnum.innerClasses
-                              join AnyTemplate[] as innerInterfacesTmpl of javaEnum.innerInterfaces
-                              join AnyTemplate[] as innerEnumsTmpl of javaEnum.innerEnums
-                              join AnyTemplate[] as innerRecordsTmpl of javaEnum.innerRecords <|
+def template JavaEnumTemplate
+             for OutputJavaEnum as javaEnum
+             join AnyTemplate[] as annTmpl of javaEnum.annotations
+             join AnyTemplate[] as valuesTmpl of javaEnum.values
+             join JavaMethodTemplate[] as consTmpl of javaEnum.constructors
+             join JavaMethodTemplate[] as methodsTmpl of javaEnum.methods
+             join AnyTemplate[] as fieldsTmpl of javaEnum.fields
+             join AnyTemplate[] as innerClassesTmpl of javaEnum.innerClasses
+             join AnyTemplate[] as innerInterfacesTmpl of javaEnum.innerInterfaces
+             join AnyTemplate[] as innerEnumsTmpl of javaEnum.innerEnums
+             join AnyTemplate[] as innerRecordsTmpl of javaEnum.innerRecords <|
 ${ifNotBlank(javaEnum.comment, () => "\n" + javaEnum.comment)}
 ${strJoin(annTmpl, "\n")}
 ${getJavaEnumSignature(javaEnum)} {
@@ -105,16 +146,17 @@ ${getJavaEnumSignature(javaEnum)} {
 }
 |>
 
-def template JavaRecordTemplate for OutputJavaRecord as javaRecord
-                                join AnyTemplate[] as annTmpl of javaRecord.annotations
-                                join AnyTemplate[] as compTmpl of javaRecord.components
-                                join JavaMethodTemplate[] as consTmpl of javaRecord.constructors
-                                join JavaMethodTemplate[] as methodsTmpl of javaRecord.methods
-                                join AnyTemplate[] as fieldsTmpl of javaRecord.fields
-                                join AnyTemplate[] as innerClassesTmpl of javaRecord.innerClasses
-                                join AnyTemplate[] as innerInterfacesTmpl of javaRecord.innerInterfaces
-                                join AnyTemplate[] as innerEnumsTmpl of javaRecord.innerEnums
-                                join AnyTemplate[] as innerRecordsTmpl of javaRecord.innerRecords <|
+def template JavaRecordTemplate
+             for OutputJavaRecord as javaRecord
+             join AnyTemplate[] as annTmpl of javaRecord.annotations
+             join AnyTemplate[] as compTmpl of javaRecord.components
+             join JavaMethodTemplate[] as consTmpl of javaRecord.constructors
+             join JavaMethodTemplate[] as methodsTmpl of javaRecord.methods
+             join AnyTemplate[] as fieldsTmpl of javaRecord.fields
+             join AnyTemplate[] as innerClassesTmpl of javaRecord.innerClasses
+             join AnyTemplate[] as innerInterfacesTmpl of javaRecord.innerInterfaces
+             join AnyTemplate[] as innerEnumsTmpl of javaRecord.innerEnums
+             join AnyTemplate[] as innerRecordsTmpl of javaRecord.innerRecords <|
 ${ifNotBlank(javaRecord.comment, () => "\n" + javaRecord.comment)}
 ${strJoin(annTmpl, "\n")}
 ${getJavaRecordHeader(javaRecord)}(${strJoin(compTmpl, ",\n")})${getJavaRecordInterfaces(javaRecord)} {
@@ -128,49 +170,86 @@ ${getJavaRecordHeader(javaRecord)}(${strJoin(compTmpl, ",\n")})${getJavaRecordIn
 }
 |>
 
-def template JavaConstructorTemplate for OutputJavaClass as class / constructors[*] as cons
-                                     join AnyTemplate[] as annTmpl of cons.annotations
-                                     join AnyTemplate[] as paramTmpl of cons.parameters
-                                     join JavaMethodBodyTemplate as body of cons <|
+def template JavaClassConstructorTemplate
+             for OutputJavaClass as class / constructors[*] as cons
+             join AnyTemplate[] as annTmpl of cons.annotations
+             join AnyTemplate[] as paramTmpl of cons.parameters
+             join JavaMethodBodyTemplate as body of cons <|
 ${ifNotBlank(cons.comment, () => "\n" + cons.comment)}
 ${strJoin(annTmpl, "\n")}
-${getJavaConstructorHeader(class, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")}) {
+${getJavaConstructorHeader(class.name, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")}) {
     ${body}
 }
+|> as JavaMethodTemplate
+
+def template JavaRecordConstructorTemplate
+             for OutputJavaRecord as record / constructors[*] as cons
+             join AnyTemplate[] as annTmpl of cons.annotations
+             join AnyTemplate[] as paramTmpl of cons.parameters
+             join JavaMethodBodyTemplate as body of cons <|
+${ifNotBlank(cons.comment, () => "\n" + cons.comment)}
+${strJoin(annTmpl, "\n")}
+${getJavaConstructorHeader(record.name, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")}) {
+    ${body}
+}
+|> as JavaMethodTemplate
+
+def template JavaMethodDeclTemplate
+             for OutputJavaMethod as method
+             join AnyTemplate[] as annTmpl of method.annotations
+             join AnyTemplate[] as paramTmpl of method.parameters
+             join JavaMethodBodyTemplate as body of method <|
+${ifNotBlank(method.comment, () => "\n" + method.comment)}
+${strJoin(annTmpl, "\n")}
+${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")}) {
+    ${body}
+}
+|> as JavaMethodTemplate
+
+def template JavaFieldTemplate
+             for OutputJavaField as field
+             join AnyTemplate[] as annTmpl of field.annotations
+             join AnyTemplate[] as valueTmpl of [field.value] <|
+${ifNotBlank(field.comment, () => "\n" + field.comment)}
+${strJoin(annTmpl, "\n")}
+${getJavaFieldDecl(field)}${ifThenElse(valueTmpl.size() > 0, () => " = " + valueTmpl[0])};
 |>
 
-def template JavaAnnotationTemplate for OutputJavaAnnotationValue as ann
-                                    join AnyTemplate[] as fieldsTmpl of ann.fields <|
+def template JavaAnnotationTemplate
+             for OutputJavaAnnotationValue as ann
+             join AnyTemplate[] as fieldsTmpl of ann.fields <|
 @{ann.name}(
     ${strJoin(fieldsTmpl, ",\n")}
 )
 |>
 
 def template JavaAnnotationSingleValueTemplate extends JavaAnnotationTemplate
-                                               for OutputJavaAnnotationValue as ann
-                                               join AnyTemplate[] as valuesTmpl of ann.fields.map(f => f.value)
-                                               when ann.fields.size() == 1 and ann.fields[0].field == "value" <|
+             for OutputJavaAnnotationValue as ann
+             join AnyTemplate[] as valuesTmpl of ann.fields.map(f => f.value)
+             when ann.fields.size() == 1 and ann.fields[0].field == "value" <|
 @${ann.name}($^{valuesTmpl[0]})
 |>
 
-def template avaAnnotationFieldValueTemplate for OutputJavaAnnotationFieldValue as field
-                                             join AnyTemplate as valueTmpl of field.value <|
+def template JavaAnnotationFieldValueTemplate
+             for OutputJavaAnnotationFieldValue as field
+             join AnyTemplate as valueTmpl of field.value <|
 ${field.field}=$^{valueTmpl}
 |>
 
 
 
-def template JavaArrayValueTemplate for OutputJavaArrayValue as arr
-                                    join AnyTemplate[] as valuesTmpl of arr.value <|
+def template JavaArrayValueTemplate
+             for OutputJavaArrayValue as arr
+             join AnyTemplate[] as valuesTmpl of arr.value <|
 {
     ${strJoin(valuesTmpl, ",\n")}
 }
 |>
 
 def template JavaArrayLiteralValueTemplate extends JavaArrayValueTemplate
-                                           for OutputJavaArrayValue as arr
-                                           join AnyTemplate[] as valuesTmpl of arr.value
-                                           when arr.value.every(v => v instanceof OutputLiteralJavaValue) <|
+             for OutputJavaArrayValue as arr
+             join AnyTemplate[] as valuesTmpl of arr.value
+             when arr.value == null or arr.value.every(v => v instanceof OutputLiteralJavaValue) <|
 {${strJoin(valuesTmpl, ", ")}}
 |>
 
@@ -183,8 +262,8 @@ ${javaValue.value}
 |>
 
 def template LiteralJavaStringTemplate extends LiteralJavaValueTemplate
-                                       for OutputLiteralJavaValue as javaValue
-                                       when javaValue.value instanceof string <|
+             for OutputLiteralJavaValue as javaValue
+             when javaValue.value instanceof string <|
 "${(javaValue.value as string).escape()}"
 |>
 
@@ -219,8 +298,19 @@ fun getJavaRecordInterfaces(javaRecord: OutputJavaRecord): string {
     return mkString(javaRecord.implements, " implements ", ", ", "")
 }
 
-fun getJavaConstructorHeader(javaClass: OutputJavaClass, constructor: OutputJavaConstructor): string {
+fun getJavaConstructorHeader(name: string, constructor: OutputJavaConstructor): string {
     return mkString(constructor.modifiers, "", " ", " ") +
            mkString(constructor.typeParameters, "<", ", ", "> ") +
-           javaClass.name
+           name
+}
+
+fun getJavaMethodHeader(method: OutputJavaMethod): string {
+    return mkString(method.modifiers, "", " ", " ") +
+           mkString(method.typeParameters, "<", ", ", "> ") +
+           method.returnType + " " + method.name
+}
+
+fun getJavaFieldDecl(field: OutputJavaField): string {
+    return mkString(field.modifiers, "", " ", " ") +
+           field.fieldType + " " + field.name
 }

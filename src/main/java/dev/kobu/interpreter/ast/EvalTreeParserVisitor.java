@@ -128,10 +128,13 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         if (ctx.ID() == null) {
             return null;
         }
-        TemplateTypeSymbol templateType = (TemplateTypeSymbol) moduleScope.resolve(ctx.ID().getText());
-        if (templateType == null) {
+
+        Symbol symbol = moduleScope.resolve(ctx.ID().getText());
+        if (!(symbol instanceof TemplateTypeSymbol)) {
             return null;
         }
+
+        TemplateTypeSymbol templateType = (TemplateTypeSymbol) symbol;
 
         if (ctx.LCB() != null) {
             context.getErrorScope().addError(new InvalidTemplateTypeError(getSourceCodeRef(ctx.ID())));
@@ -279,10 +282,13 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         if (ctx.ID() == null) {
             return null;
         }
-        var function = (FunctionSymbol) moduleScope.resolve(ctx.ID().getText());
-        if (function == null) {
+
+        Symbol symbol = moduleScope.resolve(ctx.ID().getText());
+        if (!(symbol instanceof FunctionSymbol)) {
             return null;
         }
+
+        var function = (FunctionSymbol) symbol;
 
         if (ctx.RCB() != null) {
             scopeEndOffset = ctx.RCB().getSymbol().getStopIndex() + 1;
@@ -446,10 +452,13 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         if (ctx.ID() == null) {
             return null;
         }
-        var rule = (RuleSymbol) moduleScope.resolve(ctx.ID().getText());
-        if (rule == null) {
+
+        Symbol symbol = moduleScope.resolve(ctx.ID().getText());
+        if (!(symbol instanceof RuleSymbol)) {
             return null;
         }
+
+        var rule = (RuleSymbol) symbol;
 
         if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
             ruleTypeScope = true;
@@ -536,10 +545,13 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         if (ctx.ID() == null) {
             return null;
         }
-        var rule = (RuleSymbol) moduleScope.resolve(ctx.ID().getText());
-        if (rule == null) {
+
+        Symbol symbol = moduleScope.resolve(ctx.ID().getText());
+        if (!(symbol instanceof RuleSymbol)) {
             return null;
         }
+
+        var rule = (RuleSymbol) symbol;
 
         if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
             ruleTypeScope = true;
@@ -591,10 +603,13 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         if (ctx.ID() == null) {
             return null;
         }
-        var rule = (RuleSymbol) moduleScope.resolve(ctx.ID().getText());
-        if (rule == null) {
+
+        Symbol symbol = moduleScope.resolve(ctx.ID().getText());
+        if (!(symbol instanceof RuleSymbol)) {
             return null;
         }
+
+        var rule = (RuleSymbol) symbol;
 
         if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
             ruleTypeScope = true;
