@@ -138,7 +138,7 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
                 arg.setTargetType(paramType);
                 arg.analyze(context);
                 paramType.resolveAliases(resolvedTypeArgs, arg.getType());
-                paramType = arg.getType();
+                paramType = paramType.constructFor(resolvedTypeArgs);
             } else {
                 arg.setResolvedTypes(resolvedTypeArgs);
                 arg.setTargetType(parameter.getType());
