@@ -24,8 +24,8 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.function.global;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
@@ -39,8 +39,10 @@ public class PrintFunctionImpl extends BuiltinGlobalFunction {
         ValueExpr valueExpr = args.get("obj");
         if (valueExpr instanceof StringValueExpr) {
             System.out.println(((StringValueExpr)valueExpr).getValue());
-        } else {
+        } else if (valueExpr != null) {
             System.out.println(valueExpr.getStringValue());
+        } else {
+            System.out.println("null");
         }
         return null;
     }

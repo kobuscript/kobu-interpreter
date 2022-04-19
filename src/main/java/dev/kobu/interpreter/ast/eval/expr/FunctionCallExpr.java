@@ -28,6 +28,7 @@ import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.AnonymousFunctionValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.FunctionRefValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.symbol.ModuleRefSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
@@ -148,7 +149,8 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
             if (arg.getType() instanceof UnknownType) {
                 return UnknownType.INSTANCE;
             }
-            if (arg.getType() != null && !paramType.isAssignableFrom(arg.getType())) {
+            if (!(arg.getExpr() instanceof NullValueExpr) &&
+                    (arg.getType() == null || !paramType.isAssignableFrom(arg.getType()))) {
                 context.addAnalyzerError(new InvalidTypeError(arg.getSourceCodeRef(),
                         paramType, arg.getType()));
                 return UnknownType.INSTANCE;

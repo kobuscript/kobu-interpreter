@@ -48,6 +48,10 @@ public class FunctionArgExpr implements Expr, HasTargetType {
         this.expr = expr;
     }
 
+    public Expr getExpr() {
+        return expr;
+    }
+
     @Override
     public SourceCodeRef getSourceCodeRef() {
         return sourceCodeRef;
