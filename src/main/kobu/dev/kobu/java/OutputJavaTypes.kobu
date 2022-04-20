@@ -26,7 +26,7 @@ module dev.kobu.java.OutputJavaTypes
 
 import dev.kobu.java.JavaTypes
 
-fun newJavaFile(package: string): OutputJavaFile {
+fun javaFile(package: string): OutputJavaFile {
     return OutputJavaFile{
         comments: [],
         package: package,
@@ -35,7 +35,7 @@ fun newJavaFile(package: string): OutputJavaFile {
     }
 }
 
-fun newJavaClass(name: string, modifiers: string[], typeParameters?: string[]): OutputJavaClass {
+fun javaClass(name: string, modifiers: string[], typeParameters?: string[]): OutputJavaClass {
     return OutputJavaClass{
         comments: [],
         name: name,
@@ -53,20 +53,92 @@ fun newJavaClass(name: string, modifiers: string[], typeParameters?: string[]): 
     }
 }
 
-fun newJavaPublicClass(name: string, typeParameters?: string[]): OutputJavaClass {
-    return newJavaClass(name, ["public"], typeParameters)
+fun javaPublicClass(name: string, typeParameters?: string[]): OutputJavaClass {
+    return javaClass(name, ["public"], typeParameters)
 }
 
-fun newJavaPublicAbstractClass(name: string, typeParameters?: string[]): OutputJavaClass {
-    return newJavaClass(name, ["public", "abstract"], typeParameters)
+fun javaPublicAbstractClass(name: string, typeParameters?: string[]): OutputJavaClass {
+    return javaClass(name, ["public", "abstract"], typeParameters)
 }
 
-fun newJavaPublicStaticClass(name: string, typeParameters?: string[]): OutputJavaClass {
-    return newJavaClass(name, ["public", "static"], typeParameters)
+fun javaPublicStaticClass(name: string, typeParameters?: string[]): OutputJavaClass {
+    return javaClass(name, ["public", "static"], typeParameters)
 }
 
-fun newJavaPrivateStaticClass(name: string, typeParameters?: string[]): OutputJavaClass {
-    return newJavaClass(name, ["private", "static"], typeParameters)
+fun javaPrivateStaticClass(name: string, typeParameters?: string[]): OutputJavaClass {
+    return javaClass(name, ["private", "static"], typeParameters)
+}
+
+fun javaInterface(name: string, modifiers: string[], typeParameters?: string[]): OutputJavaInterface {
+    return OutputJavaInterface{
+        comments: [],
+        name: name,
+        modifiers: modifiers,
+        annotations: [],
+        typeParameters: typeParameters,
+        superTypes: [],
+        methods: [],
+        fields: [],
+        innerClasses: [],
+        innerInterfaces: [],
+        innerEnums: [],
+        innerRecords: []
+    }
+}
+
+fun javaPublicInterface(name: string, typeParameters?: string[]): OutputJavaInterface {
+    return javaInterface(name, ["public"], typeParameters)
+}
+
+fun javaEnum(name: string, modifiers: string[], values: (string, OutputJavaValue[])[]): OutputJavaEnum {
+    var enumValues: OutputJavaEnumValue[] = []
+    if (values != null) {
+        enumValues = values.map(pair => OutputJavaEnumValue{ name: pair.get1(), args: pair.get2() })
+    }
+    return OutputJavaEnum{
+        implements: [],
+        annotations: [],
+        values: enumValues,
+        constructors: [],
+        methods: [],
+        fields: [],
+        innerClasses: [],
+        innerInterfaces: [],
+        innerEnums: [],
+        innerRecords: []
+    }
+}
+
+fun javaPublicEnum(name: string, values: (string, OutputJavaValue[])[]): OutputJavaEnum {
+    return javaEnum(name, ["public"], values)
+}
+
+fun javaRecordComponent(name: string, fieldType: JavaType,
+                        annotations?: OutputJavaAnnotationValue[]): OutputJavaRecordComponent {
+    return OutputJavaRecordComponent{
+        annotations: annotations,
+        name: name,
+        fieldType: fieldType
+    }
+}
+
+fun javaRecord(name: string, modifiers: string[], components: OutputJavaRecordComponent[],
+               typeParameters?: string[]): OutputJavaRecord {
+    return OutputJavaRecord{
+        name: name,
+        modifiers: modifiers,
+        annotations: [],
+        typeParameters: typeParameters,
+        implements: [],
+        components: components,
+        constructors: [],
+        methods: [],
+        fields: [],
+        innerClasses: [],
+        innerInterfaces: [],
+        innerEnums: [],
+        innerRecords: []
+    }
 }
 
 fun addAnnotation(javaDef: OutputJavaDefinition,
@@ -265,6 +337,53 @@ fun javaPrivateMethod(name: string, params: OutputJavaMethodParameter[], returnT
                       annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
                       throws?: JavaObjectType[]): OutputJavaMethod {
     return javaMethod(["private"], name, params, returnType, annotations, typeParameters, throws)
+}
+
+fun javaField(modifiers: string[], name: string, fieldType: JavaType,
+              value?: OutputJavaValue, annotations?: OutputJavaAnnotationValue[]): OutputJavaField {
+    return OutputJavaField{
+        comments: [],
+        name: name,
+        modifiers: modifiers,
+        annotations: annotations,
+        fieldType: fieldType,
+        value: value
+    }
+}
+
+fun javaPrivateField(name: string, fieldType: JavaType,
+                     value?: OutputJavaValue, annotations?: OutputJavaAnnotationValue[]): OutputJavaField {
+    return javaField(["private"], name, fieldType, value, annotations)
+}
+
+fun javaPublicField(name: string, fieldType: JavaType,
+                    value?: OutputJavaValue, annotations?: OutputJavaAnnotationValue[]): OutputJavaField {
+    return javaField(["public"], name, fieldType, value, annotations)
+}
+
+fun javaProtectedField(name: string, fieldType: JavaType,
+                       value?: OutputJavaValue, annotations?: OutputJavaAnnotationValue[]): OutputJavaField {
+    return javaField(["protected"], name, fieldType, value, annotations)
+}
+
+fun javaPrivateStaticField(name: string, fieldType: JavaType,
+                           value?: OutputJavaValue, annotations?: OutputJavaAnnotationValue[]): OutputJavaField {
+    return javaField(["private", "static"], name, fieldType, value, annotations)
+}
+
+fun javaPublicStaticField(name: string, fieldType: JavaType,
+                          value?: OutputJavaValue, annotations?: OutputJavaAnnotationValue[]): OutputJavaField {
+    return javaField(["public", "static"], name, fieldType, value, annotations)
+}
+
+fun javaPrivateStaticFinalField(name: string, fieldType: JavaType,
+                                value?: OutputJavaValue, annotations?: OutputJavaAnnotationValue[]): OutputJavaField {
+    return javaField(["private", "static", "final"], name, fieldType, value, annotations)
+}
+
+fun javaPublicStaticFinalField(name: string, fieldType: JavaType,
+                               value?: OutputJavaValue, annotations?: OutputJavaAnnotationValue[]): OutputJavaField {
+    return javaField(["public", "static", "final"], name, fieldType, value, annotations)
 }
 
 type record OutputJavaValue {}
