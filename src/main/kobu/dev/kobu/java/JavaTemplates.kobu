@@ -36,9 +36,10 @@ type template JavaMethodTemplate
 fun javaTemplates(): Rule[] {
     return [JavaImportsAssemblerRule, JavaFileTemplate, JavaClassTemplate, JavaInterfaceTemplate, JavaEnumTemplate,
             JavaRecordTemplate, JavaClassConstructorTemplate, JavaRecordConstructorTemplate, JavaMethodDeclTemplate,
-            JavaFieldTemplate, JavaAnnotationTemplate, JavaAnnotationSingleValueTemplate,
-            JavaAnnotationFieldValueTemplate, JavaArrayValueTemplate, JavaArrayLiteralValueTemplate,
-            JavaSourceValueTemplate, LiteralJavaValueTemplate, LiteralJavaStringTemplate]
+            JavaAbstractMethodDeclTemplate, JavaMethodParamTemplate, JavaFieldTemplate,
+            JavaAnnotationTemplate, JavaAnnotationSingleValueTemplate, JavaAnnotationFieldValueTemplate,
+            JavaArrayValueTemplate, JavaArrayLiteralValueTemplate, JavaSourceValueTemplate, LiteralJavaValueTemplate,
+            LiteralJavaStringTemplate]
 }
 
 fun javaMethodBodyTemplates(): Rule[] {
@@ -204,7 +205,7 @@ def template JavaClassConstructorTemplate
              join JavaMethodBodyTemplate as body of cons <|
 ${ifNotBlank(cons.comment, () => "\n" + cons.comment)}
 ${strJoin(annTmpl, "\n")}
-${getJavaConstructorHeader(class.name, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")}) {
+${getJavaConstructorHeader(class.name, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(cons.throws, " throws ", ", ", "")} {
     ${body}
 }
 |> as JavaMethodTemplate
@@ -216,7 +217,7 @@ def template JavaRecordConstructorTemplate
              join JavaMethodBodyTemplate as body of cons <|
 ${ifNotBlank(cons.comment, () => "\n" + cons.comment)}
 ${strJoin(annTmpl, "\n")}
-${getJavaConstructorHeader(record.name, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")}) {
+${getJavaConstructorHeader(record.name, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(cons.throws, " throws ", ", ", "")} {
     ${body}
 }
 |> as JavaMethodTemplate
@@ -228,9 +229,19 @@ def template JavaMethodDeclTemplate
              join JavaMethodBodyTemplate as body of method <|
 ${ifNotBlank(method.comment, () => "\n" + method.comment)}
 ${strJoin(annTmpl, "\n")}
-${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")}) {
+${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")}{
     ${body}
 }
+|> as JavaMethodTemplate
+
+def template JavaAbstractMethodDeclTemplate extends JavaMethodDeclTemplate
+             for OutputJavaMethod as method
+             join AnyTemplate[] as annTmpl of method.annotations
+             join AnyTemplate[] as paramTmpl of method.parameters
+             when method.modifiers != null and method.modifiers.contains("abstract") <|
+${ifNotBlank(method.comment, () => "\n" + method.comment)}
+${strJoin(annTmpl, "\n")}
+${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")};
 |> as JavaMethodTemplate
 
 def template JavaMethodParamTemplate

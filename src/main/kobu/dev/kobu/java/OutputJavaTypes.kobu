@@ -177,6 +177,86 @@ fun javaParam(paramName: string, paramType: JavaType, annotations?: OutputJavaAn
     }
 }
 
+fun javaConstructor(modifiers: string[], params: OutputJavaMethodParameter[],
+                    annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
+                    throws?: JavaObjectType[]): OutputJavaConstructor {
+    return OutputJavaConstructor{
+        typeParameters: typeParameters,
+        modifiers: modifiers,
+        annotations: annotations,
+        parameters: params,
+        throws: throws
+    }
+}
+
+fun javaPublicConstructor(params: OutputJavaMethodParameter[],
+                          annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
+                          throws?: JavaObjectType[]): OutputJavaConstructor {
+    return javaConstructor(["public"], params, annotations, typeParameters, throws)
+}
+
+fun javaPrivateConstructor(params: OutputJavaMethodParameter[],
+                           annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
+                           throws?: JavaObjectType[]): OutputJavaConstructor {
+    return javaConstructor(["private"], params, annotations, typeParameters, throws)
+}
+
+fun javaMethod(modifiers: string[], name: string, params: OutputJavaMethodParameter[], returnType: JavaType,
+               annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
+               throws?: JavaObjectType[]): OutputJavaMethod {
+    return OutputJavaMethod{
+        name: name,
+        typeParameters: typeParameters,
+        modifiers: modifiers,
+        annotations: annotations,
+        parameters: params,
+        returnType: returnType,
+        throws: throws
+    }
+}
+
+fun javaPublicMethod(name: string, params: OutputJavaMethodParameter[], returnType: JavaType,
+                     annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
+                     throws?: JavaObjectType[]): OutputJavaMethod {
+    return javaMethod(["public"], name, params, returnType, annotations, typeParameters, throws)
+}
+
+fun javaAbstractMethod(name: string, params: OutputJavaMethodParameter[], returnType: JavaType,
+                       annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
+                       throws?: JavaObjectType[]): OutputJavaMethod {
+    return javaMethod(["abstract"], name, params, returnType, annotations, typeParameters, throws)
+}
+
+fun javaPublicAbstractMethod(name: string, params: OutputJavaMethodParameter[], returnType: JavaType,
+                             annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
+                             throws?: JavaObjectType[]): OutputJavaMethod {
+    return javaMethod(["public", "abstract"], name, params, returnType, annotations, typeParameters, throws)
+}
+
+fun javaStaticPublicMethod(name: string, params: OutputJavaMethodParameter[], returnType: JavaType,
+                           annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
+                           throws?: JavaObjectType[]): OutputJavaMethod {
+    return javaMethod(["static", "public"], name, params, returnType, annotations, typeParameters, throws)
+}
+
+fun javaProtectedMethod(name: string, params: OutputJavaMethodParameter[], returnType: JavaType,
+                        annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
+                        throws?: JavaObjectType[]): OutputJavaMethod {
+    return javaMethod(["protected"], name, params, returnType, annotations, typeParameters, throws)
+}
+
+fun javaProtectedAbstractMethod(name: string, params: OutputJavaMethodParameter[], returnType: JavaType,
+                                annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
+                                throws?: JavaObjectType[]): OutputJavaMethod {
+    return javaMethod(["protected", "abstract"], name, params, returnType, annotations, typeParameters, throws)
+}
+
+fun javaPrivateMethod(name: string, params: OutputJavaMethodParameter[], returnType: JavaType,
+                      annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
+                      throws?: JavaObjectType[]): OutputJavaMethod {
+    return javaMethod(["private"], name, params, returnType, annotations, typeParameters, throws)
+}
+
 type record OutputJavaValue {}
 
 type record OutputJavaLiteralValue extends OutputJavaValue {
