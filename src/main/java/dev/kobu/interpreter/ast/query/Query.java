@@ -42,6 +42,8 @@ public class Query implements Evaluable {
 
     private List<QueryJoin> joins;
 
+    private List<QueryExtractor> extractors;
+
     private Expr whenExpr;
 
     public Query(SourceCodeRef sourceCodeRef, QueryTypeClause typeClause) {
@@ -56,8 +58,19 @@ public class Query implements Evaluable {
         joins.add(join);
     }
 
+    public void addExtractor(QueryExtractor extractor) {
+        if (extractors == null) {
+            extractors = new ArrayList<>();
+        }
+        extractors.add(extractor);
+    }
+
     public QueryTypeClause getTypeClause() {
         return typeClause;
+    }
+
+    public List<QueryExtractor> getExtractors() {
+        return extractors;
     }
 
     public List<QueryJoin> getJoins() {
@@ -82,6 +95,16 @@ public class Query implements Evaluable {
         if (typeClause != null) {
             typeClause.setResolvedTypes(resolvedTypes);
         }
+        if (extractors != null) {
+            for (QueryExtractor extractor : extractors) {
+                extractor.setResolvedTypes(resolvedTypes);
+            }
+        }
+        if (joins != null) {
+            for (QueryJoin join : joins) {
+                join.setResolvedTypes(resolvedTypes);
+            }
+        }
         if (whenExpr != null) {
             whenExpr.setResolvedTypes(resolvedTypes);
         }
@@ -91,6 +114,13 @@ public class Query implements Evaluable {
     public void analyze(EvalContext context) {
         var typeClause = this.typeClause;
         typeClause.analyze(context);
+
+        if (extractors != null) {
+            for (QueryExtractor extractor : extractors) {
+                extractor.setTypeScope(typeClause.getQueryType());
+                extractor.analyze(context);
+            }
+        }
 
         if (joins != null) {
             for (QueryJoin join : joins) {

@@ -54,6 +54,8 @@ public class QueryStarTypeClause implements QueryClause {
 
     private Type typeScope;
 
+    private boolean extractorMode;
+
     public QueryStarTypeClause(SourceCodeRef sourceCodeRef, Type type, boolean includeSubtypes) {
         this.sourceCodeRef = sourceCodeRef;
         this.type = type;
@@ -75,8 +77,22 @@ public class QueryStarTypeClause implements QueryClause {
     @Override
     public void analyze(EvalContext context) {
         if (!(type instanceof RecordTypeSymbol) && !(type instanceof AnyRecordTypeSymbol)) {
-            context.addAnalyzerError(new InvalidTypeError(sourceCodeRef, BuiltinScope.ANY_RECORD_TYPE, type));
-            return;
+            if (!extractorMode) {
+                context.addAnalyzerError(new InvalidTypeError(sourceCodeRef, BuiltinScope.ANY_RECORD_TYPE, type));
+                return;
+            } else {
+                if (type instanceof ArrayType) {
+                    Type elemType = ((ArrayType) type).getElementType();
+                    if (!(elemType instanceof RecordTypeSymbol) && !(elemType instanceof AnyRecordTypeSymbol)) {
+                        context.addAnalyzerError(new InvalidTypeError(sourceCodeRef,
+                                ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_RECORD_TYPE), type));
+                        return;
+                    }
+                } else {
+                    context.addAnalyzerError(new InvalidTypeError(sourceCodeRef, BuiltinScope.ANY_RECORD_TYPE, type));
+                    return;
+                }
+            }
         }
 
         if (bind != null) {
@@ -109,8 +125,12 @@ public class QueryStarTypeClause implements QueryClause {
         findMatches(idSet, result, type, match.getValue());
 
         List<Match> matches = new ArrayList<>();
-        for (ValueExpr recExpr : result) {
-            matches.add(match.setValue((RecordValueExpr) recExpr, recExpr, bind));
+        if (type instanceof ArrayType) {
+            matches.add(match.setValue(new ArrayValueExpr((ArrayType) type, result), bind));
+        } else {
+            for (ValueExpr recExpr : result) {
+                matches.add(match.setValue((RecordValueExpr) recExpr, recExpr, bind));
+            }
         }
         return matches;
     }
@@ -138,6 +158,14 @@ public class QueryStarTypeClause implements QueryClause {
     @Override
     public void setNext(QueryClause next) {
         this.next = next;
+    }
+
+    @Override
+    public void setExtractorMode() {
+        this.extractorMode = true;
+        if (next != null) {
+            next.setExtractorMode();
+        }
     }
 
     public void setAliasSourceCodeRef(SourceCodeRef aliasSourceCodeRef) {

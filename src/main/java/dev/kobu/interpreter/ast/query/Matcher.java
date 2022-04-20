@@ -24,22 +24,12 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.query;
 
-import dev.kobu.interpreter.ast.eval.Evaluable;
-import dev.kobu.interpreter.ast.eval.HasTypeScope;
-import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.database.index.Match;
 
-public interface QueryClause extends Matcher, Evaluable, HasTypeScope {
+import java.util.List;
 
-    Type getType();
+public interface Matcher {
 
-    QueryClause getNext();
-
-    String getBind();
-
-    void setBind(String bind);
-
-    void setNext(QueryClause next);
-
-    void setExtractorMode();
+    List<Match> eval(Match match);
 
 }

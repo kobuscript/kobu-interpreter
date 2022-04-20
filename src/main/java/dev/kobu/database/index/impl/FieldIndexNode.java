@@ -26,20 +26,21 @@ package dev.kobu.database.index.impl;
 
 import dev.kobu.database.index.Match;
 import dev.kobu.database.index.OneInputIndexNode;
+import dev.kobu.interpreter.ast.query.Matcher;
 import dev.kobu.interpreter.ast.query.QueryClause;
 
 public class FieldIndexNode extends OneInputIndexNode {
 
-    private final QueryClause queryClause;
+    private final Matcher matcher;
 
-    public FieldIndexNode(QueryClause queryClause) {
-        this.queryClause = queryClause;
+    public FieldIndexNode(Matcher matcher) {
+        this.matcher = matcher;
     }
 
     @Override
     public void receive(Match match) {
 
-        for (Match fieldMatch : queryClause.eval(match)) {
+        for (Match fieldMatch : matcher.eval(match)) {
             dispatch(fieldMatch);
         }
 

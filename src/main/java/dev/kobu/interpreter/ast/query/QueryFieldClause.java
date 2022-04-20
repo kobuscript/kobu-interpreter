@@ -60,6 +60,10 @@ public class QueryFieldClause implements QueryClause {
 
     private Type type;
 
+    private boolean extractorMode;
+
+    private ValueExpr valueScope;
+
     public QueryFieldClause(SourceCodeRef sourceCodeRef, String field) {
         this.sourceCodeRef = sourceCodeRef;
         this.field = field;
@@ -115,12 +119,13 @@ public class QueryFieldClause implements QueryClause {
     public List<Match> eval(Match match) {
 
         List<Match> result = new ArrayList<>();
+        ValueExpr valueExpr = valueScope != null ? valueScope : match.getValue();
         if (arrayItemClause == null) {
-            if (match.getValue() instanceof RecordValueExpr) {
-                RecordValueExpr record = (RecordValueExpr) match.getValue();
+            if (valueExpr instanceof RecordValueExpr) {
+                RecordValueExpr record = (RecordValueExpr) valueExpr;
                 var value = record.resolveField(field);
                 if (value != null && !(value instanceof NullValueExpr)) {
-                    if (value instanceof RecordValueExpr) {
+                    if (!extractorMode && value instanceof RecordValueExpr) {
                         result.add(match.setValue((RecordValueExpr) value, value, bind));
                     } else {
                         result.add(match.setValue(value, bind));
@@ -128,12 +133,12 @@ public class QueryFieldClause implements QueryClause {
                 }
             }
         } else {
-            if (match.getValue() instanceof ArrayValueExpr) {
-                ArrayValueExpr list = (ArrayValueExpr) match.getValue();
+            if (valueExpr instanceof ArrayValueExpr) {
+                ArrayValueExpr list = (ArrayValueExpr) valueExpr;
                 List<ValueExpr> values = arrayItemClause.eval(match.getContext(), list);
                 for (ValueExpr value : values) {
                     if (value != null && !(value instanceof NullValueExpr)) {
-                        if (value instanceof RecordValueExpr) {
+                        if (!extractorMode && value instanceof RecordValueExpr) {
                             result.add(match.setValue((RecordValueExpr) value, value, bind));
                         } else {
                             result.add(match.setValue(value, bind));
@@ -188,13 +193,21 @@ public class QueryFieldClause implements QueryClause {
     }
 
     @Override
+    public void setExtractorMode() {
+        this.extractorMode = true;
+        if (next != null) {
+            next.setExtractorMode();
+        }
+    }
+
+    @Override
     public void setTypeScope(Type typeScope) {
         this.typeScope = typeScope;
     }
 
     @Override
     public void setValueScope(ValueExpr valueScope) {
-
+        this.valueScope = valueScope;
     }
 
 }

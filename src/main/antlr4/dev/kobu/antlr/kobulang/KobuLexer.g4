@@ -92,6 +92,7 @@ LESS_OR_EQUALS : '<=' ;
 GREATER : '>' ;
 GREATER_OR_EQUALS : '>=' ;
 
+WITH : 'with' ;
 JOIN : 'join' ;
 DOT : '.' ;
 

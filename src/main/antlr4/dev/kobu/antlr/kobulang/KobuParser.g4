@@ -28,16 +28,16 @@ options { tokenVocab=KobuLexer; superClass=dev.kobu.antlr.KobuParserBase; }
 
 prog : module importExpr* stat* EOF ;
 
-module : 'module' moduleId MODULE_ID_END? MODULE_ID_BREAK
-         | 'module' MODULE_ID_END? MODULE_ID_BREAK {notifyErrorListenersPrevToken("module path expected");}
+module : MODULE moduleId MODULE_ID_END? MODULE_ID_BREAK
+         | MODULE MODULE_ID_END? MODULE_ID_BREAK {notifyErrorListenersPrevToken("module path expected");}
          ;
 
 moduleId : MODULE_ID ( MODULE_SEPARATOR MODULE_ID )*
            | MODULE_ID MODULE_SEPARATOR {notifyErrorListenersPrevToken("invalid module path");}
            ;
 
-importExpr : 'import' moduleId moduleScope? MODULE_ID_END? MODULE_ID_BREAK
-             | 'import' MODULE_ID_END? MODULE_ID_BREAK {notifyErrorListenersPrevToken("module path expected");}
+importExpr : IMPORT moduleId moduleScope? MODULE_ID_END? MODULE_ID_BREAK
+             | IMPORT MODULE_ID_END? MODULE_ID_BREAK {notifyErrorListenersPrevToken("module path expected");}
              ;
 
 moduleScope : MODULE_AS MODULE_ID  ;
@@ -58,7 +58,7 @@ singleStat: varDecl
             | emptyExpr
             ;
 
-invalidKeyword : keyword=( 'def' | 'fun' | DEFTEMPLATE | TYPE | 'rule' | 'action' ) ;
+invalidKeyword : keyword=( DEF | FUN | DEFTEMPLATE | TYPE | DEFRULE | DEFACTION ) ;
 
 emptyExpr: SEMI ;
 
@@ -87,32 +87,32 @@ stat : typerecord
        | invalidStat
        ;
 
-invalidDef : 'def' elem=( INVALID_DEF | DEF_BREAK ) ;
+invalidDef : DEF elem=( INVALID_DEF | DEF_BREAK ) ;
 invalidType : TYPE INVALID_TYPE {notifyErrorListenersPrevToken("'record' or 'template' expected");} ;
 
 invalidStat : ID {notifyErrorListenersPrevToken("'type', 'def' or 'fun' expected");} ;
 
-functionDecl : 'private'? 'fun' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB ;
+functionDecl : PRIVATE? FUN ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet LCB execStat* RCB ;
 
-nativeDecl : 'def' 'native' ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet SEMI?;
+nativeDecl : DEF DEFNATIVE ID typeParameters? LP functionDeclParam? RP COLON functionDeclRet SEMI?;
 
-functionDeclRet : ( 'void' | type ) ;
+functionDeclRet : ( VOID | type ) ;
 
-functionDeclParam : ID '?'? COLON type ( COMMA functionDeclParam )?
-                    | ID '?'? COLON? {notifyErrorListenersPrevToken("parameter type expected");}
+functionDeclParam : ID QM? COLON type ( COMMA functionDeclParam )?
+                    | ID QM? COLON? {notifyErrorListenersPrevToken("parameter type expected");}
                     ;
 
-ifStat : 'if' LP expr? RP LCB execStat* RCB elseIfStat? elseStat? ;
+ifStat : IF LP expr? RP LCB execStat* RCB elseIfStat? elseStat? ;
 
-elseIfStat : 'else' 'if' LP expr RP LCB execStat* RCB elseIfStat? ;
+elseIfStat : ELSE IF LP expr RP LCB execStat* RCB elseIfStat? ;
 
-elseStat : 'else' LCB execStat* RCB ;
+elseStat : ELSE LCB execStat* RCB ;
 
-forStat : 'for' LP varDeclList? SEMI expr? SEMI assignmentSequece? RP LCB execStat* RCB ;
+forStat : FOR LP varDeclList? SEMI expr? SEMI assignmentSequece? RP LCB execStat* RCB ;
 
-enhancedForStat : 'for' LP VAR ID ( COLON type )? OF expr RP LCB execStat* RCB ;
+enhancedForStat : FOR LP VAR ID ( COLON type )? OF expr RP LCB execStat* RCB ;
 
-whileStat : 'while' LP expr RP LCB execStat* RCB ;
+whileStat : WHILE LP expr RP LCB execStat* RCB ;
 
 breakStat: BREAK ;
 
@@ -130,9 +130,9 @@ typerecord : TYPE TYPE_RECORD ID typeParameters? inheritance? LCB attributes? RC
 
 typetemplate : TYPE TYPE_TEMPLATE ID templateInheritance? ( LCB RCB? )? ;
 
-inheritance : 'extends' typeName ;
+inheritance : EXTENDS typeName ;
 
-templateInheritance : 'extends' typeName ;
+templateInheritance : EXTENDS typeName ;
 
 attributes : ( STAR | ID ) COLON type ( COMMA? attributes )? ;
 
@@ -140,13 +140,13 @@ record : typeName LCB recordField? RCB ;
 
 recordField : ID COLON exprWrapper ( COMMA? recordField )? ;
 
-deftemplate : 'def' DEFTEMPLATE ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? TEMPLATE_BEGIN template? TEMPLATE_END templateTargetType? ;
+deftemplate : DEF DEFTEMPLATE ID ruleExtends? FOR queryExpr extractExpr* joinExpr* ( WHEN expr )? TEMPLATE_BEGIN template? TEMPLATE_END templateTargetType? ;
 
 templateTargetType : AS typeName ;
 
-defaction : 'def' 'action' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block RCB ;
+defaction : DEF DEFACTION ID ruleExtends? FOR queryExpr extractExpr* joinExpr* ( WHEN expr )? LCB block RCB ;
 
-defrule : 'def' 'rule' ID ruleExtends? 'for' queryExpr joinExpr* ( 'when' expr )? LCB block RCB ;
+defrule : DEF DEFRULE ID ruleExtends? FOR queryExpr extractExpr* joinExpr* ( WHEN expr )? LCB block RCB ;
 
 ruleExtends : EXTENDS typeName ;
 
@@ -166,9 +166,11 @@ queryExprArrayItem : arrayIndexExpr       #queryExprArrayItemIndex
                      | STAR               #queryExprArrayItemAll
                      ;
 
-joinExpr : 'join' queryExpr joinOfExpr? ;
+extractExpr : WITH queryExprSegment ;
 
-joinOfExpr : 'of' expr ;
+joinExpr : JOIN queryExpr joinOfExpr? ;
+
+joinOfExpr : OF expr ;
 
 block : execStat* ;
 
@@ -227,13 +229,13 @@ anonymousFunctionBody : expr
                         | LCB execStat* RCB
                         ;
 
-arrayIndexExpr : expr ':' expr  #arrayIndexSliceExpr
-                 | ':' expr     #arrayIndexSliceEndExpr
-                 | expr ':'     #arrayIndexSliceBeginExpr
+arrayIndexExpr : expr COLON expr  #arrayIndexSliceExpr
+                 | COLON expr     #arrayIndexSliceEndExpr
+                 | expr COLON     #arrayIndexSliceBeginExpr
                  | exprWrapper  #arrayIndexItemExpr
                  ;
 
-assignment : expr '=' expr                       #assignElemValue
+assignment : expr ASSIGN expr                    #assignElemValue
              | assignPostIncDec                  #assignPostIncDecStat
              | assignPreIncDec                   #assignPreIncDecStat
              ;

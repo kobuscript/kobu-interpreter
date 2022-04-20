@@ -511,6 +511,10 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             topLevelExpression = false;
             var query = (Query) visit(ctx.queryExpr());
 
+            for (KobuParser.ExtractExprContext extractExprContext : ctx.extractExpr()) {
+                query.addExtractor((QueryExtractor) visit(extractExprContext));
+            }
+
             for (KobuParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
                 query.addJoin((QueryJoin) visit(joinExprContext));
             }
@@ -604,6 +608,10 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             topLevelExpression = false;
             var query = (Query) visit(ctx.queryExpr());
 
+            for (KobuParser.ExtractExprContext extractExprContext : ctx.extractExpr()) {
+                query.addExtractor((QueryExtractor) visit(extractExprContext));
+            }
+
             for (KobuParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
                 query.addJoin((QueryJoin) visit(joinExprContext));
             }
@@ -661,6 +669,10 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         if (ctx.queryExpr() != null) {
             topLevelExpression = false;
             var query = (Query) visit(ctx.queryExpr());
+
+            for (KobuParser.ExtractExprContext extractExprContext : ctx.extractExpr()) {
+                query.addExtractor((QueryExtractor) visit(extractExprContext));
+            }
 
             for (KobuParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
                 query.addJoin((QueryJoin) visit(joinExprContext));
@@ -1436,6 +1448,12 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     @Override
     public AstNode visitQueryExprArrayItemAll(KobuParser.QueryExprArrayItemAllContext ctx) {
         return new QueryArrayAllClause(getSourceCodeRef(ctx));
+    }
+
+    @Override
+    public AstNode visitExtractExpr(KobuParser.ExtractExprContext ctx) {
+        QueryClause clause = (QueryClause) visit(ctx.queryExprSegment());
+        return new QueryExtractor(moduleScope, getSourceCodeRef(ctx), clause);
     }
 
     @Override

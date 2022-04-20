@@ -60,6 +60,12 @@ public class RuleIndex {
         IndexNode node = addQueryTypeClause(evalContextProvider, analyzerContext,
                 rule.getModuleScope(), query.getTypeClause());
 
+        if (query.getExtractors() != null) {
+            for (QueryExtractor extractor : query.getExtractors()) {
+                node = addQueryExtractor(evalContextProvider, analyzerContext, node, extractor);
+            }
+        }
+
         if (query.getJoins() != null) {
             for (QueryJoin join : query.getJoins()) {
                 node = addJoin(evalContextProvider, analyzerContext, node, join);
@@ -124,6 +130,21 @@ public class RuleIndex {
 
         QueryClause clause = queryTypeClause.getQueryClause();
         IndexNode lastNode = rootNode;
+        while (clause != null) {
+            FieldIndexNode node = new FieldIndexNode(clause);
+            lastNode.addChild(node);
+            clause = clause.getNext();
+            lastNode = node;
+        }
+
+        return lastNode;
+    }
+
+    private IndexNode addQueryExtractor(EvalContextProvider evalContextProvider, AnalyzerContext analyzerContext,
+                                        IndexNode parent, QueryExtractor queryExtractor) {
+        FieldIndexNode lastNode = new FieldIndexNode(queryExtractor);
+        parent.addChild(lastNode);
+        QueryClause clause = queryExtractor.getQueryClause().getNext();
         while (clause != null) {
             FieldIndexNode node = new FieldIndexNode(clause);
             lastNode.addChild(node);

@@ -22,24 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.query;
+package dev.kobu.interpreter.error.analyzer;
 
-import dev.kobu.interpreter.ast.eval.Evaluable;
-import dev.kobu.interpreter.ast.eval.HasTypeScope;
-import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.AnalyzerError;
 
-public interface QueryClause extends Matcher, Evaluable, HasTypeScope {
+public class InvalidExtractorError extends AnalyzerError {
 
-    Type getType();
+    public InvalidExtractorError(SourceCodeRef sourceCodeRef) {
+        super(sourceCodeRef);
+    }
 
-    QueryClause getNext();
-
-    String getBind();
-
-    void setBind(String bind);
-
-    void setNext(QueryClause next);
-
-    void setExtractorMode();
-
+    @Override
+    public String getDescription() {
+        return "Expected attribute name, but got type";
+    }
 }
