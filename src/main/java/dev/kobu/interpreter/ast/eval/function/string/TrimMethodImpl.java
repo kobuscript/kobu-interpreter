@@ -43,7 +43,7 @@ public class TrimMethodImpl extends BuiltinMethod {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns a copy of the string, with leading and trailing whitespace omitted";
     }
 
 }

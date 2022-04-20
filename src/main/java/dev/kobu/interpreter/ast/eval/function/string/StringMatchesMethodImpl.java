@@ -30,6 +30,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.util.Map;
 
@@ -40,12 +41,16 @@ public class StringMatchesMethodImpl extends BuiltinMethod {
         StringValueExpr value = (StringValueExpr) object;
         StringValueExpr regex = (StringValueExpr) args.get("regex");
 
+        if (regex == null) {
+            throw new IllegalArgumentError("'regex' cannot be null", sourceCodeRef);
+        }
+
         return BooleanValueExpr.fromValue(value.getValue().matches(regex.getValue()));
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Tells whether or not this string matches the given regular expression";
     }
 
 }

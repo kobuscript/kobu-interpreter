@@ -24,39 +24,33 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.function.string;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.util.Map;
 
-public class SubstringMethodImpl extends BuiltinMethod {
+public class StringContainsMethodImpl extends BuiltinMethod {
 
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        StringValueExpr stringExpr = (StringValueExpr) object;
-        NumberValueExpr beginIndex = (NumberValueExpr) args.get("beginIndex");
-        NumberValueExpr endIndex = (NumberValueExpr) args.get("endIndex");
+        StringValueExpr thisStr = (StringValueExpr) object;
+        StringValueExpr subStr = (StringValueExpr) args.get("str");
 
-        if (beginIndex == null) {
-            throw new IllegalArgumentError("'beginIndex' cannot be null", sourceCodeRef);
+        if (subStr == null) {
+            throw new IllegalArgumentError("'subStr' cannot be null", sourceCodeRef);
         }
 
-        if (endIndex == null) {
-            return new StringValueExpr(stringExpr.getValue().substring(beginIndex.getValue().intValue()));
-        }
-
-        return new StringValueExpr(stringExpr.getValue()
-                .substring(beginIndex.getValue().intValue(), endIndex.getValue().intValue()));
+        return BooleanValueExpr.fromValue(thisStr.getValue().contains(subStr.getValue()));
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns true if and only if this string contains the specified substring.";
     }
 
 }

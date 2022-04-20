@@ -29,6 +29,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.util.Map;
 
@@ -40,12 +41,19 @@ public class StringReplaceMethodImpl extends BuiltinMethod {
         StringValueExpr regex = (StringValueExpr) args.get("regex");
         StringValueExpr replacement = (StringValueExpr) args.get("replacement");
 
+        if (regex == null) {
+            throw new IllegalArgumentError("'regex' cannot be null", sourceCodeRef);
+        }
+        if (replacement == null) {
+            throw new IllegalArgumentError("'replacement' cannot be null", sourceCodeRef);
+        }
+
         return new StringValueExpr(value.getValue().replaceAll(regex.getValue(), replacement.getValue()));
     }
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Replaces each substring of this string that matches the given regular expression with the given replacement";
     }
 
 }

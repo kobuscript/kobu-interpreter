@@ -45,7 +45,7 @@ public class CapitalizeMethodImpl extends BuiltinMethod {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Capitalize the first character of this string, and lowercase the rest";
     }
 
 }

@@ -44,7 +44,7 @@ public class LowercaseMethodImpl extends BuiltinMethod {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Converts all of the characters in this String to lower case";
     }
 
 }

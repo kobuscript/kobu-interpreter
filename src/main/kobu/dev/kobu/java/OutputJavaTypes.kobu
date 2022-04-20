@@ -28,6 +28,7 @@ import dev.kobu.java.JavaTypes
 
 fun newJavaFile(package: string): OutputJavaFile {
     return OutputJavaFile{
+        comments: [],
         package: package,
         imports: [],
         definitions: []
@@ -36,6 +37,7 @@ fun newJavaFile(package: string): OutputJavaFile {
 
 fun newJavaClass(name: string, modifiers: string[], typeParameters?: string[]): OutputJavaClass {
     return OutputJavaClass{
+        comments: [],
         name: name,
         modifiers: modifiers,
         annotations: [],
@@ -75,6 +77,12 @@ fun addAnnotation(javaDef: OutputJavaDefinition,
 fun addAnnotations(javaDef: OutputJavaDefinition,
                    annotations: OutputJavaAnnotationValue[]): void {
     javaDef.annotations.addAll(annotations)
+}
+
+fun javaComment(text: string): OutputJavaComment {
+    return OutputJavaComment{
+        text: text
+    }
 }
 
 fun javaAnnotation(package: string, name: string, fields?: (string, OutputJavaValue)[]): OutputJavaAnnotationValue {
@@ -181,6 +189,7 @@ fun javaConstructor(modifiers: string[], params: OutputJavaMethodParameter[],
                     annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
                     throws?: JavaObjectType[]): OutputJavaConstructor {
     return OutputJavaConstructor{
+        comments: [],
         typeParameters: typeParameters,
         modifiers: modifiers,
         annotations: annotations,
@@ -205,6 +214,7 @@ fun javaMethod(modifiers: string[], name: string, params: OutputJavaMethodParame
                annotations?: OutputJavaAnnotationValue[], typeParameters?: string[],
                throws?: JavaObjectType[]): OutputJavaMethod {
     return OutputJavaMethod{
+        comments: [],
         name: name,
         typeParameters: typeParameters,
         modifiers: modifiers,
@@ -271,15 +281,19 @@ type record OutputJavaArrayValue extends OutputJavaValue {
     value: OutputJavaValue[]
 }
 
+type record OutputJavaComment {
+    text: string
+}
+
 type record OutputJavaFile {
-    comment: string,
+    comments: OutputJavaComment[],
     package: string,
     imports: string[],
     definitions: OutputJavaDefinition[]
 }
 
 type record OutputJavaDefinition {
-    comment: string,
+    comments: OutputJavaComment[],
     name: string,
     annotations: OutputJavaAnnotationValue[],
     modifiers: string[],
@@ -344,7 +358,7 @@ type record OutputJavaRecordComponent {
 }
 
 type record OutputJavaConstructor {
-    comment: string,
+    comments: OutputJavaComment[],
     typeParameters: string[],
     modifiers: string[],
     annotations: OutputJavaAnnotationValue[],
@@ -353,7 +367,7 @@ type record OutputJavaConstructor {
 }
 
 type record OutputJavaMethod {
-    comment: string,
+    comments: OutputJavaComment[],
     typeParameters: string[],
     name: string,
     modifiers: string[]
@@ -364,7 +378,7 @@ type record OutputJavaMethod {
 }
 
 type record OutputJavaField {
-    comment: string,
+    comments: OutputJavaComment[],
     name: string,
     modifiers: string[],
     annotations: OutputJavaAnnotationValue[],

@@ -44,7 +44,7 @@ public class StringLengthMethodImpl extends BuiltinMethod {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Returns the length of this string";
     }
 
 }

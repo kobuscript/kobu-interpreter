@@ -33,6 +33,7 @@ import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,6 +47,10 @@ public class StringSplitMethodImpl extends BuiltinMethod {
         StringValueExpr stringExpr = (StringValueExpr) object;
         StringValueExpr regexExpr = (StringValueExpr) args.get("regex");
         NumberValueExpr limitExpr = (NumberValueExpr) args.get("limit");
+
+        if (regexExpr == null) {
+            throw new IllegalArgumentError("'regex' cannot be null", sourceCodeRef);
+        }
 
         List<String> result;
         if (limitExpr == null) {
@@ -63,7 +68,7 @@ public class StringSplitMethodImpl extends BuiltinMethod {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Splits this string around matches of the given regular expression";
     }
 
 }
