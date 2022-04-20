@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.eval.statement;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.value.BooleanTypeSymbol;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
@@ -79,13 +80,18 @@ public class ElseIfStatement implements Statement {
     }
 
     public ElseIfStatement findMatch(EvalContext context) {
-        ValueExpr condValue = condExpr.evalExpr(context);
-        if (!(condValue instanceof BooleanValueExpr)) {
-            throw new InternalInterpreterError("Expected: Boolean. Found: " + condValue.getClass().getName(),
+        ValueExpr condValueExpr = condExpr.evalExpr(context);
+        boolean condValue;
+        if (condValueExpr instanceof NullValueExpr) {
+            condValue = false;
+        } else if (condValueExpr instanceof BooleanValueExpr) {
+            condValue = ((BooleanValueExpr) condValueExpr).getValue();
+        } else {
+            throw new InternalInterpreterError("Expected: boolean. Found: " + condValueExpr.getStringValue(),
                     condExpr.getSourceCodeRef());
         }
 
-        if (((BooleanValueExpr)condValue).getValue()) {
+        if (condValue) {
             return this;
         }
 

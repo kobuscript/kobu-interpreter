@@ -233,6 +233,12 @@ ${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")}) {
 }
 |> as JavaMethodTemplate
 
+def template JavaMethodParamTemplate
+             for OutputJavaMethodParameter as param
+             join AnyTemplate[] as annTmpl of param.annotations <|
+${strJoin(annTmpl, " ")}${getParam(param)}
+|>
+
 def template JavaFieldTemplate
              for OutputJavaField as field
              join AnyTemplate[] as annTmpl of field.annotations
@@ -274,7 +280,7 @@ def template JavaArrayValueTemplate
 def template JavaArrayLiteralValueTemplate extends JavaArrayValueTemplate
              for OutputJavaArrayValue as arr
              join AnyTemplate[] as valuesTmpl of arr.value
-             when arr.value == null or arr.value.every(v => v instanceof OutputLiteralJavaValue) <|
+             when arr.value == null or arr.value.every(v => v instanceof OutputJavaLiteralValue) <|
 {${strJoin(valuesTmpl, ", ")}}
 |>
 
@@ -282,12 +288,12 @@ def template JavaSourceValueTemplate for OutputJavaSource as javaSource <|
 ${javaSource.source}
 |>
 
-def template LiteralJavaValueTemplate for OutputLiteralJavaValue as javaValue <|
+def template LiteralJavaValueTemplate for OutputJavaLiteralValue as javaValue <|
 ${javaValue.value}
 |>
 
 def template LiteralJavaStringTemplate extends LiteralJavaValueTemplate
-             for OutputLiteralJavaValue as javaValue
+             for OutputJavaLiteralValue as javaValue
              when javaValue.value instanceof string <|
 "${(javaValue.value as string).escape()}"
 |>
@@ -338,6 +344,13 @@ private fun getJavaMethodHeader(method: OutputJavaMethod): string {
 private fun getJavaFieldDecl(field: OutputJavaField): string {
     return mkString(field.modifiers, "", " ", " ") +
            field.fieldType + " " + field.name
+}
+
+private fun getParam(param: OutputJavaMethodParameter): string {
+    return ifNotBlank(param.modifier, () => param.modifier + " ") +
+           getJavaType(param.paramType) +
+           ifThenElse(param.varArg, () => "... ", () => " ") +
+           param.paramName
 }
 
 private fun getJavaType(javaType: JavaType): string {

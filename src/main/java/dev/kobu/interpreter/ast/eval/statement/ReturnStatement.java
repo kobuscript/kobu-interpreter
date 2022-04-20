@@ -95,7 +95,8 @@ public class ReturnStatement implements Statement {
             } else {
                 context.setReturnType(context.getReturnType().getCommonSuperType(expr.getType()));
             }
-        } else if (expr.getType() != null && !function.getReturnType().isAssignableFrom(expr.getType())) {
+        } else if (expr.getType() != null && expr.getType() != UnknownType.INSTANCE
+                && !function.getReturnType().isAssignableFrom(expr.getType())) {
             context.addAnalyzerError(new InvalidReturnTypeError(sourceCodeRef, function, expr.getType()));
         }
     }

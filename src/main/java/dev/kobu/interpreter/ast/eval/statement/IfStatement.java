@@ -118,16 +118,18 @@ public class IfStatement implements Statement {
 
     @Override
     public void evalStat(EvalContext context) {
-        ValueExpr condValue = condExpr.evalExpr(context);
-        if (condValue instanceof NullValueExpr) {
-            throw new NullPointerError(sourceCodeRef, condExpr.getSourceCodeRef());
-        }
-        if (!(condValue instanceof BooleanValueExpr)) {
-            throw new InternalInterpreterError("Expected: boolean. Found: " + condValue.getStringValue(),
+        ValueExpr condValueExpr = condExpr.evalExpr(context);
+        boolean condValue;
+        if (condValueExpr instanceof NullValueExpr) {
+            condValue = false;
+        } else if (condValueExpr instanceof BooleanValueExpr) {
+            condValue = ((BooleanValueExpr) condValueExpr).getValue();
+        } else {
+            throw new InternalInterpreterError("Expected: boolean. Found: " + condValueExpr.getStringValue(),
                     condExpr.getSourceCodeRef());
         }
 
-        if (((BooleanValueExpr)condValue).getValue()) {
+        if (condValue) {
             context.evalBlock(block);
         } else if (elseIf != null) {
             ElseIfStatement match = elseIf.findMatch(context);

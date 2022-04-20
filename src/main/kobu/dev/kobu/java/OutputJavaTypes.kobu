@@ -99,9 +99,87 @@ fun javaAnnotationWithValue(package: string, name: string, value: OutputJavaValu
     return javaAnnotation(package, name, [("value", value)])
 }
 
+fun javaLiteralValue(value: AnyVal): OutputJavaLiteralValue {
+    return OutputJavaLiteralValue{
+        value: value
+    }
+}
+
+fun javaSource(source: string): OutputJavaSource {
+    return OutputJavaSource{
+        source: source
+    }
+}
+
+fun javaArray(values: OutputJavaValue[]): OutputJavaArrayValue {
+    return OutputJavaArrayValue{
+        value: values
+    }
+}
+
+fun javaIntType(): JavaType {
+    return JavaIntType{}
+}
+
+fun javaCharType(): JavaType {
+    return JavaCharType{}
+}
+
+fun javaByteType(): JavaType {
+    return JavaByteType{}
+}
+
+fun javaShortType(): JavaType {
+    return JavaShortType{}
+}
+
+fun javaLongType(): JavaType {
+    return JavaLongType{}
+}
+
+fun javaFloatType(): JavaType {
+    return JavaFloatType{}
+}
+
+fun javaDoubleType(): JavaType {
+    return JavaDoubleType{}
+}
+
+fun javaBooleanType(): JavaType {
+    return JavaBooleanType{}
+}
+
+fun javaVoidType(): JavaType {
+    return JavaVoidType{}
+}
+
+fun javaObjectType(package: string, name: string, typeArgs?: JavaObjectType[], innerType?: JavaObjectType): JavaObjectType {
+    return JavaObjectType{
+        package: package,
+        name: name,
+        typeArgs: typeArgs,
+        innerType: innerType
+    }
+}
+
+fun javaParam(paramName: string, paramType: JavaType, annotations?: OutputJavaAnnotationValue[],
+              varArg?: boolean, final?: boolean): OutputJavaMethodParameter {
+    var modifier: string = null
+    if (final) {
+        modifier = "final"
+    }
+    return OutputJavaMethodParameter{
+        paramName: paramName,
+        paramType: paramType,
+        annotations: annotations,
+        varArg: varArg,
+        modifier: modifier
+    }
+}
+
 type record OutputJavaValue {}
 
-type record OutputLiteralJavaValue extends OutputJavaValue {
+type record OutputJavaLiteralValue extends OutputJavaValue {
     value: AnyVal
 }
 
