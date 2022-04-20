@@ -24,18 +24,13 @@ SOFTWARE.
 
 module dev.kobu.java.OutputJavaTypes
 
+import dev.kobu.java.JavaTypes
+
 fun newJavaFile(package: string): OutputJavaFile {
     return OutputJavaFile{
         package: package,
         imports: [],
         definitions: []
-    }
-}
-
-fun addImport(javaFile: OutputJavaFile, package: string, name: string): void {
-    var qualifiedName = package + "." + name
-    if (not javaFile.imports.contains(qualifiedName)) {
-        javaFile.imports.add(qualifiedName)
     }
 }
 
@@ -134,8 +129,8 @@ type record OutputJavaDefinition {
 }
 
 type record OutputJavaClass extends OutputJavaDefinition {
-    superType: string,
-    implements: string[],
+    superType: JavaObjectType,
+    implements: JavaObjectType[],
     constructors: OutputJavaConstructor[],
     methods: OutputJavaMethod[],
     fields: OutputJavaField[],
@@ -146,7 +141,7 @@ type record OutputJavaClass extends OutputJavaDefinition {
 }
 
 type record OutputJavaInterface extends OutputJavaDefinition {
-    superTypes: string[],
+    superTypes: JavaObjectType[],
     methods: OutputJavaMethod[],
     fields: OutputJavaField[],
     innerClasses: OutputJavaClass[],
@@ -156,7 +151,7 @@ type record OutputJavaInterface extends OutputJavaDefinition {
 }
 
 type record OutputJavaEnum extends OutputJavaDefinition {
-    implements: string[],
+    implements: JavaObjectType[],
     values: OutputJavaEnumValue[],
     constructors: OutputJavaConstructor[],
     methods: OutputJavaMethod[],
@@ -173,7 +168,7 @@ type record OutputJavaEnumValue {
 }
 
 type record OutputJavaRecord extends OutputJavaDefinition {
-    implements: string[],
+    implements: JavaObjectType[],
     components: OutputJavaRecordComponent[],
     constructors: OutputJavaConstructor[],
     methods: OutputJavaMethod[],
@@ -187,7 +182,7 @@ type record OutputJavaRecord extends OutputJavaDefinition {
 type record OutputJavaRecordComponent {
     annotations: OutputJavaAnnotationValue[],
     name: string,
-    fieldType: string
+    fieldType: JavaType
 }
 
 type record OutputJavaConstructor {
@@ -196,7 +191,7 @@ type record OutputJavaConstructor {
     modifiers: string[],
     annotations: OutputJavaAnnotationValue[],
     parameters: OutputJavaMethodParameter[],
-    throws: string[]
+    throws: JavaObjectType[]
 }
 
 type record OutputJavaMethod {
@@ -204,9 +199,9 @@ type record OutputJavaMethod {
     typeParameters: string[],
     name: string,
     modifiers: string[]
-    returnType: string,
+    returnType: JavaType,
     parameters: OutputJavaMethodParameter[],
-    throws: string[],
+    throws: JavaObjectType[],
     annotations: OutputJavaAnnotationValue[]
 }
 
@@ -215,7 +210,7 @@ type record OutputJavaField {
     name: string,
     modifiers: string[],
     annotations: OutputJavaAnnotationValue[],
-    fieldType: string,
+    fieldType: JavaType,
     value: OutputJavaValue
 }
 
@@ -232,7 +227,7 @@ type record OutputJavaAnnotationFieldValue {
 
 type record OutputJavaMethodParameter {
     paramName: string,
-    paramType: string,
+    paramType: JavaType,
     annotations: OutputJavaAnnotationValue[],
     modifier: string,
     varArg: boolean

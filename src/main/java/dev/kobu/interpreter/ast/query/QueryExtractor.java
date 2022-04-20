@@ -30,7 +30,6 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
-import dev.kobu.interpreter.error.analyzer.InvalidExtractorError;
 
 import java.util.List;
 import java.util.Map;
@@ -63,11 +62,6 @@ public class QueryExtractor implements Matcher, Evaluable {
 
     @Override
     public void analyze(EvalContext context) {
-        if (!(queryClause instanceof QueryFieldClause)) {
-            context.addAnalyzerError(new InvalidExtractorError(queryClause.getSourceCodeRef()));
-            return;
-        }
-
         queryClause.setExtractorMode();
         queryClause.setTypeScope(typeScope);
         queryClause.analyze(context);

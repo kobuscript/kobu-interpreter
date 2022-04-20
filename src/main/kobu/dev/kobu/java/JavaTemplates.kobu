@@ -25,6 +25,8 @@ SOFTWARE.
 module dev.kobu.java.JavaTemplates
 
 import dev.kobu.functions.TemplateFunctions
+import dev.kobu.functions.Comparators
+import dev.kobu.java.JavaTypes
 import dev.kobu.java.OutputJavaTypes
 
 type template JavaMethodBodyTemplate
@@ -32,8 +34,8 @@ type template JavaMethodBodyTemplate
 type template JavaMethodTemplate
 
 fun javaTemplates(): Rule[] {
-    return [JavaFileTemplate, JavaClassTemplate, JavaInterfaceTemplate, JavaEnumTemplate, JavaRecordTemplate,
-            JavaClassConstructorTemplate, JavaRecordConstructorTemplate, JavaMethodDeclTemplate,
+    return [JavaImportsAssemblerRule, JavaFileTemplate, JavaClassTemplate, JavaInterfaceTemplate, JavaEnumTemplate,
+            JavaRecordTemplate, JavaClassConstructorTemplate, JavaRecordConstructorTemplate, JavaMethodDeclTemplate,
             JavaFieldTemplate, JavaAnnotationTemplate, JavaAnnotationSingleValueTemplate,
             JavaAnnotationFieldValueTemplate, JavaArrayValueTemplate, JavaArrayLiteralValueTemplate,
             JavaSourceValueTemplate, LiteralJavaValueTemplate, LiteralJavaStringTemplate]
@@ -58,32 +60,40 @@ return null;
 
 def template JavaDefaultVoidMethodBodyTemplate extends JavaDefaultMethodBodyTemplate
              for OutputJavaMethod as method
-             when method.returnType == "void" <|
+             when method.returnType instanceof JavaVoidType <|
 
 |> as JavaMethodBodyTemplate
 
 def template JavaDefaultIntMethodBodyTemplate extends JavaDefaultMethodBodyTemplate
              for OutputJavaMethod as method
-             when method.returnType == "int" or
-                  method.returnType == "byte" or
-                  method.returnType == "short" or
-                  method.returnType == "char" <|
+             when method.returnType instanceof JavaIntType or
+                  method.returnType instanceof JavaByteType or
+                  method.returnType instanceof JavaShortType or
+                  method.returnType instanceof JavaCharType <|
 return 0;
 |> as JavaMethodBodyTemplate
 
 def template JavaDefaultFloatMethodBodyTemplate
              for OutputJavaMethod as method
-             when method.returnType == "float" <|
+             when method.returnType instanceof JavaFloatType <|
 return 0f;
 |> as JavaMethodBodyTemplate
 
 def template JavaDefaultDoubleMethodBodyTemplate
              for OutputJavaMethod as method
-             when method.returnType == "double" <|
+             when method.returnType instanceof JavaDoubleType <|
 return 0.0;
 |> as JavaMethodBodyTemplate
 
 
+def rule JavaImportsAssemblerRule
+         for OutputJavaFile as file
+         with *JavaObjectType[] as referencedTypes {
+    file.imports = referencedTypes
+        .map(t => t.package + "." + t.name)
+        .distinct()
+    file.imports.sort(stringComparator)
+}
 
 def template JavaFileTemplate
              for OutputJavaFile as file
@@ -286,7 +296,7 @@ private fun getJavaClassSignature(javaClass: OutputJavaClass): string {
     return mkString(javaClass.modifiers, "", " ", " ") +
             "class " + javaClass.name +
             mkString(javaClass.typeParameters, "<", ", ", ">") +
-            ifNotBlank(javaClass.superType, () => " extends " + javaClass.superType) +
+            ifNotNull(javaClass.superType, () => " extends " + getJavaType(javaClass.superType)) +
             mkString(javaClass.implements, " implements ", ", ", "")
 }
 
@@ -328,4 +338,34 @@ private fun getJavaMethodHeader(method: OutputJavaMethod): string {
 private fun getJavaFieldDecl(field: OutputJavaField): string {
     return mkString(field.modifiers, "", " ", " ") +
            field.fieldType + " " + field.name
+}
+
+private fun getJavaType(javaType: JavaType): string {
+    if (javaType instanceof JavaIntType) {
+        return "int"
+    } else if (javaType instanceof JavaCharType) {
+        return "char"
+    } else if (javaType instanceof JavaByteType) {
+        return "byte"
+    } else if (javaType instanceof JavaShortType) {
+        return "short"
+    } else if (javaType instanceof JavaLongType) {
+        return "long"
+    } else if (javaType instanceof JavaFloatType) {
+        return "float"
+    } else if (javaType instanceof JavaDoubleType) {
+        return "double"
+    } else if (javaType instanceof JavaBooleanType) {
+        return "boolean"
+    } else if (javaType instanceof JavaVoidType) {
+        return "void"
+    } else if (javaType instanceof JavaObjectType) {
+        var objType = javaType as JavaObjectType
+        var str = objType.name
+        str = str + mkString(objType.typeArgs, "<", ", ", ">")
+        if (objType.innerType != null) {
+            str = str + "." + getJavaType(objType.innerType)
+        }
+    }
+    return ""
 }

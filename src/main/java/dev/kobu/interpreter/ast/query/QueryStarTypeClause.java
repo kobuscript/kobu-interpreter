@@ -56,6 +56,8 @@ public class QueryStarTypeClause implements QueryClause {
 
     private boolean extractorMode;
 
+    private ValueExpr valueScope;
+
     public QueryStarTypeClause(SourceCodeRef sourceCodeRef, Type type, boolean includeSubtypes) {
         this.sourceCodeRef = sourceCodeRef;
         this.type = type;
@@ -103,8 +105,6 @@ public class QueryStarTypeClause implements QueryClause {
         if (next != null) {
             next.setTypeScope(type);
             next.analyze(context);
-        } else if (!(type instanceof RecordTypeSymbol)) {
-            context.addAnalyzerError(new InvalidQueryType(sourceCodeRef, type));
         }
     }
 
@@ -115,14 +115,16 @@ public class QueryStarTypeClause implements QueryClause {
 
     @Override
     public void setValueScope(ValueExpr valueScope) {
-
+        this.valueScope = valueScope;
     }
 
     @Override
     public List<Match> eval(Match match) {
         List<ValueExpr> result = new ArrayList<>();
         Set<Integer> idSet = new HashSet<>();
-        findMatches(idSet, result, type, match.getValue());
+
+        ValueExpr valueExpr = valueScope != null ? valueScope : match.getValue();
+        findMatches(idSet, result, type, valueExpr);
 
         List<Match> matches = new ArrayList<>();
         if (type instanceof ArrayType) {

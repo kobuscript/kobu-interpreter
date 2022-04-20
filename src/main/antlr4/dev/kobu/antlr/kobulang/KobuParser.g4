@@ -150,11 +150,11 @@ defrule : DEF DEFRULE ID ruleExtends? FOR queryExpr extractExpr* joinExpr* ( WHE
 
 ruleExtends : EXTENDS typeName ;
 
-queryExpr : ANY? type queryExprAlias? queryExprSegment? ;
+queryExpr : ANY? type queryExprAlias? ( DIV queryExprSegment )? ;
 
 queryExprAlias : AS ID ;
 
-queryExprSegment : DIV ( queryFieldExpr | queryStarTypeExpr ) queryExprAlias? queryExprSegment? ;
+queryExprSegment : ( queryFieldExpr | queryStarTypeExpr ) queryExprAlias? ( DIV queryExprSegment )? ;
 
 queryStarTypeExpr : ANY? STAR type ;
 
