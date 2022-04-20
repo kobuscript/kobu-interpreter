@@ -34,12 +34,12 @@ type template JavaMethodBodyTemplate
 type template JavaMethodTemplate
 
 fun javaTemplates(): Rule[] {
-    return [JavaImportsAssemblerRule, JavaFileTemplate, JavaClassTemplate, JavaInterfaceTemplate, JavaEnumTemplate,
-            JavaRecordTemplate, JavaClassConstructorTemplate, JavaRecordConstructorTemplate, JavaMethodDeclTemplate,
-            JavaAbstractMethodDeclTemplate, JavaInterfaceMethodDeclTemplate, JavaMethodParamTemplate, JavaFieldTemplate,
-            JavaAnnotationTemplate, JavaAnnotationSingleValueTemplate, JavaAnnotationFieldValueTemplate,
-            JavaArrayValueTemplate, JavaArrayLiteralValueTemplate, JavaSourceValueTemplate, LiteralJavaValueTemplate,
-            LiteralJavaStringTemplate]
+    return [JavaImportsAssemblerRule, JavaCommentTemplate, JavaFileTemplate, JavaClassTemplate, JavaInterfaceTemplate,
+            JavaEnumTemplate, JavaRecordTemplate, JavaClassConstructorTemplate, JavaRecordConstructorTemplate,
+            JavaMethodDeclTemplate, JavaAbstractMethodDeclTemplate, JavaInterfaceMethodDeclTemplate,
+            JavaMethodParamTemplate, JavaFieldTemplate, JavaAnnotationTemplate, JavaAnnotationSingleValueTemplate,
+            JavaAnnotationFieldValueTemplate, JavaArrayValueTemplate, JavaArrayLiteralValueTemplate,
+            JavaSourceValueTemplate, LiteralJavaValueTemplate, LiteralJavaStringTemplate]
 }
 
 fun javaMethodBodyTemplates(): Rule[] {
