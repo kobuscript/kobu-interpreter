@@ -30,6 +30,7 @@ import dev.kobu.database.index.Match;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.ContextSnapshot;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.TemplateValueExpr;
 import dev.kobu.interpreter.ast.query.QueryJoin;
@@ -61,7 +62,16 @@ public class JoinIndexNode extends TwoInputsIndexNode {
 
             var ofValueExpr = queryJoin.getOfExpr().evalExpr(left.getContext());
 
-            if (ofValueExpr instanceof RecordValueExpr) {
+            if (ofValueExpr == null || ofValueExpr instanceof NullValueExpr) {
+                if (queryJoin.getTypeClause().accumulator()) {
+                    left.merge(right
+                            .setValue(new ArrayValueExpr(
+                                        (ArrayType) queryJoin.getTypeClause().getQueryType(), new ArrayList<>()),
+                                    right.getBind()));
+                } else {
+                    dispatch(left.merge(right));
+                }
+            } else if (ofValueExpr instanceof RecordValueExpr) {
                 RecordValueExpr recordValueExpr = (RecordValueExpr) ofValueExpr;
 
                 if (((Fact)right.getValue()).getCreatorId() == recordValueExpr.getId()) {
