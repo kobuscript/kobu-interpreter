@@ -26,12 +26,16 @@ package dev.kobu.interpreter.codec.function;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.FileValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.function.NativeFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.codec.CommandRunner;
+import dev.kobu.interpreter.error.eval.BuiltinFunctionError;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 public class RunCommandFunctionImpl extends NativeFunction {
@@ -48,10 +52,17 @@ public class RunCommandFunctionImpl extends NativeFunction {
         if (commandRec == null) {
             throw new IllegalArgumentError("'command' cannot be null", sourceCodeRef);
         }
+        FileValueExpr fileExpr = (FileValueExpr) commandRec.resolveField("file");
+        if (fileExpr == null) {
+            throw new IllegalArgumentError("'command.file' cannot be null", sourceCodeRef);
+        }
 
-
-
-        return null;
+        try (InputStream in = context.getFileSystem().getInputStream(fileExpr.getFile().toPath())) {
+            return commandRunner.runCommand(getModuleScope(), context, fileExpr.getFile().getAbsolutePath(),
+                    in, commandRec, args, sourceCodeRef);
+        } catch (IOException e) {
+            throw new BuiltinFunctionError(e, sourceCodeRef);
+        }
     }
 
 }
