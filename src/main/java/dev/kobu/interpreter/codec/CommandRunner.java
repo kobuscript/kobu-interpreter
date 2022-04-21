@@ -20,34 +20,24 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
+ */
 
-module dev.kobu.java.JavaCommands
+package dev.kobu.interpreter.codec;
 
-import dev.kobu.java.OutputJavaTypes
-import dev.kobu.command.Command
+import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
-type record JavaAddImport extends Command {
-    qualifiedName: string
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+
+public interface CommandRunner {
+
+    ValueExpr runCommand(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
+                         RecordValueExpr commandRec, Map<String, ValueExpr> args,
+                         SourceCodeRef sourceCodeRef) throws IOException;
+
 }
-
-type record JavaAddOrReplaceMethod extends Command {
-    method: OutputJavaMethod,
-    content: AnyTemplate
-}
-
-type record JavaAddOrReplaceConstructor extends Command {
-    constructor: OutputJavaConstructor,
-    content: AnyTemplate
-}
-
-type record JavaAddOrReplaceField extends Command {
-    field: OutputJavaField
-}
-
-type record JavaAddOrReplaceInnerDefinition extends Command {
-    name: string,
-    content: AnyTemplate
-}
-
-//def native runJavaCommand(command: Command): void;
