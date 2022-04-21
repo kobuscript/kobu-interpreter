@@ -130,11 +130,21 @@ public class QueryFieldClause implements QueryClause {
                     } else {
                         result.add(match.setValue(value, bind));
                     }
+                } else if (extractorMode) {
+                    result.add(match.setValue(value, bind));
                 }
+            } else if (extractorMode && (valueExpr == null || valueExpr instanceof NullValueExpr)) {
+                result.add(match.setValue(valueExpr, bind));
             }
         } else {
-            if (valueExpr instanceof ArrayValueExpr) {
-                ArrayValueExpr list = (ArrayValueExpr) valueExpr;
+            ValueExpr arrayExpr = null;
+            if (valueExpr instanceof RecordValueExpr) {
+                RecordValueExpr record = (RecordValueExpr) valueExpr;
+                arrayExpr = record.resolveField(field);
+            }
+
+            if (arrayExpr instanceof ArrayValueExpr) {
+                ArrayValueExpr list = (ArrayValueExpr) arrayExpr;
                 List<ValueExpr> values = arrayItemClause.eval(match.getContext(), list);
                 for (ValueExpr value : values) {
                     if (value != null && !(value instanceof NullValueExpr)) {
@@ -145,6 +155,8 @@ public class QueryFieldClause implements QueryClause {
                         }
                     }
                 }
+            } else if (extractorMode && (arrayExpr == null || arrayExpr instanceof NullValueExpr)) {
+                result.add(match.setValue(arrayExpr, bind));
             }
         }
 
