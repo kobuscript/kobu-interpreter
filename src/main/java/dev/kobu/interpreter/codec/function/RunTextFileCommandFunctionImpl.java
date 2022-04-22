@@ -30,7 +30,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.FileValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.function.NativeFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.codec.CommandRunner;
+import dev.kobu.interpreter.codec.command.TextFileCommandRunner;
 import dev.kobu.interpreter.error.eval.BuiltinFunctionError;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
@@ -38,12 +38,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-public class RunCommandFunctionImpl extends NativeFunction {
+public class RunTextFileCommandFunctionImpl extends NativeFunction {
 
-    private final CommandRunner commandRunner;
+    private final TextFileCommandRunner textFileCommandRunner;
 
-    public RunCommandFunctionImpl(CommandRunner commandRunner) {
-        this.commandRunner = commandRunner;
+    public RunTextFileCommandFunctionImpl(TextFileCommandRunner textFileCommandRunner) {
+        this.textFileCommandRunner = textFileCommandRunner;
     }
 
     @Override
@@ -58,11 +58,13 @@ public class RunCommandFunctionImpl extends NativeFunction {
         }
 
         try (InputStream in = context.getFileSystem().getInputStream(fileExpr.getFile().toPath())) {
-            return commandRunner.runCommand(getModuleScope(), context, fileExpr.getFile().getAbsolutePath(),
+            textFileCommandRunner.runCommand(getModuleScope(), context, fileExpr.getFile().getAbsolutePath(),
                     in, commandRec, args, sourceCodeRef);
         } catch (IOException e) {
             throw new BuiltinFunctionError(e, sourceCodeRef);
         }
+
+        return null;
     }
 
 }

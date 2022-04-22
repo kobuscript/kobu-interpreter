@@ -30,7 +30,7 @@ import picocli.CommandLine;
 public class App {
 
     public static void main( String[] args ) {
-        int exitCode = new CommandLine(new EntryCommand())
+        int exitCode = new CommandLine(new EntryCliCommand())
                 .setCommandName("kobu")
                 .setCaseInsensitiveEnumValuesAllowed(true)
                 .execute(args);

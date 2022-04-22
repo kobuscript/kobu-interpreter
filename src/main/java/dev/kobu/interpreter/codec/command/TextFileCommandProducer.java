@@ -22,22 +22,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.codec;
+package dev.kobu.interpreter.codec.command;
 
-import dev.kobu.interpreter.ast.eval.ValueExpr;
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
-import dev.kobu.interpreter.ast.symbol.ModuleScope;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.List;
 
-public interface CommandRunner {
+public interface TextFileCommandProducer {
 
-    ValueExpr runCommand(ModuleScope moduleScope, EvalContext context, String filePath, InputStream in,
-                         RecordValueExpr commandRec, Map<String, ValueExpr> args,
-                         SourceCodeRef sourceCodeRef) throws IOException;
+    List<TextFileCommand> produce(InputStream in, RecordValueExpr commandRec) throws IOException;
 
 }

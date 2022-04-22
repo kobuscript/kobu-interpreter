@@ -34,7 +34,7 @@ import java.nio.file.Files;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "new", description = "Create a new project")
-public class NewCommand implements Callable<Integer> {
+public class NewCliCommand implements Callable<Integer> {
 
     @CommandLine.Parameters(index = "0", paramLabel = "GROUP_ID", description = "groupId of the project (usually, a reversed domain name)")
     String groupId;
@@ -87,7 +87,7 @@ public class NewCommand implements Callable<Integer> {
     }
 
     private String getProjectFileContents() throws IOException {
-        try (InputStream in = NewCommand.class.getResourceAsStream("/kobu-default.xml")) {
+        try (InputStream in = NewCliCommand.class.getResourceAsStream("/kobu-default.xml")) {
             String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             return content
                     .replaceAll("\\$GROUPID\\$", groupId)
@@ -97,7 +97,7 @@ public class NewCommand implements Callable<Integer> {
     }
 
     private String getDefaultEntryPointContents() throws IOException {
-        try (InputStream in = NewCommand.class.getResourceAsStream("/kobu-default-entry-point")) {
+        try (InputStream in = NewCliCommand.class.getResourceAsStream("/kobu-default-entry-point")) {
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         }
     }

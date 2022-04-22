@@ -27,7 +27,9 @@ package dev.kobu.interpreter.codec;
 import dev.kobu.interpreter.ast.eval.function.NativeFunctionId;
 import dev.kobu.interpreter.codec.function.EncodeFunctionImpl;
 import dev.kobu.interpreter.codec.function.ReadFromFileFunctionImpl;
+import dev.kobu.interpreter.codec.function.RunTextFileCommandFunctionImpl;
 import dev.kobu.interpreter.codec.function.WriteToFileFunctionImpl;
+import dev.kobu.interpreter.codec.impl.command.JavaCommandRunner;
 import dev.kobu.interpreter.module.ModuleLoader;
 
 public class CodecNativeFunctionRegistry {
@@ -58,6 +60,8 @@ public class CodecNativeFunctionRegistry {
         //java
         moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.java.JavaParser", "parseJava"),
                 new ReadFromFileFunctionImpl(InputReader::parseJava, InputReader::getJavaType));
+        moduleLoader.addNativeFunction(new NativeFunctionId("dev.kobu.java.JavaCommands", "runJavaCommand"),
+                new RunTextFileCommandFunctionImpl(new JavaCommandRunner()));
     }
 
 }

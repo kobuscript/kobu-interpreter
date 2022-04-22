@@ -24,11 +24,12 @@ SOFTWARE.
 
 package dev.kobu;
 
-import dev.kobu.config.NewCommand;
-import dev.kobu.interpreter.FormatCommand;
-import dev.kobu.interpreter.RunCommand;
+import dev.kobu.config.NewCliCommand;
+import dev.kobu.interpreter.FormatCliCommand;
+import dev.kobu.interpreter.RunCliCommand;
 import picocli.CommandLine;
 
-@CommandLine.Command(mixinStandardHelpOptions = true, subcommands = {RunCommand.class, NewCommand.class, FormatCommand.class})
-public class EntryCommand {
+@CommandLine.Command(mixinStandardHelpOptions = true,
+        subcommands = {RunCliCommand.class, NewCliCommand.class, FormatCliCommand.class})
+public class EntryCliCommand {
 }

@@ -38,7 +38,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "format", description = "Format a KOBU script")
-public class FormatCommand implements Callable<Integer> {
+public class FormatCliCommand implements Callable<Integer> {
 
     @CommandLine.Parameters(index = "0", paramLabel = "FILE", description = "Script to format")
     File file;
