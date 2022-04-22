@@ -29,7 +29,7 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.utils.RecordUtils;
 import dev.kobu.interpreter.codec.command.TextFileCommand;
 import dev.kobu.interpreter.codec.command.TextFileCommandRunner;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
@@ -58,16 +58,16 @@ public class JavaCommandRunner implements TextFileCommandRunner {
 
         List<TextFileCommand> commands;
 
-        if (commandRec.getType().isAssignableFrom((Type) moduleScope.resolve(JAVA_ADD_IMPORT))) {
-            commands = new JavaAddImportCommandProducer().produce(in, commandRec);
-        } else if (commandRec.getType().isAssignableFrom((Type) moduleScope.resolve(JAVA_ADD_OR_REPLACE_METHOD))) {
-            commands = new JavaAddOrReplaceMethodCommandProducer().produce(in, commandRec);
-        } else if (commandRec.getType().isAssignableFrom((Type) moduleScope.resolve(JAVA_ADD_OR_REPLACE_CONSTRUCTOR))) {
-            commands = new JavaAddOrReplaceConstructorCommandProducer().produce(in, commandRec);
-        } else if (commandRec.getType().isAssignableFrom((Type) moduleScope.resolve(JAVA_ADD_OR_REPLACE_FIELD))) {
-            commands = new JavaAddOrReplaceFieldCommandProducer().produce(in, commandRec);
-        } else if (commandRec.getType().isAssignableFrom((Type) moduleScope.resolve(JAVA_ADD_OR_REPLACE_INNER_DEFINITION))) {
-            commands = new JavaAddOrReplaceInnerDefinitionCommandProducer().produce(in, commandRec);
+        if (RecordUtils.recordOfType(moduleScope, commandRec, JAVA_ADD_IMPORT)) {
+            commands = new JavaAddImportCommandProducer(moduleScope).produce(in, filePath, commandRec, sourceCodeRef);
+        } else if (RecordUtils.recordOfType(moduleScope, commandRec, JAVA_ADD_OR_REPLACE_METHOD)) {
+            commands = new JavaAddOrReplaceMethodCommandProducer(moduleScope).produce(in, filePath, commandRec, sourceCodeRef);
+        } else if (RecordUtils.recordOfType(moduleScope, commandRec, JAVA_ADD_OR_REPLACE_CONSTRUCTOR)) {
+            commands = new JavaAddOrReplaceConstructorCommandProducer(moduleScope).produce(in, filePath, commandRec, sourceCodeRef);
+        } else if (RecordUtils.recordOfType(moduleScope, commandRec, JAVA_ADD_OR_REPLACE_FIELD)) {
+            commands = new JavaAddOrReplaceFieldCommandProducer(moduleScope).produce(in, filePath, commandRec, sourceCodeRef);
+        } else if (RecordUtils.recordOfType(moduleScope, commandRec, JAVA_ADD_OR_REPLACE_INNER_DEFINITION)) {
+            commands = new JavaAddOrReplaceInnerDefinitionCommandProducer(moduleScope).produce(in, filePath, commandRec, sourceCodeRef);
         } else {
             throw new IllegalArgumentError("invalid command type: " + commandRec.getType().getName(), sourceCodeRef);
         }

@@ -26,10 +26,12 @@ package dev.kobu.interpreter.codec.impl.command;
 
 import dev.kobu.antlr.java.JavaLexer;
 import dev.kobu.antlr.java.JavaParser;
-import dev.kobu.antlr.java.JavaParserBaseVisitor;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.codec.command.AddContentCommand;
 import dev.kobu.interpreter.codec.command.TextFileCommand;
-import dev.kobu.interpreter.codec.command.TextFileCommandProducer;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -38,12 +40,29 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JavaAddImportCommandProducer extends JavaParserBaseVisitor<Void> implements TextFileCommandProducer {
+public class JavaAddImportCommandProducer extends JavaCommandProducer {
 
-    private List<TextFileCommand> commands = new ArrayList<>();
+    private final List<TextFileCommand> commands = new ArrayList<>();
+
+    private String qualifiedName;
+
+    private boolean found;
+
+    private int startIndex;
+
+    public JavaAddImportCommandProducer(ModuleScope moduleScope) {
+        super(moduleScope);
+    }
 
     @Override
-    public List<TextFileCommand> produce(InputStream in, RecordValueExpr commandRec) throws IOException {
+    public List<TextFileCommand> produce(InputStream in, String filePath, RecordValueExpr commandRec,
+                                         SourceCodeRef sourceCodeRef) throws IOException {
+        StringValueExpr qualifiedNameExpr = (StringValueExpr) commandRec.resolveField("qualifiedName");
+        if (qualifiedNameExpr == null) {
+            return commands;
+        }
+        qualifiedName = qualifiedNameExpr.getValue();
+
         var input = CharStreams.fromStream(in);
         var lexer = new JavaLexer(input);
         var tokens = new CommonTokenStream(lexer);
@@ -51,7 +70,22 @@ public class JavaAddImportCommandProducer extends JavaParserBaseVisitor<Void> im
         var tree = parser.compilationUnit();
         this.visit(tree);
 
+        if (!found) {
+            commands.add(new AddContentCommand(filePath, startIndex, "\nimport " + qualifiedName + ";\n"));
+        }
+
         return commands;
     }
 
+    @Override
+    public Void visitImportDeclaration(JavaParser.ImportDeclarationContext ctx) {
+        String importQualifiedName = ctx.qualifiedName().getText();
+        if (importQualifiedName.equals(qualifiedName)) {
+            found = true;
+        } else {
+            startIndex = ctx.stop.getStopIndex() + 1;
+        }
+
+        return null;
+    }
 }

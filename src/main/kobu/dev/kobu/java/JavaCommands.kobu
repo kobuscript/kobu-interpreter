@@ -42,7 +42,8 @@ type record JavaAddOrReplaceConstructor extends Command {
 }
 
 type record JavaAddOrReplaceField extends Command {
-    field: OutputJavaField
+    field: string,
+    content: AnyTemplate
 }
 
 type record JavaAddOrReplaceInnerDefinition extends Command {

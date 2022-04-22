@@ -22,18 +22,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.codec.command;
+package dev.kobu.interpreter.ast.utils;
 
+import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
+public class RecordUtils {
 
-public interface TextFileCommandProducer {
+    public static boolean recordOfType(ModuleScope moduleScope, RecordValueExpr record, String typeName) {
+        return ((Type) moduleScope.resolve(typeName)).isAssignableFrom(record.getType());
+    }
 
-    List<TextFileCommand> produce(InputStream in, String filePath, RecordValueExpr commandRec,
-                                  SourceCodeRef sourceCodeRef) throws IOException;
+    public static ValueExpr getRequiredField(RecordValueExpr record, String field, SourceCodeRef sourceCodeRef) {
+        ValueExpr valueExpr = record.resolveField(field);
+        if (valueExpr == null) {
+            throw new IllegalArgumentError("'" + record.getType().getName() + "." + field + "' cannot be null",
+                    sourceCodeRef);
+        }
+        return valueExpr;
+    }
 
 }

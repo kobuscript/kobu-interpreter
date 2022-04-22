@@ -26,10 +26,15 @@ package dev.kobu.interpreter.codec.impl.command;
 
 import dev.kobu.antlr.java.JavaLexer;
 import dev.kobu.antlr.java.JavaParser;
-import dev.kobu.antlr.java.JavaParserBaseVisitor;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.TemplateValueExpr;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.utils.RecordUtils;
+import dev.kobu.interpreter.codec.command.AddContentCommand;
+import dev.kobu.interpreter.codec.command.RemoveContentCommand;
 import dev.kobu.interpreter.codec.command.TextFileCommand;
-import dev.kobu.interpreter.codec.command.TextFileCommandProducer;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -37,13 +42,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
-public class JavaAddOrReplaceMethodCommandProducer extends JavaParserBaseVisitor<Void> implements TextFileCommandProducer {
+public class JavaAddOrReplaceMethodCommandProducer extends JavaCommandProducer {
 
-    private List<TextFileCommand> commands = new ArrayList<>();
+    public JavaAddOrReplaceMethodCommandProducer(ModuleScope moduleScope) {
+        super(moduleScope);
+    }
 
     @Override
-    public List<TextFileCommand> produce(InputStream in, RecordValueExpr commandRec) throws IOException {
+    public List<TextFileCommand> produce(InputStream in, String filePath, RecordValueExpr commandRec,
+                                         SourceCodeRef sourceCodeRef) throws IOException {
+
+        List<TextFileCommand> commands = new ArrayList<>();
+        mainClassName = getMainClassName(filePath);
+        RecordValueExpr methodRecExpr = (RecordValueExpr) RecordUtils.getRequiredField(commandRec, "method", sourceCodeRef);
+        StringValueExpr methodNameExpr = (StringValueExpr) RecordUtils.getRequiredField(methodRecExpr, "name", sourceCodeRef);
+        TemplateValueExpr contentExpr = (TemplateValueExpr) RecordUtils.getRequiredField(commandRec, "content", sourceCodeRef);
+        String methodName = methodNameExpr.getValue();
+        List<String> paramTypes = extractParamTypes(methodRecExpr, sourceCodeRef);
+
         var input = CharStreams.fromStream(in);
         var lexer = new JavaLexer(input);
         var tokens = new CommonTokenStream(lexer);
@@ -51,7 +69,20 @@ public class JavaAddOrReplaceMethodCommandProducer extends JavaParserBaseVisitor
         var tree = parser.compilationUnit();
         this.visit(tree);
 
+        MethodRef ref = methodList.stream()
+                .filter(m -> m.name.equals(methodName) && m.paramTypes.equals(paramTypes))
+                .findFirst()
+                .orElse(null);
+
+        int startIdx;
+        if (ref != null) {
+            commands.add(new RemoveContentCommand(filePath, ref.startIdx, ref.stopIdx));
+            startIdx = ref.startIdx;
+        } else {
+            startIdx = IntStream.of(bodyStartIdx, lastFieldStopIdx, lastConstructorStopIdx, lastMethodStopIdx).max().getAsInt();
+        }
+        commands.add(new AddContentCommand(filePath, startIdx, contentExpr.getValue()));
+
         return commands;
     }
-
 }

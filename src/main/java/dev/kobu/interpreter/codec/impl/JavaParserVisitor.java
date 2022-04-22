@@ -44,25 +44,25 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     public static final String JAVA_FILE_TYPE = "JavaFile";
 
-    private static final String JAVA_INT_TYPE = "JavaIntType";
+    public static final String JAVA_INT_TYPE = "JavaIntType";
 
-    private static final String JAVA_CHAR_TYPE = "JavaCharType";
+    public static final String JAVA_CHAR_TYPE = "JavaCharType";
 
-    private static final String JAVA_BYTE_TYPE = "JavaByteType";
+    public static final String JAVA_BYTE_TYPE = "JavaByteType";
 
-    private static final String JAVA_SHORT_TYPE = "JavaShortType";
+    public static final String JAVA_SHORT_TYPE = "JavaShortType";
 
-    private static final String JAVA_LONG_TYPE = "JavaLongType";
+    public static final String JAVA_LONG_TYPE = "JavaLongType";
 
-    private static final String JAVA_FLOAT_TYPE = "JavaFloatType";
+    public static final String JAVA_FLOAT_TYPE = "JavaFloatType";
 
-    private static final String JAVA_DOUBLE_TYPE = "JavaDoubleType";
+    public static final String JAVA_DOUBLE_TYPE = "JavaDoubleType";
 
-    private static final String JAVA_BOOLEAN_TYPE = "JavaBooleanType";
+    public static final String JAVA_BOOLEAN_TYPE = "JavaBooleanType";
 
-    private static final String JAVA_VOID_TYPE = "JavaVoidType";
+    public static final String JAVA_VOID_TYPE = "JavaVoidType";
 
-    private static final String JAVA_OBJECT_TYPE = "JavaObjectType";
+    public static final String JAVA_OBJECT_TYPE = "JavaObjectType";
 
     private static final String JAVA_IMPORT = "JavaImport";
 
