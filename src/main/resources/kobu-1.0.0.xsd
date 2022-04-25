@@ -4,7 +4,6 @@
     <xs:element name="kobu-project">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="groupId" type="xs:string"/>
                 <xs:element name="name" type="xs:string"/>
                 <xs:element name="version" type="xs:decimal"/>
                 <xs:element name="sourcePaths">

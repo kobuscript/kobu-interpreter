@@ -36,9 +36,6 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(name = "new", description = "Create a new project")
 public class NewCliCommand implements Callable<Integer> {
 
-    @CommandLine.Parameters(index = "0", paramLabel = "GROUP_ID", description = "groupId of the project (usually, a reversed domain name)")
-    String groupId;
-
     @CommandLine.Parameters(index = "1", paramLabel = "PROJECT_NAME", description = "name of the project")
     String projectName;
 
@@ -90,7 +87,6 @@ public class NewCliCommand implements Callable<Integer> {
         try (InputStream in = NewCliCommand.class.getResourceAsStream("/kobu-default.xml")) {
             String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             return content
-                    .replaceAll("\\$GROUPID\\$", groupId)
                     .replaceAll("\\$NAME\\$", projectName)
                     .replaceAll("\\$VERSION\\$", version);
         }
