@@ -166,7 +166,7 @@ public class TemplateTypeSymbol extends Symbol implements Type, HasExpr {
         }
 
         if (getModuleScope().getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
-            String description = "def type " + super.getName();
+            String description = "type template " + super.getName();
             if (superType != null) {
                 description += " extends " + superType.getType().getName();
             }

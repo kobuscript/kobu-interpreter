@@ -24,8 +24,13 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol.function;
 
+import dev.kobu.interpreter.ast.eval.SymbolDocumentation;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public interface NamedFunction extends KobuFunction {
@@ -34,20 +39,32 @@ public interface NamedFunction extends KobuFunction {
 
     SourceCodeRef getSourceCodeRef();
 
-    default String getDescription() {
+    SymbolDocumentation getDocumentation(Map<String, Type> typeArgs);
+
+    default String getDescription(Map<String, Type> typeArgs) {
         StringBuilder str = new StringBuilder();
+        if (getTypeParameters() != null && !getTypeParameters().isEmpty()) {
+            str.append("<");
+            str.append(getTypeParameters().stream().map(param -> {
+                return typeArgs.containsKey(param.getAlias()) ?
+                        typeArgs.get(param.getAlias()).getName() :
+                        param.getAlias();
+            }).collect(Collectors.joining(", ")));
+            str.append(">");
+        }
         str.append('(');
         if (getParameters() != null) {
-            str.append(getParameters().stream().map(FunctionParameter::getDescription)
+            str.append(getParameters().stream().map(p -> p.getDescription(typeArgs))
                     .collect(Collectors.joining(", ")));
         }
         str.append(')');
         if (getReturnType() != null) {
-            str.append(": ").append(getReturnType().getName());
+            str.append(": ").append(getReturnType().constructFor(typeArgs).getName());
         } else {
             str.append(": void");
         }
 
         return str.toString();
     }
+
 }

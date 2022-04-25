@@ -28,6 +28,7 @@ import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class FunctionParameter {
@@ -73,12 +74,12 @@ public class FunctionParameter {
         return optional;
     }
 
-    public String getDescription() {
+    public String getDescription(Map<String, Type> typeArgs) {
         String str = name;
         if (optional) {
             str += "?";
         }
-        str += ": " + (type != null ? type.getName() : BuiltinScope.ANY_TYPE.getName());
+        str += ": " + (type != null ? type.constructFor(typeArgs).getName() : BuiltinScope.ANY_TYPE.getName());
         return str;
     }
 

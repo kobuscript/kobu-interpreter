@@ -46,7 +46,7 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasEx
 
     private Type returnType;
 
-    private final SymbolDocumentation documentation;
+    private final String docText;
 
     private FunctionType type;
 
@@ -58,8 +58,7 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasEx
         this.functionImpl = functionImpl;
         this.functionImpl.setFuncDef(this);
         this.functionImpl.setModuleScope(moduleScope);
-        this.documentation = new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.FUNCTION,
-                getName() + getDescription(), docText);
+        this.docText = docText;
     }
 
     @Override
@@ -112,7 +111,12 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasEx
 
     @Override
     public SymbolDocumentation getDocumentation() {
-        return documentation;
+        return getDocumentation(new HashMap<>());
     }
 
+    @Override
+    public SymbolDocumentation getDocumentation(Map<String, Type> typeArgs) {
+        return new SymbolDocumentation(getModuleScope().getModuleId(), SymbolTypeEnum.FUNCTION,
+                getName() + getDescription(typeArgs), docText);
+    }
 }

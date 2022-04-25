@@ -32,6 +32,8 @@ import dev.kobu.interpreter.ast.eval.expr.value.FunctionRefValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.FunctionType;
+import dev.kobu.interpreter.ast.symbol.function.FunctionWrapperDocumentationSource;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.HasTypeParameters;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 import dev.kobu.interpreter.ast.symbol.generics.TypeArgs;
@@ -108,12 +110,13 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
             if (function != null) {
                 resolvedTypeArgs.putAll(function.providedTypeArguments());
             }
-            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && function instanceof BuiltinFunctionSymbol) {
+            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && function instanceof NamedFunction) {
                 int startOffset = sourceCodeRef.getStartOffset();
                 if (functionRefExpr instanceof FieldAccessExpr) {
                     startOffset = ((FieldAccessExpr)functionRefExpr).getRightExpr().getSourceCodeRef().getStartOffset();
                 }
-                moduleScope.registerDocumentationSource(startOffset, (Symbol) function);
+                moduleScope.registerDocumentationSource(startOffset,
+                        new FunctionWrapperDocumentationSource((NamedFunction) function, resolvedTypeArgs));
             }
         }
 

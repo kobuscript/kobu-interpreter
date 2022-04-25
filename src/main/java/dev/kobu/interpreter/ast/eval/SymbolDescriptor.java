@@ -27,6 +27,7 @@ package dev.kobu.interpreter.ast.eval;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 public class SymbolDescriptor {
@@ -59,7 +60,7 @@ public class SymbolDescriptor {
         this.label = name;
         if (symbol instanceof NamedFunction) {
             this.type = SymbolTypeEnum.FUNCTION;
-            this.description = ((NamedFunction)symbol).getDescription();
+            this.description = ((NamedFunction)symbol).getDescription(new HashMap<>());
             if (symbol.getSourceCodeRef() != null) {
                 this.metadata = symbol.getSourceCodeRef().getModuleId();
             }
@@ -106,7 +107,7 @@ public class SymbolDescriptor {
         this.type = SymbolTypeEnum.FUNCTION;
         this.name = namedFunction.getName();
         this.label = name;
-        this.description = namedFunction.getDescription();
+        this.description = namedFunction.getDescription(new HashMap<>());
     }
 
     public SymbolDescriptor(SymbolTypeEnum type, String name, String description, String metadata) {

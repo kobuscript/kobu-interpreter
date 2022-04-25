@@ -45,8 +45,6 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
 
     private Type returnType;
 
-    private SymbolDocumentation symbolDocumentation;
-
     private FunctionType type;
 
     private final Map<String, Type> typeArgsMap;
@@ -136,17 +134,7 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
 
     @Override
     public SymbolDocumentation getDocumentation() {
-        if (symbolDocumentation == null) {
-            String description = getName() + getDescription();
-            if (enclosingType != null) {
-                this.symbolDocumentation = new SymbolDocumentation(BuiltinScope.MODULE_ID, SymbolTypeEnum.FUNCTION,
-                        description, functionImpl.getDocumentation(), enclosingType.getName());
-            } else {
-                this.symbolDocumentation = new SymbolDocumentation(BuiltinScope.MODULE_ID, SymbolTypeEnum.FUNCTION,
-                        description, functionImpl.getDocumentation());
-            }
-        }
-        return symbolDocumentation;
+        return getDocumentation(new HashMap<>());
     }
 
     public void setReturnType(Type returnType) {
@@ -163,4 +151,15 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
                 returnType);
     }
 
+    @Override
+    public SymbolDocumentation getDocumentation(Map<String, Type> typeArgs) {
+        String description = getName() + getDescription(typeArgs);
+        if (enclosingType != null) {
+            return new SymbolDocumentation(BuiltinScope.MODULE_ID, SymbolTypeEnum.FUNCTION,
+                    description, functionImpl.getDocumentation(), enclosingType.getName());
+        } else {
+            return new SymbolDocumentation(BuiltinScope.MODULE_ID, SymbolTypeEnum.FUNCTION,
+                    description, functionImpl.getDocumentation());
+        }
+    }
 }

@@ -397,7 +397,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
         }
 
         if (getModuleScope().getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
-            String description = "def type " + super.getName();
+            String description = "type record " + super.getName();
             if (superType != null) {
                 description += " extends " + superType.getType().getName();
             }

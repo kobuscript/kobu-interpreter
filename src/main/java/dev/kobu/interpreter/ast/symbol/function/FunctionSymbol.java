@@ -54,8 +54,6 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
 
     private Collection<SymbolDescriptor> symbolsModule;
 
-    private SymbolDocumentation documentation;
-
     private FunctionType type;
 
     private List<TypeParameter> typeParameters;
@@ -187,11 +185,6 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
             analyzerContext.getErrorScope().addError(new FunctionMissingReturnStatError(closeBlockSourceRef));
         }
 
-        if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
-            String description = getName() + getDescription();
-            documentation = new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.FUNCTION, description, docText);
-        }
-
         context.popBranch();
     }
 
@@ -219,6 +212,13 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
 
     @Override
     public SymbolDocumentation getDocumentation() {
-        return documentation;
+        return getDocumentation(new HashMap<>());
     }
+
+    @Override
+    public SymbolDocumentation getDocumentation(Map<String, Type> typeArgs) {
+        String description = getName() + getDescription(typeArgs);
+        return new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.FUNCTION, description, docText);
+    }
+
 }

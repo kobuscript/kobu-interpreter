@@ -87,7 +87,8 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope, Und
         if (rightExpr instanceof HasTypeScope) {
             ((HasTypeScope)rightExpr).setTypeScope(typeRef);
         } else {
-            context.addAnalyzerError(new InvalidExpressionError(rightExpr.getSourceCodeRef()));
+            context.addAnalyzerError(new InvalidExpressionError(
+                    rightExpr != null ? rightExpr.getSourceCodeRef() : sourceCodeRef));
             this.type = UnknownType.INSTANCE;
             return;
         }
