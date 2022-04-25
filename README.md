@@ -3,7 +3,7 @@ kobu-interpreter
 
 ![KOBU logo](assets/kobu-logo.png)
 
-KOBU is a domain-specific programming language for constructing source code generators.
+Kobu is a domain-specific programming language for constructing source code generators.
 
 Features
 -----------

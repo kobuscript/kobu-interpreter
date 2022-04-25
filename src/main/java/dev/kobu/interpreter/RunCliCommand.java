@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "run", description = "Run a KOBU script")
+@CommandLine.Command(name = "run", description = "Run a kobu script")
 public class RunCliCommand implements Callable<Integer> {
 
     @CommandLine.Parameters(index = "0", paramLabel = "FILE", description = "Script to run")

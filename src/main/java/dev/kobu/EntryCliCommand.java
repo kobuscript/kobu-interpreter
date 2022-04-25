@@ -29,7 +29,23 @@ import dev.kobu.interpreter.FormatCliCommand;
 import dev.kobu.interpreter.RunCliCommand;
 import picocli.CommandLine;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
 @CommandLine.Command(mixinStandardHelpOptions = true,
-        subcommands = {RunCliCommand.class, NewCliCommand.class, FormatCliCommand.class})
+        subcommands = {RunCliCommand.class, NewCliCommand.class, FormatCliCommand.class},
+        versionProvider = EntryCliCommand.KobuVersionProvider.class)
 public class EntryCliCommand {
+
+    public static class KobuVersionProvider implements CommandLine.IVersionProvider {
+
+        @Override
+        public String[] getVersion() throws Exception {
+            try (InputStream in = EntryCliCommand.class.getResourceAsStream("/version.txt")) {
+                return new String[]{"kobu-interpreter " + new String(in.readAllBytes(), StandardCharsets.UTF_8)};
+            }
+        }
+
+    }
+
 }

@@ -11,6 +11,9 @@
     },
     {
       "pattern": "kobu-default-entry-point$"
+    },
+    {
+      "pattern": "version.txt"
     }
   ]
 }

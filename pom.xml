@@ -5,7 +5,7 @@
 
   <groupId>dev.kobu</groupId>
   <artifactId>kobu-interpreter</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.5.0-SNAPSHOT</version>
 
   <name>kobu-interpreter</name>
 
@@ -108,6 +108,24 @@
             <goals>
               <goal>antlr4</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-help-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>generate-version-file</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>evaluate</goal>
+            </goals>
+            <configuration>
+              <expression>project.version</expression>
+              <output>${project.build.directory}/classes/version.txt</output>
+            </configuration>
           </execution>
         </executions>
       </plugin>
