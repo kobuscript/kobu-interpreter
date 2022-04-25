@@ -66,6 +66,9 @@ public class SymbolDescriptor {
         } else if (symbol instanceof VariableSymbol) {
             this.type = SymbolTypeEnum.VARIABLE;
             this.metadata = ((VariableSymbol) symbol).getType().getName();
+        } else if (symbol instanceof ConstantSymbol) {
+            this.type = SymbolTypeEnum.VARIABLE;
+            this.metadata = ((ConstantSymbol) symbol).getType().getName();
         } else if (symbol instanceof ModuleRefSymbol) {
             this.name = ((ModuleRefSymbol)symbol).getAlias();
             this.type = SymbolTypeEnum.MODULE_REF;

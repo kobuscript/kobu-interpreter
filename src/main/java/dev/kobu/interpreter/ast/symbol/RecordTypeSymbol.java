@@ -112,7 +112,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
                 }
             });
 
-            recordType = superType != null ? superType.getType() : null;
+            recordType = recordType.superType != null ? recordType.superType.getType() : null;
         }
 
 
