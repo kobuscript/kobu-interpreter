@@ -33,22 +33,25 @@ import java.util.stream.Collectors;
 public class SymbolDescriptorUtils {
 
     private static final List<SymbolDescriptor> globalKeywords = List.of(
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "def", "", "define a new type or rule"),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "fun", "", "define a new function")
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "type", "", "define a new record or template type"),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "def", "", "define a new rule"),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "fun", "", "define a new function"),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "const", "", "define a new constant"),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "private", "", "define a new private function or constant")
     );
 
     private static final List<SymbolDescriptor> defKeywords = List.of(
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "type", "", "define a new record type"),
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "rule", "", "define a new rule"),
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "template", "", " define a new template rule"),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "file", "", "define a new file rule")
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "action", "", "define a new action rule")
     );
 
     private static final List<SymbolDescriptor> statKeywords = List.of(
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "if", "", ""),
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "for", "", ""),
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "while", "", ""),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "var", "", "")
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "var", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "const", "", "")
     );
 
     public static final SymbolDescriptor voidKeyword = new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "void", "", "");
