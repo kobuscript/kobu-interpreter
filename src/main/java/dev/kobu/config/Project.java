@@ -30,8 +30,6 @@ import java.util.List;
 
 public class Project {
 
-    private String groupId;
-
     private String name;
 
     private String version;
@@ -47,14 +45,6 @@ public class Project {
     private KobuDirectory projectDirectory;
 
     private List<KobuDirectory> srcDirs;
-
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
 
     public String getName() {
         return name;

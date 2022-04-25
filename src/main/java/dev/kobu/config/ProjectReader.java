@@ -81,7 +81,6 @@ public class ProjectReader {
         doc.getDocumentElement().normalize();
 
         Project project = new Project();
-        project.setGroupId(getRequiredField(doc.getDocumentElement(), "groupId", sourceCodeRef));
         project.setName(getRequiredField(doc.getDocumentElement(), "name", sourceCodeRef));
         project.setVersion(getRequiredField(doc.getDocumentElement(), "version", sourceCodeRef));
         project.setRepositoryPath(getField(doc.getDocumentElement(), "repositoryPath", sourceCodeRef));
