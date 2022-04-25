@@ -137,7 +137,7 @@ public class BuiltinFunctionSymbol extends Symbol implements NamedFunction {
     @Override
     public SymbolDocumentation getDocumentation() {
         if (symbolDocumentation == null) {
-            String description = getName() + functionImpl.getFuncDef().getDescription();
+            String description = getName() + getDescription();
             if (enclosingType != null) {
                 this.symbolDocumentation = new SymbolDocumentation(BuiltinScope.MODULE_ID, SymbolTypeEnum.FUNCTION,
                         description, functionImpl.getDocumentation(), enclosingType.getName());

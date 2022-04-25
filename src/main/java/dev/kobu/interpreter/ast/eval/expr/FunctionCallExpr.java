@@ -109,7 +109,11 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
                 resolvedTypeArgs.putAll(function.providedTypeArguments());
             }
             if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && function instanceof BuiltinFunctionSymbol) {
-                moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) function);
+                int startOffset = sourceCodeRef.getStartOffset();
+                if (functionRefExpr instanceof FieldAccessExpr) {
+                    startOffset = ((FieldAccessExpr)functionRefExpr).getRightExpr().getSourceCodeRef().getStartOffset();
+                }
+                moduleScope.registerDocumentationSource(startOffset, (Symbol) function);
             }
         }
 
