@@ -343,7 +343,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             symbols.addAll(getExternalSymbols(moduleScope, externalModules,
                     SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE,
                     SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE,
-                    SymbolTypeEnum.TYPE));
+                    SymbolTypeEnum.TYPE, SymbolTypeEnum.VARIABLE));
         }
         return symbols;
     }

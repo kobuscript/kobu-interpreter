@@ -1031,7 +1031,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         Expr refExpr = (Expr) visit(ctx.expr());
         topLevelExpression = exprStatus;
         FunctionCallExpr functionCallExpr = new FunctionCallExpr(getSourceCodeRef(ctx),
-                refExpr, args);
+                moduleScope, refExpr, args);
         if (ctx.typeArgs() != null) {
             List<Type> types = new ArrayList<>();
             var typeArgCtx = ctx.typeArgs().typeArg();

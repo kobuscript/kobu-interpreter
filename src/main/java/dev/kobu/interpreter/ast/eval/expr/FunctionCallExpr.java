@@ -26,13 +26,11 @@ package dev.kobu.interpreter.ast.eval.expr;
 
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.expr.value.AnonymousFunctionValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.FunctionRefValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.symbol.ModuleRefSymbol;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
-import dev.kobu.interpreter.ast.symbol.UnknownType;
+import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.FunctionType;
 import dev.kobu.interpreter.ast.symbol.generics.HasTypeParameters;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
@@ -50,6 +48,8 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
 
     private final SourceCodeRef sourceCodeRef;
 
+    private final ModuleScope moduleScope;
+
     private final Expr functionRefExpr;
 
     private final List<FunctionArgExpr> args;
@@ -61,8 +61,9 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
     private TypeArgs typeArgs;
 
     public FunctionCallExpr(SourceCodeRef sourceCodeRef,
-                            Expr functionRefExpr, List<FunctionArgExpr> args) {
+                            ModuleScope moduleScope, Expr functionRefExpr, List<FunctionArgExpr> args) {
         this.sourceCodeRef = sourceCodeRef;
+        this.moduleScope = moduleScope;
         this.functionRefExpr = functionRefExpr;
         this.args = args;
     }
@@ -107,9 +108,9 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
             if (function != null) {
                 resolvedTypeArgs.putAll(function.providedTypeArguments());
             }
-//            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && function instanceof BuiltinFunctionSymbol) {
-//                moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) function);
-//            }
+            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && function instanceof BuiltinFunctionSymbol) {
+                moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), (Symbol) function);
+            }
         }
 
         this.type = analyzeCall(context, (FunctionType) functionRefExpr.getType());
