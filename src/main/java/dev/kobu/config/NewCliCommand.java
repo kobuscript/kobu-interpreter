@@ -36,10 +36,10 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(name = "new", description = "Create a new project")
 public class NewCliCommand implements Callable<Integer> {
 
-    @CommandLine.Parameters(index = "1", paramLabel = "PROJECT_NAME", description = "name of the project")
+    @CommandLine.Parameters(index = "0", paramLabel = "PROJECT_NAME", description = "name of the project")
     String projectName;
 
-    @CommandLine.Parameters(index = "2", paramLabel = "VERSION", description = "version of the project", defaultValue = "0.1")
+    @CommandLine.Parameters(index = "1", paramLabel = "VERSION", description = "version of the project", defaultValue = "0.1")
     String version;
 
     @Override
