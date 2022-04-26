@@ -127,6 +127,26 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
+    public AstNode visitInvalidType(KobuParser.InvalidTypeContext ctx) {
+        context.getErrorScope().addError(new InvalidTypeDefinitionError(getSourceCodeRef(ctx.TYPE())));
+        if (moduleLoader.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && ctx.elem != null) {
+            //add a reference element for auto-completion service
+            moduleScope.registerAutoCompletionSource(ctx.elem.getStartIndex(), new AutoCompletionSource() {
+                @Override
+                public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                    return SymbolDescriptorUtils.getTypeKeywords();
+                }
+
+                @Override
+                public boolean hasOwnCompletionScope() {
+                    return true;
+                }
+            });
+        }
+        return null;
+    }
+
+    @Override
     public AstNode visitTypetemplate(KobuParser.TypetemplateContext ctx) {
         if (ctx.ID() == null) {
             return null;
@@ -1652,11 +1672,11 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             if (nodeType instanceof RecordTypeSymbol) {
                 RecordTypeSymbol recordType = (RecordTypeSymbol) nodeType;
                 if (recordType.getTypeParameters() != null && !recordType.getTypeParameters().isEmpty()) {
-                    context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
+                    context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx),
                             recordType.getTypeParameters().size(), 0));
                 }
             } else if (nodeType instanceof RecordTypeRefTypeSymbol) {
-                context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx.typeArgs()),
+                context.getErrorScope().addError(new InvalidTypeArgsError(getSourceCodeRef(ctx),
                         1, 0));
             }
             return nodeType;

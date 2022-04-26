@@ -46,6 +46,11 @@ public class SymbolDescriptorUtils {
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "action", "", "define a new action rule")
     );
 
+    private static final List<SymbolDescriptor> typeKeywords = List.of(
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "record", "", "define a new record type"),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "template", "", "define a new template type")
+    );
+
     private static final List<SymbolDescriptor> statKeywords = List.of(
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "if", "", ""),
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "for", "", ""),
@@ -62,6 +67,10 @@ public class SymbolDescriptorUtils {
 
     public static List<SymbolDescriptor> getDefKeywords() {
         return defKeywords;
+    }
+
+    public static List<SymbolDescriptor> getTypeKeywords() {
+        return typeKeywords;
     }
 
     public static List<SymbolDescriptor> getGlobalKeywords() {

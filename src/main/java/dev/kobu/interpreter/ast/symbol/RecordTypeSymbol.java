@@ -68,7 +68,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     public RecordTypeSymbol(RecordTypeSymbol recordType, List<Type> typeArgs) {
-        super(recordType.getModuleScope(), recordType.getSourceCodeRef(), recordType.getName(), false);
+        super(recordType.getModuleScope(), recordType.getSourceCodeRef(), recordType.getNameInModule(), false);
         this.originalType = recordType;
         this.docText = recordType.docText;
         this.typeParameters = recordType.typeParameters;
@@ -251,9 +251,17 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     private String getTypeParametersDescription() {
-        if (typeParameters != null) {
+        if (typeArgs != null) {
             return "<" +
-                    typeParameters.stream().map(TypeParameter::getAlias).collect(Collectors.joining(", ")) +
+                    typeArgs.stream()
+                            .map(Type::getName)
+                            .collect(Collectors.joining(", ")) +
+                    ">";
+        } else if (typeParameters != null) {
+            return "<" +
+                    typeParameters.stream()
+                            .map(TypeParameter::getAlias)
+                            .collect(Collectors.joining(", ")) +
                     ">";
         }
         return "";

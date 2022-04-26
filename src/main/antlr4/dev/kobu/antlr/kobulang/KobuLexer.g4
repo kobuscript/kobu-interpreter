@@ -144,7 +144,8 @@ mode TYPE_MODE;
 
 TYPE_RECORD : 'record' -> popMode ;
 TYPE_TEMPLATE : 'template' -> popMode ;
-TYPEWS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
+TYPE_BREAK : NEW_LINE -> popMode ;
+TYPEWS : [ \t\r]+ -> channel(WSCHANNEL) ;
 INVALID_TYPE : ~[ \t\r\n]+ -> popMode ;
 
 mode DEF_MODE;

@@ -88,7 +88,8 @@ stat : typerecord
        ;
 
 invalidDef : DEF elem=( INVALID_DEF | DEF_BREAK ) ;
-invalidType : TYPE INVALID_TYPE {notifyErrorListenersPrevToken("'record' or 'template' expected");} ;
+
+invalidType : TYPE elem=( INVALID_TYPE | TYPE_BREAK ) ;
 
 invalidStat : ID {notifyErrorListenersPrevToken("'type', 'def' or 'fun' expected");} ;
 

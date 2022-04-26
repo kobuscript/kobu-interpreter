@@ -27,14 +27,14 @@ package dev.kobu.interpreter.error.analyzer;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.AnalyzerError;
 
-public class InvalidDefinitionError extends AnalyzerError {
+public class InvalidTypeDefinitionError extends AnalyzerError {
 
-    public InvalidDefinitionError(SourceCodeRef sourceCodeRef) {
+    public InvalidTypeDefinitionError(SourceCodeRef sourceCodeRef) {
         super(sourceCodeRef);
     }
 
     @Override
     public String getDescription() {
-        return "'template', 'rule' or 'action' expected";
+        return "'record' or 'template' expected";
     }
 }
