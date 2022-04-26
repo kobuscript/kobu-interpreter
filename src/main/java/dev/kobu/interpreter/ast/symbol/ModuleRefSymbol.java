@@ -90,7 +90,7 @@ public class ModuleRefSymbol extends Symbol implements Type {
     @Override
     public SourceCodeRef getFieldRef(String name) {
         var symbol = moduleScopeRef.resolveLocal(name);
-        if (symbol instanceof RuleSymbol) {
+        if (symbol != null) {
             return symbol.getSourceCodeRef();
         }
         return null;

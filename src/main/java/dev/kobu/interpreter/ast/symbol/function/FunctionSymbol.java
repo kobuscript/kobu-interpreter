@@ -152,7 +152,7 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
                     SymbolTypeEnum.MODULE_REF,
                     SymbolTypeEnum.RULE,
                     SymbolTypeEnum.TEMPLATE,
-                    SymbolTypeEnum.FILE,
+                    SymbolTypeEnum.ACTION,
                     SymbolTypeEnum.KEYWORD);
         }
 

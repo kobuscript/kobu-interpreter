@@ -55,9 +55,9 @@ public class RecordTest extends AstTestBase {
         ));
         recType.analyze(analyzerContext, evalContextProvider);
 
-        var myRecVar = var(module, "myRec", recordConstructor(recType,
-                recordField("attr1", numberVal(1)),
-                recordField("attr2", stringVal("name"))));
+        var myRecVar = var(module, "myRec", recordConstructor(module, recType,
+                recordField(recType,"attr1", numberVal(1)),
+                recordField(recType, "attr2", stringVal("name"))));
         var attr1Var = var(module, "attr1", fieldAccess(ref(module, "myRec"), ref(module, "attr1")));
         var attr2Var = var(module, "attr2", fieldAccess(ref(module, "myRec"), ref(module, "attr2")));
         analyze(module, block(myRecVar, attr1Var, attr2Var));
@@ -80,9 +80,9 @@ public class RecordTest extends AstTestBase {
         recType.analyze(analyzerContext, evalContextProvider);
         recType2.analyze(analyzerContext, evalContextProvider);
 
-        var myRec2Var = var(module, "myRec2", recordConstructor(recType2,
-                recordField("rec", recordConstructor(recType,
-                        recordField("attr1", numberVal(1))
+        var myRec2Var = var(module, "myRec2", recordConstructor(module, recType2,
+                recordField(recType2, "rec", recordConstructor(module, recType,
+                        recordField(recType, "attr1", numberVal(1))
                 )))
         );
         var myRecVar = var(module, "myRec", fieldAccess(ref(module, "myRec2"), ref(module, "rec")));
@@ -121,10 +121,10 @@ public class RecordTest extends AstTestBase {
         recType.analyze(analyzerContext, evalContextProvider);
         recType2.analyze(analyzerContext, evalContextProvider);
 
-        var myRecVar = var(module, "myRec", recordConstructor(recType2,
-                recordField("attr1", numberVal(1)),
-                recordField("attr2", stringVal("name")),
-                recordField("attr3", booleanVal(true))
+        var myRecVar = var(module, "myRec", recordConstructor(module, recType2,
+                recordField(recType2,"attr1", numberVal(1)),
+                recordField(recType2, "attr2", stringVal("name")),
+                recordField(recType2, "attr3", booleanVal(true))
         ));
         var attr1Var = var(module, "attr1", fieldAccess(ref(module, "myRec"), ref(module, "attr1")));
         var attr2Var = var(module, "attr2", fieldAccess(ref(module, "myRec"), ref(module, "attr2")));
@@ -150,8 +150,8 @@ public class RecordTest extends AstTestBase {
         recType.analyze(analyzerContext, evalContextProvider);
         recType2.analyze(analyzerContext, evalContextProvider);
 
-        RecordFieldExpr attr2 = recordField("attr2", booleanVal(true));
-        var recVar = var(module, "rec", recordConstructor(recType2,
+        RecordFieldExpr attr2 = recordField(recType2, "attr2", booleanVal(true));
+        var recVar = var(module, "rec", recordConstructor(module, recType2,
                 attr2));
         analyze(module, block(recVar));
         assertErrors(new InvalidRecordFieldTypeError(attr2.getSourceCodeRef(), recType2, "attr2", booleanType()));
@@ -170,8 +170,8 @@ public class RecordTest extends AstTestBase {
         recType.analyze(analyzerContext, evalContextProvider);
         recType2.analyze(analyzerContext, evalContextProvider);
 
-        RecordFieldExpr attr = recordField("undef", booleanVal(true));
-        var recVar = var(module, "rec", recordConstructor(recType2,
+        RecordFieldExpr attr = recordField(recType2, "undef", booleanVal(true));
+        var recVar = var(module, "rec", recordConstructor(module, recType2,
                 attr));
         analyze(module, block(recVar));
         assertErrors(new InvalidRecordFieldError(attr.getSourceCodeRef(), recType2, "undef"));
@@ -234,8 +234,8 @@ public class RecordTest extends AstTestBase {
         recType.analyze(analyzerContext, evalContextProvider);
         recType2.analyze(analyzerContext, evalContextProvider);
 
-        var recVar = var(module, "rec", recordConstructor(recType2,
-                recordField("attr2", stringVal(""))));
+        var recVar = var(module, "rec", recordConstructor(module, recType2,
+                recordField(recType2, "attr2", stringVal(""))));
         var assign1 = assign(fieldAccess(ref(module, "rec"), ref(module, "attr1")),
                 numberVal(12));
         var assign2 = assign(fieldAccess(ref(module, "rec"), ref(module, "attr3")),
@@ -265,8 +265,8 @@ public class RecordTest extends AstTestBase {
         recType.analyze(analyzerContext, evalContextProvider);
         recType2.analyze(analyzerContext, evalContextProvider);
 
-        var recVar = var(module, "rec", recordConstructor(recType2,
-                recordField("attr2", stringVal(""))));
+        var recVar = var(module, "rec", recordConstructor(module, recType2,
+                recordField(recType2, "attr2", stringVal(""))));
         NumberValueExpr numberVal = numberVal(12);
         var assign1 = assign(fieldAccess(ref(module, "rec"), ref(module, "attr2")),
                 numberVal);
@@ -287,8 +287,8 @@ public class RecordTest extends AstTestBase {
         recType.analyze(analyzerContext, evalContextProvider);
         recType2.analyze(analyzerContext, evalContextProvider);
 
-        var recVar = var(module, "rec", recordConstructor(recType2,
-                recordField("attr2", stringVal(""))));
+        var recVar = var(module, "rec", recordConstructor(module, recType2,
+                recordField(recType2, "attr2", stringVal(""))));
         NumberValueExpr numberVal = numberVal(12);
         RefExpr undefRef = ref(module, "undef");
         var assign1 = assign(fieldAccess(ref(module, "rec"), undefRef),
@@ -306,9 +306,9 @@ public class RecordTest extends AstTestBase {
         ), stringType());
         recType.analyze(analyzerContext, evalContextProvider);
 
-        var recVar = var(module, "rec", recordConstructor(recType,
-                recordField("attr1", numberVal(10)),
-                recordField("anotherAttr", stringVal("str1"))));
+        var recVar = var(module, "rec", recordConstructor(module, recType,
+                recordField(recType, "attr1", numberVal(10)),
+                recordField(recType, "anotherAttr", stringVal("str1"))));
         var assign1 = assign(fieldAccess(ref(module, "rec"), ref(module, "attr1")),
                 numberVal(42));
         var assign2 = assign(fieldAccess(ref(module, "rec"), ref(module, "extraField")),
@@ -317,10 +317,10 @@ public class RecordTest extends AstTestBase {
         analyze(module, block(recVar, assign1, assign2, extraVar));
         var evalContext = eval(module, block(recVar, assign1, assign2, extraVar));
         assertNoErrors();
-        assertVar(evalContext, recVar.getName(), recType, record(recordConstructor(recType,
-                recordField("attr1", numberVal(42)),
-                recordField("anotherAttr", stringVal("str1")),
-                recordField("extraField", stringVal("str2"))), evalContext));
+        assertVar(evalContext, recVar.getName(), recType, record(recordConstructor(module, recType,
+                recordField(recType, "attr1", numberVal(42)),
+                recordField(recType, "anotherAttr", stringVal("str1")),
+                recordField(recType, "extraField", stringVal("str2"))), evalContext));
         assertVar(evalContext, extraVar.getName(), stringType(), stringVal("str2"));
     }
 
@@ -333,9 +333,9 @@ public class RecordTest extends AstTestBase {
         ), stringType());
         recType.analyze(analyzerContext, evalContextProvider);
 
-        var recVar = var(module, "rec", recordConstructor(recType,
-                recordField("attr1", numberVal(10)),
-                recordField("anotherAttr", stringVal("str1"))));
+        var recVar = var(module, "rec", recordConstructor(module, recType,
+                recordField(recType, "attr1", numberVal(10)),
+                recordField(recType, "anotherAttr", stringVal("str1"))));
         NumberValueExpr numberVal = numberVal(2);
         var assign = assign(fieldAccess(ref(module, "rec"), ref(module, "extraField")),
                 numberVal);
@@ -354,9 +354,9 @@ public class RecordTest extends AstTestBase {
         recType.analyze(analyzerContext, evalContextProvider);
         recType2.analyze(analyzerContext, evalContextProvider);
 
-        var recVar = var(module, "rec", recordConstructor(recType2,
-                recordField("attr1", numberVal(10)),
-                recordField("anotherAttr", stringVal("str1"))));
+        var recVar = var(module, "rec", recordConstructor(module, recType2,
+                recordField(recType2, "attr1", numberVal(10)),
+                recordField(recType2, "anotherAttr", stringVal("str1"))));
         var assign1 = assign(fieldAccess(ref(module, "rec"), ref(module, "attr1")),
                 numberVal(42));
         var assign2 = assign(fieldAccess(ref(module, "rec"), ref(module, "extraField")),
@@ -365,10 +365,10 @@ public class RecordTest extends AstTestBase {
         analyze(module, block(recVar, assign1, assign2, extraVar));
         var evalContext = eval(module, block(recVar, assign1, assign2, extraVar));
         assertNoErrors();
-        assertVar(evalContext, recVar.getName(), recType2, record(recordConstructor(recType2,
-                recordField("attr1", numberVal(42)),
-                recordField("anotherAttr", stringVal("str1")),
-                recordField("extraField", stringVal("str2"))), evalContext));
+        assertVar(evalContext, recVar.getName(), recType2, record(recordConstructor(module, recType2,
+                recordField(recType2, "attr1", numberVal(42)),
+                recordField(recType2, "anotherAttr", stringVal("str1")),
+                recordField(recType2, "extraField", stringVal("str2"))), evalContext));
         assertVar(evalContext, extraVar.getName(), stringType(), stringVal("str2"));
     }
 

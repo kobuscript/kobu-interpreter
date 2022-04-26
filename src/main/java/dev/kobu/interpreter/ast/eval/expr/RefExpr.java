@@ -101,7 +101,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                                 SymbolTypeEnum.MODULE_REF,
                                 SymbolTypeEnum.RULE,
                                 SymbolTypeEnum.TEMPLATE,
-                                SymbolTypeEnum.FILE,
+                                SymbolTypeEnum.ACTION,
                                 SymbolTypeEnum.KEYWORD,
                                 SymbolTypeEnum.TYPE);
             }
@@ -180,6 +180,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                     symbols.add(new SymbolDescriptor(method));
                 }
                 this.symbolsInScope = symbols;
+                this.elementRef = typeScope.getFieldRef(symbolName);
             }
 
             if (symbolName.equals("")) {
@@ -208,7 +209,6 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                 this.type = UnknownType.INSTANCE;
                 return;
             }
-            this.elementRef = typeScope.getFieldRef(symbolName);
             this.type = field;
         }
     }
@@ -342,7 +342,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
         if (typeScope == null) {
             symbols.addAll(getExternalSymbols(moduleScope, externalModules,
                     SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE,
-                    SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.FILE,
+                    SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.ACTION,
                     SymbolTypeEnum.TYPE, SymbolTypeEnum.VARIABLE));
         }
         return symbols;

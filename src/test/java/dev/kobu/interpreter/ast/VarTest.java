@@ -73,7 +73,7 @@ public class VarTest extends AstTestBase {
         var recType = recordType(module, "MyRecord");
         recType.analyze(analyzerContext, evalContextProvider);
 
-        testVar(var(module, "recVar", recordConstructor(recType)), recType, recordConstructor(recType));
+        testVar(var(module, "recVar", recordConstructor(module, recType)), recType, recordConstructor(module, recType));
     }
 
     @Test
@@ -159,11 +159,11 @@ public class VarTest extends AstTestBase {
         recType.analyze(analyzerContext, evalContextProvider);
 
         var recTypeArrayVar = var(module, "recTypeArray", arrayConstructor(
-                recordConstructor(recType), recordConstructor(recType)
+                recordConstructor(module, recType), recordConstructor(module, recType)
         ));
 
         testVar(recTypeArrayVar, arrayType(recType), arrayConstructor(
-                recordConstructor(recType), recordConstructor(recType)
+                recordConstructor(module, recType), recordConstructor(module, recType)
         ));
     }
 
@@ -176,11 +176,11 @@ public class VarTest extends AstTestBase {
         subType.analyze(analyzerContext, evalContextProvider);
 
         var recTypeArrayVar = var(module, "recTypeArray", arrayConstructor(
-                recordConstructor(subType), recordConstructor(recType), recordConstructor(subType)
+                recordConstructor(module, subType), recordConstructor(module, recType), recordConstructor(module, subType)
         ));
 
         testVar(recTypeArrayVar, arrayType(recType), arrayConstructor(
-                recordConstructor(subType), recordConstructor(recType), recordConstructor(subType)
+                recordConstructor(module, subType), recordConstructor(module, recType), recordConstructor(module, subType)
         ));
     }
 
@@ -193,11 +193,11 @@ public class VarTest extends AstTestBase {
         recType2.analyze(analyzerContext, evalContextProvider);
 
         var anyRecTypeArrayVar = var(module, "anyRecTypeArray", arrayConstructor(
-                recordConstructor(recType), recordConstructor(recType2)
+                recordConstructor(module, recType), recordConstructor(module, recType2)
         ));
 
         testVar(anyRecTypeArrayVar, arrayType(anyRecordType()), arrayConstructor(
-                recordConstructor(recType), recordConstructor(recType2)
+                recordConstructor(module, recType), recordConstructor(module, recType2)
         ));
     }
 
@@ -208,11 +208,11 @@ public class VarTest extends AstTestBase {
         recType.analyze(analyzerContext, evalContextProvider);
 
         var anyTypeArrayVar = var(module, "anyTypeArray", arrayConstructor(
-                recordConstructor(recType), stringVal("str1")
+                recordConstructor(module, recType), stringVal("str1")
         ));
 
         testVar(anyTypeArrayVar, arrayType(anyType()), arrayConstructor(
-                recordConstructor(recType), stringVal("str1")
+                recordConstructor(module, recType), stringVal("str1")
         ));
     }
 

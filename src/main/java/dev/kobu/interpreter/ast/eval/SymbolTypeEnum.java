@@ -35,6 +35,6 @@ public enum SymbolTypeEnum {
     MODULE_REF,
     RULE,
     TEMPLATE,
-    FILE
+    ACTION
 
 }

@@ -200,7 +200,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                         recordType.addAttribute(context, attr);
                     } else if (attrCtx.STAR() != null) {
                         var sourceCodeRef = getSourceCodeRef(attrCtx);
-                        recordType.setStarAttribute(context, new RecordTypeStarAttribute(sourceCodeRef, type));
+                        recordType.setStarAttribute(context, new RecordTypeStarAttribute(moduleScope, sourceCodeRef, type, recordType));
                     }
                 }
                 attrCtx = attrCtx.attributes();
@@ -954,12 +954,12 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         var sourceCodeRef = getSourceCodeRef(ctx.typeName());
         Type type = (Type) visit(ctx.typeName());
-        RecordConstructorCallExpr recordConstructor = new RecordConstructorCallExpr(sourceCodeRef, type);
+        RecordConstructorCallExpr recordConstructor = new RecordConstructorCallExpr(sourceCodeRef, moduleScope, type);
 
         KobuParser.RecordFieldContext fieldCtx = ctx.recordField();
         while (fieldCtx != null && fieldCtx.exprWrapper() != null) {
             var exprNode = visit(fieldCtx.exprWrapper());
-            recordConstructor.addField(new RecordFieldExpr(getSourceCodeRef(fieldCtx.ID()), fieldCtx.ID().getText(),
+            recordConstructor.addField(new RecordFieldExpr(getSourceCodeRef(fieldCtx.ID()), type, fieldCtx.ID().getText(),
                     (Expr) exprNode));
             fieldCtx = fieldCtx.recordField();
         }

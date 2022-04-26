@@ -405,7 +405,7 @@ public abstract class AstTestBase {
         module.define(analyzerContext, recordType);
         attributes.forEach(attr -> recordType.addAttribute(analyzerContext, attr));
         recordType.setStarAttribute(analyzerContext,
-                new RecordTypeStarAttribute(sourceCodeRef("deftype_" + name), starAttrType));
+                new RecordTypeStarAttribute(module, sourceCodeRef("deftype_" + name), starAttrType, recordType));
         return recordType;
     }
 
@@ -436,21 +436,21 @@ public abstract class AstTestBase {
         module.define(analyzerContext, recordType);
         attributes.forEach(attr -> recordType.addAttribute(analyzerContext, attr));
         recordType.setStarAttribute(analyzerContext,
-                new RecordTypeStarAttribute(sourceCodeRef("attr_*"), starAttrType));
+                new RecordTypeStarAttribute(module, sourceCodeRef("attr_*"), starAttrType, recordType));
         recordType.setSuperType(new RecordSuperType(sourceCodeRef("super-type-of_" + name), superType));
         return recordType;
     }
 
-    RecordFieldExpr recordField(String name, Expr expr) {
-        return new RecordFieldExpr(sourceCodeRef("record-field_" + name), name, expr);
+    RecordFieldExpr recordField(RecordTypeSymbol recordType, String name, Expr expr) {
+        return new RecordFieldExpr(sourceCodeRef("record-field_" + name), recordType, name, expr);
     }
 
-    RecordConstructorCallExpr recordConstructor(Type recordType) {
-        return new RecordConstructorCallExpr(sourceCodeRef("new-record_" + recordType), recordType);
+    RecordConstructorCallExpr recordConstructor(ModuleScope moduleScope, Type recordType) {
+        return new RecordConstructorCallExpr(sourceCodeRef("new-record_" + recordType), moduleScope, recordType);
     }
 
-    RecordConstructorCallExpr recordConstructor(Type recordType, RecordFieldExpr... fields) {
-        var recordConstructor = new RecordConstructorCallExpr(sourceCodeRef("new-record_" + recordType), recordType);
+    RecordConstructorCallExpr recordConstructor(ModuleScope moduleScope, Type recordType, RecordFieldExpr... fields) {
+        var recordConstructor = new RecordConstructorCallExpr(sourceCodeRef("new-record_" + recordType), moduleScope, recordType);
         for (RecordFieldExpr field : fields) {
             recordConstructor.addField(field);
         }

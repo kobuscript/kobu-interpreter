@@ -157,7 +157,7 @@ public class KobuAnalyzer {
                 return module.getSuggestions(offset, externalModules);
             }
         }
-        return new ArrayList<>();
+        return null;
     }
 
     public synchronized SymbolDocumentation getDocumentation(KobuFile refFile, int offset) throws AnalyzerError {

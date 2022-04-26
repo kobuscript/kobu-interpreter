@@ -86,7 +86,7 @@ public class SymbolDescriptor {
             } else if (rule.getRuleType() == RuleTypeEnum.TEMPLATE) {
                 this.type = SymbolTypeEnum.TEMPLATE;
             } else {
-                this.type = SymbolTypeEnum.FILE;
+                this.type = SymbolTypeEnum.ACTION;
             }
             if (symbol.getSourceCodeRef() != null) {
                 this.metadata = symbol.getSourceCodeRef().getModuleId();

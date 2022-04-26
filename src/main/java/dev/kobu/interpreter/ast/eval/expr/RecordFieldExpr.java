@@ -24,18 +24,23 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.eval.expr;
 
+import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.Expr;
-import dev.kobu.interpreter.ast.eval.HasTargetType;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
+import dev.kobu.interpreter.ast.symbol.ModuleScope;
+import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class RecordFieldExpr implements Expr, HasTargetType {
+public class RecordFieldExpr implements Expr, HasTargetType, HasElementRef {
 
     private final SourceCodeRef sourceCodeRef;
+
+    private final Type recordType;
 
     private final String fieldName;
 
@@ -45,8 +50,11 @@ public class RecordFieldExpr implements Expr, HasTargetType {
 
     private Type type;
 
-    public RecordFieldExpr(SourceCodeRef sourceCodeRef, String fieldName, Expr expr) {
+    private SourceCodeRef elementRef;
+
+    public RecordFieldExpr(SourceCodeRef sourceCodeRef, Type recordType, String fieldName, Expr expr) {
         this.sourceCodeRef = sourceCodeRef;
+        this.recordType = recordType;
         this.fieldName = fieldName;
         this.expr = expr;
     }
@@ -70,6 +78,18 @@ public class RecordFieldExpr implements Expr, HasTargetType {
         }
         expr.analyze(context);
         type = expr.getType();
+
+        if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE && recordType instanceof RecordTypeSymbol) {
+            var attr = ((RecordTypeSymbol) recordType).getAttribute(fieldName);
+            if (attr != null) {
+                elementRef = attr.getSourceCodeRef();
+            } else {
+                var starAttr = ((RecordTypeSymbol) recordType).getStarAttribute();
+                if (starAttr != null) {
+                    elementRef = starAttr.getSourceCodeRef();
+                }
+            }
+        }
     }
 
     @Override
@@ -100,4 +120,24 @@ public class RecordFieldExpr implements Expr, HasTargetType {
         this.targetType = targetType;
     }
 
+    @Override
+    public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+        if (recordType instanceof RecordTypeSymbol) {
+            return ((RecordTypeSymbol) recordType).getAttributes().values().stream()
+                    .map(attr -> new FieldDescriptor(attr.getName(), attr.getType().getName()))
+                    .map(SymbolDescriptor::new)
+                    .collect(Collectors.toList());
+        }
+        return null;
+    }
+
+    @Override
+    public boolean hasOwnCompletionScope() {
+        return false;
+    }
+
+    @Override
+    public SourceCodeRef getElementRef() {
+        return elementRef;
+    }
 }

@@ -24,23 +24,40 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.symbol;
 
+import dev.kobu.interpreter.ast.eval.DocumentationSource;
+import dev.kobu.interpreter.ast.eval.SymbolDocumentation;
+import dev.kobu.interpreter.ast.eval.SymbolTypeEnum;
+import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
+
 import java.util.Map;
 
-public class RecordTypeStarAttribute {
+public class RecordTypeStarAttribute implements DocumentationSource {
+
+    private final ModuleScope moduleScope;
 
     private final SourceCodeRef sourceCodeRef;
 
     private final Type type;
 
-    private RecordTypeSymbol recordType;
+    private final RecordTypeSymbol recordType;
 
-    public RecordTypeStarAttribute(SourceCodeRef sourceCodeRef, Type type) {
+    private SymbolDocumentation documentation;
+
+    public RecordTypeStarAttribute(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, Type type, RecordTypeSymbol recordType) {
+        this.moduleScope = moduleScope;
         this.sourceCodeRef = sourceCodeRef;
         this.type = type;
+        this.recordType = recordType;
+
+        if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            moduleScope.registerDocumentationSource(sourceCodeRef.getStartOffset(), this);
+        }
     }
 
     public RecordTypeStarAttribute(RecordTypeStarAttribute starAttr, Map<String, Type> typeAliasMap) {
+        this.moduleScope = starAttr.moduleScope;
         this.sourceCodeRef = starAttr.sourceCodeRef;
+        this.recordType = starAttr.recordType;
         this.type = starAttr.type.constructFor(typeAliasMap);
     }
 
@@ -56,8 +73,13 @@ public class RecordTypeStarAttribute {
         return recordType;
     }
 
-    public void setRecordType(RecordTypeSymbol recordType) {
-        this.recordType = recordType;
+    @Override
+    public SymbolDocumentation getDocumentation() {
+        if (documentation == null) {
+            String description = "*: " + (type != null ? type.getName() : "Any");
+            documentation = new SymbolDocumentation(moduleScope.getModuleId(), SymbolTypeEnum.ATTRIBUTE, description,
+                    null, recordType.getName());
+        }
+        return documentation;
     }
-
 }

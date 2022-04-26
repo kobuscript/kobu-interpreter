@@ -28,14 +28,9 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.RecordFieldExpr;
-import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
-import dev.kobu.interpreter.ast.symbol.UnknownType;
-import dev.kobu.interpreter.ast.symbol.generics.TypeArgs;
+import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.error.analyzer.InvalidRecordFieldError;
 import dev.kobu.interpreter.error.analyzer.InvalidRecordFieldTypeError;
-import dev.kobu.interpreter.error.analyzer.InvalidTypeArgsError;
 import dev.kobu.interpreter.error.analyzer.UndefinedTypeError;
 
 import java.util.ArrayList;
@@ -47,12 +42,15 @@ public class RecordConstructorCallExpr implements Expr {
 
     private final SourceCodeRef sourceCodeRef;
 
+    private final ModuleScope moduleScope;
+
     private final List<RecordFieldExpr> fields = new ArrayList<>();
 
     private Type recordType;
 
-    public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, Type recordType) {
+    public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, ModuleScope moduleScope, Type recordType) {
         this.sourceCodeRef = sourceCodeRef;
+        this.moduleScope = moduleScope;
         this.recordType = recordType;
     }
 
@@ -84,6 +82,9 @@ public class RecordConstructorCallExpr implements Expr {
         }
 
         for (RecordFieldExpr fieldExpr : fields) {
+            moduleScope.registerRef(fieldExpr.getSourceCodeRef().getStartOffset(), fieldExpr);
+            moduleScope.registerAutoCompletionSource(fieldExpr.getSourceCodeRef().getStartOffset(), fieldExpr);
+
             Type fieldType = recordType.resolveField(fieldExpr.getFieldName());
             if (fieldType != null) {
                 fieldExpr.setTargetType(fieldType);
