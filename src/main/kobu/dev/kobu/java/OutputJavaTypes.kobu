@@ -489,7 +489,7 @@ type record OutputJavaMethod {
     comments: OutputJavaComment[],
     typeParameters: string[],
     name: string,
-    modifiers: string[]
+    modifiers: string[],
     returnType: JavaType,
     parameters: OutputJavaMethodParameter[],
     throws: JavaObjectType[],

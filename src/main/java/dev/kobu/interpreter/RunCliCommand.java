@@ -89,6 +89,7 @@ public class RunCliCommand implements Callable<Integer> {
             ModuleScope moduleScope = moduleLoader.load(analyzerContext, localFile);
 
             analyzerContext.getParserErrorListener().checkErrors();
+
             moduleScope.analyze(analyzerContext, evalContextProvider);
 
             List<AnalyzerError> errors = analyzerContext.getAllErrors();

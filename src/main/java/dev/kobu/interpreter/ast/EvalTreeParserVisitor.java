@@ -202,6 +202,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                         var sourceCodeRef = getSourceCodeRef(attrCtx);
                         recordType.setStarAttribute(context, new RecordTypeStarAttribute(moduleScope, sourceCodeRef, type, recordType));
                     }
+                } else {
+                    context.getErrorScope().addError(new MissingTypeError(getSourceCodeRef(attrCtx.ID())));
                 }
                 attrCtx = attrCtx.attributes();
             }
@@ -240,8 +242,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             if (ctx.varDeclBody().type() != null) {
                 type = (Type) visit(ctx.varDeclBody().type());
             }
-            if (ctx.varDeclBody().exprWrapper() != null) {
-                expr = (Expr) visit(ctx.varDeclBody().exprWrapper());
+            if (ctx.varDeclBody().expr() != null) {
+                expr = (Expr) visit(ctx.varDeclBody().expr());
             }
 
             if (expr instanceof ArrayValueExpr) {
@@ -250,7 +252,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                     && !(itemType instanceof NumberValueExpr)
                     && !(itemType instanceof BooleanValueExpr)) {
                     context.getErrorScope().addError(new InvalidGlobalConstantValueError(
-                            getSourceCodeRef(ctx.varDeclBody().exprWrapper())));
+                            getSourceCodeRef(ctx.varDeclBody().expr())));
                 }
             } else if (expr instanceof TupleValueExpr) {
                 TupleTypeElement tupleTypeElement = ((TupleType) expr.getType()).getTypeElement();
@@ -260,7 +262,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                             && !(itemType instanceof NumberValueExpr)
                             && !(itemType instanceof BooleanValueExpr)) {
                         context.getErrorScope().addError(new InvalidGlobalConstantValueError(
-                                getSourceCodeRef(ctx.varDeclBody().exprWrapper())));
+                                getSourceCodeRef(ctx.varDeclBody().expr())));
                         break;
                     }
                     tupleTypeElement = tupleTypeElement.getNext();
@@ -269,7 +271,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                     && !(expr instanceof NumberValueExpr)
                     && !(expr instanceof BooleanValueExpr)) {
                 context.getErrorScope().addError(new InvalidGlobalConstantValueError(
-                        getSourceCodeRef(ctx.varDeclBody().exprWrapper())));
+                        getSourceCodeRef(ctx.varDeclBody().expr())));
             }
 
             topLevelExpression = true;
@@ -293,8 +295,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                 type = (Type) visit(ctx.varDeclBody().type());
             }
             Expr valueExpr = null;
-            if (ctx.varDeclBody().exprWrapper() != null) {
-                valueExpr = (Expr) visit(ctx.varDeclBody().exprWrapper());
+            if (ctx.varDeclBody().expr() != null) {
+                valueExpr = (Expr) visit(ctx.varDeclBody().expr());
             }
 
             ConstDeclExpr expr = new ConstDeclExpr(
@@ -708,9 +710,9 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     @Override
     public AstNode visitFunctionReturnStat(KobuParser.FunctionReturnStatContext ctx) {
         Expr expr = null;
-        if (ctx.exprWrapper() != null) {
+        if (ctx.expr() != null) {
             topLevelExpression = false;
-            expr = (Expr) visit(ctx.exprWrapper());
+            expr = (Expr) visit(ctx.expr());
             topLevelExpression = true;
         }
         return new ReturnStatement(getSourceCodeRef(ctx), expr, false);
@@ -731,8 +733,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         }
         VarDeclExpr expr = new VarDeclExpr(
                 new VariableSymbol(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText(), type));
-        if (ctx.exprWrapper() != null) {
-            var exprNode = visit(ctx.exprWrapper());
+        if (ctx.expr() != null) {
+            var exprNode = visit(ctx.expr());
             expr.setValueExpr((Expr) exprNode);
         }
 
@@ -769,6 +771,22 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     }
 
     @Override
+    public AstNode visitPreIncDecExpr(KobuParser.PreIncDecExprContext ctx) {
+        boolean exprStatus = topLevelExpression;
+        topLevelExpression = false;
+
+        IncDecOperatorEnum operator;
+        if (ctx.INC() != null) {
+            operator = IncDecOperatorEnum.INC;
+        } else {
+            operator = IncDecOperatorEnum.DEC;
+        }
+
+        topLevelExpression = exprStatus;
+        return new PreIncDecExpr(getSourceCodeRef(ctx), (Expr) visit(ctx.expr()), operator);
+    }
+
+    @Override
     public AstNode visitAssignPreIncDec(KobuParser.AssignPreIncDecContext ctx) {
         boolean exprStatus = topLevelExpression;
         topLevelExpression = false;
@@ -782,6 +800,22 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         topLevelExpression = exprStatus;
         return new PreIncDecExpr(getSourceCodeRef(ctx), (Expr) visit(ctx.expr()), operator);
+    }
+
+    @Override
+    public AstNode visitPostIncDecExpr(KobuParser.PostIncDecExprContext ctx) {
+        boolean exprStatus = topLevelExpression;
+        topLevelExpression = false;
+
+        IncDecOperatorEnum operator;
+        if (ctx.INC() != null) {
+            operator = IncDecOperatorEnum.INC;
+        } else {
+            operator = IncDecOperatorEnum.DEC;
+        }
+
+        topLevelExpression = exprStatus;
+        return new PostIncDecExpr(getSourceCodeRef(ctx), (Expr) visit(ctx.expr()), operator);
     }
 
     @Override
@@ -957,10 +991,14 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         RecordConstructorCallExpr recordConstructor = new RecordConstructorCallExpr(sourceCodeRef, moduleScope, type);
 
         KobuParser.RecordFieldContext fieldCtx = ctx.recordField();
-        while (fieldCtx != null && fieldCtx.exprWrapper() != null) {
-            var exprNode = visit(fieldCtx.exprWrapper());
-            recordConstructor.addField(new RecordFieldExpr(getSourceCodeRef(fieldCtx.ID()), type, fieldCtx.ID().getText(),
-                    (Expr) exprNode));
+        while (fieldCtx != null) {
+            if (fieldCtx.expr() == null) {
+                context.getErrorScope().addError(new MissingExpressionError(getSourceCodeRef(fieldCtx.ID())));
+            } else {
+                var exprNode = visit(fieldCtx.expr());
+                recordConstructor.addField(new RecordFieldExpr(getSourceCodeRef(fieldCtx.ID()), type, fieldCtx.ID().getText(),
+                        (Expr) exprNode));
+            }
             fieldCtx = fieldCtx.recordField();
         }
 
@@ -979,7 +1017,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         List<Expr> elements = new ArrayList<>();
         if (ctx.exprSequence() != null) {
-            for (KobuParser.ExprWrapperContext exprContext : ctx.exprSequence().exprWrapper()) {
+            for (KobuParser.ExprContext exprContext : ctx.exprSequence().expr()) {
                 var exprNode = visit(exprContext);
                 if (exprNode != null) {
                     elements.add((Expr) exprNode);
@@ -1000,11 +1038,11 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         }
 
         List<Expr> exprList = new ArrayList<>();
-        if (ctx.exprWrapper() != null) {
-            exprList.add((Expr) visit(ctx.exprWrapper()));
+        if (ctx.expr() != null) {
+            exprList.add((Expr) visit(ctx.expr()));
         }
-        if (ctx.exprSequence() != null && ctx.exprSequence().exprWrapper() != null) {
-            for (KobuParser.ExprWrapperContext exprWrapperContext : ctx.exprSequence().exprWrapper()) {
+        if (ctx.exprSequence() != null && ctx.exprSequence().expr() != null) {
+            for (KobuParser.ExprContext exprWrapperContext : ctx.exprSequence().expr()) {
                 exprList.add((Expr) visit(exprWrapperContext));
             }
         }
@@ -1020,7 +1058,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         List<FunctionArgExpr> args = new ArrayList<>();
         if (ctx.exprSequence() != null) {
-            for (KobuParser.ExprWrapperContext exprContext : ctx.exprSequence().exprWrapper()) {
+            for (KobuParser.ExprContext exprContext : ctx.exprSequence().expr()) {
                 var exprNode = visit(exprContext);
                 FunctionArgExpr argExpr = new FunctionArgExpr(getSourceCodeRef(exprContext),
                         (Expr) exprNode);
@@ -1124,8 +1162,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
     @Override
     public AstNode visitArrayIndexItemExpr(KobuParser.ArrayIndexItemExprContext ctx) {
-        Expr expr = (Expr) visit(ctx.exprWrapper());
-        return new ArrayItemIndexExpr(getSourceCodeRef(ctx.exprWrapper()), expr);
+        Expr expr = (Expr) visit(ctx.expr());
+        return new ArrayItemIndexExpr(getSourceCodeRef(ctx.expr()), expr);
     }
 
     @Override
@@ -1335,7 +1373,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     @Override
     public AstNode visitThrowStat(KobuParser.ThrowStatContext ctx) {
         topLevelExpression = false;
-        Expr expr = (Expr) visit(ctx.exprWrapper());
+        Expr expr = (Expr) visit(ctx.expr());
         topLevelExpression = true;
         return new ThrowStatement(getSourceCodeRef(ctx), expr);
     }

@@ -69,7 +69,7 @@ blockStat: ifStat
            | tryCatchStat
            ;
 
-functionReturnStat : RETURN exprWrapper
+functionReturnStat : RETURN expr
                      | RETURN SEMI
                      | RETURN {notifyErrorListenersPrevToken("';' expected");}
                      ;
@@ -118,13 +118,13 @@ breakStat: BREAK ;
 
 continueStat : CONTINUE ;
 
-throwStat : THROW exprWrapper ;
+throwStat : THROW expr ;
 
 tryCatchStat : TRY LCB execStat* RCB catchStat ;
 
 catchStat : CATCH LP ID COLON type RP LCB execStat* RCB catchStat? ;
 
-exprSequence : exprWrapper ( COMMA exprWrapper )* COMMA? ;
+exprSequence : expr ( COMMA expr )* COMMA? ;
 
 typerecord : TYPE TYPE_RECORD ID typeParameters? inheritance? LCB attributes? RCB ;
 
@@ -134,11 +134,11 @@ inheritance : EXTENDS typeName ;
 
 templateInheritance : EXTENDS typeName ;
 
-attributes : ( STAR | ID ) COLON type ( COMMA? attributes )? ;
+attributes : ( STAR | ID ) ( COLON type? )? ( COMMA | COMMA? attributes )? ;
 
 record : typeName LCB recordField? RCB ;
 
-recordField : ID COLON exprWrapper ( COMMA? recordField )? ;
+recordField : ID ( COLON expr? )? ( COMMA | COMMA? recordField )?;
 
 deftemplate : DEF DEFTEMPLATE ID ruleExtends? FOR queryExpr extractExpr* joinExpr* ( WHEN expr )? TEMPLATE_BEGIN template? TEMPLATE_END templateTargetType? ;
 
@@ -180,7 +180,7 @@ constDecl : CONST varDeclBody ;
 
 varDecl : VAR varDeclBody ;
 
-varDeclBody : ID ( COLON type )? ( '=' exprWrapper )? ;
+varDeclBody : ID ( COLON type )? ( '=' expr )? ;
 
 varDeclList : VAR varDeclBody ( COMMA varDeclBody )* ;
 
@@ -194,11 +194,9 @@ templateStaticContentExpr : CONTENT ;
 
 templateContentExpr : ( TEMPLATE_EXPR_BEGIN | TEMPLATE_SHIFT_EXPR_BEGIN ) expr? TEMPLATE_EXPR_END ;
 
-exprWrapper : expr | assignPostIncDec | assignPreIncDec ;
-
 expr : record                                                                                       #recordExpr
        | LSB exprSequence? RSB                                                                      #arrayExpr
-       | LP exprWrapper COMMA exprSequence RP                                                       #tupleExpr
+       | LP expr COMMA exprSequence RP                                                              #tupleExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT expr                                                                              #fieldAccessExpr
        | expr AS type                                                                               #castExpr
@@ -210,6 +208,8 @@ expr : record                                                                   
        | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS ) expr    #eqExpr
        | expr ( AND | OR ) expr                                                                     #logicExpr
        | NOT expr                                                                                   #notExpr
+       | ( INC | DEC) expr                                                                          #preIncDecExpr
+       | expr ( INC | DEC )                                                                         #postIncDecExpr
        | TRUE                                                                                       #trueExpr
        | FALSE                                                                                      #falseExpr
        | NULL                                                                                       #nullExpr
@@ -219,7 +219,7 @@ expr : record                                                                   
        | LP expr RP                                                                                 #parenthesizedExpr
        ;
 
-anonymousFunction : ( ID | LP ID RP )? FN_ARROW anonymousFunctionBody                              #singleArgAnonymousFunction
+anonymousFunction : ( ID | LP ID RP )? FN_ARROW anonymousFunctionBody              #singleArgAnonymousFunction
                     | anonymousFunctionHeader FN_ARROW anonymousFunctionBody       #fullArgsAnonymousFunction;
 
 anonymousFunctionHeader : LP anonymousFunctionParams? RP ;
@@ -232,7 +232,7 @@ anonymousFunctionBody : expr
 arrayIndexExpr : expr COLON expr  #arrayIndexSliceExpr
                  | COLON expr     #arrayIndexSliceEndExpr
                  | expr COLON     #arrayIndexSliceBeginExpr
-                 | exprWrapper  #arrayIndexItemExpr
+                 | expr           #arrayIndexItemExpr
                  ;
 
 assignment : expr ASSIGN expr                    #assignElemValue

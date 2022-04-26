@@ -515,7 +515,7 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         } else if (ctx.BOOL_LITERAL() != null) {
             RecordValueExpr recValExpr = RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_LITERAL_BOOLEAN));
             recValExpr.updateFieldValue(context, "value", BooleanValueExpr.fromValue("true".equals(ctx.BOOL_LITERAL().getText())));
-            recValExpr.updateFieldValue(context, "source", new StringValueExpr(ctx.STRING_LITERAL().getText()));
+            recValExpr.updateFieldValue(context, "source", new StringValueExpr(ctx.BOOL_LITERAL().getText()));
             return recValExpr;
         }
 
@@ -558,7 +558,7 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         }
 
         if (ctx.typeList() != null && ctx.typeList().size() == 1) {
-            JavaParser.TypeListContext typeListContext = ctx.typeList(1);
+            JavaParser.TypeListContext typeListContext = ctx.typeList(0);
             if (ctx.PERMITS() == null || ctx.PERMITS().getSymbol().getStartIndex() > typeListContext.start.getStartIndex()) {
                 if (typeListContext.typeType() != null) {
                     List<ValueExpr> interfaceList = new ArrayList<>();
@@ -1156,6 +1156,10 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         currentClassMember.updateFieldValue(context, "privateAccess", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "protectedAccess", BooleanValueExpr.FALSE);
         currentClassMember.updateFieldValue(context, "default", BooleanValueExpr.FALSE);
+        currentClassMember.updateFieldValue(context, "annotations", new ArrayValueExpr(
+                ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_ANNOTATION_VALUE)),
+                new ArrayList<>()
+        ));
 
         if (ctx.modifier() != null) {
             for (JavaParser.ModifierContext modifierContext : ctx.modifier()) {

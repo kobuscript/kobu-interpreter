@@ -71,4 +71,4 @@ fun addInterfaceFilter(filter: JavaFilter, typeName: string, typePackage?: strin
     })
 }
 
-def native parseJava(dir: Path, pattern: string, filter?: JavaFilter): JavaFile[];
+def native parseJava(dir: Path, pattern: string, recursive?: boolean, filter?: JavaFilter): JavaFile[];

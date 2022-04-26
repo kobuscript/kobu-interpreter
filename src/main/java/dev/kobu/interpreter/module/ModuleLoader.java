@@ -42,8 +42,12 @@ import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.KobuParserVisitor;
 import dev.kobu.interpreter.ast.EvalTreeParserVisitor;
 import dev.kobu.interpreter.ast.ModuleParserVisitor;
+import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.DefaultErrorStrategy;
+import org.antlr.v4.runtime.atn.PredictionMode;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.IOException;
@@ -304,10 +308,21 @@ public class ModuleLoader {
             var lexer = new KobuLexer(input);
             var tokens = new CommonTokenStream(lexer);
             var parser = new KobuParser(tokens);
+            parser.getInterpreter().setPredictionMode(PredictionMode.SLL);
             parser.removeErrorListeners();
-            context.getParserErrorListener().setCurrentScript(script);
-            parser.addErrorListener(context.getParserErrorListener());
-            var tree = parser.prog();
+            parser.setErrorHandler(new BailErrorStrategy());
+            KobuParser.ProgContext tree;
+            try {
+                tree = parser.prog();
+            } catch (ParseCancellationException ex) {
+                tokens.seek(0);
+                parser.reset();
+                context.getParserErrorListener().setCurrentScript(script);
+                parser.addErrorListener(context.getParserErrorListener());
+                parser.setErrorHandler(new DefaultErrorStrategy());
+                parser.getInterpreter().setPredictionMode(PredictionMode.LL);
+                tree = parser.prog();
+            }
 
             modulesParseTree.put(moduleId, tree);
 
@@ -326,6 +341,7 @@ public class ModuleLoader {
 
             EvalTreeParserVisitor evalTreeParserVisitor = new EvalTreeParserVisitor(this,
                     moduleScope, context);
+
             visit(moduleScope.getModuleId(), evalTreeParserVisitor);
 
             return moduleScope;
