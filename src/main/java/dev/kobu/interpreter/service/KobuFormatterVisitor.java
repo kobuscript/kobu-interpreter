@@ -326,12 +326,11 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             out.append(ctx.functionDeclRet().getText());
         }
 
+        boolean inline = isInline(ctx);
         if (ctx.LCB() != null) {
             printCommentsBefore(ctx.LCB());
             out.append(" {");
-            if (hasNewLineAfter(ctx.LCB(), false)) {
-                printHiddenTextAfter(ctx.LCB());
-            } else {
+            if (!inline) {
                 out.append("\n");
             }
         }
@@ -340,7 +339,6 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             popIndentation();
         }
 
-        boolean inline = isInline(ctx);
         if (inline) {
             out.append(" ");
         } else {
@@ -542,16 +540,14 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
 
         popIndentation();
 
+        boolean inline = isInline(ctx);
         if (ctx.LCB() != null) {
             out.append(" {");
-            if (hasNewLineAfter(ctx.LCB(), false)) {
-                printHiddenTextAfter(ctx.LCB());
-            } else {
+            if (!inline) {
                 out.append("\n");
             }
         }
 
-        boolean inline = isInline(ctx);
         if (inline) {
             out.append(" ");
         } else {
@@ -784,17 +780,15 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
 
         popIndentation();
 
+        boolean inline = isInline(ctx);
         if (ctx.LCB() != null) {
             printCommentsBefore(ctx.LCB());
             out.append(" {");
-            if (hasNewLineAfter(ctx.LCB(), false)) {
-                printHiddenTextAfter(ctx.LCB());
-            } else {
+            if (!inline) {
                 out.append("\n");
             }
         }
 
-        boolean inline = isInline(ctx);
         if (inline) {
             out.append(" ");
         } else {
@@ -1298,9 +1292,13 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
                 }
             }
             var lastToken = tokenList.get(tokenList.size() - 1).getText();
-            out.append(lastToken
-                    .replaceAll("\\n[ \\t]*", "\n" + " ".repeat(indentation))
-                    .replaceAll("\\n[ \\t]+$", "\n"));
+            String text = lastToken
+                    .replaceAll("\\n[ \\t]*", "\n" + " ".repeat(indentation));
+            if (lastToken.endsWith("\n")) {
+                out.append(text.replaceAll("\\n[ \\t]+$", "\n"));
+            } else {
+                out.append(text);
+            }
         }
     }
 
