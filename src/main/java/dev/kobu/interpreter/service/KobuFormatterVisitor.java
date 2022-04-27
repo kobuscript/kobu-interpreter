@@ -105,6 +105,15 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitGlobalConstDecl(KobuParser.GlobalConstDeclContext ctx) {
+        if (!hasNewLineBefore(ctx, false)) {
+            out.append("\n");
+        }
+        out.append(ctx.getText());
+        return null;
+    }
+
+    @Override
     public Void visitTyperecord(KobuParser.TyperecordContext ctx) {
         if (!hasNewLineBefore(ctx, false)) {
             out.append("\n");
@@ -122,7 +131,7 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             out.append(" extends ");
             if (ctx.inheritance().typeName() != null) {
                 printCommentsBefore(ctx.inheritance().typeName());
-                out.append(ctx.inheritance().typeName().toString());
+                out.append(ctx.inheritance().typeName().getText());
             }
         }
         if (ctx.LCB() != null) {
@@ -157,6 +166,10 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
 
             if (!inline) {
                 popIndentation();
+            }
+
+            if (ctx.RCB() != null) {
+                out.append("}");
             }
         }
 
@@ -333,11 +346,14 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
 
         out.append("def ");
 
+        int queryPos = ctx.start.getStartIndex();
+
         if (ctx.DEFRULE() != null) {
             printCommentsBefore(ctx.DEFRULE());
             out.append("rule ");
         }
         if (ctx.ID() != null) {
+            queryPos = ctx.ID().getSymbol().getStartIndex();
             printCommentsBefore(ctx.ID());
             out.append(ctx.ID().getText());
             out.append(" ");
@@ -353,10 +369,15 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
                 out.append(" ");
             }
         }
-        int queryPos = ctx.start.getStartIndex();
+
         if (ctx.FOR() != null) {
-            queryPos = ctx.FOR().getSymbol().getStartIndex();
-            printCommentsBefore(ctx.FOR());
+            out.append("\n");
+            pushIndentation(queryPos);
+            printIndentation();
+            if (printCommentsBefore(ctx.FOR())) {
+                out.append("\n");
+                printIndentation();
+            }
             out.append("for ");
         }
 
@@ -364,24 +385,22 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             appendText(ctx.queryExpr());
         }
         if (ctx.joinExpr() != null && !ctx.joinExpr().isEmpty()) {
-            pushIndentation(queryPos);
             for (KobuParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
                 out.append("\n");
                 printIndentation();
                 appendText(joinExprContext);
             }
-            popIndentation();
         }
         if (ctx.WHEN() != null) {
-            pushIndentation(queryPos);
             out.append("\n");
             printIndentation();
             out.append("when ");
             if (ctx.expr() != null) {
                 appendText(ctx.expr());
             }
-            popIndentation();
         }
+
+        popIndentation();
 
         if (ctx.LCB() != null) {
             printCommentsBefore(ctx.LCB());
@@ -468,11 +487,14 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
 
         out.append("def ");
 
+        int queryPos = ctx.start.getStartIndex();
+
         if (ctx.DEFTEMPLATE() != null) {
             printCommentsBefore(ctx.DEFTEMPLATE());
             out.append("template ");
         }
         if (ctx.ID() != null) {
+            queryPos = ctx.ID().getSymbol().getStartIndex();
             printCommentsBefore(ctx.ID());
             out.append(ctx.ID().getText());
             out.append(" ");
@@ -488,10 +510,15 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
                 out.append(" ");
             }
         }
-        int queryPos = ctx.start.getStartIndex();
+
         if (ctx.FOR() != null) {
-            queryPos = ctx.FOR().getSymbol().getStartIndex();
-            printCommentsBefore(ctx.FOR());
+            out.append("\n");
+            pushIndentation(queryPos);
+            printIndentation();
+            if (printCommentsBefore(ctx.FOR())) {
+                out.append("\n");
+                printIndentation();
+            }
             out.append("for ");
         }
 
@@ -499,24 +526,22 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             appendText(ctx.queryExpr());
         }
         if (ctx.joinExpr() != null && !ctx.joinExpr().isEmpty()) {
-            pushIndentation(queryPos);
             for (KobuParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
                 out.append("\n");
                 printIndentation();
                 appendText(joinExprContext);
             }
-            popIndentation();
         }
         if (ctx.WHEN() != null) {
-            pushIndentation(queryPos);
             out.append("\n");
             printIndentation();
             out.append("when ");
             if (ctx.expr() != null) {
                 appendText(ctx.expr());
             }
-            popIndentation();
         }
+
+        popIndentation();
 
         if (ctx.TEMPLATE_BEGIN() != null) {
             out.append(" <|");
@@ -541,11 +566,14 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
 
         out.append("def ");
 
+        int queryPos = ctx.start.getStartIndex();
+
         if (ctx.DEFACTION() != null) {
             printCommentsBefore(ctx.DEFACTION());
             out.append("action ");
         }
         if (ctx.ID() != null) {
+            queryPos = ctx.ID().getSymbol().getStartIndex();
             printCommentsBefore(ctx.ID());
             out.append(ctx.ID().getText());
             out.append(" ");
@@ -561,10 +589,15 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
                 out.append(" ");
             }
         }
-        int queryPos = ctx.start.getStartIndex();
+
         if (ctx.FOR() != null) {
-            queryPos = ctx.FOR().getSymbol().getStartIndex();
-            printCommentsBefore(ctx.FOR());
+            out.append("\n");
+            pushIndentation(queryPos);
+            printIndentation();
+            if (printCommentsBefore(ctx.FOR())) {
+                out.append("\n");
+                printIndentation();
+            }
             out.append("for ");
         }
 
@@ -572,24 +605,22 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             appendText(ctx.queryExpr());
         }
         if (ctx.joinExpr() != null && !ctx.joinExpr().isEmpty()) {
-            pushIndentation(queryPos);
             for (KobuParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
                 out.append("\n");
                 printIndentation();
                 appendText(joinExprContext);
             }
-            popIndentation();
         }
         if (ctx.WHEN() != null) {
-            pushIndentation(queryPos);
             out.append("\n");
             printIndentation();
             out.append("when ");
             if (ctx.expr() != null) {
                 appendText(ctx.expr());
             }
-            popIndentation();
         }
+
+        popIndentation();
 
         if (ctx.LCB() != null) {
             printCommentsBefore(ctx.LCB());
@@ -930,43 +961,43 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
     }
 
     private boolean printCommentsBefore(ParserRuleContext ctx) {
-        return printCommentsBefore(ctx.start.getStartIndex());
+        return printCommentsBefore(ctx.start.getTokenIndex());
     }
 
     private boolean printCommentsBefore(TerminalNode node) {
-        return printCommentsBefore(node.getSymbol().getStartIndex());
+        return printCommentsBefore(node.getSymbol().getTokenIndex());
     }
 
     private void printHiddenTextBefore(ParserRuleContext ctx) {
-        printHiddenTextBefore(ctx.start.getStartIndex());
+        printHiddenTextBefore(ctx.start.getTokenIndex());
     }
 
     private void printHiddenTextBefore(TerminalNode node) {
-        printHiddenTextBefore(node.getSymbol().getStartIndex());
+        printHiddenTextBefore(node.getSymbol().getTokenIndex());
     }
 
     private void printHiddenTextAfter(ParserRuleContext ctx) {
-        printHiddenTextAfter(ctx.stop.getStopIndex());
+        printHiddenTextAfter(ctx.stop.getTokenIndex());
     }
 
     private void printHiddenTextAfter(TerminalNode node) {
-        printHiddenTextAfter(node.getSymbol().getStopIndex());
+        printHiddenTextAfter(node.getSymbol().getTokenIndex());
     }
 
     private boolean hasNewLineBefore(ParserRuleContext ctx) {
-        return hasNewLineBefore(ctx.start.getStartIndex());
+        return hasNewLineBefore(ctx.start.getTokenIndex());
     }
 
     private boolean hasNewLineBefore(TerminalNode node) {
-        return hasNewLineBefore(node.getSymbol().getStartIndex());
+        return hasNewLineBefore(node.getSymbol().getTokenIndex());
     }
 
     private boolean hasNewLineBefore(ParserRuleContext ctx, boolean includeComments) {
-        return hasNewLineBefore(ctx.start.getStartIndex(), includeComments);
+        return hasNewLineBefore(ctx.start.getTokenIndex(), includeComments);
     }
 
     private boolean hasNewLineBefore(TerminalNode node, boolean includeComments) {
-        return hasNewLineBefore(node.getSymbol().getStartIndex(), includeComments);
+        return hasNewLineBefore(node.getSymbol().getTokenIndex(), includeComments);
     }
 
     private boolean hasNewLineAfter(ParserRuleContext ctx) {
@@ -986,15 +1017,15 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
     }
 
     private boolean hasCommentsBefore(ParserRuleContext ctx) {
-        return hasCommentsBefore(ctx.start.getStartIndex());
+        return hasCommentsBefore(ctx.start.getTokenIndex());
     }
 
     private boolean hasCommentsBefore(TerminalNode node) {
-        return hasCommentsBefore(node.getSymbol().getStartIndex());
+        return hasCommentsBefore(node.getSymbol().getTokenIndex());
     }
 
-    private boolean printCommentsBefore(int offset) {
-        var tokenList = tokens.getHiddenTokensToLeft(offset);
+    private boolean printCommentsBefore(int tokenIndex) {
+        var tokenList = tokens.getHiddenTokensToLeft(tokenIndex);
         boolean hasComments = false;
         if (tokenList != null) {
             int indentation = getIndentation();
@@ -1036,12 +1067,30 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
         }
     }
 
-    private boolean hasNewLineBefore(int offset) {
-        return hasNewLineBefore(offset, true);
+    private boolean hasNewLineBefore(int tokenIndex) {
+        return hasNewLineBefore(tokenIndex, true);
     }
 
-    private boolean hasNewLineBefore(int offset, boolean includeComments) {
-        var tokenList = tokens.getHiddenTokensToLeft(offset);
+    private boolean hasNewLineBefore(int tokenIndex, boolean includeComments) {
+        var tokenList = tokens.getHiddenTokensToLeft(tokenIndex);
+        if (tokenList != null) {
+            for (Token token : tokenList) {
+                if (includeComments || token.getChannel() == KobuLexer.WSCHANNEL) {
+                    if (token.getText().contains("\n")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean hasNewLineAfter(int tokenIndex) {
+        return hasNewLineAfter(tokenIndex, true);
+    }
+
+    private boolean hasNewLineAfter(int tokenIndex, boolean includeComments) {
+        var tokenList = tokens.getHiddenTokensToRight(tokenIndex);
         for (Token token : tokenList) {
             if (includeComments || token.getChannel() == KobuLexer.WSCHANNEL) {
                 if (token.getText().contains("\n")) {
@@ -1052,28 +1101,12 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
         return false;
     }
 
-    private boolean hasNewLineAfter(int offset) {
-        return hasNewLineAfter(offset, true);
-    }
-
-    private boolean hasNewLineAfter(int offset, boolean includeComments) {
-        var tokenList = tokens.getHiddenTokensToRight(offset);
-        for (Token token : tokenList) {
-            if (includeComments || token.getChannel() == KobuLexer.WSCHANNEL) {
-                if (token.getText().contains("\n")) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean hasCommentsBefore(int offset) {
-        var tokenList = tokens.getHiddenTokensToLeft(offset, KobuLexer.COMMENTCHANNEL);
+    private boolean hasCommentsBefore(int tokenIndex) {
+        var tokenList = tokens.getHiddenTokensToLeft(tokenIndex, KobuLexer.COMMENTCHANNEL);
         if (tokenList != null && !tokenList.isEmpty()) {
             return true;
         }
-        tokenList = tokens.getHiddenTokensToLeft(offset, KobuLexer.BLOCKCOMMENTCHANNEL);
+        tokenList = tokens.getHiddenTokensToLeft(tokenIndex, KobuLexer.BLOCKCOMMENTCHANNEL);
         return tokenList != null && !tokenList.isEmpty();
     }
 
