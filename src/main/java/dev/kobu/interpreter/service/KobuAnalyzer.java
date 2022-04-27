@@ -26,6 +26,7 @@ package dev.kobu.interpreter.service;
 
 import dev.kobu.config.Project;
 import dev.kobu.config.ProjectReader;
+import dev.kobu.config.error.ProjectError;
 import dev.kobu.database.Database;
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.AnalyzerErrorScope;
@@ -47,9 +48,12 @@ import dev.kobu.interpreter.file_system.KobuScriptFile;
 import dev.kobu.interpreter.codec.FileFetcher;
 import dev.kobu.interpreter.codec.CodecNativeFunctionRegistry;
 import dev.kobu.interpreter.codec.InputReader;
+import dev.kobu.interpreter.file_system.local.LocalKobuFile;
+import dev.kobu.interpreter.file_system.local.LocalKobuFileSystem;
 import dev.kobu.interpreter.module.KobuElementDescriptor;
 import dev.kobu.interpreter.module.ModuleLoader;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -164,6 +168,12 @@ public class KobuAnalyzer {
         KobuFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
         return moduleLoader.getSymbolDocumentation(refFile, offset);
+    }
+
+    public String formatFile(File ioFile, int tabSize) throws ProjectError, IOException {
+        KobuFormatter formatter = new KobuFormatter(new LocalKobuFileSystem());
+        AnalyzerContext context = new AnalyzerContext();
+        return formatter.format(context, new LocalKobuFile(ioFile), tabSize);
     }
 
     public String loadBuiltinModule(String moduleId) {
