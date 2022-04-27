@@ -185,6 +185,7 @@ public class ModuleLoader {
         }
         var refModule = modules.get(scriptFile.extractModuleId());
         if (refModule != null) {
+            typeName = typeName.replaceAll("<.*?>", "");
             String canonicalName = typeName;
             int idx = typeName.indexOf('.');
             Symbol symbol = null;

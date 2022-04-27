@@ -250,7 +250,7 @@ assignmentSequece : assignment ( COMMA assignment )* ;
 typeParameters : LESS typeParameter GREATER ;
 typeParameter: ID ( COMMA typeParameter )? ;
 
-typeArgs : LESS typeArg GREATER ;
+typeArgs : LESS typeArg? GREATER ;
 typeArg: type ( COMMA typeArg )? ;
 
 type : typeName                      #typeNameExpr

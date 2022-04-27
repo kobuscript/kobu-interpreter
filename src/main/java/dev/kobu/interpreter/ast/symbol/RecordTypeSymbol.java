@@ -68,7 +68,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     public RecordTypeSymbol(RecordTypeSymbol recordType, List<Type> typeArgs) {
-        super(recordType.getModuleScope(), recordType.getSourceCodeRef(), recordType.getNameInModule(), false);
+        super(recordType.getModuleScope(), null, recordType.getNameInModule(), false);
         this.originalType = recordType;
         this.docText = recordType.docText;
         this.typeParameters = recordType.typeParameters;
@@ -251,13 +251,13 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     private String getTypeParametersDescription() {
-        if (typeArgs != null) {
+        if (!typeArgs.isEmpty()) {
             return "<" +
                     typeArgs.stream()
                             .map(Type::getName)
                             .collect(Collectors.joining(", ")) +
                     ">";
-        } else if (typeParameters != null) {
+        } else if (typeParameters != null && !typeParameters.isEmpty()) {
             return "<" +
                     typeParameters.stream()
                             .map(TypeParameter::getAlias)
@@ -403,19 +403,38 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
                 }
             }
         }
-
-        if (getModuleScope().getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
-            String description = "type record " + super.getName();
-            if (superType != null) {
-                description += " extends " + superType.getType().getName();
-            }
-            this.documentation = new SymbolDocumentation(getModuleScope().getModuleId(), SymbolTypeEnum.TYPE,
-                    description, docText);
-        }
     }
 
     @Override
     public SymbolDocumentation getDocumentation() {
+        if (documentation == null) {
+            String description = "type record " + getNameInModule();
+            if (!typeArgs.isEmpty()) {
+                description += "<";
+                description += typeArgs.stream().map(Type::getName).collect(Collectors.joining(", "));
+                description += ">";
+            } else if (typeParameters != null && !typeParameters.isEmpty()) {
+                description += "<";
+                description += typeParameters.stream().map(TypeParameter::getAlias).collect(Collectors.joining(", "));
+                description += ">";
+            }
+            if (superType != null) {
+                description += " extends " + superType.getType().getNameInModule();
+                if (!superType.getType().typeArgs.isEmpty()) {
+                    description += "<";
+                    description += superType.getType().typeArgs.stream().map(Type::getName)
+                            .collect(Collectors.joining(", "));
+                    description += ">";
+                } else if (superType.getType().typeParameters != null && !superType.getType().typeParameters.isEmpty()) {
+                    description += "<";
+                    description += superType.getType().typeParameters.stream().map(TypeParameter::getAlias)
+                            .collect(Collectors.joining(", "));
+                    description += ">";
+                }
+            }
+            this.documentation = new SymbolDocumentation(getModuleScope().getModuleId(), SymbolTypeEnum.TYPE,
+                    description, docText);
+        }
         return documentation;
     }
 

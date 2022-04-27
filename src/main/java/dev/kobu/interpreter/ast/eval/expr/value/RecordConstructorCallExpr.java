@@ -27,6 +27,7 @@ package dev.kobu.interpreter.ast.eval.expr.value;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.expr.RecordFieldExpr;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.error.analyzer.InvalidRecordFieldError;
@@ -46,7 +47,7 @@ public class RecordConstructorCallExpr implements Expr {
 
     private final List<RecordFieldExpr> fields = new ArrayList<>();
 
-    private Type recordType;
+    private final Type recordType;
 
     public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, ModuleScope moduleScope, Type recordType) {
         this.sourceCodeRef = sourceCodeRef;
@@ -82,8 +83,10 @@ public class RecordConstructorCallExpr implements Expr {
         }
 
         for (RecordFieldExpr fieldExpr : fields) {
-            moduleScope.registerRef(fieldExpr.getSourceCodeRef().getStartOffset(), fieldExpr);
-            moduleScope.registerAutoCompletionSource(fieldExpr.getSourceCodeRef().getStartOffset(), fieldExpr);
+            if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+                moduleScope.registerRef(fieldExpr.getSourceCodeRef().getStartOffset(), fieldExpr);
+                moduleScope.registerAutoCompletionSource(fieldExpr.getSourceCodeRef().getStartOffset(), fieldExpr);
+            }
 
             Type fieldType = recordType.resolveField(fieldExpr.getFieldName());
             if (fieldType != null) {
