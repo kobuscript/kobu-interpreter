@@ -192,7 +192,7 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             out.append(attr.type().getText());
         }
         if (attr.attributes() != null) {
-            out.append(", ");
+            out.append(",");
         }
     }
 

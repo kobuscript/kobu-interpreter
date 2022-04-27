@@ -43,7 +43,7 @@ public class FormatCliCommand implements Callable<Integer> {
     @CommandLine.Parameters(index = "0", paramLabel = "FILE", description = "Script to format")
     File file;
 
-    @CommandLine.Option(names = "-tabSize", description = "The number of spaces that will be used to indent blocks of code")
+    @CommandLine.Option(names = "-tabSize", defaultValue = "4", description = "The number of spaces that will be used to indent blocks of code")
     int tabSize;
 
     @Override
