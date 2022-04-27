@@ -170,9 +170,11 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
         if (ctx.LCB() != null) {
             printCommentsBefore(ctx.LCB());
             out.append(" {");
-            printHiddenTextAfter(ctx.LCB());
 
             boolean inline = isInline(ctx.attributes());
+            if (!inline) {
+                out.append("\n");
+            }
 
             var attr = ctx.attributes();
             if (!inline) {
@@ -1176,8 +1178,10 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             var indentation = getIndentation();
             var text = tokens.getText(ctx.getSourceInterval());
             if (indent) {
+                String margin = " ".repeat(indentation);
                 text = text
-                        .replaceAll("\\n[ \\t]{0," + indentation + "}", "\n" + " ".repeat(indentation))
+                        .replaceAll("\\n[ \\t]{0," + indentation + "}", "\n" + margin)
+                        .replace("\n" + margin + "\n", "\n\n")
                         .replaceAll("[ \\t]+$", "");
             }
             out.append(text);
@@ -1286,18 +1290,30 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
     private void printTokens(List<Token> tokenList) {
         int indentation = getIndentation();
         if (tokenList != null && !tokenList.isEmpty()) {
+            String margin = " ".repeat(indentation);
             if (tokenList.size() > 1) {
                 for (Token token : tokenList.subList(0, tokenList.size() - 1)) {
-                    out.append(token.getText().replaceAll("\\n[ \\t]*", "\n" + " ".repeat(indentation)));
+                    if (indentation > 0) {
+                        out.append(token.getText()
+                                .replaceAll("\\n[ \\t]*", "\n" + margin)
+                                .replace("\n" + margin + "\n", "\n\n"));
+                    } else {
+                        out.append(token.getText());
+                    }
                 }
             }
             var lastToken = tokenList.get(tokenList.size() - 1).getText();
-            String text = lastToken
-                    .replaceAll("\\n[ \\t]*", "\n" + " ".repeat(indentation));
-            if (lastToken.endsWith("\n")) {
-                out.append(text.replaceAll("\\n[ \\t]+$", "\n"));
+            if (indentation > 0) {
+                String text = lastToken
+                        .replaceAll("\\n[ \\t]*", "\n" + margin)
+                        .replace("\n" + margin + "\n", "\n\n");
+                if (lastToken.endsWith("\n")) {
+                    out.append(text.replaceAll("\\n[ \\t]+$", "\n"));
+                } else {
+                    out.append(text);
+                }
             } else {
-                out.append(text);
+                out.append(lastToken);
             }
         }
     }
@@ -1364,7 +1380,8 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
 
     private void appendText(ParserRuleContext ctx) {
         var text = tokens.getText(ctx.getSourceInterval());
-        text = text.replaceAll("\n", " ").replaceAll("\\s[\\s]+", " ");
+        text = text.replaceAll("\n", " ")
+                .replaceAll("\\s[\\s]+", " ");
         out.append(text);
     }
 
