@@ -254,8 +254,10 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             }
             if (param.ID() != null) {
                 printCommentsBefore(param.ID());
-                out.append(" ");
                 out.append(param.ID().getText());
+            }
+            if (param.QM() != null) {
+                out.append("?");
             }
             if (param.COLON() != null) {
                 printCommentsBefore(param.COLON());
@@ -267,7 +269,7 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             }
             if (param.COMMA() != null && param.functionDeclParam() != null) {
                 printCommentsBefore(param.COMMA());
-                out.append(",");
+                out.append(", ");
             }
 
             param = param.functionDeclParam();
@@ -964,7 +966,9 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             var indentation = getIndentation();
             var text = tokens.getText(ctx.getSourceInterval());
             if (indent) {
-                text = text.replaceAll("\\n[ \\t]{0," + indentation + "}", "\n" + " ".repeat(indentation));
+                text = text
+                        .replaceAll("\\n[ \\t]{0," + indentation + "}", "\n" + " ".repeat(indentation))
+                        .replaceAll("\\n[ \\t]+$", "");
             }
             out.append(text);
             printHiddenTextAfter(ctx);
@@ -1053,13 +1057,13 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
         return hasComments;
     }
 
-    private void printHiddenTextBefore(int offset) {
-        var tokenList = tokens.getHiddenTokensToLeft(offset);
+    private void printHiddenTextBefore(int tokenIndex) {
+        var tokenList = tokens.getHiddenTokensToLeft(tokenIndex);
         printTokens(tokenList);
     }
 
-    private void printHiddenTextAfter(int offset) {
-        var tokenList = tokens.getHiddenTokensToRight(offset);
+    private void printHiddenTextAfter(int tokenIndex) {
+        var tokenList = tokens.getHiddenTokensToRight(tokenIndex);
         printTokens(tokenList);
     }
 
@@ -1073,8 +1077,8 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             }
             var lastToken = tokenList.get(tokenList.size() - 1).getText();
             out.append(lastToken
-                    .replaceAll("\\n[ \\t]*", "\n" + " ".repeat(indentation)
-                    .replaceAll("\\n[ \\t]+$", "\n")));
+                    .replaceAll("\\n[ \\t]*", "\n" + " ".repeat(indentation))
+                    .replaceAll("\\n[ \\t]+$", "\n"));
         }
     }
 
