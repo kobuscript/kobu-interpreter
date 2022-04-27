@@ -1057,13 +1057,13 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
         if (tokenList != null && !tokenList.isEmpty()) {
             if (tokenList.size() > 1) {
                 for (Token token : tokenList.subList(0, tokenList.size() - 1)) {
-                    out.append(token.getText().replaceAll("\\n\\s*", "\n" + " ".repeat(indentation)));
+                    out.append(token.getText().replaceAll("\\n[ \\t]*", "\n" + " ".repeat(indentation)));
                 }
             }
             var lastToken = tokenList.get(tokenList.size() - 1).getText();
             out.append(lastToken
-                    .replaceAll("\\n\\s*", "\n" + " ".repeat(indentation)
-                    .replaceAll("\\n[\\s]+$", "\n")));
+                    .replaceAll("\\n[ \\t]*", "\n" + " ".repeat(indentation)
+                    .replaceAll("\\n[ \\t]+$", "\n")));
         }
     }
 
