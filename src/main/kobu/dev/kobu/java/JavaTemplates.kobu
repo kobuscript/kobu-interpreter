@@ -51,11 +51,13 @@ fun javaConstructorBodyTemplates(): Rule[] {
     return [JavaDefaultConstructorBodyTemplate]
 }
 
-def template JavaDefaultConstructorBodyTemplate for OutputJavaConstructor <|
+def template JavaDefaultConstructorBodyTemplate
+             for OutputJavaConstructor <|
 
 |> as JavaMethodBodyTemplate
 
-def template JavaDefaultMethodBodyTemplate for OutputJavaMethod as method <|
+def template JavaDefaultMethodBodyTemplate
+             for OutputJavaMethod as method <|
 return null;
 |> as JavaMethodBodyTemplate
 
@@ -251,7 +253,7 @@ def template JavaInterfaceMethodDeclTemplate extends JavaMethodDeclTemplate
              for OutputJavaInterface / methods[*] as method
              join AnyTemplate[] as commentTmpl of method.comments
              join AnyTemplate[] as annTmpl of method.annotations
-             join AnyTemplate[] as paramTmpl of method.parameters<|
+             join AnyTemplate[] as paramTmpl of method.parameters <|
 ${strJoin(commentTmpl, "\n\n")}
 ${strJoin(annTmpl, "\n")}
 ${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")};
@@ -320,11 +322,13 @@ def template JavaArrayLiteralValueTemplate extends JavaArrayValueTemplate
 {${strJoin(valuesTmpl, ", ")}}
 |>
 
-def template JavaSourceValueTemplate for OutputJavaSource as javaSource <|
+def template JavaSourceValueTemplate
+             for OutputJavaSource as javaSource <|
 ${javaSource.source}
 |>
 
-def template LiteralJavaValueTemplate for OutputJavaLiteralValue as javaValue <|
+def template LiteralJavaValueTemplate
+             for OutputJavaLiteralValue as javaValue <|
 ${javaValue.value}
 |>
 
