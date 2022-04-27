@@ -69,6 +69,9 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             printCommentsBefore(ctx.MODULE_ID_END());
             out.append(';');
         }
+        if (ctx.MODULE_ID_BREAK() != null) {
+            out.append("\n");
+        }
         printHiddenTextAfter(ctx);
         return null;
     }
@@ -78,8 +81,6 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
         if (!hasNewLineBefore(ctx, false)) {
             if (importsCount == 0) {
                 out.append("\n\n");
-            } else {
-                out.append("\n");
             }
         }
         out.append("import ");
@@ -98,6 +99,9 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
         if (ctx.MODULE_ID_END() != null) {
             printCommentsBefore(ctx.MODULE_ID_END());
             out.append(';');
+        }
+        if (ctx.MODULE_ID_BREAK() != null) {
+            out.append("\n");
         }
         printHiddenTextAfter(ctx);
         importsCount++;
@@ -273,6 +277,14 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             printCommentsBefore(ctx.RP());
             out.append(")");
         }
+
+        if (ctx.COLON() != null) {
+            out.append(": ");
+        }
+        if (ctx.functionDeclRet() != null) {
+            out.append(ctx.functionDeclRet().getText());
+        }
+
         if (ctx.LCB() != null) {
             printCommentsBefore(ctx.LCB());
             out.append(" {");
@@ -953,7 +965,7 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             var indentation = getIndentation();
             var text = ctx.getText();
             if (indent) {
-                text = text.replaceAll("\\n\\s*", "\n" + " ".repeat(indentation));
+                text = text.replaceAll("\\n[ \\t]*", "\n" + " ".repeat(indentation));
             }
             out.append(text);
             printHiddenTextAfter(ctx);
@@ -1009,11 +1021,11 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
     }
 
     private boolean hasNewLineAfter(ParserRuleContext ctx, boolean includeComments) {
-        return hasNewLineBefore(ctx.stop.getStopIndex(), includeComments);
+        return hasNewLineBefore(ctx.stop.getTokenIndex(), includeComments);
     }
 
     private boolean hasNewLineAfter(TerminalNode node, boolean includeComments) {
-        return hasNewLineBefore(node.getSymbol().getStopIndex(), includeComments);
+        return hasNewLineBefore(node.getSymbol().getTokenIndex(), includeComments);
     }
 
     private boolean hasCommentsBefore(ParserRuleContext ctx) {
