@@ -24,7 +24,7 @@ SOFTWARE.
 
 lexer grammar KobuLexer;
 
-channels { WSCHANNEL, COMMENTCHANNEL, BLOCKCOMMENTCHANNEL }
+channels { COMMENTCHANNEL, BLOCKCOMMENTCHANNEL }
 
 options { superClass=dev.kobu.antlr.KobuLexerBase; }
 
@@ -120,7 +120,7 @@ NUMBER : '-'? INT '.' [0-9]+  // 1.35, 0.3, -4.5
 fragment INT : '0' | [1-9] [0-9]* ; // no leading zeros
 
 ID : [a-zA-Z_][a-zA-Z0-9_]* ;
-WS : [ \t\r\n]+ -> channel(WSCHANNEL) ;
+WS : [ \t\r\n]+ -> channel(HIDDEN) ;
 BAD_CHARACTER : .+? ;
 
 mode STRING_MODE;
@@ -137,7 +137,7 @@ MODULE_ID : [a-zA-Z_][a-zA-Z0-9_]* ;
 MODULE_SEPARATOR : '.' ;
 MODULE_ID_BREAK : NEW_LINE -> popMode ;
 MODULE_ID_END : ';' ;
-MODULEWS : [ \t\r]+ -> channel(WSCHANNEL) ;
+MODULEWS : [ \t\r]+ -> channel(HIDDEN) ;
 MODULE_BAD_CHARACTER : .+? ;
 
 mode TYPE_MODE;
@@ -145,7 +145,7 @@ mode TYPE_MODE;
 TYPE_RECORD : 'record' -> popMode ;
 TYPE_TEMPLATE : 'template' -> popMode ;
 TYPE_BREAK : NEW_LINE -> popMode ;
-TYPEWS : [ \t\r]+ -> channel(WSCHANNEL) ;
+TYPEWS : [ \t\r]+ -> channel(HIDDEN) ;
 INVALID_TYPE : ~[ \t\r\n]+ -> popMode ;
 
 mode DEF_MODE;
@@ -155,7 +155,7 @@ DEFRULE : 'rule' -> popMode ;
 DEFACTION : 'action' -> popMode ;
 DEFNATIVE : 'native' -> popMode ;
 DEF_BREAK : NEW_LINE -> popMode ;
-DEFWS : [ \t\r]+ -> channel(WSCHANNEL) ;
+DEFWS : [ \t\r]+ -> channel(HIDDEN) ;
 INVALID_DEF : ~[ \t\r\n]+ -> popMode ;
 
 mode TEMPLATE_MODE;

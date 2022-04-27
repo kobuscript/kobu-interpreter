@@ -318,7 +318,6 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
         if (inline) {
             out.append(" ");
         } else {
-            out.append("\n");
             popIndentation();
         }
 
@@ -963,9 +962,9 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             visit(ctx);
         } else {
             var indentation = getIndentation();
-            var text = ctx.getText();
+            var text = tokens.getText(ctx.getSourceInterval());
             if (indent) {
-                text = text.replaceAll("\\n[ \\t]*", "\n" + " ".repeat(indentation));
+                text = text.replaceAll("\\n[ \\t]{0," + indentation + "}", "\n" + " ".repeat(indentation));
             }
             out.append(text);
             printHiddenTextAfter(ctx);
@@ -1087,7 +1086,7 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
         var tokenList = tokens.getHiddenTokensToLeft(tokenIndex);
         if (tokenList != null) {
             for (Token token : tokenList) {
-                if (includeComments || token.getChannel() == KobuLexer.WSCHANNEL) {
+                if (includeComments || token.getChannel() == KobuLexer.HIDDEN) {
                     if (token.getText().contains("\n")) {
                         return true;
                     }
@@ -1104,7 +1103,7 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
     private boolean hasNewLineAfter(int tokenIndex, boolean includeComments) {
         var tokenList = tokens.getHiddenTokensToRight(tokenIndex);
         for (Token token : tokenList) {
-            if (includeComments || token.getChannel() == KobuLexer.WSCHANNEL) {
+            if (includeComments || token.getChannel() == KobuLexer.HIDDEN) {
                 if (token.getText().contains("\n")) {
                     return true;
                 }
