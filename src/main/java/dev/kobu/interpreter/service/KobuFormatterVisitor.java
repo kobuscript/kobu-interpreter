@@ -1212,7 +1212,9 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
     }
 
     private void printHiddenTextAfter(ParserRuleContext ctx) {
-        printHiddenTextAfter(ctx.stop.getTokenIndex());
+        if (ctx != null && ctx.stop != null) {
+            printHiddenTextAfter(ctx.stop.getTokenIndex());
+        }
     }
 
     private void printHiddenTextAfter(TerminalNode node) {

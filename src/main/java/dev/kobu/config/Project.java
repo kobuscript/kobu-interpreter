@@ -34,11 +34,9 @@ public class Project {
 
     private String version;
 
-    private String repositoryPath;
-
     private List<ProjectProperty> properties;
 
-    private List<ProjectSourcePath> sourcePaths;
+    private String sourcePath;
 
     private List<ProjectDependency> dependencies;
 
@@ -62,14 +60,6 @@ public class Project {
         this.version = version;
     }
 
-    public String getRepositoryPath() {
-        return repositoryPath;
-    }
-
-    public void setRepositoryPath(String repositoryPath) {
-        this.repositoryPath = repositoryPath;
-    }
-
     public List<ProjectProperty> getProperties() {
         return properties;
     }
@@ -78,12 +68,12 @@ public class Project {
         this.properties = properties;
     }
 
-    public List<ProjectSourcePath> getSourcePaths() {
-        return sourcePaths;
+    public String getSourcePath() {
+        return sourcePath;
     }
 
-    public void setSourcePaths(List<ProjectSourcePath> sourcePaths) {
-        this.sourcePaths = sourcePaths;
+    public void setSourcePath(String sourcePath) {
+        this.sourcePath = sourcePath;
     }
 
     public List<ProjectDependency> getDependencies() {

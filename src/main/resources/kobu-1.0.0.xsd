@@ -6,13 +6,7 @@
             <xs:sequence>
                 <xs:element name="name" type="xs:string"/>
                 <xs:element name="version" type="xs:decimal"/>
-                <xs:element name="sourcePaths">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="sourcePath" type="xs:string"/>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
+                <xs:element name="sourcePath" type="xs:string"/>
                 <xs:element name="properties">
                     <xs:complexType>
                         <xs:sequence>

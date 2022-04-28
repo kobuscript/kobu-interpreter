@@ -81,7 +81,9 @@ public class ModuleParserVisitor extends KobuParserVisitor<Void> {
         if (!declaredModuleId.equals(fileModuleId)) {
             context.getErrorScope().addError(new InvalidModuleDeclarationError(getSourceCodeRef(ctx), declaredModuleId));
         }
-        moduleScope.setNewImportOffset(ctx.MODULE_ID_BREAK().getSymbol().getStopIndex() + 1);
+        if (ctx.MODULE_ID_BREAK() != null) {
+            moduleScope.setNewImportOffset(ctx.MODULE_ID_BREAK().getSymbol().getStopIndex() + 1);
+        }
         return null;
     }
 

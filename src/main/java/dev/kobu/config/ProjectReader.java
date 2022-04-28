@@ -29,6 +29,7 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.file_system.KobuDirectory;
 import dev.kobu.interpreter.file_system.KobuFile;
 import dev.kobu.interpreter.file_system.KobuFileSystem;
+import dev.kobu.interpreter.file_system.KobuFileSystemEntry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -83,7 +84,7 @@ public class ProjectReader {
         Project project = new Project();
         project.setName(getRequiredField(doc.getDocumentElement(), "name", sourceCodeRef));
         project.setVersion(getRequiredField(doc.getDocumentElement(), "version", sourceCodeRef));
-        project.setRepositoryPath(getField(doc.getDocumentElement(), "repositoryPath", sourceCodeRef));
+        project.setSourcePath(getField(doc.getDocumentElement(), "sourcePath", sourceCodeRef));
 
         NodeList propertyNodes = getGroup(doc.getDocumentElement(), "properties", "property", sourceCodeRef);
         if (propertyNodes != null) {
@@ -96,20 +97,6 @@ public class ProjectReader {
                 properties.add(property);
             }
             project.setProperties(properties);
-        }
-
-        NodeList sourcePathNodes = getGroup(doc.getDocumentElement(), "sourcePaths", "sourcePath", sourceCodeRef);
-        if (sourcePathNodes != null) {
-            List<ProjectSourcePath> sourcePaths = new ArrayList<>();
-            for (int i = 0; i < sourcePathNodes.getLength(); i++) {
-                Element element = (Element) sourcePathNodes.item(i);
-                if (element.hasChildNodes()) {
-                    ProjectSourcePath sourcePath = new ProjectSourcePath();
-                    sourcePath.setPath(element.getFirstChild().getNodeValue());
-                    sourcePaths.add(sourcePath);
-                }
-            }
-            project.setSourcePaths(sourcePaths);
         }
 
         NodeList dependencyNodes = getGroup(doc.getDocumentElement(), "dependencies", "dependency", sourceCodeRef);
@@ -132,12 +119,14 @@ public class ProjectReader {
 
         var projectDir = fileSystem.getParent(projectFile);
         var srcDirs = new ArrayList<KobuDirectory>();
-        if (project.getSourcePaths() == null || project.getSourcePaths().isEmpty()) {
+        if (project.getSourcePath() == null || project.getSourcePath().isEmpty()) {
            srcDirs.add(projectDir);
         } else {
-            for (ProjectSourcePath sourcePath : project.getSourcePaths()) {
-                srcDirs.add((KobuDirectory) fileSystem.loadEntry(projectDir, sourcePath.getPath()));
+            KobuFileSystemEntry srcEntry = fileSystem.loadEntry(projectDir, project.getSourcePath());
+            if (!(srcEntry instanceof KobuDirectory)) {
+                throw new ProjectInvalidSourcePathError(sourceCodeRef, project.getSourcePath());
             }
+            srcDirs.add((KobuDirectory) srcEntry);
         }
         project.setProjectDirectory(projectDir);
         project.setSrcDirs(srcDirs);

@@ -22,17 +22,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.config;
+package dev.kobu.config.error;
 
-public class ProjectSourcePath {
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
-    private String path;
+public class ProjectInvalidSourcePathError extends ProjectError {
 
-    public String getPath() {
-        return path;
+    private final String sourcePath;
+
+    public ProjectInvalidSourcePathError(SourceCodeRef sourceCodeRef, String sourcePath) {
+        super(sourceCodeRef);
+        this.sourcePath = sourcePath;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public String getSourcePath() {
+        return sourcePath;
     }
+
 }

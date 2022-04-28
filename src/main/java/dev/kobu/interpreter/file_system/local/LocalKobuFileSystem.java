@@ -38,8 +38,8 @@ import java.util.List;
 public class LocalKobuFileSystem implements KobuFileSystem {
 
     @Override
-    public KobuFile findProjectDefinition(KobuFile file) {
-        return findProjectRoot(file);
+    public KobuFile findProjectDefinition(KobuFileSystemEntry entry) {
+        return findProjectRoot(entry);
     }
 
     @Override

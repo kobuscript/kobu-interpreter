@@ -78,9 +78,6 @@ public class DependencyResolver {
     }
 
     private File getRepositoryDir() {
-        if (project.getRepositoryPath() != null) {
-            return new File(project.getRepositoryPath());
-        }
         return new File(System.getProperty("user.home"), DEFAULT_REPOSITORY_PATH);
     }
 

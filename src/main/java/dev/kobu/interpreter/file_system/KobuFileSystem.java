@@ -36,7 +36,7 @@ public interface KobuFileSystem {
 
     String PROJECT_CFG = "kobu.xml";
 
-    KobuFile findProjectDefinition(KobuFile file);
+    KobuFile findProjectDefinition(KobuFileSystemEntry entry);
 
     KobuFileSystemEntry loadEntry(KobuDirectory parent, String subPath);
 

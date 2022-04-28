@@ -42,9 +42,7 @@ import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.error.KobuError;
 import dev.kobu.interpreter.error.ParserError;
 import dev.kobu.interpreter.error.ParserErrorListener;
-import dev.kobu.interpreter.file_system.KobuFile;
-import dev.kobu.interpreter.file_system.KobuFileSystem;
-import dev.kobu.interpreter.file_system.KobuScriptFile;
+import dev.kobu.interpreter.file_system.*;
 import dev.kobu.interpreter.codec.FileFetcher;
 import dev.kobu.interpreter.codec.CodecNativeFunctionRegistry;
 import dev.kobu.interpreter.codec.InputReader;
@@ -57,6 +55,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -168,6 +167,18 @@ public class KobuAnalyzer {
         KobuFile projectFile = fileSystem.findProjectDefinition(refFile);
         ModuleLoader moduleLoader = getModuleLoader(projectFile, refFile);
         return moduleLoader.getSymbolDocumentation(refFile, offset);
+    }
+
+    public String getPathModule(KobuFileSystemEntry entry) throws AnalyzerError {
+        KobuFile projectFile = fileSystem.findProjectDefinition(entry);
+        if (projectFile != null) {
+            var projectReader = new ProjectReader(fileSystem);
+            Project project = projectReader.load(projectFile);
+            var relPath = Path.of(project.getSrcDirs().get(0).getAbsolutePath())
+                    .relativize(Path.of(entry.getAbsolutePath()));
+            return relPath.toString().replace('/', '.');
+        }
+        return "";
     }
 
     public String formatFile(File ioFile, int tabSize) throws ProjectError, IOException {

@@ -77,7 +77,9 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
     @Override
     public AstNode visitModule(KobuParser.ModuleContext ctx) {
-        scopeEndOffset = ctx.getStop().getStopIndex() + 1;
+        if (ctx != null && ctx.getStop() != null) {
+            scopeEndOffset = ctx.getStop().getStopIndex() + 1;
+        }
         return null;
     }
 
