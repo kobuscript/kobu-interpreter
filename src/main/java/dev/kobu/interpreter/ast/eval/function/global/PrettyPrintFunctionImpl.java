@@ -39,7 +39,7 @@ public class PrettyPrintFunctionImpl extends BuiltinGlobalFunction {
 
         StringBuilder out = new StringBuilder();
         valueExpr.prettyPrint(out, 0);
-        System.out.println(out);
+        context.getOutputWriter().getStdOut().println(out);
 
         return null;
     }

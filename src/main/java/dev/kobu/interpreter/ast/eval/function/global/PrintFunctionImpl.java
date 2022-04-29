@@ -38,11 +38,11 @@ public class PrintFunctionImpl extends BuiltinGlobalFunction {
     protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         ValueExpr valueExpr = args.get("obj");
         if (valueExpr instanceof StringValueExpr) {
-            System.out.println(((StringValueExpr)valueExpr).getValue());
+            context.getOutputWriter().getStdOut().println(((StringValueExpr)valueExpr).getValue());
         } else if (valueExpr != null) {
-            System.out.println(valueExpr.getStringValue());
+            context.getOutputWriter().getStdOut().println(valueExpr.getStringValue());
         } else {
-            System.out.println("null");
+            context.getOutputWriter().getStdOut().println("null");
         }
         return null;
     }

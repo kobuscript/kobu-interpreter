@@ -140,7 +140,7 @@ public class ErrorMessageFormatter {
         return source.toString();
     }
 
-    public static StringBuilder getMessage(AnalyzerError analyzerError) throws IOException {
+    public static StringBuilder getMessage(AnalyzerError analyzerError) {
         StringBuilder message = new StringBuilder();
 
         if (analyzerError.getSourceCodeRefs().size() == 1) {
@@ -150,7 +150,7 @@ public class ErrorMessageFormatter {
             message.append(' ');
             message.append(analyzerError.getDescription());
             message.append('\n');
-            message.append(getSource(sourceCodeRef));
+            appendSource(message, sourceCodeRef);
         } else {
             message.append("ERROR: ").append(analyzerError.getDescription());
             message.append('\n').append('\n');
@@ -159,14 +159,14 @@ public class ErrorMessageFormatter {
                 message.append("File: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
                 message.append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
                 message.append('\n');
-                message.append(getSource(sourceCodeRef));
+                appendSource(message, sourceCodeRef);
             }
         }
 
         return message;
     }
 
-    public static StringBuilder getMessage(EvalError evalError) throws IOException {
+    public static StringBuilder getMessage(EvalError evalError) {
         StringBuilder message = new StringBuilder();
         SourceCodeRef sourceCodeRef = evalError.getSourceCodeRef();
         message.append("ERROR: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
@@ -174,12 +174,12 @@ public class ErrorMessageFormatter {
         message.append(' ');
         message.append(evalError.getDescription());
         message.append('\n');
-        message.append(getSource(sourceCodeRef));
+        appendSource(message, sourceCodeRef);
 
         return message;
     }
 
-    public static StringBuilder getMessage(ParserError parserError) throws IOException {
+    public static StringBuilder getMessage(ParserError parserError) {
         StringBuilder message = new StringBuilder();
         SourceCodeRef sourceCodeRef = parserError.getSourceCodeRef();
         message.append("ERROR: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
@@ -187,9 +187,19 @@ public class ErrorMessageFormatter {
         message.append(' ');
         message.append(parserError.getMessage());
         message.append('\n');
-        message.append(getSource(sourceCodeRef));
+        appendSource(message, sourceCodeRef);
 
         return message;
+    }
+
+    private static void appendSource(StringBuilder message, SourceCodeRef sourceCodeRef) {
+        try {
+            message.append(getSource(sourceCodeRef));
+        } catch (IOException ex) {
+            message.append("<Failed to read data from: ")
+                    .append(sourceCodeRef.getFile().getAbsolutePath())
+                    .append(">");
+        }
     }
 
 }

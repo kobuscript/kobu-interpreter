@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.kobu.interpreter;
 
+import dev.kobu.KobuScriptRunner;
 import dev.kobu.config.Project;
 import dev.kobu.config.ProjectReader;
 import dev.kobu.database.Database;
@@ -58,70 +59,8 @@ public class RunCliCommand implements Callable<Integer> {
     List<String> scriptArgs;
 
     @Override
-    public Integer call() throws Exception {
-        try {
-
-            if (!file.isFile()) {
-                System.err.println("ERROR: File not found: " + file.getAbsolutePath());
-                return 1;
-            }
-
-            LocalKobuFileSystem fileSystem = new LocalKobuFileSystem();
-            AnalyzerContext analyzerContext = new AnalyzerContext();
-            LocalKobuFile localFile = new LocalKobuFile(this.file);
-            KobuFile projectFile = fileSystem.findProjectDefinition(localFile);
-            ProjectReader projectReader = new ProjectReader(fileSystem);
-            Project project;
-            if (projectFile != null) {
-                project = projectReader.load(projectFile);
-            } else {
-                project = projectReader.loadDefaultProject(localFile);
-            }
-
-            Database database = new Database();
-            InputReader inputReader = new InputReader(new FileFetcher());
-            OutputWriter outputWriter = new OutputWriter();
-            EvalContextProvider evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, fileSystem,
-                    database, inputReader, outputWriter);
-
-            ModuleLoader moduleLoader = new ModuleLoader(evalContextProvider, fileSystem, project, EvalModeEnum.EXECUTION);
-            CodecNativeFunctionRegistry.register(moduleLoader);
-            ModuleScope moduleScope = moduleLoader.load(analyzerContext, localFile);
-
-            analyzerContext.getParserErrorListener().checkErrors();
-
-            moduleScope.analyze(analyzerContext, evalContextProvider);
-
-            List<AnalyzerError> errors = analyzerContext.getAllErrors();
-            if (!errors.isEmpty()) {
-                throw new AnalyzerErrorList(errors);
-            }
-
-            if (scriptArgs == null) {
-                scriptArgs = new ArrayList<>();
-            }
-
-            moduleScope.runMainFunction(analyzerContext, evalContextProvider, scriptArgs);
-
-        } catch (ParserErrorList e) {
-            for (ParserError error : e.getErrors()) {
-                System.err.println(ErrorMessageFormatter.getMessage(error));
-            }
-            return 1;
-        } catch (AnalyzerErrorList e) {
-            for (AnalyzerError error : e.getErrors()) {
-                System.err.println(ErrorMessageFormatter.getMessage(error));
-            }
-            return 1;
-        } catch (AnalyzerError e) {
-            System.err.println(ErrorMessageFormatter.getMessage(e));
-            return 1;
-        } catch (EvalError e) {
-            System.err.println(ErrorMessageFormatter.getMessage(e));
-            return 1;
-        }
-
-        return 0;
+    public Integer call() {
+        return new KobuScriptRunner(file, scriptArgs).run(System.out, System.err);
     }
 
 }

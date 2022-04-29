@@ -73,7 +73,7 @@ public class KobuAnalyzer {
         this.fileSystem = fileSystem;
         Database database = new Database();
         InputReader inputReader = new InputReader(new FileFetcher());
-        OutputWriter outputWriter = new OutputWriter();
+        OutputWriter outputWriter = new OutputWriter(System.out, System.err);
         evalContextProvider = new EvalContextProvider(EvalModeEnum.ANALYZER_SERVICE, fileSystem, database,
                 inputReader, outputWriter);
     }

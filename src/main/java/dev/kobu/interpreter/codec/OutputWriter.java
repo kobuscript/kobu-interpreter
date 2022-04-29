@@ -35,14 +35,28 @@ import dev.kobu.interpreter.codec.impl.XmlWriter;
 import dev.kobu.interpreter.error.eval.BuiltinFunctionError;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Map;
 
 public class OutputWriter {
+
+    private final PrintStream stdOut;
+
+    private final PrintStream stdIn;
+
+    public OutputWriter(PrintStream stdOut, PrintStream stdIn) {
+        this.stdOut = stdOut;
+        this.stdIn = stdIn;
+    }
+
+    public PrintStream getStdOut() {
+        return stdOut;
+    }
+
+    public PrintStream getStdIn() {
+        return stdIn;
+    }
 
     public ValueExpr encode(ModuleScope moduleScope, EvalContext context, Writer writer,
                             ValueExpr source, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
