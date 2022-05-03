@@ -22,21 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.config.error;
+package dev.kobu.interpreter.service;
 
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.config.ProjectCommand;
 
-public class ProjectMissingFieldError extends ProjectError {
+import java.util.List;
 
-    private final String[] path;
+public class KobuCommandGroup {
 
-    public ProjectMissingFieldError(SourceCodeRef sourceCodeRef, String[] path) {
-        super(sourceCodeRef);
-        this.path = path;
+    private final String groupName;
+
+    private final List<ProjectCommand> commands;
+
+    public KobuCommandGroup(String groupName, List<ProjectCommand> commands) {
+        this.groupName = groupName;
+        this.commands = commands;
     }
 
-    @Override
-    public String getDescription() {
-        return "Missing tag: " + String.join(" / ", path);
+    public String getGroupName() {
+        return groupName;
     }
+
+    public List<ProjectCommand> getCommands() {
+        return commands;
+    }
+
 }
