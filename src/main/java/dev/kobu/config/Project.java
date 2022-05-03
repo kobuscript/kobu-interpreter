@@ -40,6 +40,8 @@ public class Project {
 
     private List<ProjectDependency> dependencies;
 
+    private List<ProjectCommand> commands;
+
     private KobuDirectory projectDirectory;
 
     private List<KobuDirectory> srcDirs;
@@ -82,6 +84,14 @@ public class Project {
 
     public void setDependencies(List<ProjectDependency> dependencies) {
         this.dependencies = dependencies;
+    }
+
+    public List<ProjectCommand> getCommands() {
+        return commands;
+    }
+
+    public void setCommands(List<ProjectCommand> commands) {
+        this.commands = commands;
     }
 
     public KobuDirectory getProjectDirectory() {

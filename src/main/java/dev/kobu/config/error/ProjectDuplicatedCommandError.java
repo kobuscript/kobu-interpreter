@@ -24,20 +24,20 @@ SOFTWARE.
 
 package dev.kobu.config.error;
 
+import dev.kobu.config.ProjectCommand;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.config.ProjectDependency;
 
-public class ProjectDuplicatedDependencyError extends ProjectError {
+public class ProjectDuplicatedCommandError extends ProjectError {
 
-    private final ProjectDependency dependency;
+    private final ProjectCommand command;
 
-    public ProjectDuplicatedDependencyError(SourceCodeRef sourceCodeRef, ProjectDependency dependency) {
+    public ProjectDuplicatedCommandError(SourceCodeRef sourceCodeRef, ProjectCommand command) {
         super(sourceCodeRef);
-        this.dependency = dependency;
+        this.command = command;
     }
 
     @Override
     public String getDescription() {
-        return "Dependency '" + dependency.getUrl() + "' is already defined";
+        return "Command '" + command.getName() + "' is already defined";
     }
 }

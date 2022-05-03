@@ -22,22 +22,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.config.error;
+package dev.kobu.config;
 
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.config.ProjectDependency;
+public class ProjectCommand {
 
-public class ProjectDuplicatedDependencyError extends ProjectError {
+    private String name;
 
-    private final ProjectDependency dependency;
+    private String description;
 
-    public ProjectDuplicatedDependencyError(SourceCodeRef sourceCodeRef, ProjectDependency dependency) {
-        super(sourceCodeRef);
-        this.dependency = dependency;
+    private String scriptPath;
+
+    private String targetPattern;
+
+    public String getName() {
+        return name;
     }
 
-    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getDescription() {
-        return "Dependency '" + dependency.getUrl() + "' is already defined";
+        return description;
     }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getScriptPath() {
+        return scriptPath;
+    }
+
+    public void setScriptPath(String scriptPath) {
+        this.scriptPath = scriptPath;
+    }
+
+    public String getTargetPattern() {
+        return targetPattern;
+    }
+
+    public void setTargetPattern(String targetPattern) {
+        this.targetPattern = targetPattern;
+    }
+
 }

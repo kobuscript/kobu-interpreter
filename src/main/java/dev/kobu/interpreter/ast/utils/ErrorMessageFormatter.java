@@ -36,7 +36,7 @@ import java.io.InputStreamReader;
 public class ErrorMessageFormatter {
 
     public static String getSource(SourceCodeRef sourceCodeRef) throws IOException {
-        if (sourceCodeRef == null) {
+        if (sourceCodeRef == null || !sourceCodeRef.hasPosition()) {
             return "";
         }
 
@@ -146,8 +146,10 @@ public class ErrorMessageFormatter {
         if (analyzerError.getSourceCodeRefs().size() == 1) {
             SourceCodeRef sourceCodeRef = analyzerError.getSourceCodeRefs().get(0);
             message.append("ERROR: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
-            message.append(' ').append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
-            message.append(' ');
+            if (sourceCodeRef.hasPosition()) {
+                message.append(' ').append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
+                message.append(' ');
+            }
             message.append(analyzerError.getDescription());
             message.append('\n');
             appendSource(message, sourceCodeRef);
@@ -157,8 +159,10 @@ public class ErrorMessageFormatter {
 
             for (SourceCodeRef sourceCodeRef : analyzerError.getSourceCodeRefs()) {
                 message.append("File: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
-                message.append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
-                message.append('\n');
+                if (sourceCodeRef.hasPosition()) {
+                    message.append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
+                    message.append('\n');
+                }
                 appendSource(message, sourceCodeRef);
             }
         }

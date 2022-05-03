@@ -34,6 +34,8 @@ public class SourceCodeRef {
 
     private String moduleId;
 
+    private boolean hasPosition;
+
     private int lineStart;
 
     private int charStart;
@@ -66,6 +68,7 @@ public class SourceCodeRef {
         this.charEnd = charEnd;
         this.startOffset = startOffset;
         this.endOffset = endOffset;
+        this.hasPosition = true;
     }
 
     public ResourceRef getFile() {
@@ -98,6 +101,10 @@ public class SourceCodeRef {
 
     public int getEndOffset() {
         return endOffset;
+    }
+
+    public boolean hasPosition() {
+        return hasPosition;
     }
 
     @Override

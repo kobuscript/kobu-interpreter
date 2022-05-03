@@ -35,8 +35,8 @@ public class ProjectInvalidSourcePathError extends ProjectError {
         this.sourcePath = sourcePath;
     }
 
-    public String getSourcePath() {
-        return sourcePath;
+    @Override
+    public String getDescription() {
+        return "Invalid source path: " + sourcePath;
     }
-
 }

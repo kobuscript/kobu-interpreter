@@ -32,6 +32,7 @@ import dev.kobu.interpreter.file_system.KobuFileSystem;
 import dev.kobu.interpreter.file_system.KobuFileSystemEntry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -117,6 +118,25 @@ public class ProjectReader {
             project.setDependencies(dependencies);
         }
 
+        NodeList commandNodes = getGroup(doc.getDocumentElement(), "commands", "command", sourceCodeRef);
+        if (commandNodes != null) {
+            List<ProjectCommand> commands = new ArrayList<>();
+            Set<String> commandSet = new HashSet<>();
+            for (int i = 0; i < commandNodes.getLength(); i++) {
+                Element element = (Element) commandNodes.item(i);
+                ProjectCommand command = new ProjectCommand();
+                command.setName(getRequiredField(element, "name", sourceCodeRef));
+                command.setScriptPath(getRequiredField(element, "script", sourceCodeRef));
+                command.setDescription(getRequiredField(element, "description", sourceCodeRef));
+                command.setTargetPattern(getField(element, "pattern", sourceCodeRef));
+                if (!commandSet.add(command.getName())) {
+                    throw new ProjectDuplicatedCommandError(sourceCodeRef, command);
+                }
+                commands.add(command);
+            }
+            project.setCommands(commands);
+        }
+
         var projectDir = fileSystem.getParent(projectFile);
         var srcDirs = new ArrayList<KobuDirectory>();
         if (project.getSourcePath() == null || project.getSourcePath().isEmpty()) {
@@ -135,13 +155,13 @@ public class ProjectReader {
     }
 
     private String getRequiredField(Element element, String fieldName, SourceCodeRef sourceCodeRef) throws ProjectError {
-        var nodes = element.getElementsByTagName(fieldName);
-        if (nodes.getLength() == 0) {
-            throw new ProjectMissingFieldError(sourceCodeRef, element.getTagName(), fieldName);
-        } else if (nodes.getLength() > 1) {
-            throw new ProjectDuplicatedFieldError(sourceCodeRef, element.getTagName(), fieldName);
+        var nodes = getChildrenWithName(element, fieldName);
+        if (nodes.size() == 0) {
+            throw new ProjectMissingFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName});
+        } else if (nodes.size() > 1) {
+            throw new ProjectDuplicatedFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName});
         }
-        return nodes.item(0).getFirstChild().getNodeValue();
+        return nodes.get(0).getFirstChild().getNodeValue();
     }
 
     private Integer getRequiredIntField(Element element, String fieldName, SourceCodeRef sourceCodeRef) throws ProjectError {
@@ -149,14 +169,14 @@ public class ProjectReader {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException ex) {
-            throw new ProjectInvalidIntFieldError(sourceCodeRef, element.getTagName(), fieldName, value);
+            throw new ProjectInvalidIntFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName}, value);
         }
     }
 
     private String getField(Element element, String fieldName, SourceCodeRef sourceCodeRef) throws ProjectError {
         var nodes = element.getElementsByTagName(fieldName);
         if (nodes.getLength() > 1) {
-            throw new ProjectDuplicatedFieldError(sourceCodeRef, element.getTagName(), fieldName);
+            throw new ProjectDuplicatedFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName});
         } else if (nodes.getLength() == 1) {
             return nodes.item(0).getFirstChild().getNodeValue();
         }
@@ -171,15 +191,26 @@ public class ProjectReader {
         }
 
         if (groups.getLength() > 1) {
-            throw new ProjectDuplicatedFieldError(sourceCodeRef, element.getTagName(), groupName);
+            throw new ProjectDuplicatedFieldError(sourceCodeRef, new String[]{element.getTagName(), groupName});
         }
 
         var groupItems = ((Element)groups.item(0)).getElementsByTagName(groupItemName);
 
         if (groupItems.getLength() == 0) {
-            throw new ProjectMissingFieldError(sourceCodeRef, groupName, groupItemName);
+            throw new ProjectMissingFieldError(sourceCodeRef, new String[]{groupName, groupItemName});
         }
 
         return groupItems;
+    }
+
+    private List<Node> getChildrenWithName(Element element, String name) {
+        List<Node> nodes = new ArrayList<>();
+        for (int i = 0; i < element.getChildNodes().getLength(); i++) {
+            Node node = element.getChildNodes().item(i);
+            if (node instanceof Element && ((Element) node).getTagName().equals(name)) {
+                nodes.add(node);
+            }
+        }
+        return nodes;
     }
 }

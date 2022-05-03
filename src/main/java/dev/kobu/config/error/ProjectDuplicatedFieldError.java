@@ -28,21 +28,15 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 public class ProjectDuplicatedFieldError extends ProjectError {
 
-    private final String scope;
+    private final String[] path;
 
-    private final String field;
-
-    public ProjectDuplicatedFieldError(SourceCodeRef sourceCodeRef, String scope, String field) {
+    public ProjectDuplicatedFieldError(SourceCodeRef sourceCodeRef, String[] path) {
         super(sourceCodeRef);
-        this.scope = scope;
-        this.field = field;
+        this.path = path;
     }
 
-    public String getScope() {
-        return scope;
-    }
-
-    public String getField() {
-        return field;
+    @Override
+    public String getDescription() {
+        return "Field is already defined: " + String.join(" / ", path);
     }
 }

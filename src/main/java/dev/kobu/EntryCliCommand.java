@@ -26,14 +26,22 @@ package dev.kobu;
 
 import dev.kobu.config.NewCliCommand;
 import dev.kobu.interpreter.FormatCliCommand;
+import dev.kobu.interpreter.ListCmdCliCommand;
 import dev.kobu.interpreter.RunCliCommand;
+import dev.kobu.interpreter.RunCmdCliCommand;
 import picocli.CommandLine;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 @CommandLine.Command(mixinStandardHelpOptions = true,
-        subcommands = {RunCliCommand.class, NewCliCommand.class, FormatCliCommand.class},
+        subcommands = {
+                RunCliCommand.class,
+                NewCliCommand.class,
+                FormatCliCommand.class,
+                RunCmdCliCommand.class,
+                ListCmdCliCommand.class
+        },
         versionProvider = EntryCliCommand.KobuVersionProvider.class)
 public class EntryCliCommand {
 

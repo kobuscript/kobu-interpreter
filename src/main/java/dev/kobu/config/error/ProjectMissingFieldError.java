@@ -28,22 +28,15 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 public class ProjectMissingFieldError extends ProjectError {
 
-    private final String scope;
+    private final String[] path;
 
-    private final String error;
-
-    public ProjectMissingFieldError(SourceCodeRef sourceCodeRef, String scope, String error) {
+    public ProjectMissingFieldError(SourceCodeRef sourceCodeRef, String[] path) {
         super(sourceCodeRef);
-        this.scope = scope;
-        this.error = error;
+        this.path = path;
     }
 
-    public String getScope() {
-        return scope;
+    @Override
+    public String getDescription() {
+        return "Missing field: " + String.join(" / ", path);
     }
-
-    public String getError() {
-        return error;
-    }
-
 }

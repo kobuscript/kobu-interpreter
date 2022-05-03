@@ -28,29 +28,18 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 public class ProjectInvalidIntFieldError extends ProjectError{
 
-    private final String scope;
-
-    private final String fieldName;
+    private final String[] path;
 
     private final String value;
 
-    public ProjectInvalidIntFieldError(SourceCodeRef sourceCodeRef, String scope, String fieldName, String value) {
+    public ProjectInvalidIntFieldError(SourceCodeRef sourceCodeRef, String[] path, String value) {
         super(sourceCodeRef);
-        this.scope = scope;
-        this.fieldName = fieldName;
+        this.path = path;
         this.value = value;
     }
 
-    public String getScope() {
-        return scope;
+    @Override
+    public String getDescription() {
+        return "Invalid value for field " + String.join(" / ", path) + ": '" + value + "'";
     }
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
 }
