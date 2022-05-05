@@ -29,9 +29,16 @@ public class KobuScriptRunner {
 
     private final List<String> arguments;
 
+    private Project project;
+
     public KobuScriptRunner(File scriptFile, List<String> arguments) {
         this.scriptFile = scriptFile;
         this.arguments = arguments != null ? arguments : new ArrayList<>();
+    }
+
+    public KobuScriptRunner(File scriptFile, List<String> arguments, Project project) {
+        this(scriptFile, arguments);
+        this.project = project;
     }
 
     public int run(PrintStream out, PrintStream err) {
@@ -45,13 +52,22 @@ public class KobuScriptRunner {
             LocalKobuFileSystem fileSystem = new LocalKobuFileSystem();
             AnalyzerContext analyzerContext = new AnalyzerContext();
             LocalKobuFile localFile = new LocalKobuFile(this.scriptFile);
-            KobuFile projectFile = fileSystem.findProjectDefinition(localFile);
-            ProjectReader projectReader = new ProjectReader(fileSystem);
-            Project project;
-            if (projectFile != null) {
-                project = projectReader.load(projectFile);
-            } else {
-                project = projectReader.loadDefaultProject(localFile);
+
+            Project project = this.project;
+
+            if (project == null) {
+                KobuFile projectFile = fileSystem.findProjectDefinition(localFile);
+                ProjectReader projectReader = new ProjectReader(fileSystem);
+
+                if (projectFile != null) {
+                    project = projectReader.load(projectFile);
+                } else {
+                    project = projectReader.loadDefaultProject(localFile);
+                }
+            }
+
+            if (project.getErrors() != null && !project.getErrors().isEmpty()) {
+                throw new AnalyzerErrorList(project.getErrors());
             }
 
             Database database = new Database();

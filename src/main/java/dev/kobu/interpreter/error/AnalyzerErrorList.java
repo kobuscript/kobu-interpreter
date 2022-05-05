@@ -28,14 +28,14 @@ import java.util.List;
 
 public class AnalyzerErrorList extends AnalyzerError {
 
-    private final List<AnalyzerError> errors;
+    private final List<? extends AnalyzerError> errors;
 
-    public AnalyzerErrorList(List<AnalyzerError> errors) {
+    public AnalyzerErrorList(List<? extends AnalyzerError> errors) {
         super();
         this.errors = errors;
     }
 
-    public List<AnalyzerError> getErrors() {
+    public List<? extends AnalyzerError> getErrors() {
         return errors;
     }
 

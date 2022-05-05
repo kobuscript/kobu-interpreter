@@ -24,9 +24,11 @@ SOFTWARE.
 
 package dev.kobu.config.error;
 
-public class ProjectSetupError extends RuntimeException {
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
-    public ProjectSetupError(Throwable cause) {
-        super(cause);
+public class ProjectSetupError extends ProjectError {
+
+    public ProjectSetupError(SourceCodeRef sourceCodeRef, Throwable cause) {
+        super(cause, sourceCodeRef);
     }
 }

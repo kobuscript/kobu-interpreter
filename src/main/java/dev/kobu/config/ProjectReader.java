@@ -63,77 +63,85 @@ public class ProjectReader {
         return project;
     }
 
-    public Project load(KobuFile projectFile) throws ProjectError {
+    public Project load(KobuFile projectFile) {
+
+        Project project = new Project();
+        List<ProjectError> errors = new ArrayList<>();
+        project.setErrors(errors);
 
         DocumentBuilder db;
         SourceCodeRef sourceCodeRef = new SourceCodeRef(projectFile);
         try {
             db = dbf.newDocumentBuilder();
         } catch (ParserConfigurationException ex) {
-            throw new ProjectSetupError(ex);
+            errors.add(new ProjectSetupError(sourceCodeRef, ex));
+            return project;
         }
 
         Document doc;
         try (InputStream in = projectFile.newInputStream()) {
             doc = db.parse(in);
         } catch (Exception ex) {
-            throw new InvalidProjectFileError(sourceCodeRef, ex);
+            errors.add(new InvalidProjectFileError(sourceCodeRef, ex));
+            return project;
         }
 
         doc.getDocumentElement().normalize();
 
-        Project project = new Project();
-        project.setName(getRequiredField(doc.getDocumentElement(), "name", sourceCodeRef));
-        project.setVersion(getRequiredField(doc.getDocumentElement(), "version", sourceCodeRef));
-        project.setSourcePath(getField(doc.getDocumentElement(), "sourcePath", sourceCodeRef));
+        project.setName(getRequiredField(errors, doc.getDocumentElement(), "name", sourceCodeRef));
+        project.setVersion(getRequiredField(errors, doc.getDocumentElement(), "version", sourceCodeRef));
+        project.setSourcePath(getField(errors, doc.getDocumentElement(), "sourcePath", sourceCodeRef));
 
-        NodeList propertyNodes = getGroup(doc.getDocumentElement(), "properties", "property", sourceCodeRef);
+        NodeList propertyNodes = getGroup(errors, doc.getDocumentElement(), "properties", "property", sourceCodeRef);
         if (propertyNodes != null) {
             List<ProjectProperty> properties = new ArrayList<>();
             for (int i = 0; i < propertyNodes.getLength(); i++) {
                 Element element = (Element) propertyNodes.item(i);
                 ProjectProperty property = new ProjectProperty();
-                property.setName(getRequiredField(element, "name", sourceCodeRef));
-                property.setValue(getRequiredField(element, "value", sourceCodeRef));
+                property.setName(getRequiredField(errors, element, "name", sourceCodeRef));
+                property.setValue(getRequiredField(errors, element, "value", sourceCodeRef));
                 properties.add(property);
             }
             project.setProperties(properties);
         }
 
-        NodeList dependencyNodes = getGroup(doc.getDocumentElement(), "dependencies", "dependency", sourceCodeRef);
+        NodeList dependencyNodes = getGroup(errors, doc.getDocumentElement(), "dependencies", "dependency", sourceCodeRef);
         if (dependencyNodes != null) {
             List<ProjectDependency> dependencies = new ArrayList<>();
             Set<String> repos = new HashSet<>();
             for (int i = 0; i < dependencyNodes.getLength(); i++) {
                 Element element = (Element) dependencyNodes.item(i);
                 ProjectDependency dependency = new ProjectDependency();
-                dependency.setUrl(getRequiredField(element, "url", sourceCodeRef));
-                dependency.setSha(getRequiredField(element, "sha", sourceCodeRef));
-                dependency.setTag(getField(element, "tag", sourceCodeRef));
+                dependency.setUrl(getRequiredField(errors, element, "url", sourceCodeRef));
+                dependency.setSha(getRequiredField(errors, element, "sha", sourceCodeRef));
+                dependency.setTag(getField(errors, element, "tag", sourceCodeRef));
                 if (!repos.add(dependency.getUrl())) {
-                    throw new ProjectDuplicatedDependencyError(sourceCodeRef, dependency);
+                    errors.add(new ProjectDuplicatedDependencyError(sourceCodeRef, dependency));
                 }
                 dependencies.add(dependency);
             }
             project.setDependencies(dependencies);
         }
 
-        NodeList commandNodes = getGroup(doc.getDocumentElement(), "commands", "command", sourceCodeRef);
+        NodeList commandNodes = getGroup(errors, doc.getDocumentElement(), "commands", "command", sourceCodeRef);
         if (commandNodes != null) {
             List<ProjectCommand> commands = new ArrayList<>();
             Set<String> commandSet = new HashSet<>();
             for (int i = 0; i < commandNodes.getLength(); i++) {
                 Element element = (Element) commandNodes.item(i);
                 ProjectCommand command = new ProjectCommand();
-                command.setId(getRequiredField(element, "id", sourceCodeRef));
-                command.setName(getRequiredField(element, "name", sourceCodeRef));
-                command.setScriptPath(getRequiredField(element, "script", sourceCodeRef));
-                command.setDescription(getField(element, "description", sourceCodeRef));
-                command.setTargetPattern(getField(element, "pattern", sourceCodeRef));
-                if (!commandSet.add(command.getName())) {
-                    throw new ProjectDuplicatedCommandError(sourceCodeRef, command);
+                command.setId(getRequiredField(errors, element, "id", sourceCodeRef));
+                command.setName(getRequiredField(errors, element, "name", sourceCodeRef));
+                command.setScriptPath(getRequiredField(errors, element, "script", sourceCodeRef));
+                command.setDescription(getField(errors, element, "description", sourceCodeRef));
+                command.setTargetPattern(getField(errors, element, "pattern", sourceCodeRef));
+                if (command.getId() != null) {
+                    if (!commandSet.add(command.getId())) {
+                        errors.add(new ProjectDuplicatedCommandError(sourceCodeRef, command));
+                    } else {
+                        commands.add(command);
+                    }
                 }
-                commands.add(command);
             }
             project.setCommands(commands);
         }
@@ -145,7 +153,7 @@ public class ProjectReader {
         } else {
             KobuFileSystemEntry srcEntry = fileSystem.loadEntry(projectDir, project.getSourcePath());
             if (!(srcEntry instanceof KobuDirectory)) {
-                throw new ProjectInvalidSourcePathError(sourceCodeRef, project.getSourcePath());
+                errors.add(new ProjectInvalidSourcePathError(sourceCodeRef, project.getSourcePath()));
             }
             srcDirs.add((KobuDirectory) srcEntry);
         }
@@ -155,36 +163,39 @@ public class ProjectReader {
         return project;
     }
 
-    private String getRequiredField(Element element, String fieldName, SourceCodeRef sourceCodeRef) throws ProjectError {
+    private String getRequiredField(List<ProjectError> errors, Element element, String fieldName, SourceCodeRef sourceCodeRef) {
         var nodes = getChildrenWithName(element, fieldName);
         if (nodes.size() == 0) {
-            throw new ProjectMissingFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName});
+            errors.add(new ProjectMissingFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName}));
+            return null;
         } else if (nodes.size() > 1) {
-            throw new ProjectDuplicatedFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName});
+            errors.add(new ProjectDuplicatedFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName}));
+            return null;
         }
         return nodes.get(0).getFirstChild().getNodeValue();
     }
 
-    private Integer getRequiredIntField(Element element, String fieldName, SourceCodeRef sourceCodeRef) throws ProjectError {
-        String value = getRequiredField(element, fieldName, sourceCodeRef);
+    private Integer getRequiredIntField(List<ProjectError> errors, Element element, String fieldName, SourceCodeRef sourceCodeRef) throws ProjectError {
+        String value = getRequiredField(errors, element, fieldName, sourceCodeRef);
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException ex) {
-            throw new ProjectInvalidIntFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName}, value);
+            errors.add(new ProjectInvalidIntFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName}, value));
+            return null;
         }
     }
 
-    private String getField(Element element, String fieldName, SourceCodeRef sourceCodeRef) throws ProjectError {
+    private String getField(List<ProjectError> errors, Element element, String fieldName, SourceCodeRef sourceCodeRef) {
         var nodes = element.getElementsByTagName(fieldName);
         if (nodes.getLength() > 1) {
-            throw new ProjectDuplicatedFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName});
+            errors.add(new ProjectDuplicatedFieldError(sourceCodeRef, new String[]{element.getTagName(), fieldName}));
         } else if (nodes.getLength() == 1) {
             return nodes.item(0).getFirstChild().getNodeValue();
         }
         return null;
     }
 
-    private NodeList getGroup(Element element, String groupName, String groupItemName, SourceCodeRef sourceCodeRef) throws ProjectError {
+    private NodeList getGroup(List<ProjectError> errors, Element element, String groupName, String groupItemName, SourceCodeRef sourceCodeRef) {
         var groups = element.getElementsByTagName(groupName);
 
         if (groups.getLength() == 0) {
@@ -192,13 +203,13 @@ public class ProjectReader {
         }
 
         if (groups.getLength() > 1) {
-            throw new ProjectDuplicatedFieldError(sourceCodeRef, new String[]{element.getTagName(), groupName});
+            errors.add(new ProjectDuplicatedFieldError(sourceCodeRef, new String[]{element.getTagName(), groupName}));
         }
 
         var groupItems = ((Element)groups.item(0)).getElementsByTagName(groupItemName);
 
         if (groupItems.getLength() == 0) {
-            throw new ProjectMissingFieldError(sourceCodeRef, new String[]{groupName, groupItemName});
+            errors.add(new ProjectMissingFieldError(sourceCodeRef, new String[]{groupName, groupItemName}));
         }
 
         return groupItems;

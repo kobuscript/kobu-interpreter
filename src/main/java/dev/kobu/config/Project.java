@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.kobu.config;
 
+import dev.kobu.config.error.ProjectError;
 import dev.kobu.interpreter.file_system.KobuDirectory;
 
 import java.util.List;
@@ -45,6 +46,8 @@ public class Project {
     private KobuDirectory projectDirectory;
 
     private List<KobuDirectory> srcDirs;
+
+    private List<ProjectError> errors;
 
     public String getName() {
         return name;
@@ -110,4 +113,11 @@ public class Project {
         this.srcDirs = srcDirs;
     }
 
+    public List<ProjectError> getErrors() {
+        return errors;
+    }
+
+    public void setErrors(List<ProjectError> errors) {
+        this.errors = errors;
+    }
 }

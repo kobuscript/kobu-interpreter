@@ -51,13 +51,7 @@ public class ListCmdCliCommand implements Callable<Integer> {
         }
         ProjectReader projectReader = new ProjectReader(fileSystem);
 
-        Project project;
-        try {
-            project = projectReader.load(projectFile);
-        } catch (AnalyzerError error) {
-            System.err.println(ErrorMessageFormatter.getMessage(error));
-            return 1;
-        }
+        Project project = projectReader.load(projectFile);
 
         System.out.println();
         System.out.println(CommandLine.Help.Ansi.AUTO.string("@|bold,underline " + project.getName() + " commands|@:"));
@@ -67,8 +61,9 @@ public class ListCmdCliCommand implements Callable<Integer> {
             System.out.println();
         } else {
             for (ProjectCommand command : project.getCommands()) {
-                System.out.println(CommandLine.Help.Ansi.AUTO.string("  @|underline " + command.getName() + "|@"));
-                System.out.println(CommandLine.Help.Ansi.AUTO.string("  @|faint " + command.getDescription() + "|@"));
+                System.out.println(CommandLine.Help.Ansi.AUTO.string("  @|underline " + command.getId() + "|@"));
+                System.out.print(CommandLine.Help.Ansi.AUTO.string("  " + command.getName() + ": "));
+                System.out.println(CommandLine.Help.Ansi.AUTO.string("@|faint " + command.getDescription() + "|@"));
                 System.out.println();
             }
         }

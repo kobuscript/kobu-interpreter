@@ -60,13 +60,7 @@ public class RunCmdCliCommand implements Callable<Integer> {
         }
         ProjectReader projectReader = new ProjectReader(fileSystem);
 
-        Project project;
-        try {
-            project = projectReader.load(projectFile);
-        } catch (AnalyzerError error) {
-            System.err.println(ErrorMessageFormatter.getMessage(error));
-            return 1;
-        }
+        Project project = projectReader.load(projectFile);
 
         if (project.getCommands() == null) {
             System.err.println("Command not found: " + cmd);
@@ -74,7 +68,7 @@ public class RunCmdCliCommand implements Callable<Integer> {
         }
 
         ProjectCommand projectCommand = project.getCommands().stream()
-                .filter(c -> c.getName().equals(cmd))
+                .filter(c -> c.getId().equals(cmd))
                 .findFirst().orElse(null);
 
         if (projectCommand == null) {
@@ -88,7 +82,7 @@ public class RunCmdCliCommand implements Callable<Integer> {
         }
 
         File scriptFile = rootPath.resolve(projectCommand.getScriptPath()).toFile();
-        return new KobuScriptRunner(scriptFile, scriptArgs).run(System.out, System.err);
+        return new KobuScriptRunner(scriptFile, scriptArgs, project).run(System.out, System.err);
     }
 
 }

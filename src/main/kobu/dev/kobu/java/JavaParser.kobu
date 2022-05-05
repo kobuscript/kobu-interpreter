@@ -71,4 +71,21 @@ fun addInterfaceFilter(filter: JavaFilter, typeName: string, typePackage?: strin
     })
 }
 
+/**
+ * Parse all Java files in the specified directory whose filename matches the specified pattern.
+ *
+ * If 'recursive' is true, this function will scan all subdirectories of 'dir'.
+ */
 def native parseJava(dir: Path, pattern: string, recursive?: boolean, filter?: JavaFilter): JavaFile[];
+
+/**
+ * Parse a single Java file
+ */
+fun parseJavaFile(javaFilePath: string): JavaFile {
+    var filePath = Path([javaFilePath])
+    var javaFiles = parseJava(filePath.getParent(), filePath.getFileName().toString())
+    if (javaFiles.size() > 0) {
+        return javaFiles[0]
+    }
+    return null
+}

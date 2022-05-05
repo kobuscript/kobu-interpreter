@@ -110,12 +110,8 @@ public class KobuCommandManager {
         var projectReader = new ProjectReader(fs);
         var groupSet = new HashSet<String>();
         for (String path : projectDefinitions) {
-            Project project;
-            try {
-                project = projectReader.load(new LocalKobuFile(new File(path)));
-            } catch (ProjectError e) {
-                continue;
-            }
+            Project project = projectReader.load(new LocalKobuFile(new File(path)));
+
             if (groupSet.add(project.getName()) && project.getCommands() != null && !project.getCommands().isEmpty()) {
                 var group = new KobuCommandGroup(project.getName(), project.getProjectDirectory().getAbsolutePath(),
                         project.getCommands());
