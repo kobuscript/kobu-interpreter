@@ -45,15 +45,31 @@ public abstract class KobuParserVisitor<T> extends KobuParserBaseVisitor<T> {
         if (ctx == null) {
             return null;
         }
+        int startIdx, stopIdx, lineStart, lineStop, charStart, charStop;
+        if (ctx.getStart().getStartIndex() <= ctx.getStop().getStopIndex()) {
+            startIdx = ctx.getStart().getStartIndex();
+            stopIdx = ctx.getStop().getStopIndex();
+            lineStart = ctx.getStart().getLine();
+            charStart = ctx.getStart().getCharPositionInLine();
+            lineStop = ctx.getStop().getLine();
+            charStop = ctx.getStop().getCharPositionInLine() + ctx.getStop().getText().length();
+        } else {
+            startIdx = ctx.getStart().getStartIndex();
+            stopIdx = ctx.getStart().getStopIndex();
+            lineStart = ctx.getStart().getLine();
+            charStart = ctx.getStart().getCharPositionInLine();
+            lineStop = ctx.getStart().getLine();
+            charStop = ctx.getStart().getCharPositionInLine() + ctx.getStart().getText().length();
+        }
         return new SourceCodeRef(
                 moduleScope.getScript(),
                 moduleScope.getModuleId(),
-                ctx.getStart().getLine(),
-                ctx.getStart().getCharPositionInLine(),
-                ctx.getStop().getLine(),
-                ctx.getStop().getCharPositionInLine() + ctx.getStop().getText().length(),
-                ctx.getStart().getStartIndex(),
-                ctx.getStop().getStopIndex());
+                lineStart,
+                charStart,
+                lineStop,
+                charStop,
+                startIdx,
+                stopIdx);
     }
 
     protected SourceCodeRef getSourceCodeRef(TerminalNode node) {

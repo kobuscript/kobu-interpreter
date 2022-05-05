@@ -172,6 +172,9 @@ public class QueryTypeClause implements Evaluable {
     }
 
     public boolean compatibleWith(QueryTypeClause typeClause) {
+        if (queryType == null || typeClause == null) {
+            return true;
+        }
         return queryType.isAssignableFrom(typeClause.getQueryType());
     }
 

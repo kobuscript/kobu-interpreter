@@ -1447,7 +1447,13 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             bind = ctx.queryExprAlias().ID().getText();
             bindSourceCodeRef = getSourceCodeRef(ctx.queryExprAlias().ID());
         }
-        QueryTypeClause queryTypeClause = new QueryTypeClause(moduleScope, getSourceCodeRef(ctx), bindSourceCodeRef, (Type) visit(ctx.type()),
+        Type type;
+        if (ctx.type() != null) {
+            type = (Type) visit(ctx.type());
+        } else {
+            type = BuiltinScope.ANY_TYPE;
+        }
+        QueryTypeClause queryTypeClause = new QueryTypeClause(moduleScope, getSourceCodeRef(ctx), bindSourceCodeRef, type,
                 ctx.ANY() != null, bind);
 
         if (ctx.queryExprSegment() != null) {

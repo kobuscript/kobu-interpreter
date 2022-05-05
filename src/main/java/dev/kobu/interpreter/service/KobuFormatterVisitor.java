@@ -780,11 +780,8 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             }
         }
 
-        popIndentation();
-
         boolean inline = isInline(ctx);
         if (ctx.LCB() != null) {
-            printCommentsBefore(ctx.LCB());
             out.append(" {");
             if (!inline) {
                 out.append("\n");
@@ -809,7 +806,6 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
         if (inline) {
             out.append(" ");
         } else {
-            out.append("\n");
             popIndentation();
         }
 
