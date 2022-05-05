@@ -25,12 +25,16 @@ SOFTWARE.
 package dev.kobu.interpreter.service;
 
 import dev.kobu.config.Project;
+import dev.kobu.config.ProjectCommand;
 import dev.kobu.config.ProjectReader;
 import dev.kobu.config.error.ProjectError;
 import dev.kobu.interpreter.file_system.local.LocalKobuFile;
 import dev.kobu.interpreter.file_system.local.LocalKobuFileSystem;
 
 import java.io.File;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -62,8 +66,31 @@ public class KobuCommandManager {
         eventQueue.add(event);
     }
 
-    public synchronized List<KobuCommandGroup> getCommands() {
-        return commandGroups != null ? new ArrayList<>(commandGroups) : new ArrayList<>();
+    public synchronized List<KobuCommandGroup> getCommands(String filePath) {
+        ArrayList<KobuCommandGroup> filteredGroups = new ArrayList<>();
+        if (commandGroups == null) {
+            return new ArrayList<>();
+        }
+        for (KobuCommandGroup commandGroup : commandGroups) {
+            var commands = commandGroup.getCommands().stream()
+                    .filter(c -> matchCommand(c, filePath))
+                    .collect(Collectors.toList());
+            if (!commands.isEmpty()) {
+                filteredGroups.add(new KobuCommandGroup(commandGroup.getGroupName(),
+                        commandGroup.getProjectDir(), commands));
+            }
+        }
+
+        return filteredGroups;
+    }
+
+    private boolean matchCommand(ProjectCommand cmd, String filePath) {
+        if (cmd.getTargetPattern() == null) {
+            return true;
+        }
+        Path path = Path.of(filePath).getFileName();
+        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + cmd.getTargetPattern());
+        return matcher.matches(path);
     }
 
     private synchronized void updateProjectDefinitions(List<String> projectDefinitions) {
@@ -90,7 +117,8 @@ public class KobuCommandManager {
                 continue;
             }
             if (groupSet.add(project.getName()) && project.getCommands() != null && !project.getCommands().isEmpty()) {
-                var group = new KobuCommandGroup(project.getName(), project.getCommands());
+                var group = new KobuCommandGroup(project.getName(), project.getProjectDirectory().getAbsolutePath(),
+                        project.getCommands());
                 commandGroups.add(group);
             }
         }

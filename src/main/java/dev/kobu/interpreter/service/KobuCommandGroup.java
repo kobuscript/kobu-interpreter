@@ -32,15 +32,22 @@ public class KobuCommandGroup {
 
     private final String groupName;
 
+    private final String projectDir;
+
     private final List<ProjectCommand> commands;
 
-    public KobuCommandGroup(String groupName, List<ProjectCommand> commands) {
+    public KobuCommandGroup(String groupName, String projectDir, List<ProjectCommand> commands) {
         this.groupName = groupName;
+        this.projectDir = projectDir;
         this.commands = commands;
     }
 
     public String getGroupName() {
         return groupName;
+    }
+
+    public String getProjectDir() {
+        return projectDir;
     }
 
     public List<ProjectCommand> getCommands() {

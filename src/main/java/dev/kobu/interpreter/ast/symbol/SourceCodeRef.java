@@ -63,10 +63,10 @@ public class SourceCodeRef {
         this.file = file;
         this.moduleId = moduleId;
         this.lineStart = lineStart;
-        this.charStart = charStart;
+        this.charStart = Math.max(charStart, 0);
         this.lineEnd = lineEnd;
         this.charEnd = charEnd;
-        this.startOffset = startOffset;
+        this.startOffset = Math.max(startOffset, 0);
         this.endOffset = endOffset;
         this.hasPosition = true;
     }
