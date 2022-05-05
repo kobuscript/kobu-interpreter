@@ -125,9 +125,10 @@ public class ProjectReader {
             for (int i = 0; i < commandNodes.getLength(); i++) {
                 Element element = (Element) commandNodes.item(i);
                 ProjectCommand command = new ProjectCommand();
+                command.setId(getRequiredField(element, "id", sourceCodeRef));
                 command.setName(getRequiredField(element, "name", sourceCodeRef));
                 command.setScriptPath(getRequiredField(element, "script", sourceCodeRef));
-                command.setDescription(getRequiredField(element, "description", sourceCodeRef));
+                command.setDescription(getField(element, "description", sourceCodeRef));
                 command.setTargetPattern(getField(element, "pattern", sourceCodeRef));
                 if (!commandSet.add(command.getName())) {
                     throw new ProjectDuplicatedCommandError(sourceCodeRef, command);

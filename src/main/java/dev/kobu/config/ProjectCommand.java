@@ -26,6 +26,8 @@ package dev.kobu.config;
 
 public class ProjectCommand {
 
+    private String id;
+
     private String name;
 
     private String description;
@@ -33,6 +35,14 @@ public class ProjectCommand {
     private String scriptPath;
 
     private String targetPattern;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;

@@ -35,6 +35,7 @@
                             <xs:element name="command">
                                 <xs:complexType>
                                     <xs:sequence>
+                                        <xs:element name="id" type="xs:string"/>
                                         <xs:element name="name" type="xs:string"/>
                                         <xs:element name="script" type="xs:string"/>
                                         <xs:element name="description" type="xs:string"/>
