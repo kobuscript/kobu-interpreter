@@ -167,26 +167,6 @@ public class KobuAnalyzer {
         return moduleLoader.getSymbolDocumentation(refFile, offset);
     }
 
-    public List<KobuCommandGroup> getCommands(List<String> projectDefinitions) throws AnalyzerError {
-        List<KobuCommandGroup> groups = new ArrayList<>();
-        var paths = projectDefinitions.stream()
-                .filter(p -> !p.contains("/kobu_modules/"))
-                .collect(Collectors.toList());
-
-        var fs = new LocalKobuFileSystem();
-        var projectReader = new ProjectReader(fs);
-        var groupSet = new HashSet<String>();
-        for (String path : paths) {
-           var project = projectReader.load(new LocalKobuFile(new File(path)));
-           if (groupSet.add(project.getName()) && project.getCommands() != null && !project.getCommands().isEmpty()) {
-               var group = new KobuCommandGroup(project.getName(), project.getCommands());
-               groups.add(group);
-           }
-        }
-
-        return groups;
-    }
-
     public String getPathModule(KobuFileSystemEntry entry) throws AnalyzerError {
         KobuFile projectFile = fileSystem.findProjectDefinition(entry);
         if (projectFile != null) {

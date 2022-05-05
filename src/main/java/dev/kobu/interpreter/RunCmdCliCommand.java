@@ -82,7 +82,7 @@ public class RunCmdCliCommand implements Callable<Integer> {
             return 1;
         }
 
-        Path rootPath = Path.of("").toAbsolutePath();
+        Path rootPath = Path.of(project.getProjectDirectory().getAbsolutePath()).toAbsolutePath();
         if (project.getSourcePath() != null) {
             rootPath = rootPath.resolve(project.getSourcePath());
         }
