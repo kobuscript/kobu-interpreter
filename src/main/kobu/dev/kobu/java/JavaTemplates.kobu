@@ -38,8 +38,9 @@ fun javaTemplates(): Rule[] {
             JavaEnumTemplate, JavaRecordTemplate, JavaClassConstructorTemplate, JavaRecordConstructorTemplate,
             JavaMethodDeclTemplate, JavaAbstractMethodDeclTemplate, JavaInterfaceMethodDeclTemplate,
             JavaMethodParamTemplate, JavaFieldTemplate, JavaAnnotationTemplate, JavaAnnotationSingleValueTemplate,
-            JavaAnnotationFieldValueTemplate, JavaArrayValueTemplate, JavaArrayLiteralValueTemplate,
-            JavaSourceValueTemplate, LiteralJavaValueTemplate, LiteralJavaStringTemplate]
+            JavaEmptyAnnotationTemplate, JavaAnnotationFieldValueTemplate, JavaArrayValueTemplate,
+            JavaArrayLiteralValueTemplate, JavaSourceValueTemplate, LiteralJavaValueTemplate,
+            LiteralJavaStringTemplate]
 }
 
 fun javaMethodBodyTemplates(): Rule[] {
@@ -96,10 +97,17 @@ ${getComment(comment.text)}
 
 def rule JavaImportsAssemblerRule
          for OutputJavaFile as file
-         with *JavaObjectType[] as referencedTypes {
+         with *JavaObjectType[] as referencedTypes
+         with *OutputJavaAnnotationValue[] as annotations {
+
     file.imports = referencedTypes
+        .filter(t => t.package != null)
         .map(t => t.package + "." + t.name)
-        .distinct()
+
+    file.imports.addAll(annotations
+        .filter(a => a.package != null)
+        .map(a => a.package + "." + a.name))
+
     file.imports.sort(stringComparator)
 }
 
@@ -244,7 +252,7 @@ def template JavaMethodDeclTemplate
              join JavaMethodBodyTemplate as body of method <|
 ${strJoin(commentTmpl, "\n\n")}
 ${strJoin(annTmpl, "\n")}
-${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")}{
+${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")} {
     ${body}
 }
 |> as JavaMethodTemplate
@@ -289,7 +297,7 @@ ${getJavaFieldDecl(field)}${ifThenElse(valueTmpl.size() > 0, () => " = " + value
 def template JavaAnnotationTemplate
              for OutputJavaAnnotationValue as ann
              join AnyTemplate[] as fieldsTmpl of ann.fields <|
-@{ann.name}(
+@${ann.name}(
     ${strJoin(fieldsTmpl, ",\n")}
 )
 |>
@@ -299,6 +307,13 @@ def template JavaAnnotationSingleValueTemplate extends JavaAnnotationTemplate
              join AnyTemplate[] as valuesTmpl of ann.fields.map(f => f.value)
              when ann.fields.size() == 1 and ann.fields[0].field == "value" <|
 @${ann.name}($^{valuesTmpl[0]})
+|>
+
+def template JavaEmptyAnnotationTemplate extends JavaAnnotationTemplate
+             for OutputJavaAnnotationValue as ann
+             join AnyTemplate[] as valuesTmpl of ann.fields.map(f => f.value)
+             when ann.fields.size() == 0 <|
+@${ann.name}()
 |>
 
 def template JavaAnnotationFieldValueTemplate
@@ -378,7 +393,7 @@ private fun getJavaConstructorHeader(name: string, constructor: OutputJavaConstr
 private fun getJavaMethodHeader(method: OutputJavaMethod): string {
     return mkString(method.modifiers, "", " ", " ") +
            mkString(method.typeParameters, "<", ", ", "> ") +
-           method.returnType + " " + method.name
+           getJavaType(method.returnType) + " " + method.name
 }
 
 private fun getJavaFieldDecl(field: OutputJavaField): string {

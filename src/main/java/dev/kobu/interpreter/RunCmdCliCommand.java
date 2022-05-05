@@ -28,8 +28,6 @@ import dev.kobu.KobuScriptRunner;
 import dev.kobu.config.Project;
 import dev.kobu.config.ProjectCommand;
 import dev.kobu.config.ProjectReader;
-import dev.kobu.interpreter.ast.utils.ErrorMessageFormatter;
-import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.file_system.KobuFile;
 import dev.kobu.interpreter.file_system.local.LocalKobuDirectory;
 import dev.kobu.interpreter.file_system.local.LocalKobuFileSystem;
@@ -82,7 +80,13 @@ public class RunCmdCliCommand implements Callable<Integer> {
         }
 
         File scriptFile = rootPath.resolve(projectCommand.getScriptPath()).toFile();
-        return new KobuScriptRunner(scriptFile, scriptArgs, project).run(System.out, System.err);
+        int status = new KobuScriptRunner(scriptFile, scriptArgs, project).run(System.out, System.err);
+
+        if (status == 0) {
+            System.out.println("\nCommand executed\n");
+        }
+
+        return status;
     }
 
 }

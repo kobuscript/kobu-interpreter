@@ -141,23 +141,13 @@ fun javaRecord(name: string, modifiers: string[], components: OutputJavaRecordCo
     }
 }
 
-fun addAnnotation(javaDef: OutputJavaDefinition,
-                  annotation: OutputJavaAnnotationValue): void {
-    javaDef.annotations.add(annotation)
-}
-
-fun addAnnotations(javaDef: OutputJavaDefinition,
-                   annotations: OutputJavaAnnotationValue[]): void {
-    javaDef.annotations.addAll(annotations)
-}
-
 fun javaComment(text: string): OutputJavaComment {
     return OutputJavaComment{
         text: text
     }
 }
 
-fun javaAnnotation(package: string, name: string, fields?: (string, OutputJavaValue)[]): OutputJavaAnnotationValue {
+fun javaAnnotation(name: string, package?: string, fields?: (string, OutputJavaValue)[]): OutputJavaAnnotationValue {
     var annFields: OutputJavaAnnotationFieldValue[] = []
     if (fields != null) {
         fields.forEach(pair => {
@@ -175,7 +165,7 @@ fun javaAnnotation(package: string, name: string, fields?: (string, OutputJavaVa
     }
 }
 
-fun javaAnnotationWithValue(package: string, name: string, value: OutputJavaValue): OutputJavaAnnotationValue {
+fun javaAnnotationWithValue(name: string, value: OutputJavaValue, package?: string): OutputJavaAnnotationValue {
     return javaAnnotation(package, name, [("value", value)])
 }
 
