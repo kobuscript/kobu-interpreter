@@ -63,10 +63,14 @@ public class EqExpr implements Expr {
 
     @Override
     public void analyze(EvalContext context) {
+        if (leftExpr == null || rightExpr == null) {
+            return;
+        }
         leftExpr.analyze(context);
         rightExpr.analyze(context);
 
         if (leftExpr.getType() instanceof UnknownType || rightExpr.getType() instanceof UnknownType) {
+            this.type = UnknownType.INSTANCE;
             return;
         }
 
