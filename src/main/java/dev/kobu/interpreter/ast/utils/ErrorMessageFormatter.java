@@ -66,7 +66,7 @@ public class ErrorMessageFormatter {
                     }
                     charIdx++;
                 }
-                while (charIdx <= sourceCodeRef.getCharEnd()) {
+                while (charIdx < sourceCodeRef.getCharEnd()) {
                     source.append('^');
                     charIdx++;
                 }
