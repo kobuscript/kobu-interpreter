@@ -57,6 +57,7 @@ public class RuleIndexNode extends OneInputIndexNode {
 
     @Override
     public void receive(Match match) {
+        matchQueue.removeIf(match::overrides);
         matchQueue.add(match);
     }
 

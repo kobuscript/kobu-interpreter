@@ -43,8 +43,6 @@ public class RuleIndex {
 
     private final List<RootTypeIndexNode> index = new ArrayList<>();
 
-    private final Map<String, RootTypeIndexNode> rootNodeMap = new HashMap<>();
-
     private final Map<String, RuleIndexNode> ruleNodeMap = new HashMap<>();
 
     public void clear() {
@@ -117,13 +115,6 @@ public class RuleIndex {
 
     private IndexNode addQueryTypeClause(EvalContextProvider evalContextProvider, AnalyzerContext analyzerContext,
                                          ModuleScope moduleScope, QueryTypeClause queryTypeClause) {
-
-//        RootTypeIndexNode rootNode = rootNodeMap.computeIfAbsent(queryTypeClause.getKey(),
-//                k -> {
-//                    RootTypeIndexNode node = new RootTypeIndexNode(queryTypeClause);
-//                    this.index.add(node);
-//                    return node;
-//                });
 
         RootTypeIndexNode rootNode = new RootTypeIndexNode(evalContextProvider, analyzerContext, moduleScope, queryTypeClause);
         this.index.add(rootNode);

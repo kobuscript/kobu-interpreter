@@ -540,7 +540,9 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             }
 
             for (KobuParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
-                query.addJoin((QueryJoin) visit(joinExprContext));
+                QueryJoin queryJoin = (QueryJoin) visit(joinExprContext);
+                queryJoin.setRuleSymbol(rule);
+                query.addJoin(queryJoin);
             }
 
             if (ctx.expr() != null) {
@@ -637,7 +639,9 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             }
 
             for (KobuParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
-                query.addJoin((QueryJoin) visit(joinExprContext));
+                QueryJoin queryJoin = (QueryJoin) visit(joinExprContext);
+                queryJoin.setRuleSymbol(rule);
+                query.addJoin(queryJoin);
             }
 
             if (ctx.expr() != null) {
@@ -699,7 +703,9 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             }
 
             for (KobuParser.JoinExprContext joinExprContext : ctx.joinExpr()) {
-                query.addJoin((QueryJoin) visit(joinExprContext));
+                QueryJoin queryJoin = (QueryJoin) visit(joinExprContext);
+                queryJoin.setRuleSymbol(rule);
+                query.addJoin(queryJoin);
             }
 
             if (ctx.expr() != null) {

@@ -28,8 +28,6 @@ public interface Slot {
 
     void receive(Match match);
 
-
-
     void clear();
 
 }

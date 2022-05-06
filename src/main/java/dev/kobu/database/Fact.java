@@ -24,9 +24,10 @@ SOFTWARE.
 
 package dev.kobu.database;
 
+import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.symbol.Type;
 
-public interface Fact {
+public interface Fact extends ValueExpr {
 
     int getId();
 

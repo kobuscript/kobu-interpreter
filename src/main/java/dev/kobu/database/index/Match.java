@@ -76,18 +76,29 @@ public class Match {
         EvalContext matchCtx = context.newEvalContext();
         matchCtx.getCurrentScope().addAll(context.getCurrentScope());
         addValueToCtx(matchCtx, value, bind);
-        return new Match(matchId, matchCtx, rootRecord, value, bind);
+        Match match = new Match(matchId, matchCtx, rootRecord, value, bind);
+        match.matchPath = matchPath;
+        return match;
     }
 
     public Match merge(Match match) {
+        return merge(null, match);
+    }
+
+    public Match merge(Integer matchId, Match match) {
         EvalContext matchCtx = context.newEvalContext();
         matchCtx.getCurrentScope().addAll(context.getCurrentScope());
         matchCtx.getCurrentScope().addAll(match.context.getCurrentScope());
-        Match newMatch = new Match(matchCtx, rootRecord, value, bind);
-        if (matchPath == null) {
-            newMatch.matchPath = new MatchPath(matchId, match.matchId);
+        Match newMatch;
+        if (matchId != null) {
+            newMatch = new Match(matchId, matchCtx, rootRecord, value, bind);
         } else {
-            newMatch.matchPath = matchPath.add(matchId, match.matchId);
+            newMatch = new Match(matchCtx, rootRecord, value, bind);
+        }
+        if (matchPath == null) {
+            newMatch.matchPath = new MatchPath(this.matchId, match.matchId);
+        } else {
+            newMatch.matchPath = matchPath.add(this.matchId, match.matchId);
         }
         return newMatch;
     }

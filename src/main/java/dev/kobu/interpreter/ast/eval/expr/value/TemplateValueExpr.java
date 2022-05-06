@@ -157,6 +157,19 @@ public class TemplateValueExpr implements ValueExpr, Fact {
         return new StringValueExpr(getValue().trim());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TemplateValueExpr that = (TemplateValueExpr) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
     private static class TemplateSnapshotValue implements SnapshotValue {
 
         private final int id;

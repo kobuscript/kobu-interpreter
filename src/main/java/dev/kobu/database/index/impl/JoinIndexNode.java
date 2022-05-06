@@ -45,6 +45,8 @@ public class JoinIndexNode extends TwoInputsIndexNode {
 
     private Map<Integer, ContextSnapshot> snapshotMap;
 
+    private final Map<MatchPair, Integer> matchPairMap = new HashMap<>();
+
     public JoinIndexNode(QueryJoin queryJoin) {
         this.queryJoin = queryJoin;
 
@@ -57,25 +59,25 @@ public class JoinIndexNode extends TwoInputsIndexNode {
     protected void receive(Match left, Match right) {
 
         if (queryJoin.getOfExpr() == null) {
-            dispatch(left.merge(right));
+            dispatch(merge(left, right));
         } else {
 
             var ofValueExpr = queryJoin.getOfExpr().evalExpr(left.getContext());
 
             if (ofValueExpr == null || ofValueExpr instanceof NullValueExpr) {
                 if (queryJoin.getTypeClause().accumulator()) {
-                    left.merge(right
+                    merge(left, right
                             .setValue(new ArrayValueExpr(
                                         (ArrayType) queryJoin.getTypeClause().getQueryType(), new ArrayList<>()),
                                     right.getBind()));
                 } else {
-                    dispatch(left.merge(right));
+                    dispatch(merge(left, right));
                 }
             } else if (ofValueExpr instanceof RecordValueExpr) {
                 RecordValueExpr recordValueExpr = (RecordValueExpr) ofValueExpr;
 
                 if (((Fact)right.getValue()).getCreatorId() == recordValueExpr.getId()) {
-                    dispatch(left.merge(right));
+                    dispatch(merge(left, right));
                 }
             } else if (ofValueExpr instanceof ArrayValueExpr) {
 
@@ -94,7 +96,7 @@ public class JoinIndexNode extends TwoInputsIndexNode {
 
                 sort(recordList, values);
 
-                Match newMatch = left.merge(right
+                Match newMatch = merge(left, right
                         .setValue(new ArrayValueExpr((ArrayType) queryJoin.getTypeClause().getQueryType(), values),
                                 right.getBind()));
 
@@ -112,6 +114,16 @@ public class JoinIndexNode extends TwoInputsIndexNode {
 
         }
 
+    }
+
+    private Match merge(Match left, Match right) {
+        MatchPair matchPair = new MatchPair(left.getMatchId(), right.getMatchId());
+        Integer matchId = matchPairMap.get(matchPair);
+        Match newMatch = left.merge(matchId, right);
+        if (matchId == null) {
+            matchPairMap.put(matchPair, newMatch.getMatchId());
+        }
+        return newMatch;
     }
 
     private void sort(List<ValueExpr> source, List<ValueExpr> list) {
@@ -138,4 +150,29 @@ public class JoinIndexNode extends TwoInputsIndexNode {
         return 0;
     }
 
+    private static class MatchPair {
+
+        final int leftId;
+
+        final int rightId;
+
+        public MatchPair(int leftId, int rightId) {
+            this.leftId = leftId;
+            this.rightId = rightId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MatchPair matchPair = (MatchPair) o;
+            return leftId == matchPair.leftId && rightId == matchPair.rightId;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(leftId, rightId);
+        }
+
+    }
 }

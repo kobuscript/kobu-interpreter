@@ -303,9 +303,9 @@ public class ModuleParserVisitor extends KobuParserVisitor<Void> {
             }
         }
 
-        var fileRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.RCB()),
+        var actionRule = new RuleSymbol(getSourceCodeRef(ctx.ID()), ctx.ID().getText(), getSourceCodeRef(ctx.RCB()),
                 moduleScope, RuleTypeEnum.ACTION, docText);
-        moduleScope.define(context, fileRule);
+        moduleScope.define(context, actionRule);
         return null;
     }
 

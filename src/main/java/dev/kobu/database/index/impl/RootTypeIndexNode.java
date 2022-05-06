@@ -37,7 +37,9 @@ import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RootTypeIndexNode extends RootIndexNode {
 
@@ -50,6 +52,8 @@ public class RootTypeIndexNode extends RootIndexNode {
     private final QueryTypeClause queryTypeClause;
 
     private List<Fact> accList;
+
+    private Map<Fact, Integer> factMatchMap;
 
     private int matchId;
 
@@ -71,13 +75,29 @@ public class RootTypeIndexNode extends RootIndexNode {
             }
         } else {
             if (canDispatch(fact)) {
+                initializeFactMatchMap();
                 var evalContext = evalContextProvider.newEvalContext(analyzerContext, moduleScope);
+
+                Fact prevFact = factMatchMap.keySet().stream().filter(fact::overrides).findFirst().orElse(null);
+                Integer matchId = prevFact != null ? factMatchMap.remove(prevFact) : null;
+                Match match;
                 if (fact instanceof RecordValueExpr) {
                     var record = (RecordValueExpr) fact;
-                    dispatch(new Match(evalContext, record, record, queryTypeClause.getBind()));
+                    if (matchId != null) {
+                        match = new Match(matchId, evalContext, record, record, queryTypeClause.getBind());
+                    } else {
+                        match = new Match(evalContext, record, record, queryTypeClause.getBind());
+                    }
                 } else {
-                    dispatch(new Match(evalContext, null, (ValueExpr) fact, queryTypeClause.getBind()));
+                    if (matchId != null) {
+                        match = new Match(matchId, evalContext, null, fact, queryTypeClause.getBind());
+                    } else {
+                        match = new Match(evalContext, null, fact, queryTypeClause.getBind());
+                    }
                 }
+
+                factMatchMap.put(fact, match.getMatchId());
+                dispatch(match);
             }
         }
     }
@@ -106,7 +126,7 @@ public class RootTypeIndexNode extends RootIndexNode {
     public void beforeRun() {
         if (queryTypeClause.accumulator()) {
             var evalContext = evalContextProvider.newEvalContext(analyzerContext, moduleScope);
-            Match match = null;
+            Match match;
             if (matchId == 0) {
                 match = new Match(evalContext, null,
                         new ArrayValueExpr((ArrayType) queryTypeClause.getType(), copyAccList()),
@@ -134,10 +154,18 @@ public class RootTypeIndexNode extends RootIndexNode {
         }
     }
 
+    private void initializeFactMatchMap() {
+        if (factMatchMap == null) {
+            factMatchMap = new HashMap<>();
+        }
+    }
+
     private List<ValueExpr> copyAccList() {
-        List<ValueExpr> values = new ArrayList<>();
+        List<ValueExpr> values;
         if (accList != null) {
-            accList.forEach(fact -> values.add((ValueExpr) fact));
+            values = new ArrayList<>(accList);
+        } else {
+            values = new ArrayList<>();
         }
         return values;
     }
