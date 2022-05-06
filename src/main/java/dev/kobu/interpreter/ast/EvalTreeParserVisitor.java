@@ -1345,7 +1345,22 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         String source = ctx.stringLiteral().getText();
         String str = StringFunctions.parseLiteralString(source);
 
-        return new StringValueExpr(getSourceCodeRef(ctx.stringLiteral()), str);
+        var sourceCodeRef = getSourceCodeRef(ctx.stringLiteral());
+        if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            moduleScope.registerAutoCompletionSource(sourceCodeRef.getEndOffset(), new AutoCompletionSource() {
+                @Override
+                public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                    return new ArrayList<>();
+                }
+
+                @Override
+                public boolean hasOwnCompletionScope() {
+                    return false;
+                }
+            });
+        }
+
+        return new StringValueExpr(sourceCodeRef, str);
     }
 
     @Override

@@ -50,6 +50,7 @@ public class ArrayFindMethodImpl extends BuiltinMethod {
         for (ValueExpr valueExpr : arrayExpr.getValue()) {
             if (FunctionUtils.runPredicate(context, pred, valueExpr, sourceCodeRef)) {
                 value = valueExpr;
+                break;
             }
         }
 

@@ -344,7 +344,7 @@ public class EvalContext {
             return getRuleContext().getRuleSymbol().getCloseRuleRef().getStartOffset() + 1;
         }
 
-        throw new UnsupportedOperationException("getNewGlobalDefinitionOffset() must be invoked from a function or rule context");
+        return 0;
     }
 
     private void loadProperties() {
