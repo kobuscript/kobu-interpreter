@@ -28,9 +28,17 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.file_system.KobuFileSystem;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public interface TextFileCommand {
 
-    void run(EvalContext evalContext, KobuFileSystem fileSystem) throws IOException;
+    void run(int idx, EvalContext evalContext, KobuFileSystem fileSystem) throws IOException;
 
+    default Path getDestPath(EvalContext evalContext, Path filePath) {
+        if (evalContext.getCommandOutDir() != null) {
+            Path outPath = Path.of(evalContext.getCommandOutDir());
+            return outPath.resolve(filePath.getRoot().relativize(filePath));
+        }
+        return filePath;
+    }
 }

@@ -72,6 +72,8 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
 
     protected final Map<String, Ref> innerDefMap = new HashMap<>();
 
+    private int currentMemberStart = 0;
+
     public JavaCommandProducer(ModuleScope moduleScope) {
         this.moduleScope = moduleScope;
     }
@@ -80,7 +82,7 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
     public Void visitClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
         if (mainClass) {
             lastInnerDefStopIdx = ctx.stop.getStopIndex() + 1;
-            innerDefMap.put(ctx.identifier().getText(), new Ref(ctx.start.getStartIndex(), lastInnerDefStopIdx));
+            innerDefMap.put(ctx.identifier().getText(), new Ref(currentMemberStart, lastInnerDefStopIdx));
             return null;
         }
         mainClass = ctx.identifier().getText().equals(mainClassName);
@@ -93,10 +95,16 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
     }
 
     @Override
+    public Void visitClassBodyDeclaration(JavaParser.ClassBodyDeclarationContext ctx) {
+        currentMemberStart = ctx.start.getStartIndex();
+        return super.visitClassBodyDeclaration(ctx);
+    }
+
+    @Override
     public Void visitRecordDeclaration(JavaParser.RecordDeclarationContext ctx) {
         if (mainClass) {
             lastInnerDefStopIdx = ctx.stop.getStopIndex() + 1;
-            innerDefMap.put(ctx.identifier().getText(), new Ref(ctx.start.getStartIndex(), lastInnerDefStopIdx));
+            innerDefMap.put(ctx.identifier().getText(), new Ref(currentMemberStart, lastInnerDefStopIdx));
             return null;
         }
         mainClass = ctx.identifier().getText().equals(mainClassName);
@@ -112,7 +120,7 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
     public Void visitInterfaceDeclaration(JavaParser.InterfaceDeclarationContext ctx) {
         if (mainClass) {
             lastInnerDefStopIdx = ctx.stop.getStopIndex() + 1;
-            innerDefMap.put(ctx.identifier().getText(), new Ref(ctx.start.getStartIndex(), lastInnerDefStopIdx));
+            innerDefMap.put(ctx.identifier().getText(), new Ref(currentMemberStart, lastInnerDefStopIdx));
             return null;
         }
         mainClass = ctx.identifier().getText().equals(mainClassName);
@@ -129,7 +137,7 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
         lastFieldStopIdx = ctx.stop.getStopIndex() + 1;
         for (JavaParser.VariableDeclaratorContext variableDeclaratorCtx : ctx.variableDeclarators().variableDeclarator()) {
             fieldMap.put(variableDeclaratorCtx.variableDeclaratorId().identifier().getText(),
-                    new Ref(ctx.start.getStartIndex(), lastFieldStopIdx));
+                    new Ref(currentMemberStart, lastFieldStopIdx));
         }
         return null;
     }
@@ -150,7 +158,7 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
             }
         }
 
-        constructorList.add(new MethodRef(consParamTypes, ctx.start.getStartIndex(), lastConstructorStopIdx));
+        constructorList.add(new MethodRef(consParamTypes, currentMemberStart, lastConstructorStopIdx));
         return null;
     }
 
@@ -170,7 +178,7 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
             }
         }
         String name = ctx.identifier().getText();
-        methodList.add(new MethodRef(name, methodParamTypes, ctx.start.getStartIndex(), lastMethodStopIdx));
+        methodList.add(new MethodRef(name, methodParamTypes, currentMemberStart, lastMethodStopIdx));
 
         return null;
     }

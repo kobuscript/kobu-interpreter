@@ -59,20 +59,20 @@ public class RemoveContentCommand implements TextFileCommand {
     }
 
     @Override
-    public void run(EvalContext evalContext, KobuFileSystem fileSystem) throws IOException {
+    public void run(int idx, EvalContext evalContext, KobuFileSystem fileSystem) throws IOException {
         String newContent;
         Path path = Path.of(filePath);
         path = path.toAbsolutePath();
+        if (idx > 0) {
+            path = getDestPath(evalContext, path);
+        }
         try (InputStream in = fileSystem.getInputStream(path)) {
             String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             newContent = text.substring(0, startIndex);
-            newContent += text.substring(stopIndex + 1);
+            newContent += text.substring(stopIndex);
         }
 
-        if (evalContext.getCommandOutDir() != null) {
-            Path outPath = Path.of(evalContext.getCommandOutDir());
-            path = outPath.resolve(path.getRoot().relativize(path));
-        }
-        fileSystem.writeFileContent(path, newContent, StandardCharsets.UTF_8);
+        fileSystem.writeFileContent(getDestPath(evalContext, Path.of(filePath)), newContent,
+                StandardCharsets.UTF_8);
     }
 }

@@ -72,9 +72,10 @@ public class JavaCommandRunner implements TextFileCommandRunner {
             throw new IllegalArgumentError("invalid command type: " + commandRec.getType().getName(), sourceCodeRef);
         }
 
-        KobuFileSystem fileSystem = context.getFileSystem();;
+        KobuFileSystem fileSystem = context.getFileSystem();
+        int idx = 0;
         for (TextFileCommand command : commands) {
-            command.run(context, fileSystem);
+            command.run(idx++, context, fileSystem);
         }
 
     }
