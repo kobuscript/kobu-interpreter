@@ -62,6 +62,8 @@ public class EvalContext {
 
     private final Map<String, String> properties = new HashMap<>();
 
+    private final String commandOutDir;
+
     private UserDefinedFunction function;
 
     private RuleContext ruleContext;
@@ -83,7 +85,7 @@ public class EvalContext {
     protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                           ModuleScope moduleScope, KobuFileSystem fileSystem, Database database,
                           InputReader inputReader,
-                          OutputWriter outputWriter, UserDefinedFunction function) {
+                          OutputWriter outputWriter, String commandOutDir, UserDefinedFunction function) {
         this.provider = provider;
         this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
@@ -92,6 +94,7 @@ public class EvalContext {
         this.database = database;
         this.inputReader = inputReader;
         this.outputWriter = outputWriter;
+        this.commandOutDir = commandOutDir;
         this.function = function;
         loadProperties();
         pushNewScope();
@@ -100,7 +103,7 @@ public class EvalContext {
     protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                           ModuleScope moduleScope, KobuFileSystem fileSystem, Database database,
                           InputReader inputReader,
-                          OutputWriter outputWriter, RuleContext ruleContext) {
+                          OutputWriter outputWriter, String commandOutDir, RuleContext ruleContext) {
         this.provider = provider;
         this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
@@ -109,6 +112,7 @@ public class EvalContext {
         this.database = database;
         this.inputReader = inputReader;
         this.outputWriter = outputWriter;
+        this.commandOutDir = commandOutDir;
         this.ruleContext = ruleContext;
         loadProperties();
         pushNewScope();
@@ -116,7 +120,7 @@ public class EvalContext {
 
     protected EvalContext(EvalContextProvider provider, AnalyzerContext analyzerContext, EvalModeEnum evalMode,
                           ModuleScope moduleScope, KobuFileSystem fileSystem, Database database,
-                          InputReader inputReader, OutputWriter outputWriter) {
+                          InputReader inputReader, OutputWriter outputWriter, String commandOutDir) {
         this.provider = provider;
         this.analyzerContext = analyzerContext;
         this.evalMode = evalMode;
@@ -125,8 +129,13 @@ public class EvalContext {
         this.database = database;
         this.inputReader = inputReader;
         this.outputWriter = outputWriter;
+        this.commandOutDir = commandOutDir;
         loadProperties();
         pushNewScope();
+    }
+
+    public String getCommandOutDir() {
+        return commandOutDir;
     }
 
     public EvalContextProvider getProvider() {

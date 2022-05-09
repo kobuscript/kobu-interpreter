@@ -24,12 +24,13 @@ SOFTWARE.
 
 package dev.kobu.interpreter.codec.command;
 
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.file_system.KobuFileSystem;
 
 import java.io.IOException;
 
 public interface TextFileCommand {
 
-    void run(KobuFileSystem fileSystem) throws IOException;
+    void run(EvalContext evalContext, KobuFileSystem fileSystem) throws IOException;
 
 }

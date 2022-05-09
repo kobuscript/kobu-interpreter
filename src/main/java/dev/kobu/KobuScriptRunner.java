@@ -31,14 +31,17 @@ public class KobuScriptRunner {
 
     private Project project;
 
+    private String commandOutDir;
+
     public KobuScriptRunner(File scriptFile, List<String> arguments) {
         this.scriptFile = scriptFile;
         this.arguments = arguments != null ? arguments : new ArrayList<>();
     }
 
-    public KobuScriptRunner(File scriptFile, List<String> arguments, Project project) {
+    public KobuScriptRunner(File scriptFile, List<String> arguments, Project project, String commandOutDir) {
         this(scriptFile, arguments);
         this.project = project;
+        this.commandOutDir = commandOutDir;
     }
 
     public int run(PrintStream out, PrintStream err) {
@@ -74,7 +77,7 @@ public class KobuScriptRunner {
             InputReader inputReader = new InputReader(new FileFetcher());
             OutputWriter outputWriter = new OutputWriter(out, err);
             EvalContextProvider evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, fileSystem,
-                    database, inputReader, outputWriter);
+                    database, inputReader, outputWriter, commandOutDir);
 
             ModuleLoader moduleLoader = new ModuleLoader(evalContextProvider, fileSystem, project, EvalModeEnum.EXECUTION);
             CodecNativeFunctionRegistry.register(moduleLoader);

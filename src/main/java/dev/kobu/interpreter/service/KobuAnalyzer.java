@@ -57,7 +57,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class KobuAnalyzer {
 
@@ -73,7 +72,7 @@ public class KobuAnalyzer {
         InputReader inputReader = new InputReader(new FileFetcher());
         OutputWriter outputWriter = new OutputWriter(System.out, System.err);
         evalContextProvider = new EvalContextProvider(EvalModeEnum.ANALYZER_SERVICE, fileSystem, database,
-                inputReader, outputWriter);
+                inputReader, outputWriter, null);
     }
 
     public synchronized void removeModule(KobuFile projectFile) {

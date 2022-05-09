@@ -76,7 +76,7 @@ public abstract class AstTestBase {
         InputReader inputReader = new InputReader(new FileFetcher());
         OutputWriter outputWriter = new OutputWriter(System.out, System.err);
         evalContextProvider = new EvalContextProvider(EvalModeEnum.EXECUTION, new LocalKobuFileSystem(), database,
-                inputReader, outputWriter);
+                inputReader, outputWriter, null);
     }
 
     @BeforeEach

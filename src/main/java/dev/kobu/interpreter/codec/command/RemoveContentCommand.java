@@ -24,6 +24,7 @@ SOFTWARE.
 
 package dev.kobu.interpreter.codec.command;
 
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.file_system.KobuFileSystem;
 
 import java.io.IOException;
@@ -58,15 +59,20 @@ public class RemoveContentCommand implements TextFileCommand {
     }
 
     @Override
-    public void run(KobuFileSystem fileSystem) throws IOException {
+    public void run(EvalContext evalContext, KobuFileSystem fileSystem) throws IOException {
         String newContent;
         Path path = Path.of(filePath);
+        path = path.toAbsolutePath();
         try (InputStream in = fileSystem.getInputStream(path)) {
             String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             newContent = text.substring(0, startIndex);
             newContent += text.substring(stopIndex + 1);
         }
 
+        if (evalContext.getCommandOutDir() != null) {
+            Path outPath = Path.of(evalContext.getCommandOutDir());
+            path = outPath.resolve(path.getRoot().relativize(path));
+        }
         fileSystem.writeFileContent(path, newContent, StandardCharsets.UTF_8);
     }
 }

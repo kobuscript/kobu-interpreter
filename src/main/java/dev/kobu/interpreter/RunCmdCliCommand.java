@@ -41,6 +41,9 @@ import java.util.concurrent.Callable;
 @CommandLine.Command(name = "cmd", description = "Run a Kobu command")
 public class RunCmdCliCommand implements Callable<Integer> {
 
+    @CommandLine.Option(names = {"-o", "--outDir"}, paramLabel = "OUT_DIR", description = "Write the updated files to OUT_DIR instead of overwriting")
+    String outDir;
+
     @CommandLine.Parameters(index = "0", paramLabel = "CMD", description = "Command to run")
     String cmd;
 
@@ -80,7 +83,7 @@ public class RunCmdCliCommand implements Callable<Integer> {
         }
 
         File scriptFile = rootPath.resolve(projectCommand.getScriptPath()).toFile();
-        int status = new KobuScriptRunner(scriptFile, scriptArgs, project).run(System.out, System.err);
+        int status = new KobuScriptRunner(scriptFile, scriptArgs, project, outDir).run(System.out, System.err);
 
         if (status == 0) {
             System.out.println("\nCommand executed\n");
