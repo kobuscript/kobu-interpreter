@@ -36,7 +36,7 @@ public class AnyTemplateTypeSymbol extends BuiltinTypeSymbol {
 
     @Override
     public boolean isAssignableFrom(Type type) {
-        return type instanceof AnyTemplateTypeSymbol;
+        return type instanceof AnyTemplateTypeSymbol || type instanceof TemplateTypeSymbol;
     }
 
     @Override

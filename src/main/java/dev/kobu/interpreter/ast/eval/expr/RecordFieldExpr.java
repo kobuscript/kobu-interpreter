@@ -27,10 +27,7 @@ package dev.kobu.interpreter.ast.eval.expr;
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
-import dev.kobu.interpreter.ast.symbol.ModuleScope;
-import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.*;
 
 import java.util.List;
 import java.util.Map;
@@ -73,6 +70,10 @@ public class RecordFieldExpr implements Expr, HasTargetType, HasElementRef {
 
     @Override
     public void analyze(EvalContext context) {
+        if (expr == null) {
+            this.type = UnknownType.INSTANCE;
+            return;
+        }
         if (expr instanceof HasTargetType) {
             ((HasTargetType)expr).setTargetType(targetType);
         }

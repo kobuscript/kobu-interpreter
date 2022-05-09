@@ -1022,6 +1022,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         while (fieldCtx != null) {
             if (fieldCtx.expr() == null) {
                 context.getErrorScope().addError(new MissingExpressionError(getSourceCodeRef(fieldCtx.ID())));
+                recordConstructor.addField(new RecordFieldExpr(getSourceCodeRef(fieldCtx.ID()), type, fieldCtx.ID().getText(),
+                        null));
             } else {
                 var exprNode = visit(fieldCtx.expr());
                 recordConstructor.addField(new RecordFieldExpr(getSourceCodeRef(fieldCtx.ID()), type, fieldCtx.ID().getText(),
