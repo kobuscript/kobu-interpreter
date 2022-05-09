@@ -45,7 +45,8 @@ fun javaTemplates(): Rule[] {
 
 fun javaMethodBodyTemplates(): Rule[] {
     return [JavaDefaultMethodBodyTemplate, JavaDefaultVoidMethodBodyTemplate,
-            JavaDefaultIntMethodBodyTemplate, JavaDefaultFloatMethodBodyTemplate, JavaDefaultDoubleMethodBodyTemplate]
+            JavaDefaultIntMethodBodyTemplate, JavaDefaultFloatMethodBodyTemplate, JavaDefaultDoubleMethodBodyTemplate,
+            JavaDefaultBooleanMethodBodyTemplate]
 }
 
 fun javaConstructorBodyTemplates(): Rule[] {
@@ -70,23 +71,29 @@ def template JavaDefaultVoidMethodBodyTemplate extends JavaDefaultMethodBodyTemp
 
 def template JavaDefaultIntMethodBodyTemplate extends JavaDefaultMethodBodyTemplate
              for OutputJavaMethod as method
-             when method.returnType instanceof JavaIntType or
-                  method.returnType instanceof JavaByteType or
-                  method.returnType instanceof JavaShortType or
-                  method.returnType instanceof JavaCharType <|
+             when method.returnType.name == "int" or
+                  method.returnType.name == "char" or
+                  method.returnType.name == "short" or
+                  method.returnType.name == "byte" <|
 return 0;
 |> as JavaMethodBodyTemplate
 
 def template JavaDefaultFloatMethodBodyTemplate
              for OutputJavaMethod as method
-             when method.returnType instanceof JavaFloatType <|
+             when method.returnType.name == "float" <|
 return 0f;
 |> as JavaMethodBodyTemplate
 
 def template JavaDefaultDoubleMethodBodyTemplate
              for OutputJavaMethod as method
-             when method.returnType instanceof JavaDoubleType <|
+             when method.returnType.name == "double" <|
 return 0.0;
+|> as JavaMethodBodyTemplate
+
+def template JavaDefaultBooleanMethodBodyTemplate
+             for OutputJavaMethod as method
+             when method.returnType.name == "boolean" <|
+return false;
 |> as JavaMethodBodyTemplate
 
 def template JavaCommentTemplate
@@ -409,22 +416,8 @@ private fun getParam(param: OutputJavaMethodParameter): string {
 }
 
 private fun getJavaType(javaType: JavaType): string {
-    if (javaType instanceof JavaIntType) {
-        return "int"
-    } else if (javaType instanceof JavaCharType) {
-        return "char"
-    } else if (javaType instanceof JavaByteType) {
-        return "byte"
-    } else if (javaType instanceof JavaShortType) {
-        return "short"
-    } else if (javaType instanceof JavaLongType) {
-        return "long"
-    } else if (javaType instanceof JavaFloatType) {
-        return "float"
-    } else if (javaType instanceof JavaDoubleType) {
-        return "double"
-    } else if (javaType instanceof JavaBooleanType) {
-        return "boolean"
+    if (javaType instanceof JavaPrimitiveType) {
+        return javaType.name
     } else if (javaType instanceof JavaVoidType) {
         return "void"
     } else if (javaType instanceof JavaObjectType) {
@@ -434,6 +427,7 @@ private fun getJavaType(javaType: JavaType): string {
         if (objType.innerType != null) {
             str = str + "." + getJavaType(objType.innerType)
         }
+        return str
     }
     return ""
 }

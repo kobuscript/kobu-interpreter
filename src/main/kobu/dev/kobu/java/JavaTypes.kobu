@@ -24,31 +24,16 @@ SOFTWARE.
 
 module dev.kobu.java.JavaTypes
 
-type record JavaType {}
+type record JavaType {
+    name: string
+}
 
 type record JavaPrimitiveType extends JavaType {}
-
-type record JavaIntType extends JavaPrimitiveType {}
-
-type record JavaCharType extends JavaPrimitiveType {}
-
-type record JavaByteType extends JavaPrimitiveType {}
-
-type record JavaShortType extends JavaPrimitiveType {}
-
-type record JavaLongType extends JavaPrimitiveType {}
-
-type record JavaFloatType extends JavaPrimitiveType {}
-
-type record JavaDoubleType extends JavaPrimitiveType {}
-
-type record JavaBooleanType extends JavaPrimitiveType {}
 
 type record JavaVoidType extends JavaType {}
 
 type record JavaObjectType extends JavaType {
     package: string,
-    name: string,
     typeArgs: JavaObjectType[],
     innerType: JavaObjectType
 }
@@ -229,4 +214,59 @@ type record JavaLiteralChar extends JavaLiteralValue {
 
 type record JavaLiteralBoolean extends JavaLiteralValue {
     value: boolean
+}
+
+fun javaStringType(): JavaObjectType {
+    return JavaObjectType{
+        name: "String"
+    }
+}
+
+fun javaIntegerType(primitive?: boolean): JavaType {
+    return primitiveOrWrapper("int", "Integer", primitive);
+}
+
+fun javaFloatType(primitive?: boolean): JavaType {
+    return primitiveOrWrapper("float", "Float", primitive);
+}
+
+fun javaDoubleType(primitive?: boolean): JavaType {
+    return primitiveOrWrapper("double", "Double", primitive);
+}
+
+fun javaCharType(primitive?: boolean): JavaType {
+    return primitiveOrWrapper("char", "Char", primitive);
+}
+
+fun javaByteType(primitive?: boolean): JavaType {
+    return primitiveOrWrapper("byte", "Byte", primitive);
+}
+
+fun javaShortType(primitive?: boolean): JavaType {
+    return primitiveOrWrapper("short", "Short", primitive);
+}
+
+fun javaLongType(primitive?: boolean): JavaType {
+    return primitiveOrWrapper("long", "Long", primitive);
+}
+
+fun javaBooleanType(primitive?: boolean): JavaType {
+    return primitiveOrWrapper("boolean", "Boolean", primitive);
+}
+
+fun javaVoidType(): JavaType {
+    return JavaVoidType{
+        name: "void"
+    }
+}
+
+private fun primitiveOrWrapper(primitiveName: string, wrapperName: string, primitive: boolean): JavaType {
+    if (primitive) {
+        return JavaPrimitiveType {
+            name: primitiveName
+        }
+    }
+    return JavaObjectType{
+        name: wrapperName
+    }
 }

@@ -187,42 +187,6 @@ fun javaArray(values: OutputJavaValue[]): OutputJavaArrayValue {
     }
 }
 
-fun javaIntType(): JavaType {
-    return JavaIntType{}
-}
-
-fun javaCharType(): JavaType {
-    return JavaCharType{}
-}
-
-fun javaByteType(): JavaType {
-    return JavaByteType{}
-}
-
-fun javaShortType(): JavaType {
-    return JavaShortType{}
-}
-
-fun javaLongType(): JavaType {
-    return JavaLongType{}
-}
-
-fun javaFloatType(): JavaType {
-    return JavaFloatType{}
-}
-
-fun javaDoubleType(): JavaType {
-    return JavaDoubleType{}
-}
-
-fun javaBooleanType(): JavaType {
-    return JavaBooleanType{}
-}
-
-fun javaVoidType(): JavaType {
-    return JavaVoidType{}
-}
-
 fun javaObjectType(package: string, name: string, typeArgs?: JavaObjectType[], innerType?: JavaObjectType): JavaObjectType {
     return JavaObjectType{
         package: package,

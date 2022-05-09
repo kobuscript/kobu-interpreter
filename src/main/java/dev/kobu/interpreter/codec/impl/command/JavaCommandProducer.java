@@ -46,6 +46,8 @@ import java.util.stream.Collectors;
 
 public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> implements TextFileCommandProducer {
 
+    protected static final int DEFAULT_MARGIN = 4;
+
     protected final ModuleScope moduleScope;
 
     protected int bodyStartIdx;
@@ -77,7 +79,7 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
     @Override
     public Void visitClassDeclaration(JavaParser.ClassDeclarationContext ctx) {
         if (mainClass) {
-            lastInnerDefStopIdx = ctx.stop.getStopIndex();
+            lastInnerDefStopIdx = ctx.stop.getStopIndex() + 1;
             innerDefMap.put(ctx.identifier().getText(), new Ref(ctx.start.getStartIndex(), lastInnerDefStopIdx));
             return null;
         }
@@ -93,7 +95,7 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
     @Override
     public Void visitRecordDeclaration(JavaParser.RecordDeclarationContext ctx) {
         if (mainClass) {
-            lastInnerDefStopIdx = ctx.stop.getStopIndex();
+            lastInnerDefStopIdx = ctx.stop.getStopIndex() + 1;
             innerDefMap.put(ctx.identifier().getText(), new Ref(ctx.start.getStartIndex(), lastInnerDefStopIdx));
             return null;
         }
@@ -109,7 +111,7 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
     @Override
     public Void visitInterfaceDeclaration(JavaParser.InterfaceDeclarationContext ctx) {
         if (mainClass) {
-            lastInnerDefStopIdx = ctx.stop.getStopIndex();
+            lastInnerDefStopIdx = ctx.stop.getStopIndex() + 1;
             innerDefMap.put(ctx.identifier().getText(), new Ref(ctx.start.getStartIndex(), lastInnerDefStopIdx));
             return null;
         }
@@ -124,7 +126,7 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
 
     @Override
     public Void visitFieldDeclaration(JavaParser.FieldDeclarationContext ctx) {
-        lastFieldStopIdx = ctx.stop.getStopIndex();
+        lastFieldStopIdx = ctx.stop.getStopIndex() + 1;
         for (JavaParser.VariableDeclaratorContext variableDeclaratorCtx : ctx.variableDeclarators().variableDeclarator()) {
             fieldMap.put(variableDeclaratorCtx.variableDeclaratorId().identifier().getText(),
                     new Ref(ctx.start.getStartIndex(), lastFieldStopIdx));
@@ -154,7 +156,7 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
 
     @Override
     public Void visitMethodDeclaration(JavaParser.MethodDeclarationContext ctx) {
-        lastMethodStopIdx = ctx.stop.getStopIndex();
+        lastMethodStopIdx = ctx.stop.getStopIndex() + 1;
 
         List<String> methodParamTypes = new ArrayList<>();
         JavaParser.FormalParameterListContext formalParameterListCtx = ctx.formalParameters().formalParameterList();
