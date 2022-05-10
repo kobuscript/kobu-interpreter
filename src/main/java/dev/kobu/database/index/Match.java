@@ -137,8 +137,10 @@ public class Match {
 
     private void addValueToCtx(EvalContext evalContext, ValueExpr value, String bind) {
         if (bind != null) {
-            evalContext.getCurrentScope().define(context.getAnalyzerContext(), new VariableSymbol(context.getModuleScope(),
-                    bind, value.getType()));
+            if (evalContext.getCurrentScope().resolveLocal(bind) == null) {
+                evalContext.getCurrentScope().define(context.getAnalyzerContext(), new VariableSymbol(context.getModuleScope(),
+                        bind, value.getType()));
+            }
             evalContext.getCurrentScope().setValue(bind, value);
         }
     }

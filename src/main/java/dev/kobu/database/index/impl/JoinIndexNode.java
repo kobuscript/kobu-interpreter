@@ -66,10 +66,17 @@ public class JoinIndexNode extends TwoInputsIndexNode {
 
             if (ofValueExpr == null || ofValueExpr instanceof NullValueExpr) {
                 if (queryJoin.getTypeClause().accumulator()) {
-                    merge(left, right
+                    var prevCtx = snapshotMap.get(left.getMatchId());
+                    var newMatch = merge(left, right
                             .setValue(new ArrayValueExpr(
                                         (ArrayType) queryJoin.getTypeClause().getQueryType(), new ArrayList<>()),
                                     right.getBind()));
+                    var snapshot = newMatch.getSnapshot();
+                    if (snapshot.equals(prevCtx)) {
+                        return;
+                    }
+                    snapshotMap.put(left.getMatchId(), snapshot);
+                    dispatch(newMatch);
                 } else {
                     dispatch(merge(left, right));
                 }

@@ -887,7 +887,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     public AstNode visitElseIfStat(KobuParser.ElseIfStatContext ctx) {
 
         topLevelExpression = false;
-        var condExprNode = visit(ctx.expr());
+        var condExprNode = ctx.expr() != null ? visit(ctx.expr()) : null;
         topLevelExpression = true;
 
         List<Evaluable> block = new ArrayList<>();

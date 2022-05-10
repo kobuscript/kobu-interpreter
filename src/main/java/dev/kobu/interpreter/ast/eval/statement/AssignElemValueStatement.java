@@ -64,6 +64,9 @@ public class AssignElemValueStatement implements Statement, Assignment {
             context.addAnalyzerError(new InvalidAssignmentError(sourceCodeRef, exprLeft));
             return;
         }
+        if (exprRight == null) {
+            return;
+        }
         ((MemoryReference)exprLeft).setAssignMode();
         exprLeft.analyze(context);
         var type = exprLeft.getType();

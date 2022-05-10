@@ -57,6 +57,10 @@ public class ElseIfStatement implements Statement {
 
     @Override
     public void analyze(EvalContext context) {
+        if (condExpr == null) {
+            return;
+        }
+
         condExpr.analyze(context);
         if (condExpr.getType() instanceof UnknownType) {
             return;

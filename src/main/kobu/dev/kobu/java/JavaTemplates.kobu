@@ -33,6 +33,8 @@ type template JavaMethodBodyTemplate
 
 type template JavaMethodTemplate
 
+type template JavaClassMemberTemplate
+
 fun javaTemplates(): Rule[] {
     return [JavaImportsAssemblerRule, JavaCommentTemplate, JavaFileTemplate, JavaClassTemplate, JavaInterfaceTemplate,
             JavaEnumTemplate, JavaRecordTemplate, JavaClassConstructorTemplate, JavaRecordConstructorTemplate,
@@ -294,11 +296,10 @@ ${strJoin(annTmpl, " ")}${getParam(param)}
 def template JavaFieldTemplate
              for OutputJavaField as field
              join AnyTemplate[] as commentTmpl of field.comments
-             join AnyTemplate[] as annTmpl of field.annotations
-             join AnyTemplate[] as valueTmpl of [field.value] <|
+             join AnyTemplate[] as annTmpl of field.annotations <|
 ${strJoin(commentTmpl, "\n\n")}
 ${strJoin(annTmpl, "\n")}
-${getJavaFieldDecl(field)}${ifThenElse(valueTmpl.size() > 0, () => " = " + valueTmpl[0])};
+${getJavaFieldDecl(field)};
 |>
 
 def template JavaAnnotationTemplate

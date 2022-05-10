@@ -83,6 +83,10 @@ public class LocalScope implements Scope {
         return symbol;
     }
 
+    public Symbol resolveLocal(String name) {
+        return symbols.get(name);
+    }
+
     @Override
     public Collection<Symbol> getSymbols() {
         return symbols.values();
