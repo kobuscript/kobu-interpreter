@@ -35,6 +35,6 @@ public class InvalidExpressionError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        return "Variable or record field expected";
+        return "expression expected";
     }
 }

@@ -33,10 +33,7 @@ import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.HasTypeParameters;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
-import dev.kobu.interpreter.error.analyzer.ConstAssignError;
-import dev.kobu.interpreter.error.analyzer.InvalidVariableError;
-import dev.kobu.interpreter.error.analyzer.UndefinedAttributeError;
-import dev.kobu.interpreter.error.analyzer.UndefinedSymbolError;
+import dev.kobu.interpreter.error.analyzer.*;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
 
@@ -79,14 +76,13 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
 
         if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
             if (symbolName.equals("")) {
-                int offset = sourceCodeRef.getStartOffset()
-                        + (sourceCodeRef.getEndOffset() - sourceCodeRef.getStartOffset()) + 1;
-                moduleScope.registerRef(offset, this);
-                moduleScope.registerAutoCompletionSource(offset, this);
+                moduleScope.registerRef(sourceCodeRef.getStartOffset() + 1, this);
+                moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset() + 1, this);
             } else {
                 moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
                 moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
             }
+
         }
     }
 
@@ -184,6 +180,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             }
 
             if (symbolName.equals("")) {
+                context.addAnalyzerError(new InvalidExpressionError(sourceCodeRef));
                 return;
             }
 
@@ -193,8 +190,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                     this.function = method;
                     this.type = method.getType();
                 } else if (undefinedSymbolListener != null) {
-                    undefinedSymbolListener.onUndefinedSymbol(context, typeScope, symbolName);
                     this.type = UnknownType.INSTANCE;
+                    undefinedSymbolListener.onUndefinedSymbol(context, typeScope, symbolName);
                 }
                 return;
             }

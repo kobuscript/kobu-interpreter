@@ -75,6 +75,7 @@ public class ModExpr implements Expr {
         rightExpr.analyze(context);
 
         if (leftExpr.getType() instanceof UnknownType || rightExpr.getType() instanceof UnknownType) {
+            this.type = UnknownType.INSTANCE;
             return;
         }
 

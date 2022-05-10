@@ -1313,13 +1313,19 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         boolean exprStatus = topLevelExpression;
         topLevelExpression = false;
 
-        var leftExprNode = visit(ctx.expr(0));
-        var rightExprNode = visit(ctx.expr(1));
+        AstNode leftExprNode = visit(ctx.expr());
+        var exprRight = ctx.ID();
+        AstNode rightExprNode = exprRight != null ? new RefExpr(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText()) : null;
 
-        if (exprStatus && !(rightExprNode instanceof FunctionCallExpr)) {
+        if (exprStatus) {
             context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
         }
         topLevelExpression = exprStatus;
+
+        if (rightExprNode == null) {
+            SourceCodeRef sourceCodeRef = getSourceCodeRef(ctx.DOT());
+            rightExprNode = new RefExpr(moduleScope, sourceCodeRef, "");
+        }
 
         return new FieldAccessExpr(getSourceCodeRef(ctx),
                 (Expr) leftExprNode, (Expr) rightExprNode);

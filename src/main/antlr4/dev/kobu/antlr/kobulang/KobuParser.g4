@@ -199,7 +199,7 @@ expr : record                                                                   
        | LSB exprSequence? RSB                                                                      #arrayExpr
        | LP expr COMMA exprSequence RP                                                              #tupleExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
-       | expr DOT expr                                                                              #fieldAccessExpr
+       | expr DOT ID?                                                                               #fieldAccessExpr
        | expr AS type                                                                               #castExpr
        | anonymousFunction                                                                          #anonymousFunctionExpr
        | expr typeArgs? LP exprSequence? RP                                                         #functionCallExpr
@@ -208,8 +208,8 @@ expr : record                                                                   
        | expr ( PLUS | MINUS ) expr                                                                 #addSubExpr
        | expr ( EQUALS | NOT_EQUALS | LESS | LESS_OR_EQUALS | GREATER | GREATER_OR_EQUALS ) expr    #eqExpr
        | expr ( AND | OR ) expr                                                                     #logicExpr
-       | NOT expr                                                                                   #notExpr
-       | ( INC | DEC) expr                                                                          #preIncDecExpr
+       | NOT expr?                                                                                  #notExpr
+       | ( INC | DEC) expr?                                                                         #preIncDecExpr
        | expr ( INC | DEC )                                                                         #postIncDecExpr
        | TRUE                                                                                       #trueExpr
        | FALSE                                                                                      #falseExpr
