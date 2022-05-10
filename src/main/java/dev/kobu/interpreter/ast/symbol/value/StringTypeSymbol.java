@@ -79,6 +79,8 @@ public class StringTypeSymbol extends BuiltinTypeSymbol implements ValType {
                 BuiltinScope.NUMBER_TYPE,
                 new FunctionParameter("other", this, false)));
         addMethod(new BuiltinFunctionSymbol("escape", new StringEscapeMethodImpl(), BuiltinScope.STRING_TYPE));
+        addMethod(new BuiltinFunctionSymbol("repeat", new StringRepeatMethodImpl(), BuiltinScope.STRING_TYPE,
+                new FunctionParameter("count", BuiltinScope.NUMBER_TYPE, false)));
 
         addMethod(new BuiltinFunctionSymbol(this,"kebabToCamelCase",
                 new StringConverterMethodImpl(StringFunctions::kebabToCamelCase),
