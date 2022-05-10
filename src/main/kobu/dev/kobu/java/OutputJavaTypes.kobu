@@ -297,6 +297,7 @@ fun javaField(modifiers: string[], name: string, fieldType: JavaType,
               value?: OutputJavaValue, annotations?: OutputJavaAnnotationValue[]): OutputJavaField {
     return OutputJavaField{
         comments: [],
+        annotations: [],
         name: name,
         modifiers: modifiers,
         annotations: annotations,
@@ -376,9 +377,9 @@ type record OutputJavaDefinition {
 type record OutputJavaClass extends OutputJavaDefinition {
     superType: JavaObjectType,
     implements: JavaObjectType[],
+    fields: OutputJavaField[],
     constructors: OutputJavaConstructor[],
     methods: OutputJavaMethod[],
-    fields: OutputJavaField[],
     innerClasses: OutputJavaClass[],
     innerInterfaces: OutputJavaInterface[],
     innerEnums: OutputJavaEnum[],

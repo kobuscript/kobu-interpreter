@@ -156,6 +156,8 @@ public class ArrayType implements Type {
     public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
         if (targetType instanceof ArrayType) {
             elementType.resolveAliases(typeArgs, ((ArrayType) targetType).elementType);
+        } else if (targetType == null) {
+            elementType.resolveAliases(typeArgs, BuiltinScope.ANY_TYPE);
         }
     }
 

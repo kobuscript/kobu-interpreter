@@ -63,7 +63,7 @@ public class RecordPutMethodImpl extends BuiltinMethod {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Associates the specified value with the specified attribute";
     }
 
 }

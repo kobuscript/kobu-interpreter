@@ -126,6 +126,12 @@ public class TupleType implements Type {
         if (targetType instanceof TupleType) {
             TupleType targetTuple = (TupleType) targetType;
             typeElement.resolveAliases(typeArgs, targetTuple.typeElement);
+        } else if (targetType == null) {
+            var elem = typeElement;
+            while (elem != null) {
+                elem.getElementType().resolveAliases(typeArgs, BuiltinScope.ANY_TYPE);
+                elem = elem.getNext();
+            }
         }
     }
 

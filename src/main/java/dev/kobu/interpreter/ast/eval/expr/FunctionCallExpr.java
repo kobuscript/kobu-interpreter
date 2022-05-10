@@ -136,6 +136,8 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
                     context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, functionType, args));
                     return UnknownType.INSTANCE;
                 }
+                Type paramType = parameter.getType();
+                paramType.resolveAliases(resolvedTypeArgs, null);
                 break;
             }
             var arg = args.get(i);

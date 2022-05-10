@@ -111,6 +111,8 @@ public class ParameterizedRecordTypeRef implements Type {
     public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
         if (targetType instanceof ParameterizedRecordTypeRef) {
             this.typeArg.resolveAliases(typeArgs, ((ParameterizedRecordTypeRef) targetType).typeArg);
+        } else if (targetType == null) {
+            this.typeArg.resolveAliases(typeArgs, BuiltinScope.ANY_TYPE);
         }
     }
 

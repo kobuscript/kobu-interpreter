@@ -33,8 +33,6 @@ type template JavaMethodBodyTemplate
 
 type template JavaMethodTemplate
 
-type template JavaClassMemberTemplate
-
 fun javaTemplates(): Rule[] {
     return [JavaImportsAssemblerRule, JavaCommentTemplate, JavaFileTemplate, JavaClassTemplate, JavaInterfaceTemplate,
             JavaEnumTemplate, JavaRecordTemplate, JavaClassConstructorTemplate, JavaRecordConstructorTemplate,
@@ -144,13 +142,7 @@ def template JavaClassTemplate
 ${strJoin(commentTmpl, "\n\n")}
 ${strJoin(annTmpl, "\n")}
 ${getJavaClassSignature(class)} {
-    ${strJoin(fieldsTmpl, "\n")}
-    ${strJoin(consTmpl, "\n")}
-    ${strJoin(methodsTmpl, "\n")}
-    ${strJoin(innerClassesTmpl, "\n")}
-    ${strJoin(innerInterfacesTmpl, "\n")}
-    ${strJoin(innerEnumsTmpl, "\n")}
-    ${strJoin(innerRecordsTmpl, "\n")}
+    ${strJoin(flat([fieldsTmpl, consTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "\n")}
 }
 |>
 
@@ -167,12 +159,7 @@ def template JavaInterfaceTemplate
 ${strJoin(commentTmpl, "\n\n")}
 ${strJoin(annTmpl, "\n")}
 ${getJavaInterfaceSignature(interface)} {
-    ${strJoin(fieldsTmpl, "\n")}
-    ${strJoin(methodsTmpl, "\n")}
-    ${strJoin(innerClassesTmpl, "\n")}
-    ${strJoin(innerInterfacesTmpl, "\n")}
-    ${strJoin(innerEnumsTmpl, "\n")}
-    ${strJoin(innerRecordsTmpl, "\n")}
+    ${strJoin(flat([fieldsTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "\n")}
 }
 |>
 
@@ -192,13 +179,7 @@ ${strJoin(commentTmpl, "\n\n")}
 ${strJoin(annTmpl, "\n")}
 ${getJavaEnumSignature(javaEnum)} {
     ${mkString(valuesTmpl, "", ",\n", ";\n")}
-    ${strJoin(fieldsTmpl, "\n")}
-    ${strJoin(consTmpl, "\n")}
-    ${strJoin(methodsTmpl, "\n")}
-    ${strJoin(innerClassesTmpl, "\n")}
-    ${strJoin(innerInterfacesTmpl, "\n")}
-    ${strJoin(innerEnumsTmpl, "\n")}
-    ${strJoin(innerRecordsTmpl, "\n")}
+    ${strJoin(flat([fieldsTmpl, consTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "\n")}
 }
 |>
 
@@ -217,13 +198,7 @@ def template JavaRecordTemplate
 ${strJoin(commentTmpl, "\n\n")}
 ${strJoin(annTmpl, "\n")}
 ${getJavaRecordHeader(javaRecord)}(${strJoin(compTmpl, ",\n")})${getJavaRecordInterfaces(javaRecord)} {
-    ${strJoin(fieldsTmpl, "\n")}
-    ${strJoin(consTmpl, "\n")}
-    ${strJoin(methodsTmpl, "\n")}
-    ${strJoin(innerClassesTmpl, "\n")}
-    ${strJoin(innerInterfacesTmpl, "\n")}
-    ${strJoin(innerEnumsTmpl, "\n")}
-    ${strJoin(innerRecordsTmpl, "\n")}
+    ${strJoin(flat([fieldsTmpl, consTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "\n")}
 }
 |>
 
@@ -406,7 +381,7 @@ private fun getJavaMethodHeader(method: OutputJavaMethod): string {
 
 private fun getJavaFieldDecl(field: OutputJavaField): string {
     return mkString(field.modifiers, "", " ", " ") +
-           field.fieldType + " " + field.name
+           getJavaType(field.fieldType) + " " + field.name
 }
 
 private fun getParam(param: OutputJavaMethodParameter): string {

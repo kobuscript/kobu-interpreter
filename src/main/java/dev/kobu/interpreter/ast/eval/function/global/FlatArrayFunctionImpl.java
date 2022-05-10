@@ -22,47 +22,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.record;
+package dev.kobu.interpreter.ast.eval.function.global;
 
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.RecordTypeRefValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
-import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
+import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.kobu.interpreter.ast.symbol.BuiltinScope;
-import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class RecordValuesMethodImpl extends BuiltinMethod {
+public class FlatArrayFunctionImpl extends BuiltinGlobalFunction {
 
     @Override
-    protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        RecordValueExpr recordExpr = (RecordValueExpr) object;
-        RecordTypeRefValueExpr typeRefExpr = (RecordTypeRefValueExpr) args.get("valueType");
+    protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
+        ArrayValueExpr arrayValueExpr = (ArrayValueExpr) args.get("array");
+        List<ValueExpr> values = new ArrayList<>();
+        addArray(values, arrayValueExpr);
+        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_TYPE), values);
+    }
 
-        List<ValueExpr> result = new ArrayList<>();
-        for (ValueExpr value : recordExpr.getValues()) {
-            if (!(value instanceof NullValueExpr) &&
-                    (typeRefExpr == null || typeRefExpr.getValue().isAssignableFrom(value.getType()))) {
-                result.add(value);
+    private void addArray(List<ValueExpr> values, ArrayValueExpr arrayExpr) {
+        for (ValueExpr valueExpr : arrayExpr.getValue()) {
+            if (valueExpr instanceof ArrayValueExpr) {
+                addArray(values, (ArrayValueExpr) valueExpr);
+            } else {
+                values.add(valueExpr);
             }
         }
-
-        Type type = typeRefExpr != null ? typeRefExpr.getType() : BuiltinScope.ANY_TYPE;
-        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(type), result);
     }
 
     @Override
     public String getDocumentation() {
-        return "Returns all values of this record. If 'valueType' is specified, only values that can be assigned to the specified record type will be returned.";
+        return "Creates a new array with all sub-array elements concatenated into it recursively";
     }
 
 }

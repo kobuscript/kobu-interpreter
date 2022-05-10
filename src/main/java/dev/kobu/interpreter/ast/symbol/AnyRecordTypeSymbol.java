@@ -27,12 +27,20 @@ package dev.kobu.interpreter.ast.symbol;
 import dev.kobu.interpreter.ast.eval.function.record.*;
 import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
+import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeElement;
 import dev.kobu.interpreter.ast.symbol.tuple.TupleTypeFactory;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class AnyRecordTypeSymbol extends BuiltinTypeSymbol {
 
     private static final String ANY_RECORD_TYPE = "AnyRecord";
+
+    private final static TypeParameter TYPE_PARAMETER_A = new TypeParameter("A");
+    private final static TypeAlias TYPE_ALIAS_A = new TypeAlias(TYPE_PARAMETER_A);
 
     public AnyRecordTypeSymbol() {
         super(ANY_RECORD_TYPE);
@@ -49,22 +57,27 @@ public class AnyRecordTypeSymbol extends BuiltinTypeSymbol {
     }
 
     public void buildMethods() {
-        addMethod(new BuiltinFunctionSymbol("put", new RecordPutMethodImpl(),
+        addMethod(new BuiltinFunctionSymbol(this, "put", new RecordPutMethodImpl(),
                 new FunctionParameter("attr", BuiltinScope.STRING_TYPE, false),
                 new FunctionParameter("value", BuiltinScope.ANY_TYPE, false)));
-        addMethod(new BuiltinFunctionSymbol("get", new RecordGetMethodImpl(),
+        addMethod(new BuiltinFunctionSymbol(this, "get", new RecordGetMethodImpl(),
                 BuiltinScope.ANY_TYPE,
-                new FunctionParameter("field", BuiltinScope.STRING_TYPE, false)));
-        addMethod(new BuiltinFunctionSymbol("hasAttribute", new RecordHasAttributeMethodImpl(),
+                new FunctionParameter("attr", BuiltinScope.STRING_TYPE, false)));
+        addMethod(new BuiltinFunctionSymbol(this, "hasAttribute", new RecordHasAttributeMethodImpl(),
                 BuiltinScope.BOOLEAN_TYPE,
                 new FunctionParameter("attr", BuiltinScope.STRING_TYPE, false)));
-        addMethod(new BuiltinFunctionSymbol("getAttributes", new RecordGetAttributesMethodImpl(),
+        addMethod(new BuiltinFunctionSymbol(this, "getAttributes", new RecordGetAttributesMethodImpl(),
                 ArrayTypeFactory.getArrayTypeFor(BuiltinScope.STRING_TYPE)));
+        addMethod(new BuiltinFunctionSymbol(this, "values", new RecordValuesMethodImpl(),
+                List.of(TYPE_PARAMETER_A),
+                new HashMap<>(),
+                ArrayTypeFactory.getArrayTypeFor(TYPE_ALIAS_A),
+                new FunctionParameter("valueType", new ParameterizedRecordTypeRef(TYPE_ALIAS_A), true)));
 
         TupleTypeElement tupleTypeElement = new TupleTypeElement(BuiltinScope.STRING_TYPE);
         tupleTypeElement.setNext(new TupleTypeElement(BuiltinScope.ANY_TYPE));
         var entryType = TupleTypeFactory.getTupleTypeFor(tupleTypeElement);
         var entriesType = ArrayTypeFactory.getArrayTypeFor(entryType);
-        addMethod(new BuiltinFunctionSymbol("getEntries", new RecordEntriesMethodImpl(), entriesType));
+        addMethod(new BuiltinFunctionSymbol(this, "getEntries", new RecordEntriesMethodImpl(), entriesType));
     }
 }

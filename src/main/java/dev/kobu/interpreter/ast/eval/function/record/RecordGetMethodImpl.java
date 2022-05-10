@@ -39,7 +39,7 @@ public class RecordGetMethodImpl extends BuiltinMethod {
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         RecordValueExpr recordValueExpr = (RecordValueExpr) object;
-        StringValueExpr fieldName = (StringValueExpr) args.get("field");
+        StringValueExpr fieldName = (StringValueExpr) args.get("attr");
         ValueExpr fieldValue = recordValueExpr.resolveField(fieldName.getValue());
         if (fieldValue == null || fieldValue instanceof NullValueExpr) {
             return new NullValueExpr();
@@ -49,7 +49,7 @@ public class RecordGetMethodImpl extends BuiltinMethod {
 
     @Override
     public String getDocumentation() {
-        return "";
+        return "Return the value associated with the given attribute.";
     }
 
 }

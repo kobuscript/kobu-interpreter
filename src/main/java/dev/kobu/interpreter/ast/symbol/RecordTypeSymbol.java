@@ -371,6 +371,10 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
             for (Type typeArg : this.typeArgs) {
                 typeArg.resolveAliases(typeArgs, typeArg);
             }
+        } else if (targetType == null) {
+            for (Type typeArg : this.typeArgs) {
+                typeArg.resolveAliases(typeArgs, BuiltinScope.ANY_TYPE);
+            }
         }
     }
 
