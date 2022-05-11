@@ -150,13 +150,16 @@ public class QueryTypeClause implements Evaluable {
                 return;
             }
         }
-        VariableSymbol variableSymbol;
+        VariableSymbol variableSymbol = null;
         if (bindSourceCodeRef != null) {
             variableSymbol = new VariableSymbol(context.getModuleScope(), bindSourceCodeRef, bind, type);
-        } else {
+        } else if (bind != null) {
             variableSymbol = new VariableSymbol(context.getModuleScope(), bind, type);
         }
-        context.getCurrentScope().define(context.getAnalyzerContext(), variableSymbol);
+
+        if (variableSymbol != null) {
+            context.getCurrentScope().define(context.getAnalyzerContext(), variableSymbol);
+        }
 
         if (queryClause != null) {
             queryClause.setTypeScope(type);
