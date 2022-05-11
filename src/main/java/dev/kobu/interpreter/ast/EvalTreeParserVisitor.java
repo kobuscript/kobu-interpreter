@@ -756,6 +756,11 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     public AstNode visitVarDeclBody(KobuParser.VarDeclBodyContext ctx) {
         topLevelExpression = false;
 
+        if (ctx.ID() == null) {
+            topLevelExpression = true;
+            return null;
+        }
+
         Type type = null;
         if (ctx.type() != null) {
             type = (Type) visit(ctx.type());
