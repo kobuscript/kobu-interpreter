@@ -69,14 +69,23 @@ public class Match {
     }
 
     public Match setValue(ValueExpr value, String bind) {
-        return setValue(this.rootRecord, value, bind);
+        return setValue(value, bind, false);
+    }
+
+    public Match setValue(ValueExpr value, String bind, boolean newMatchId) {
+        return setValue(this.rootRecord, value, bind, newMatchId);
     }
 
     public Match setValue(RecordValueExpr rootRecord, ValueExpr value, String bind) {
+        return setValue(rootRecord, value, bind, false);
+    }
+
+    public Match setValue(RecordValueExpr rootRecord, ValueExpr value, String bind, boolean newMatchId) {
         EvalContext matchCtx = context.newEvalContext();
         matchCtx.getCurrentScope().addAll(context.getCurrentScope());
         addValueToCtx(matchCtx, value, bind);
-        Match match = new Match(matchId, matchCtx, rootRecord, value, bind);
+        Match match = new Match(newMatchId ? context.getDatabase().generateMatchId() : matchId,
+                matchCtx, rootRecord, value, bind);
         match.matchPath = matchPath;
         return match;
     }

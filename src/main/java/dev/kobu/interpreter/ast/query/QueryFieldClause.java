@@ -126,15 +126,15 @@ public class QueryFieldClause implements QueryClause {
                 var value = record.resolveField(field);
                 if (value != null && !(value instanceof NullValueExpr)) {
                     if (!extractorMode && value instanceof RecordValueExpr) {
-                        result.add(match.setValue((RecordValueExpr) value, value, bind));
+                        result.add(match.setValue((RecordValueExpr) value, value, bind, true));
                     } else {
-                        result.add(match.setValue(value, bind));
+                        result.add(match.setValue(value, bind, true));
                     }
                 } else if (extractorMode) {
-                    result.add(match.setValue(value, bind));
+                    result.add(match.setValue(value, bind, true));
                 }
             } else if (extractorMode && (valueExpr == null || valueExpr instanceof NullValueExpr)) {
-                result.add(match.setValue(valueExpr, bind));
+                result.add(match.setValue(valueExpr, bind, true));
             }
         } else {
             ValueExpr arrayExpr = null;
@@ -149,14 +149,14 @@ public class QueryFieldClause implements QueryClause {
                 for (ValueExpr value : values) {
                     if (value != null && !(value instanceof NullValueExpr)) {
                         if (!extractorMode && value instanceof RecordValueExpr) {
-                            result.add(match.setValue((RecordValueExpr) value, value, bind));
+                            result.add(match.setValue((RecordValueExpr) value, value, bind, true));
                         } else {
-                            result.add(match.setValue(value, bind));
+                            result.add(match.setValue(value, bind, true));
                         }
                     }
                 }
             } else if (extractorMode && (arrayExpr == null || arrayExpr instanceof NullValueExpr)) {
-                result.add(match.setValue(arrayExpr, bind));
+                result.add(match.setValue(arrayExpr, bind, true));
             }
         }
 
