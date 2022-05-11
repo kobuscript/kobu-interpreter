@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.eval.function.string;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
@@ -38,14 +39,16 @@ public class CapitalizeMethodImpl extends BuiltinMethod {
     @Override
     protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         StringValueExpr stringExpr = (StringValueExpr) object;
+        BooleanValueExpr lowercaseTailExpr = (BooleanValueExpr) args.get("lowercaseTail");
 
         String value = stringExpr.getValue();
-        return new StringValueExpr(StringFunctions.capitalize(value));
+        boolean lowercaseTail = lowercaseTailExpr != null && lowercaseTailExpr.getValue();
+        return new StringValueExpr(StringFunctions.capitalize(value, lowercaseTail));
     }
 
     @Override
     public String getDocumentation() {
-        return "Capitalize the first character of this string, and lowercase the rest";
+        return "Capitalize the first character of this string. If 'lowercaseTail' is true, lowercase the rest";
     }
 
 }

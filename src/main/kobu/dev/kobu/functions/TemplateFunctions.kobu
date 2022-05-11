@@ -25,7 +25,7 @@ SOFTWARE.
 module dev.kobu.functions.TemplateFunctions
 
 fun isBlank(str: string): boolean {
-    return str != null and str.trim().length() > 0
+    return str == null or str.trim().length() == 0
 }
 
 fun isNotBlank(str: string): boolean {

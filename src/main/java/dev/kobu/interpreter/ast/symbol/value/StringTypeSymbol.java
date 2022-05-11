@@ -59,7 +59,8 @@ public class StringTypeSymbol extends BuiltinTypeSymbol implements ValType {
         addMethod(new BuiltinFunctionSymbol(this,"trim", new TrimMethodImpl(), this));
         addMethod(new BuiltinFunctionSymbol(this,"capitalize", new CapitalizeMethodImpl(), this));
         addMethod(new BuiltinFunctionSymbol(this,"uppercase", new UppercaseMethodImpl(), this));
-        addMethod(new BuiltinFunctionSymbol(this,"lowercase", new LowercaseMethodImpl(), this));
+        addMethod(new BuiltinFunctionSymbol(this,"lowercase", new LowercaseMethodImpl(), this,
+                new FunctionParameter("lowercaseTail", BuiltinScope.BOOLEAN_TYPE, true)));
         addMethod(new BuiltinFunctionSymbol(this, "contains", new StringContainsMethodImpl(),
                 BuiltinScope.BOOLEAN_TYPE,
                 new FunctionParameter("str", this, false)));

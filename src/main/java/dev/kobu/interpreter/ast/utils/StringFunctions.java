@@ -38,14 +38,17 @@ public class StringFunctions {
         return StringEscapeUtils.escapeJava(str);
     }
 
-    public static String capitalize(String str) {
+    public static String capitalize(String str, boolean lowercaseTail) {
         if (str.length() == 0) {
             return "";
         }
         if (str.length() == 1) {
             return str.toUpperCase(Locale.ROOT);
         }
-        return str.substring(0, 1).toUpperCase(Locale.ROOT) + str.substring(1).toLowerCase(Locale.ROOT);
+        if (lowercaseTail) {
+            return str.substring(0, 1).toUpperCase(Locale.ROOT) + str.substring(1).toLowerCase(Locale.ROOT);
+        }
+        return str.substring(0, 1).toUpperCase(Locale.ROOT) + str.substring(1);
     }
 
     public static String kebabToCamelCase(String str) {
@@ -55,7 +58,7 @@ public class StringFunctions {
         }
         StringBuilder camelCase = new StringBuilder(parts[0].toLowerCase(Locale.ROOT));
         for (int i = 1; i < parts.length; i++) {
-            camelCase.append(StringFunctions.capitalize(parts[i]));
+            camelCase.append(StringFunctions.capitalize(parts[i], true));
         }
 
         return camelCase.toString();
@@ -72,7 +75,7 @@ public class StringFunctions {
         }
         StringBuilder pascalCase = new StringBuilder();
         for (String part : parts) {
-            pascalCase.append(StringFunctions.capitalize(part));
+            pascalCase.append(StringFunctions.capitalize(part, true));
         }
         return pascalCase.toString();
     }
@@ -82,7 +85,7 @@ public class StringFunctions {
     }
 
     public static String camelToPascalCase(String str) {
-        return capitalize(str);
+        return capitalize(str, true);
     }
 
     public static String camelToSnakeCase(String str) {
@@ -115,7 +118,7 @@ public class StringFunctions {
         }
         StringBuilder camelCase = new StringBuilder(parts[0].toLowerCase(Locale.ROOT));
         for (int i = 1; i < parts.length; i++) {
-            camelCase.append(StringFunctions.capitalize(parts[i]));
+            camelCase.append(StringFunctions.capitalize(parts[i], true));
         }
 
         return camelCase.toString();
@@ -128,7 +131,7 @@ public class StringFunctions {
         }
         StringBuilder pascalCase = new StringBuilder();
         for (String part : parts) {
-            pascalCase.append(StringFunctions.capitalize(part));
+            pascalCase.append(StringFunctions.capitalize(part, true));
         }
         return pascalCase.toString();
     }
