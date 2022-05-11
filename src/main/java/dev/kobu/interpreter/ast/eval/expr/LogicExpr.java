@@ -104,7 +104,7 @@ public class LogicExpr implements Expr {
         var valueExpr = expr.evalExpr(context);
 
         if (valueExpr instanceof NullValueExpr) {
-            throw new NullPointerError(sourceCodeRef, expr.getSourceCodeRef());
+            return BooleanValueExpr.FALSE;
         }
 
         if (!(valueExpr instanceof BooleanValueExpr)) {

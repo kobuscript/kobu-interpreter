@@ -62,7 +62,8 @@ public class InvalidRecordFieldTypeError extends AnalyzerError {
     @Override
     public String getDescription() {
         Type fieldType = recordType.resolveField(fieldName);
-        return "Type '" + valueType.getName() + "' is not assignable to type '" + fieldType.getName() + "'";
+        String vType = valueType != null ? valueType.getName() : "void";
+        return "Type '" + vType + "' is not assignable to type '" + fieldType.getName() + "'";
     }
 
     @Override

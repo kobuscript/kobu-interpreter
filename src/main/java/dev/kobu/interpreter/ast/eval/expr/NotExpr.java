@@ -28,6 +28,7 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.value.BooleanTypeSymbol;
 import dev.kobu.interpreter.error.analyzer.InvalidOperatorError;
@@ -69,6 +70,9 @@ public class NotExpr implements Expr {
     @Override
     public ValueExpr evalExpr(EvalContext context) {
         ValueExpr valueExpr = expr.evalExpr(context);
+        if (valueExpr instanceof NullValueExpr) {
+            return BooleanValueExpr.TRUE;
+        }
         if (!(valueExpr instanceof BooleanValueExpr)) {
             throw new InternalInterpreterError("Expected: boolean. Found: " + expr.getType(),
                     expr.getSourceCodeRef());
