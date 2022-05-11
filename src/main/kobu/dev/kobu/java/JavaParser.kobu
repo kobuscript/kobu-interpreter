@@ -25,7 +25,7 @@ SOFTWARE.
 module dev.kobu.java.JavaParser
 
 import dev.kobu.java.JavaTypes
-import dev.kobu.java.JavaCommands
+import dev.kobu.java.InputJavaTypes
 
 type record JavaFilter {
     typeAnnotations: JavaAnnotationFilter[],
@@ -76,12 +76,12 @@ fun addInterfaceFilter(filter: JavaFilter, typeName: string, typePackage?: strin
  *
  * If 'recursive' is true, this function will scan all subdirectories of 'dir'.
  */
-def native parseJava(dir: Path, pattern: string, recursive?: boolean, filter?: JavaFilter): JavaFile[];
+def native parseJava(dir: Path, pattern: string, recursive?: boolean, filter?: JavaFilter): InputJavaFile[];
 
 /**
  * Parse a single Java file
  */
-fun parseJavaFile(javaFilePath: string): JavaFile {
+fun parseJavaFile(javaFilePath: string): InputJavaFile {
     var filePath = Path([javaFilePath])
     var javaFiles = parseJava(filePath.getParent(), filePath.getFileName().toString())
     if (javaFiles.size() > 0) {

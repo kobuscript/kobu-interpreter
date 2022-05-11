@@ -66,6 +66,7 @@ public class ModuleLoader {
         "dev.kobu.codec.Xml",
         "dev.kobu.java.JavaCommands",
         "dev.kobu.java.JavaTypes",
+        "dev.kobu.java.InputJavaTypes",
         "dev.kobu.java.OutputJavaTypes",
         "dev.kobu.java.JavaTemplates",
         "dev.kobu.java.JavaParser"

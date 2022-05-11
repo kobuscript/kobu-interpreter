@@ -42,7 +42,7 @@ import java.util.*;
 
 public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
-    public static final String JAVA_FILE_TYPE = "JavaFile";
+    public static final String JAVA_FILE_TYPE = "InputJavaFile";
 
     public static final String JAVA_INT_TYPE = "JavaIntType";
 
@@ -64,53 +64,53 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     public static final String JAVA_OBJECT_TYPE = "JavaObjectType";
 
-    private static final String JAVA_IMPORT = "JavaImport";
+    private static final String JAVA_IMPORT = "InputJavaImport";
 
-    private static final String JAVA_DEFINITION = "JavaDefinition";
+    private static final String JAVA_DEFINITION = "InputJavaDefinition";
 
-    private static final String JAVA_CLASS = "JavaClass";
+    private static final String JAVA_CLASS = "InputJavaClass";
 
-    private static final String JAVA_INTERFACE = "JavaInterface";
+    private static final String JAVA_INTERFACE = "InputJavaInterface";
 
-    private static final String JAVA_RECORD = "JavaRecord";
+    private static final String JAVA_RECORD = "InputJavaRecord";
 
-    private static final String JAVA_RECORD_COMPONENT = "JavaRecordComponent";
+    private static final String JAVA_RECORD_COMPONENT = "InputJavaRecordComponent";
 
-    private static final String JAVA_ENUM = "JavaEnum";
+    private static final String JAVA_ENUM = "InputJavaEnum";
 
-    private static final String JAVA_ENUM_VALUE = "JavaEnumValue";
+    private static final String JAVA_ENUM_VALUE = "InputJavaEnumValue";
 
-    private static final String JAVA_TYPE_PARAMETER = "JavaTypeParameter";
+    private static final String JAVA_TYPE_PARAMETER = "InputJavaTypeParameter";
 
-    private static final String JAVA_ANNOTATION_VALUE = "JavaAnnotationValue";
+    private static final String JAVA_ANNOTATION_VALUE = "InputJavaAnnotationValue";
 
-    private static final String JAVA_ANNOTATION_FIELD_VALUES = "JavaAnnotationFieldValues";
+    private static final String JAVA_ANNOTATION_FIELD_VALUES = "InputJavaAnnotationFieldValues";
 
-    private static final String JAVA_CONSTRUCTOR = "JavaConstructor";
+    private static final String JAVA_CONSTRUCTOR = "InputJavaConstructor";
 
-    private static final String JAVA_METHOD = "JavaMethod";
+    private static final String JAVA_METHOD = "InputJavaMethod";
 
-    private static final String JAVA_METHOD_PARAMETER = "JavaMethodParameter";
+    private static final String JAVA_METHOD_PARAMETER = "InputJavaMethodParameter";
 
-    private static final String JAVA_FIELD = "JavaField";
+    private static final String JAVA_FIELD = "InputJavaField";
 
-    private static final String JAVA_VALUE = "JavaValue";
+    private static final String JAVA_VALUE = "InputJavaValue";
 
-    private static final String JAVA_ARRAY_VALUE = "JavaArrayValue";
+    private static final String JAVA_ARRAY_VALUE = "InputJavaArrayValue";
 
-    private static final String JAVA_ATTRIBUTE_REFERENCE = "JavaAttributeReference";
+    private static final String JAVA_ATTRIBUTE_REFERENCE = "InputJavaAttributeReference";
 
-    private static final String JAVA_CLASS_REFERENCE = "JavaClassReference";
+    private static final String JAVA_CLASS_REFERENCE = "InputJavaClassReference";
 
-    private static final String JAVA_LITERAL_STRING = "JavaLiteralString";
+    private static final String JAVA_LITERAL_STRING = "InputJavaLiteralString";
 
-    private static final String JAVA_LITERAL_INT = "JavaLiteralInt";
+    private static final String JAVA_LITERAL_INT = "InputJavaLiteralInt";
 
-    private static final String JAVA_LITERAL_CHAR = "JavaLiteralChar";
+    private static final String JAVA_LITERAL_CHAR = "InputJavaLiteralChar";
 
-    private static final String JAVA_LITERAL_FLOAT = "JavaLiteralFloat";
+    private static final String JAVA_LITERAL_FLOAT = "InputJavaLiteralFloat";
 
-    private static final String JAVA_LITERAL_BOOLEAN = "JavaLiteralBoolean";
+    private static final String JAVA_LITERAL_BOOLEAN = "InputJavaLiteralBoolean";
 
 
     private final ModuleScope moduleScope;

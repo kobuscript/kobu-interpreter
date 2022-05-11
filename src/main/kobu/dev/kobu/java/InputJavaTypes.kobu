@@ -1,0 +1,205 @@
+/*
+MIT License
+
+Copyright (c) 2022 Luiz Mineo
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+module dev.kobu.java.InputJavaTypes
+
+import dev.kobu.java.JavaTypes
+
+type record InputJavaImport {
+    qualifiedName: string
+}
+
+type record InputJavaFile {
+    file: File,
+    package: string,
+    imports: InputJavaImport[],
+    definitions: InputJavaDefinition[]
+}
+
+type record InputJavaDefinition {
+    file: File,
+    name: string,
+    abstract: boolean,
+    final: boolean,
+    static: boolean,
+    publicAccess: boolean,
+    privateAccess: boolean,
+    protectedAccess: boolean,
+    annotations: InputJavaAnnotationValue[]
+}
+
+type record InputJavaClass extends InputJavaDefinition {
+    typeParameters: InputJavaTypeParameter[],
+    superType: JavaObjectType,
+    implements: JavaObjectType[],
+    constructors: InputJavaConstructor[],
+    fields: InputJavaField[],
+    methods: InputJavaMethod[],
+    innerClasses: InputJavaClass[],
+    innerInterfaces: InputJavaInterface[],
+    innerEnums: InputJavaEnum[],
+    innerRecords: InputJavaRecord[]
+}
+
+type record InputJavaInterface extends InputJavaDefinition {
+    typeParameters: InputJavaTypeParameter[],
+    superTypes: JavaObjectType[],
+    fields: InputJavaField[],
+    methods: InputJavaMethod[],
+    innerClasses: InputJavaClass[],
+    innerInterfaces: InputJavaInterface[],
+    innerEnums: InputJavaEnum[],
+    innerRecords: InputJavaRecord[]
+}
+
+type record InputJavaRecord extends InputJavaDefinition {
+    typeParameters: InputJavaTypeParameter[],
+    implements: JavaObjectType[],
+    components: InputJavaRecordComponent[],
+    fields: InputJavaField[],
+    constructors: InputJavaConstructor[],
+    methods: InputJavaMethod[],
+    innerClasses: InputJavaClass[],
+    innerInterfaces: InputJavaInterface[],
+    innerEnums: InputJavaEnum[],
+    innerRecords: InputJavaRecord[]
+}
+
+type record InputJavaRecordComponent {
+    annotations: InputJavaAnnotationValue[],
+    name: string,
+    fieldType: JavaType
+}
+
+type record InputJavaEnum extends InputJavaDefinition {
+    implements: JavaObjectType[],
+    values: InputJavaEnumValue[],
+    constructors: InputJavaConstructor[],
+    methods: InputJavaMethod[],
+    fields: InputJavaField[],
+    innerClasses: InputJavaClass[],
+    innerInterfaces: InputJavaInterface[],
+    innerEnums: InputJavaEnum[],
+    innerRecords: InputJavaRecord[]
+}
+
+type record InputJavaEnumValue {
+    name: string,
+    args: InputJavaValue[]
+}
+
+type record InputJavaTypeParameter {
+    alias: string
+}
+
+type record InputJavaAnnotationValue extends InputJavaValue {
+    package: string,
+    name: string,
+    fields: InputJavaAnnotationFieldValues
+}
+
+type record InputJavaAnnotationFieldValues {
+    *: InputJavaValue
+}
+
+type record InputJavaClassMember {
+    publicAccess: boolean,
+    privateAccess: boolean,
+    protectedAccess: boolean,
+    static: boolean,
+    abstract: boolean,
+    final: boolean,
+    default: boolean,
+    annotations: InputJavaAnnotationValue[]
+}
+
+type record InputJavaConstructor extends InputJavaClassMember {
+    typeParameters: InputJavaTypeParameter[],
+    parameters: InputJavaMethodParameter[]
+}
+
+type record InputJavaMethod extends InputJavaClassMember {
+    typeParameters: InputJavaTypeParameter[],
+    name: string,
+    returnType: JavaType,
+    parameters: InputJavaMethodParameter[],
+    annotations: InputJavaAnnotationValue[]
+}
+
+type record InputJavaMethodParameter {
+    paramName: string,
+    paramType: JavaType,
+    annotations: InputJavaAnnotationValue[],
+    final: boolean,
+    varArg: boolean
+}
+
+type record InputJavaField extends InputJavaClassMember {
+    name: string,
+    fieldType: JavaType,
+    value: InputJavaValue
+}
+
+type record InputJavaValue {}
+
+type record InputJavaAttributeReference extends InputJavaValue {
+    typePackage: string,
+    typeName: string,
+    attributeName: string
+}
+
+type record InputJavaClassReference extends InputJavaValue {
+    typePackage: string,
+    typeName: string
+}
+
+type record InputJavaArrayValue extends InputJavaValue {
+    items: InputJavaValue[]
+}
+
+type record InputJavaLiteralValue extends InputJavaValue {
+    source: string
+}
+
+type record InputJavaLiteralString extends InputJavaLiteralValue {
+    value: string
+}
+
+type record InputJavaLiteralInt extends InputJavaLiteralValue {
+    originalRadix: number,
+    value: number
+}
+
+type record InputJavaLiteralFloat extends InputJavaLiteralValue {
+    originalRadix: number,
+    value: number
+}
+
+type record InputJavaLiteralChar extends InputJavaLiteralValue {
+    value: string
+}
+
+type record InputJavaLiteralBoolean extends InputJavaLiteralValue {
+    value: boolean
+}
