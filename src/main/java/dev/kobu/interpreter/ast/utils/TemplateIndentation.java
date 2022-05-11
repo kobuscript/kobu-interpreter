@@ -42,12 +42,16 @@ public class TemplateIndentation {
         return 0;
     }
 
-    public static String indent(String str, int margin) {
+    public static String indent(String str, int margin, boolean trim) {
         String marginStr = "\n" + " ".repeat(margin);
 
+        if (trim) {
+            return str
+                    .replaceAll("^\\n", "")
+                    .replaceAll("\\n$", "")
+                    .replaceAll("\\n", marginStr);
+        }
         return str
-                .replaceAll("^\\n", "")
-                .replaceAll("\\n$", "")
                 .replaceAll("\\n", marginStr);
     }
 

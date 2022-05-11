@@ -81,7 +81,7 @@ fun strPartitionJoin(arr: Any[], size: number, delimiterItem: string, delimiterG
 fun mkString(arr: Any[], prefix: string, delimiter: string, suffix: string): string {
     var str = ""
     if (arr != null and arr.size() > 0) {
-        str = str + prefix
+        str = prefix
         str = str + strJoin(arr, delimiter)
         str = str + suffix
     }

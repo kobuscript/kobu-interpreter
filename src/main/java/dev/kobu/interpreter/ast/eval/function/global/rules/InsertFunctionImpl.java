@@ -59,7 +59,7 @@ public class InsertFunctionImpl extends BuiltinGlobalFunction {
         Match match = context.getRuleContext().getMatch();
         RecordValueExpr rootRecord = match.getRootRecord();
         addCreatorId(recordExpr, rootRecord.getId(), new HashSet<>());
-        recordExpr.setOriginRule(context.getRuleContext().getRuleSymbol().getFullName());
+        recordExpr.setOriginRule(context.getRuleContext().getRuleSymbol());
         context.getDatabase().insertFact(recordExpr);
         return null;
     }

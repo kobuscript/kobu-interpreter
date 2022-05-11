@@ -173,6 +173,24 @@ public class RuleSymbol extends Symbol implements HasExpr, AnalyzerListener, Ast
         return getFullName().hashCode();
     }
 
+    public boolean equalsOrSubTypeOf(RuleSymbol other) {
+        RuleSymbol rule = this;
+        while (rule != null) {
+            if (rule.equals(other)) {
+                return true;
+            }
+            rule = rule.parentRuleSymbol;
+        }
+        return false;
+    }
+
+    public boolean isCompatibleWith(RuleSymbol other) {
+        if (other == null) {
+            return false;
+        }
+        return equalsOrSubTypeOf(other) || other.equalsOrSubTypeOf(this);
+    }
+
     @Override
     public void afterAnalyzer(AnalyzerContext context) {
         if (parentRuleSymbol != null) {

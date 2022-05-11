@@ -51,7 +51,7 @@ public class TemplateValueExpr implements ValueExpr, Fact {
 
     private int iteration;
 
-    private String originRule;
+    private RuleSymbol originRule;
 
     public TemplateValueExpr(int id, TemplateExecutor templateExecutor, RecordValueExpr rootRecord, int creatorId) {
         this.id = id;
@@ -144,12 +144,12 @@ public class TemplateValueExpr implements ValueExpr, Fact {
     }
 
     @Override
-    public String getOriginRule() {
+    public RuleSymbol getOriginRule() {
         return originRule;
     }
 
     @Override
-    public void setOriginRule(String originRule) {
+    public void setOriginRule(RuleSymbol originRule) {
         this.originRule = originRule;
     }
 

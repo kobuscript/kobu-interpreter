@@ -80,9 +80,9 @@ public class TemplateContentStatement extends TemplateStatement {
         ValueExpr value = expr.evalExpr(context);
 
         if (value instanceof StringValueExpr) {
-            str.append(TemplateIndentation.indent(((StringValueExpr) value).getValue(), insertionIndex));
+            str.append(TemplateIndentation.indent(((StringValueExpr) value).getValue(), insertionIndex, false));
         } else if (!(value instanceof NullValueExpr)) {
-            str.append(TemplateIndentation.indent(value.getStringValue(), insertionIndex));
+            str.append(TemplateIndentation.indent(value.getStringValue(), insertionIndex, false));
         }
 
         if (getNext() != null) {

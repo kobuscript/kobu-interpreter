@@ -30,6 +30,7 @@ import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.eval.HasFields;
 import dev.kobu.interpreter.ast.eval.HasMethods;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.symbol.RuleSymbol;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
@@ -54,7 +55,7 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods, Fact {
 
     private int iteration;
 
-    private String originRule;
+    private RuleSymbol originRule;
 
     public RecordValueExpr(Type type, Map<String, ValueExpr> fieldValues, int id) {
         this.type = type;
@@ -161,12 +162,12 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods, Fact {
     }
 
     @Override
-    public String getOriginRule() {
+    public RuleSymbol getOriginRule() {
         return originRule;
     }
 
     @Override
-    public void setOriginRule(String originRule) {
+    public void setOriginRule(RuleSymbol originRule) {
         this.originRule = originRule;
     }
 

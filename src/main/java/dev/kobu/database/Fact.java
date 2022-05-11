@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.kobu.database;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.symbol.RuleSymbol;
 import dev.kobu.interpreter.ast.symbol.Type;
 
 public interface Fact extends ValueExpr {
@@ -39,14 +40,14 @@ public interface Fact extends ValueExpr {
 
     void setIteration(int iteration);
 
-    String getOriginRule();
+    RuleSymbol getOriginRule();
 
-    void setOriginRule(String originRule);
+    void setOriginRule(RuleSymbol originRule);
 
     Type getType();
 
     default boolean overrides(Fact otherFact) {
-        return getOriginRule() != null && getOriginRule().equals(otherFact.getOriginRule()) &&
+        return getOriginRule() != null && getOriginRule().isCompatibleWith(otherFact.getOriginRule()) &&
                 getCreatorId() == otherFact.getCreatorId() && getIteration() > otherFact.getIteration();
     }
 

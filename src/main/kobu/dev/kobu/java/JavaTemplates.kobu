@@ -37,9 +37,9 @@ fun javaTemplates(): Rule[] {
     return [JavaImportsAssemblerRule, JavaCommentTemplate, JavaFileTemplate, JavaClassTemplate, JavaInterfaceTemplate,
             JavaEnumTemplate, JavaRecordTemplate, JavaClassConstructorTemplate, JavaRecordConstructorTemplate,
             JavaMethodDeclTemplate, JavaAbstractMethodDeclTemplate, JavaInterfaceMethodDeclTemplate,
-            JavaMethodParamTemplate, JavaFieldTemplate, JavaAnnotationTemplate, JavaAnnotationSingleValueTemplate,
-            JavaEmptyAnnotationTemplate, JavaAnnotationFieldValueTemplate, JavaArrayValueTemplate,
-            JavaArrayLiteralValueTemplate, JavaSourceValueTemplate, LiteralJavaValueTemplate,
+            JavaMethodParamTemplate, JavaFieldTemplate, JavaFieldWithValueTemplate, JavaAnnotationTemplate,
+            JavaAnnotationSingleValueTemplate, JavaEmptyAnnotationTemplate, JavaAnnotationFieldValueTemplate,
+            JavaArrayValueTemplate, JavaArrayLiteralValueTemplate, JavaSourceValueTemplate, LiteralJavaValueTemplate,
             LiteralJavaStringTemplate]
 }
 
@@ -139,10 +139,9 @@ def template JavaClassTemplate
              join AnyTemplate[] as innerInterfacesTmpl of class.innerInterfaces
              join AnyTemplate[] as innerEnumsTmpl of class.innerEnums
              join AnyTemplate[] as innerRecordsTmpl of class.innerRecords <|
-${strJoin(commentTmpl, "\n\n")}
-${strJoin(annTmpl, "\n")}
+${strJoin(flat([commentTmpl, annTmpl]), "\n")}
 ${getJavaClassSignature(class)} {
-    ${strJoin(flat([fieldsTmpl, consTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "\n")}
+    ${mkString(flat([fieldsTmpl, consTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "", "\n", "\n")}
 }
 |>
 
@@ -156,10 +155,9 @@ def template JavaInterfaceTemplate
              join AnyTemplate[] as innerInterfacesTmpl of interface.innerInterfaces
              join AnyTemplate[] as innerEnumsTmpl of interface.innerEnums
              join AnyTemplate[] as innerRecordsTmpl of interface.innerRecords <|
-${strJoin(commentTmpl, "\n\n")}
-${strJoin(annTmpl, "\n")}
+${strJoin(flat([commentTmpl, annTmpl]), "\n")}
 ${getJavaInterfaceSignature(interface)} {
-    ${strJoin(flat([fieldsTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "\n")}
+    ${mkString(flat([fieldsTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "\n", "\n", "\n")}
 }
 |>
 
@@ -175,11 +173,10 @@ def template JavaEnumTemplate
              join AnyTemplate[] as innerInterfacesTmpl of javaEnum.innerInterfaces
              join AnyTemplate[] as innerEnumsTmpl of javaEnum.innerEnums
              join AnyTemplate[] as innerRecordsTmpl of javaEnum.innerRecords <|
-${strJoin(commentTmpl, "\n\n")}
-${strJoin(annTmpl, "\n")}
+${strJoin(flat([commentTmpl, annTmpl]), "\n")}
 ${getJavaEnumSignature(javaEnum)} {
-    ${mkString(valuesTmpl, "", ",\n", ";\n")}
-    ${strJoin(flat([fieldsTmpl, consTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "\n")}
+    ${mkString(valuesTmpl, "", ",\n", ";")}
+    ${mkString(flat([fieldsTmpl, consTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "\n", "\n", "\n")}
 }
 |>
 
@@ -195,10 +192,9 @@ def template JavaRecordTemplate
              join AnyTemplate[] as innerInterfacesTmpl of javaRecord.innerInterfaces
              join AnyTemplate[] as innerEnumsTmpl of javaRecord.innerEnums
              join AnyTemplate[] as innerRecordsTmpl of javaRecord.innerRecords <|
-${strJoin(commentTmpl, "\n\n")}
-${strJoin(annTmpl, "\n")}
+${strJoin(flat([commentTmpl, annTmpl]), "\n")}
 ${getJavaRecordHeader(javaRecord)}(${strJoin(compTmpl, ",\n")})${getJavaRecordInterfaces(javaRecord)} {
-    ${strJoin(flat([fieldsTmpl, consTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "\n")}
+    ${mkString(flat([fieldsTmpl, consTmpl, methodsTmpl, innerClassesTmpl, innerInterfacesTmpl, innerEnumsTmpl, innerRecordsTmpl]), "\n", "\n", "\n")}
 }
 |>
 
@@ -208,8 +204,7 @@ def template JavaClassConstructorTemplate
              join AnyTemplate[] as annTmpl of cons.annotations
              join AnyTemplate[] as paramTmpl of cons.parameters
              join JavaMethodBodyTemplate as body of cons <|
-${strJoin(commentTmpl, "\n\n")}
-${strJoin(annTmpl, "\n")}
+${strJoin(flat([commentTmpl, annTmpl]), "\n")}
 ${getJavaConstructorHeader(class.name, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(cons.throws, " throws ", ", ", "")} {
     ${body}
 }
@@ -221,8 +216,7 @@ def template JavaRecordConstructorTemplate
              join AnyTemplate[] as annTmpl of cons.annotations
              join AnyTemplate[] as paramTmpl of cons.parameters
              join JavaMethodBodyTemplate as body of cons <|
-${strJoin(commentTmpl, "\n\n")}
-${strJoin(annTmpl, "\n")}
+${strJoin(flat([commentTmpl, annTmpl]), "\n")}
 ${getJavaConstructorHeader(record.name, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(cons.throws, " throws ", ", ", "")} {
     ${body}
 }
@@ -234,8 +228,7 @@ def template JavaMethodDeclTemplate
              join AnyTemplate[] as annTmpl of method.annotations
              join AnyTemplate[] as paramTmpl of method.parameters
              join JavaMethodBodyTemplate as body of method <|
-${strJoin(commentTmpl, "\n\n")}
-${strJoin(annTmpl, "\n")}
+${mkString(flat([commentTmpl, annTmpl]), "\n", "\n", "")}
 ${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")} {
     ${body}
 }
@@ -246,8 +239,7 @@ def template JavaInterfaceMethodDeclTemplate extends JavaMethodDeclTemplate
              join AnyTemplate[] as commentTmpl of method.comments
              join AnyTemplate[] as annTmpl of method.annotations
              join AnyTemplate[] as paramTmpl of method.parameters <|
-${strJoin(commentTmpl, "\n\n")}
-${strJoin(annTmpl, "\n")}
+${mkString(flat([commentTmpl, annTmpl]), "\n", "\n", "")}
 ${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")};
 |> as JavaMethodTemplate
 
@@ -257,8 +249,7 @@ def template JavaAbstractMethodDeclTemplate extends JavaMethodDeclTemplate
              join AnyTemplate[] as annTmpl of method.annotations
              join AnyTemplate[] as paramTmpl of method.parameters
              when method.modifiers != null and method.modifiers.contains("abstract") <|
-${strJoin(commentTmpl, "\n\n")}
-${strJoin(annTmpl, "\n")}
+${mkString(flat([commentTmpl, annTmpl]), "\n", "\n", "")}
 ${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")};
 |> as JavaMethodTemplate
 
@@ -272,9 +263,17 @@ def template JavaFieldTemplate
              for OutputJavaField as field
              join AnyTemplate[] as commentTmpl of field.comments
              join AnyTemplate[] as annTmpl of field.annotations <|
-${strJoin(commentTmpl, "\n\n")}
-${strJoin(annTmpl, "\n")}
+${mkString(flat([commentTmpl, annTmpl]), "\n", "\n", "")}
 ${getJavaFieldDecl(field)};
+|>
+
+def template JavaFieldWithValueTemplate extends JavaFieldTemplate
+             for OutputJavaField as field
+             join AnyTemplate[] as commentTmpl of field.comments
+             join AnyTemplate[] as annTmpl of field.annotations
+             join AnyTemplate as valueTmpl of field.value <|
+${mkString(flat([commentTmpl, annTmpl]), "\n", "\n", "")}
+${getJavaFieldDecl(field)} = ${valueTmpl};
 |>
 
 def template JavaAnnotationTemplate

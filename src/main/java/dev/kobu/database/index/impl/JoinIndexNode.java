@@ -77,8 +77,6 @@ public class JoinIndexNode extends TwoInputsIndexNode {
                     }
                     snapshotMap.put(left.getMatchId(), snapshot);
                     dispatch(newMatch);
-                } else {
-                    dispatch(merge(left, right));
                 }
             } else if (ofValueExpr instanceof RecordValueExpr) {
                 RecordValueExpr recordValueExpr = (RecordValueExpr) ofValueExpr;
