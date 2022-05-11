@@ -1502,7 +1502,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     @Override
     public AstNode visitQueryExprSegment(KobuParser.QueryExprSegmentContext ctx) {
         String alias = null;
-        if (ctx.queryExprAlias() != null) {
+        if (ctx.queryExprAlias() != null && ctx.queryExprAlias().ID() != null) {
             alias = ctx.queryExprAlias().ID().getText();
         }
 
