@@ -347,9 +347,9 @@ public class EvalContext {
         if (evalMode == EvalModeEnum.EXECUTION) {
             return 0;
         }
-        if (getFunction() != null) {
+        if (getFunction() != null && getFunction().getCloseBlockSourceRef() != null) {
             return getFunction().getCloseBlockSourceRef().getStartOffset() + 1;
-        } else if (getRuleContext() != null) {
+        } else if (getRuleContext() != null && getRuleContext().getRuleSymbol().getCloseRuleRef() != null) {
             return getRuleContext().getRuleSymbol().getCloseRuleRef().getStartOffset() + 1;
         }
 
