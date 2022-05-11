@@ -30,12 +30,14 @@ import dev.kobu.interpreter.ast.eval.expr.value.FileValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.eval.function.NativeFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.codec.command.TextFileCommand;
 import dev.kobu.interpreter.codec.command.TextFileCommandRunner;
 import dev.kobu.interpreter.error.eval.BuiltinFunctionError;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Map;
 
 public class RunTextFileCommandFunctionImpl extends NativeFunction {
@@ -57,8 +59,9 @@ public class RunTextFileCommandFunctionImpl extends NativeFunction {
             throw new IllegalArgumentError("'command.file' cannot be null", sourceCodeRef);
         }
 
-        try (InputStream in = context.getFileSystem().getInputStream(fileExpr.getFile().toPath())) {
-            textFileCommandRunner.runCommand(getModuleScope(), context, fileExpr.getFile().getAbsolutePath(),
+        String filePath = fileExpr.getFile().getAbsolutePath();
+        try (InputStream in = context.getFileSystem().getInputStream(Path.of(TextFileCommand.getDestPath(filePath)))) {
+            textFileCommandRunner.runCommand(getModuleScope(), context, filePath,
                     in, commandRec, args, sourceCodeRef);
         } catch (IOException e) {
             throw new BuiltinFunctionError(e, sourceCodeRef);

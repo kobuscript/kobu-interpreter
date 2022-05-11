@@ -24,6 +24,7 @@ SOFTWARE.
 
 module dev.kobu.java.JavaCommands
 
+import dev.kobu.java.JavaTypes
 import dev.kobu.java.OutputJavaTypes
 import dev.kobu.command.Command
 

@@ -73,9 +73,8 @@ public class JavaCommandRunner implements TextFileCommandRunner {
         }
 
         KobuFileSystem fileSystem = context.getFileSystem();
-        int idx = 0;
         for (TextFileCommand command : commands) {
-            command.run(idx++, context, fileSystem);
+            command.run(context, fileSystem);
         }
 
     }

@@ -31,6 +31,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.TemplateValueExpr;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.utils.RecordUtils;
+import dev.kobu.interpreter.ast.utils.TemplateIndentation;
 import dev.kobu.interpreter.codec.command.AddContentCommand;
 import dev.kobu.interpreter.codec.command.RemoveContentCommand;
 import dev.kobu.interpreter.codec.command.TextFileCommand;
@@ -68,13 +69,16 @@ public class JavaAddOrReplaceConstructorCommandProducer extends JavaCommandProdu
         MethodRef ref = constructorList.stream().filter(m -> m.paramTypes.equals(paramTypes)).findFirst().orElse(null);
 
         int startIdx;
+        String content;
         if (ref != null) {
             commands.add(new RemoveContentCommand(filePath, ref.startIdx, ref.stopIdx));
             startIdx = ref.startIdx;
+            content = TemplateIndentation.indent("\n" + contentExpr.getValue(), DEFAULT_MARGIN, true);
         } else {
             startIdx = Math.max(bodyStartIdx, lastFieldStopIdx);
+            content = "\n" + TemplateIndentation.indent("\n" + contentExpr.getValue(), DEFAULT_MARGIN, true);
         }
-        commands.add(new AddContentCommand(filePath, startIdx, contentExpr.getValue()));
+        commands.add(new AddContentCommand(filePath, startIdx, content));
 
         return commands;
     }

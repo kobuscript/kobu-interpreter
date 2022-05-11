@@ -32,7 +32,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
-public class AddContentCommand implements TextFileCommand {
+public class AddContentCommand extends TextFileCommand {
 
     private final String filePath;
 
@@ -59,13 +59,9 @@ public class AddContentCommand implements TextFileCommand {
     }
 
     @Override
-    public void run(int idx, EvalContext evalContext, KobuFileSystem fileSystem) throws IOException {
+    public void run(EvalContext evalContext, KobuFileSystem fileSystem) throws IOException {
         String newContent;
-        Path path = Path.of(filePath);
-        path = path.toAbsolutePath();
-        if (idx > 0) {
-            path = getDestPath(evalContext, path);
-        }
+        Path path = Path.of(getDestPath(filePath)).toAbsolutePath();
         try (InputStream in = fileSystem.getInputStream(path)) {
             String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             newContent = text.substring(0, startIndex).replaceAll("\\n[ \\t]+$", "");
@@ -73,7 +69,9 @@ public class AddContentCommand implements TextFileCommand {
             newContent += text.substring(startIndex);
         }
 
-        fileSystem.writeFileContent(getDestPath(evalContext, Path.of(filePath)), newContent,
+        Path destPath = getDestPath(evalContext, Path.of(filePath));
+        putFileDest(filePath, destPath.toString());
+        fileSystem.writeFileContent(destPath, newContent,
                 StandardCharsets.UTF_8);
     }
 }

@@ -29,16 +29,29 @@ import dev.kobu.interpreter.file_system.KobuFileSystem;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface TextFileCommand {
+public abstract class TextFileCommand {
 
-    void run(int idx, EvalContext evalContext, KobuFileSystem fileSystem) throws IOException;
+    private static final Map<String, String> fileDestMap = new HashMap<>();
 
-    default Path getDestPath(EvalContext evalContext, Path filePath) {
+    public static String getDestPath(String file) {
+        String path = fileDestMap.get(file);
+        return path != null ? path : file;
+    }
+
+    public abstract void run(EvalContext evalContext, KobuFileSystem fileSystem) throws IOException;
+
+    protected Path getDestPath(EvalContext evalContext, Path filePath) {
         if (evalContext.getCommandOutDir() != null) {
             Path outPath = Path.of(evalContext.getCommandOutDir());
             return outPath.resolve(filePath.getRoot().relativize(filePath));
         }
         return filePath;
+    }
+
+    protected void putFileDest(String file, String destPath) {
+        fileDestMap.put(file, destPath);
     }
 }

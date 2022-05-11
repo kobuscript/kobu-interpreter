@@ -44,21 +44,7 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     public static final String JAVA_FILE_TYPE = "InputJavaFile";
 
-    public static final String JAVA_INT_TYPE = "JavaIntType";
-
-    public static final String JAVA_CHAR_TYPE = "JavaCharType";
-
-    public static final String JAVA_BYTE_TYPE = "JavaByteType";
-
-    public static final String JAVA_SHORT_TYPE = "JavaShortType";
-
-    public static final String JAVA_LONG_TYPE = "JavaLongType";
-
-    public static final String JAVA_FLOAT_TYPE = "JavaFloatType";
-
-    public static final String JAVA_DOUBLE_TYPE = "JavaDoubleType";
-
-    public static final String JAVA_BOOLEAN_TYPE = "JavaBooleanType";
+    public static final String JAVA_PRIMITIVE_TYPE = "JavaPrimitiveType";
 
     public static final String JAVA_VOID_TYPE = "JavaVoidType";
 
@@ -917,24 +903,9 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitPrimitiveType(JavaParser.PrimitiveTypeContext ctx) {
-        if (ctx.BOOLEAN() != null) {
-            return RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_BOOLEAN_TYPE));
-        } else if (ctx.CHAR() != null) {
-            return RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_CHAR_TYPE));
-        } else if (ctx.BYTE() != null) {
-            return RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_BYTE_TYPE));
-        } else if (ctx.SHORT() != null) {
-            return RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_SHORT_TYPE));
-        } else if (ctx.INT() != null) {
-            return RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_INT_TYPE));
-        } else if (ctx.LONG() != null) {
-            return RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_LONG_TYPE));
-        } else if (ctx.FLOAT() != null) {
-            return RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_FLOAT_TYPE));
-        } else if (ctx.DOUBLE() != null) {
-            return RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_DOUBLE_TYPE));
-        }
-        return null;
+        RecordValueExpr record = RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_PRIMITIVE_TYPE));
+        record.updateFieldValue(context, "name", new StringValueExpr(ctx.getText()));
+        return record;
     }
 
     @Override

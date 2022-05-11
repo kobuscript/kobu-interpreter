@@ -144,17 +144,17 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
 
     @Override
     public Void visitConstructorDeclaration(JavaParser.ConstructorDeclarationContext ctx) {
-        lastConstructorStopIdx = ctx.stop.getStopIndex();
+        lastConstructorStopIdx = ctx.stop.getStopIndex() + 1;
 
         List<String> consParamTypes = new ArrayList<>();
         JavaParser.FormalParameterListContext formalParameterListCtx = ctx.formalParameters().formalParameterList();
         if (formalParameterListCtx != null) {
             for (JavaParser.FormalParameterContext formalParameterCtx : formalParameterListCtx.formalParameter()) {
-                consParamTypes.add(formalParameterCtx.typeType().getText().replaceAll("\\S+", ""));
+                consParamTypes.add(formalParameterCtx.typeType().getText().replaceAll("\\s+", ""));
             }
             if (formalParameterListCtx.lastFormalParameter() != null) {
                 consParamTypes.add(formalParameterListCtx.lastFormalParameter().typeType().getText()
-                        .replaceAll("\\S+", ""));
+                        .replaceAll("\\s+", ""));
             }
         }
 
@@ -205,22 +205,8 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
     }
 
     protected String javaTypeToString(RecordValueExpr javaTypeRec, SourceCodeRef sourceCodeRef) {
-        if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_INT_TYPE)) {
-            return "int";
-        } else if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_CHAR_TYPE)) {
-            return "char";
-        } else if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_BYTE_TYPE)) {
-            return "byte";
-        } else if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_SHORT_TYPE)) {
-            return "short";
-        } else if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_LONG_TYPE)) {
-            return "long";
-        } else if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_FLOAT_TYPE)) {
-            return "float";
-        } else if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_DOUBLE_TYPE)) {
-            return "double";
-        } else if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_BOOLEAN_TYPE)) {
-            return "boolean";
+        if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_PRIMITIVE_TYPE)) {
+            return ((StringValueExpr)RecordUtils.getRequiredField(javaTypeRec, "name", sourceCodeRef)).getValue();
         } else if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_VOID_TYPE)) {
             return "void";
         } else if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_OBJECT_TYPE)) {
