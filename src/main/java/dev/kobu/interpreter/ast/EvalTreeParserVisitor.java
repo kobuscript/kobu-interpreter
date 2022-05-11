@@ -1473,7 +1473,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     public AstNode visitQueryExpr(KobuParser.QueryExprContext ctx) {
         String bind = null;
         SourceCodeRef bindSourceCodeRef = null;
-        if (ctx.queryExprAlias() != null) {
+        if (ctx.queryExprAlias() != null && ctx.queryExprAlias().ID() != null) {
             bind = ctx.queryExprAlias().ID().getText();
             bindSourceCodeRef = getSourceCodeRef(ctx.queryExprAlias().ID());
         }
