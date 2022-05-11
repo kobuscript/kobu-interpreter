@@ -170,6 +170,7 @@ public class QueryStarTypeClause implements QueryClause {
         }
     }
 
+    @Override
     public void setAliasSourceCodeRef(SourceCodeRef aliasSourceCodeRef) {
         this.aliasSourceCodeRef = aliasSourceCodeRef;
     }

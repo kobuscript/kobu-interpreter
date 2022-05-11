@@ -1509,6 +1509,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         QueryClause clause = (QueryClause) visit(ctx.queryFieldExpr() != null ? ctx.queryFieldExpr() : ctx.queryStarTypeExpr());
         if (alias != null) {
             clause.setBind(alias);
+            clause.setAliasSourceCodeRef(getSourceCodeRef(ctx.queryExprAlias().ID()));
         }
 
         if (ctx.queryExprSegment() != null) {

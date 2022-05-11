@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.query;
 
 import dev.kobu.interpreter.ast.eval.Evaluable;
 import dev.kobu.interpreter.ast.eval.HasTypeScope;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 
 public interface QueryClause extends Matcher, Evaluable, HasTypeScope {
@@ -37,6 +38,8 @@ public interface QueryClause extends Matcher, Evaluable, HasTypeScope {
     String getBind();
 
     void setBind(String bind);
+
+    void setAliasSourceCodeRef(SourceCodeRef aliasSourceCodeRef);
 
     void setNext(QueryClause next);
 

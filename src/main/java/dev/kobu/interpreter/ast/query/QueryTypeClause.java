@@ -47,7 +47,7 @@ public class QueryTypeClause implements Evaluable {
 
     private final boolean includeSubtypes;
 
-    private final String bind;
+    private String bind;
 
     private QueryClause queryClause;
 
@@ -99,6 +99,9 @@ public class QueryTypeClause implements Evaluable {
     }
 
     public void setJoinMode(boolean joinMode) {
+        if (joinMode && bind.equals(DEFAULT_BIND)) {
+            this.bind = null;
+        }
         this.joinMode = joinMode;
     }
 

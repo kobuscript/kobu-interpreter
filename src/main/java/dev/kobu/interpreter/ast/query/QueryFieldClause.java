@@ -177,6 +177,7 @@ public class QueryFieldClause implements QueryClause {
         this.bind = bind;
     }
 
+    @Override
     public void setAliasSourceCodeRef(SourceCodeRef aliasSourceCodeRef) {
         this.aliasSourceCodeRef = aliasSourceCodeRef;
     }
