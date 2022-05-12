@@ -73,23 +73,21 @@ public class TemplateContentStatement extends TemplateStatement {
     }
 
     @Override
-    public StringBuilder evalTemplate(EvalContext context, int insertionIndex) {
-
-        var str = new StringBuilder();
+    public void evalTemplate(StringBuilder result, EvalContext context, int insertionIndex) {
 
         ValueExpr value = expr.evalExpr(context);
-
+        String content = "";
         if (value instanceof StringValueExpr) {
-            str.append(TemplateIndentation.indent(((StringValueExpr) value).getValue(), insertionIndex, false));
+            content = TemplateIndentation.indent(((StringValueExpr) value).getValue(), insertionIndex, false);
         } else if (!(value instanceof NullValueExpr)) {
-            str.append(TemplateIndentation.indent(value.getStringValue(), insertionIndex, false));
+            content = TemplateIndentation.indent(value.getStringValue(), insertionIndex, false);
         }
 
+        result.append(content);
         if (getNext() != null) {
-            str.append(getNext().evalTemplate(context, TemplateIndentation.getInsertionIndex(str.toString(), shiftInsertionPoint)));
+            getNext().evalTemplate(result, context, TemplateIndentation.getInsertionIndex(content, shiftInsertionPoint));
         }
 
-        return str;
     }
 
 }

@@ -59,6 +59,12 @@ public class JoinIndexNode extends TwoInputsIndexNode {
     protected void receive(Match left, Match right) {
 
         if (queryJoin.getOfExpr() == null) {
+            if (right.getValue() instanceof InternalAccIndexValueExpr) {
+                right = right.setValue(new ArrayValueExpr(
+                        (ArrayType) queryJoin.getTypeClause().getQueryType(),
+                        ((InternalAccIndexValueExpr)right.getValue()).toList()
+                ), right.getBind());
+            }
             dispatch(merge(left, right));
         } else {
 
@@ -88,18 +94,14 @@ public class JoinIndexNode extends TwoInputsIndexNode {
 
                 ArrayValueExpr arrayValueExpr = (ArrayValueExpr) ofValueExpr;
                 List<ValueExpr> recordList = arrayValueExpr.getValue();
-                Set<Integer> recordSet = recordList
-                        .stream()
-                        .map(v -> ((RecordValueExpr)v).getId())
-                        .collect(Collectors.toSet());
-
-                List<ValueExpr> values = ((ArrayValueExpr)right.getValue()).getValue();
-                values = values
-                        .stream()
-                        .filter(value -> recordSet.contains(((Fact)value).getCreatorId()))
-                        .collect(Collectors.toList());
-
-                sort(recordList, values);
+                Map<Integer, List<Fact>> factMap = ((InternalAccIndexValueExpr)right.getValue()).getFactMap();
+                List<ValueExpr> values = new ArrayList<>();
+                for (ValueExpr valueExpr : recordList) {
+                    var facts = factMap.get(((RecordValueExpr)valueExpr).getId());
+                    if (facts != null) {
+                        values.addAll(facts);
+                    }
+                }
 
                 Match newMatch = merge(left, right
                         .setValue(new ArrayValueExpr((ArrayType) queryJoin.getTypeClause().getQueryType(), values),
@@ -129,21 +131,6 @@ public class JoinIndexNode extends TwoInputsIndexNode {
             matchPairMap.put(matchPair, newMatch.getMatchId());
         }
         return newMatch;
-    }
-
-    private void sort(List<ValueExpr> source, List<ValueExpr> list) {
-        Map<Integer, Integer> idxMap = new HashMap<>();
-        for (int i = 0; i < source.size(); i++) {
-            ValueExpr valueExpr = source.get(i);
-            int id = getId(valueExpr);
-            idxMap.put(id, i);
-        }
-        list.sort((v1, v2) -> {
-            int id1 = ((Fact)v1).getCreatorId();
-            int id2 = ((Fact)v2).getCreatorId();
-
-            return idxMap.get(id1) - idxMap.get(id2);
-        });
     }
 
     private int getId(ValueExpr valueExpr) {

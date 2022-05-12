@@ -22,37 +22,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.global;
+package dev.kobu.interpreter.ast.eval.function.string_builder;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.StringBuilderValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
-import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
+import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.util.Map;
 
-public class PrintFunctionImpl extends BuiltinGlobalFunction {
+public class StringBuilderAppendMethodImpl extends BuiltinMethod {
 
     @Override
-    protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        ValueExpr valueExpr = args.get("obj");
-        if (valueExpr instanceof StringValueExpr) {
-            context.getOutputWriter().getStdOut().println(((StringValueExpr) valueExpr).getValue());
-        } else if (valueExpr instanceof StringBuilderValueExpr) {
-            context.getOutputWriter().getStdOut().println(((StringBuilderValueExpr) valueExpr).getValue());
-        } else if (valueExpr != null) {
-            context.getOutputWriter().getStdOut().println(valueExpr.getStringValue());
-        } else {
-            context.getOutputWriter().getStdOut().println("null");
+    protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
+        StringBuilderValueExpr stringBuilderValueExpr = (StringBuilderValueExpr) object;
+        ValueExpr strExpr = args.get("str");
+
+        if (strExpr == null) {
+            throw new IllegalArgumentError("'str' cannot be null", sourceCodeRef);
         }
+
+        StringBuilder stringBuilder = stringBuilderValueExpr.getValue();
+        String content;
+        if (strExpr instanceof StringValueExpr) {
+            content = ((StringValueExpr)strExpr).getValue();
+        } else if (strExpr instanceof StringBuilderValueExpr) {
+            content = ((StringBuilderValueExpr)strExpr).getValue().toString();
+        } else {
+            content = strExpr.getStringValue();
+        }
+        stringBuilder.append(content);
         return null;
     }
 
     @Override
     public String getDocumentation() {
-        return "Prints an object to the standard output";
+        return "Appends the specified string to this StringBuilder";
     }
-
 }

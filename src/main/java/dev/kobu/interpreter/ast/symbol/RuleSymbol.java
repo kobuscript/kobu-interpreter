@@ -160,19 +160,6 @@ public class RuleSymbol extends Symbol implements HasExpr, AnalyzerListener, Ast
         analyzePath(context, parent, path);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof RuleSymbol) {
-            return getFullName().equals(((RuleSymbol)obj).getFullName());
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return getFullName().hashCode();
-    }
-
     public boolean equalsOrSubTypeOf(RuleSymbol other) {
         RuleSymbol rule = this;
         while (rule != null) {

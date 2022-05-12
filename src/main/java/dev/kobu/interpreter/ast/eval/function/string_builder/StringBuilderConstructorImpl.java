@@ -22,10 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.eval.function.global;
+package dev.kobu.interpreter.ast.eval.function.string_builder;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringBuilderValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
@@ -33,26 +34,23 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
 import java.util.Map;
 
-public class PrintFunctionImpl extends BuiltinGlobalFunction {
+public class StringBuilderConstructorImpl extends BuiltinGlobalFunction {
 
     @Override
     protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        ValueExpr valueExpr = args.get("obj");
-        if (valueExpr instanceof StringValueExpr) {
-            context.getOutputWriter().getStdOut().println(((StringValueExpr) valueExpr).getValue());
-        } else if (valueExpr instanceof StringBuilderValueExpr) {
-            context.getOutputWriter().getStdOut().println(((StringBuilderValueExpr) valueExpr).getValue());
-        } else if (valueExpr != null) {
-            context.getOutputWriter().getStdOut().println(valueExpr.getStringValue());
+        ValueExpr contentExpr = args.get("str");
+
+        StringBuilder stringBuilder;
+        if (contentExpr == null || contentExpr instanceof NullValueExpr) {
+            stringBuilder = new StringBuilder();
         } else {
-            context.getOutputWriter().getStdOut().println("null");
+            stringBuilder = new StringBuilder(((StringValueExpr)contentExpr).getValue());
         }
-        return null;
+        return new StringBuilderValueExpr(sourceCodeRef, stringBuilder);
     }
 
     @Override
     public String getDocumentation() {
-        return "Prints an object to the standard output";
+        return "Create a new StringBuilder";
     }
-
 }

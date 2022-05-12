@@ -66,7 +66,7 @@ public abstract class TemplateStatement implements Statement {
         this.targetTypeSourceCodeRef = targetTypeSourceCodeRef;
     }
 
-    public abstract StringBuilder evalTemplate(EvalContext context, int insertionIndex);
+    public abstract void evalTemplate(StringBuilder result, EvalContext context, int insertionIndex);
 
     public boolean isRoot() {
         return root;
@@ -86,7 +86,9 @@ public abstract class TemplateStatement implements Statement {
 
         TemplateExecutor executor = () -> {
             this.root = true;
-            return evalTemplate(context, 0).toString();
+            StringBuilder result = new StringBuilder();
+            evalTemplate(result, context, 0);
+            return result.toString();
         };
 
         Match match = context.getRuleContext().getMatch();

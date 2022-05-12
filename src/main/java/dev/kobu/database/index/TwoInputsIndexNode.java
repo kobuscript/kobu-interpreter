@@ -25,7 +25,9 @@ SOFTWARE.
 package dev.kobu.database.index;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class TwoInputsIndexNode implements IndexNode {
 
@@ -34,6 +36,8 @@ public abstract class TwoInputsIndexNode implements IndexNode {
     private final Slot leftSlot = new LeftSlot();
 
     private final Slot rightSlot = new RightSlot();
+
+    private final Map<Match.MatchPath, Integer> leftEntriesMap = new HashMap<>();
 
     private final List<Match> leftEntries = new ArrayList<>();
 
@@ -50,8 +54,16 @@ public abstract class TwoInputsIndexNode implements IndexNode {
     }
 
     private void receiveLeft(Match match) {
-        leftEntries.removeIf(match::overrides);
+        if (match.getMatchPath() != null) {
+            Integer idx = leftEntriesMap.get(match.getMatchPath());
+            if (idx != null) {
+                leftEntries.remove(idx.intValue());
+            }
+        }
         leftEntries.add(match);
+        if (match.getMatchPath() != null) {
+            leftEntriesMap.put(match.getMatchPath(), leftEntries.size() - 1);
+        }
         rightEntries.forEach(right -> {
             receive(match, right);
         });
@@ -77,6 +89,7 @@ public abstract class TwoInputsIndexNode implements IndexNode {
     @Override
     public void clear() {
         leftEntries.clear();
+        leftEntriesMap.clear();
         rightEntries.clear();
         children.forEach(Slot::clear);
     }

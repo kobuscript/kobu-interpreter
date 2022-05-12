@@ -45,6 +45,8 @@ public class RuleIndexNode extends OneInputIndexNode {
 
     private final Queue<Match> matchQueue = new LinkedList<>();
 
+    private final Map<Match.MatchPath, Match> matchMap = new HashMap<>();
+
     private List<RuleIndexNode> children;
 
     private int priority;
@@ -57,7 +59,10 @@ public class RuleIndexNode extends OneInputIndexNode {
 
     @Override
     public void receive(Match match) {
-        matchQueue.removeIf(match::overrides);
+        Match.MatchPath matchPath = match.getMatchPath();
+        if (matchPath != null) {
+            matchMap.put(matchPath, match);
+        }
         matchQueue.add(match);
     }
 
@@ -70,18 +75,21 @@ public class RuleIndexNode extends OneInputIndexNode {
     private void removeInstances() {
         contextMap.clear();
         matchQueue.clear();
+        matchMap.clear();
     }
 
     public void run() {
         Match match;
         while ((match = matchQueue.poll()) != null) {
-            var record = match.getRootRecord();
-            if (children != null) {
-                if (children.stream().noneMatch(child -> child.executed(record))) {
+            if (match.getMatchPath() == null || match.equals(matchMap.get(match.getMatchPath()))) {
+                var record = match.getRootRecord();
+                if (children != null) {
+                    if (children.stream().noneMatch(child -> child.executed(record))) {
+                        runMatch(match);
+                    }
+                } else {
                     runMatch(match);
                 }
-            } else {
-                runMatch(match);
             }
         }
     }

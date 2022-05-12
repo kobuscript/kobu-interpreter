@@ -22,59 +22,73 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.template;
+package dev.kobu.database.index.impl;
 
+import dev.kobu.database.Fact;
+import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
-import dev.kobu.interpreter.ast.utils.TemplateIndentation;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class TemplateStaticContentStatement extends TemplateStatement {
+public class InternalAccIndexValueExpr implements ValueExpr {
 
-    private final SourceCodeRef sourceCodeRef;
+    private final Map<Integer, List<Fact>> factMap;
 
-    private final String content;
+    public InternalAccIndexValueExpr(Map<Integer, List<Fact>> factMap) {
+        this.factMap = factMap != null ? factMap : new HashMap<>();
+    }
 
-    public TemplateStaticContentStatement(SourceCodeRef sourceCodeRef, String content) {
-        this.sourceCodeRef = sourceCodeRef;
-        this.content = content;
+    public Map<Integer, List<Fact>> getFactMap() {
+        return factMap;
+    }
+
+    public List<ValueExpr> toList() {
+        List<ValueExpr> values = new ArrayList<>();
+        for (List<Fact> list : factMap.values()) {
+            values.addAll(list);
+        }
+        return values;
     }
 
     @Override
     public SourceCodeRef getSourceCodeRef() {
-        return sourceCodeRef;
-    }
-
-    @Override
-    public void setResolvedTypes(Map<String, Type> resolvedTypes) {
-
+        return null;
     }
 
     @Override
     public void analyze(EvalContext context) {
-        if (getNext() != null) {
-            getNext().analyze(context);
-        }
 
-        analyzeTargetType(context);
     }
 
     @Override
-    public void evalTemplate(StringBuilder result, EvalContext context, int insertionIndex) {
-        if (isRoot()) {
-            StringBuilder str = new StringBuilder(content);
-            if (getNext() != null) {
-                getNext().evalTemplate(str, context, TemplateIndentation.getInsertionIndex(content, false));
-            }
-            result.append(TemplateIndentation.indent(str.toString(), insertionIndex, true));
-        } else {
-            result.append(content);
-            if (getNext() != null) {
-                getNext().evalTemplate(result, context, TemplateIndentation.getInsertionIndex(content, false));
-            }
-        }
+    public Type getType() {
+        return null;
+    }
+
+    @Override
+    public ValueExpr evalExpr(EvalContext context) {
+        return this;
+    }
+
+    @Override
+    public String getStringValue() {
+        return null;
+    }
+
+    @Override
+    public void prettyPrint(StringBuilder out, int level) {
+
+    }
+
+    @Override
+    public SnapshotValue getSnapshotValue() {
+        return null;
     }
 
 }

@@ -58,5 +58,6 @@ public class NumberTypeSymbol extends BuiltinTypeSymbol implements ValType {
         addMethod(new BuiltinFunctionSymbol(this,"ceil", new CeilMethodImpl(), this));
         addMethod(new BuiltinFunctionSymbol(this,"pow", new PowMethodImpl(), this,
                 new FunctionParameter("exp", this, false)));
+        addMethod(new BuiltinFunctionSymbol(this, "toString", new NumberToStringMethodImpl(), this));
     }
 }

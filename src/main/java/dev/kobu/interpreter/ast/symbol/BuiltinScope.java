@@ -76,6 +76,8 @@ public class BuiltinScope implements Scope {
 
     public static final FileTypeSymbol FILE_TYPE = new FileTypeSymbol();
 
+    public static final StringBuilderTypeSymbol STRING_BUILDER_TYPE = new StringBuilderTypeSymbol();
+
     private final Map<String, Symbol> symbols = new HashMap<>();
 
     private final static TypeParameter TYPE_PARAMETER_A = new TypeParameter("A");
@@ -121,6 +123,7 @@ public class BuiltinScope implements Scope {
         DATE_FORMATTER_TYPE.buildMethods();
         PATH_TYPE.buildMethods();
         FILE_TYPE.buildMethods();
+        STRING_BUILDER_TYPE.buildMethods();
 
         symbols.put(ANY_TYPE.getName(), ANY_TYPE);
         symbols.put(ANY_VAL_TYPE.getName(), ANY_VAL_TYPE);
@@ -135,6 +138,7 @@ public class BuiltinScope implements Scope {
         symbols.put(DATE_FORMATTER_TYPE.getName(), DATE_FORMATTER_TYPE);
         symbols.put(PATH_TYPE.getName(), PATH_TYPE);
         symbols.put(FILE_TYPE.getName(), FILE_TYPE);
+        symbols.put(STRING_BUILDER_TYPE.getName(), STRING_BUILDER_TYPE);
 
         var recordArrayType = ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_RECORD_TYPE);
 

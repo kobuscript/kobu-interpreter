@@ -31,7 +31,7 @@ import java.util.Map;
 
 public interface ValueExpr extends Expr {
 
-    public static int PRETTY_PRINT_TAB_SIZE = 4;
+    int PRETTY_PRINT_TAB_SIZE = 4;
 
     String getStringValue();
 

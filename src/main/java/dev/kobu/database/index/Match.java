@@ -144,6 +144,10 @@ public class Match {
         return matchPath != null && matchPath.equals(match.matchPath);
     }
 
+    public MatchPath getMatchPath() {
+        return matchPath;
+    }
+
     private void addValueToCtx(EvalContext evalContext, ValueExpr value, String bind) {
         if (bind != null) {
             if (evalContext.getCurrentScope().resolveLocal(bind) == null) {
@@ -154,7 +158,7 @@ public class Match {
         }
     }
 
-    private static class MatchPath {
+    public static class MatchPath {
 
         private final int left;
 

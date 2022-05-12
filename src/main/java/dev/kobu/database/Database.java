@@ -52,7 +52,7 @@ public class Database {
 
     private final Map<Integer, Fact> factMap = new LinkedHashMap<>();
 
-    private final List<Fact> facts = new ArrayList<>();
+    private final Map<Integer, List<Fact>> factByCreatorMap = new HashMap<>();
 
     private int iteration = 0;
 
@@ -100,14 +100,16 @@ public class Database {
     public void insertFact(Fact newFact) {
         buffer.add(newFact);
         newFact.setIteration(iteration);
-        var it = facts.iterator();
-        while (it.hasNext()) {
-            var fact = it.next();
-            if (newFact.overrides(fact)) {
-                it.remove();
-                factMap.remove(fact.getId());
+
+        List<Fact> facts = factByCreatorMap.computeIfAbsent(newFact.getCreatorId(), k -> new ArrayList<>());
+        facts.removeIf(f -> {
+            if (newFact.overrides(f)) {
+                factMap.remove(f.getId());
+                return true;
             }
-        }
+            return false;
+        });
+        facts.add(newFact);
     }
 
     public void updateRecord(RecordValueExpr record) {
@@ -176,14 +178,15 @@ public class Database {
                 RecordValueExpr record = (RecordValueExpr) fact;
                 if (!factMap.containsKey(record.getId())) {
                     factMap.put(record.getId(), record);
-                    facts.add(record);
+                    factByCreatorMap.computeIfAbsent(record.getCreatorId(), k -> new ArrayList<>()).add(record);
                 }
                 processRecord(queue, record, insertedFacts);
             } else if (fact instanceof TemplateValueExpr) {
                 TemplateValueExpr templateValue = (TemplateValueExpr) fact;
                 if (!factMap.containsKey(templateValue.getId())) {
                     factMap.put(templateValue.getId(), templateValue);
-                    facts.add(templateValue);
+                    factByCreatorMap.computeIfAbsent(templateValue.getCreatorId(), k -> new ArrayList<>())
+                            .add(templateValue);
                 }
                 processTemplate(queue, templateValue, insertedFacts);
             }

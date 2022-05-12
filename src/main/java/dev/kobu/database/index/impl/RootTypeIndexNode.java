@@ -36,10 +36,8 @@ import dev.kobu.interpreter.ast.query.QueryTypeClause;
 import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class RootTypeIndexNode extends RootIndexNode {
 
@@ -51,7 +49,9 @@ public class RootTypeIndexNode extends RootIndexNode {
 
     private final QueryTypeClause queryTypeClause;
 
-    private List<Fact> accList;
+    private Map<Integer, List<Fact>> accMap;
+
+    private final Map<Integer, List<Fact>> factMap = new HashMap<>();
 
     private Map<Fact, Integer> factMatchMap;
 
@@ -69,17 +69,18 @@ public class RootTypeIndexNode extends RootIndexNode {
     public void receive(Fact fact) {
         if (queryTypeClause.accumulator()) {
             if (canDispatch(fact)) {
-                initializeAccList();
-                accList.removeIf(fact::overrides);
-                accList.add(fact);
+                initializeAccMap();
+                registerFact(fact);
+                var list = accMap.computeIfAbsent(fact.getCreatorId(), k -> new ArrayList<>());
+                list.add(fact);
             }
         } else {
+            initializeFactMatchMap();
             if (canDispatch(fact)) {
-                initializeFactMatchMap();
                 var evalContext = evalContextProvider.newEvalContext(analyzerContext, moduleScope);
 
-                Fact prevFact = factMatchMap.keySet().stream().filter(fact::overrides).findFirst().orElse(null);
-                Integer matchId = prevFact != null ? factMatchMap.remove(prevFact) : null;
+                Fact prevFact = getPreviousFactAndRegister(fact);
+                Integer matchId = prevFact != null ? factMatchMap.remove(fact) : null;
                 Match match;
                 if (fact instanceof RecordValueExpr) {
                     var record = (RecordValueExpr) fact;
@@ -110,14 +111,15 @@ public class RootTypeIndexNode extends RootIndexNode {
         if (queryTypeClause.includeSubtypes()) {
             return type.isAssignableFrom(fact.getType());
         } else {
-            return type.getName().equals(fact.getType().getName());
+            return type.equals(fact.getType());
         }
     }
 
     @Override
     public void clear() {
         if (queryTypeClause.accumulator()) {
-            accList = null;
+            accMap = null;
+            factMap.clear();
         }
         super.clear();
     }
@@ -125,16 +127,17 @@ public class RootTypeIndexNode extends RootIndexNode {
     @Override
     public void beforeRun() {
         if (queryTypeClause.accumulator()) {
+            filterAccMap();
             var evalContext = evalContextProvider.newEvalContext(analyzerContext, moduleScope);
             Match match;
             if (matchId == 0) {
                 match = new Match(evalContext, null,
-                        new ArrayValueExpr((ArrayType) queryTypeClause.getType(), copyAccList()),
+                        new InternalAccIndexValueExpr(accMap),
                         queryTypeClause.getBind());
                 matchId = match.getMatchId();
             } else {
                 match = new Match(matchId, evalContext, null,
-                        new ArrayValueExpr((ArrayType) queryTypeClause.getType(), copyAccList()),
+                        new InternalAccIndexValueExpr(accMap),
                         queryTypeClause.getBind());
             }
             dispatch(match);
@@ -148,9 +151,9 @@ public class RootTypeIndexNode extends RootIndexNode {
         }
     }
 
-    private void initializeAccList() {
-        if (accList == null) {
-            accList = new ArrayList<>();
+    private void initializeAccMap() {
+        if (accMap == null) {
+            accMap = new LinkedHashMap<>();
         }
     }
 
@@ -160,14 +163,45 @@ public class RootTypeIndexNode extends RootIndexNode {
         }
     }
 
-    private List<ValueExpr> copyAccList() {
-        List<ValueExpr> values;
-        if (accList != null) {
-            values = new ArrayList<>(accList);
-        } else {
-            values = new ArrayList<>();
+    private void registerFact(Fact fact) {
+        List<Fact> facts = factMap.computeIfAbsent(fact.getCreatorId(), k -> new ArrayList<>());
+        facts.removeIf(fact::overrides);
+        facts.add(fact);
+    }
+
+    private Fact getPreviousFactAndRegister(Fact fact) {
+        List<Fact> facts = factMap.get(fact.getCreatorId());
+        Fact previous = null;
+        if (facts != null && !facts.isEmpty()) {
+            Iterator<Fact> it = facts.iterator();
+            while (it.hasNext()) {
+                Fact f = it.next();
+                if (fact.overrides(f)) {
+                    if (previous == null) {
+                        previous = f;
+                    }
+                    it.remove();
+                }
+            }
         }
-        return values;
+        return previous;
+    }
+
+    private boolean validFact(Fact fact) {
+        List<Fact> facts = factMap.get(fact.getCreatorId());
+        if (facts != null) {
+            return facts.contains(fact);
+        }
+        return false;
+    }
+
+    private void filterAccMap() {
+        if (accMap != null) {
+            accMap.entrySet().removeIf(entry -> {
+                entry.getValue().removeIf(f -> !validFact(f));
+                return entry.getValue().isEmpty();
+            });
+        }
     }
 
 }
