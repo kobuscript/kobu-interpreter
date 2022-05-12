@@ -26,10 +26,7 @@ package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.context.ContextSnapshot;
-import dev.kobu.interpreter.ast.eval.function.global.FlatArrayFunctionImpl;
-import dev.kobu.interpreter.ast.eval.function.global.NewRecordFunctionImpl;
-import dev.kobu.interpreter.ast.eval.function.global.PrettyPrintFunctionImpl;
-import dev.kobu.interpreter.ast.eval.function.global.PrintFunctionImpl;
+import dev.kobu.interpreter.ast.eval.function.global.*;
 import dev.kobu.interpreter.ast.eval.function.global.conf.*;
 import dev.kobu.interpreter.ast.eval.function.global.rules.AddRulesFunctionImpl;
 import dev.kobu.interpreter.ast.eval.function.global.rules.FireRulesFunctionImpl;
@@ -179,6 +176,10 @@ public class BuiltinScope implements Scope {
                 ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_TYPE),
                 new FunctionParameter("array", ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_TYPE), false));
 
+        var parseNumberFunc = new BuiltinFunctionSymbol("parseNumber", new ParseNumberFunctionImpl(),
+                BuiltinScope.NUMBER_TYPE,
+                new FunctionParameter("str", BuiltinScope.STRING_TYPE, false));
+
         symbols.put("env", envVarFunc);
         symbols.put("property", propVarFunc);
         symbols.put("conf", confVarFunc);
@@ -192,6 +193,7 @@ public class BuiltinScope implements Scope {
         symbols.put("print", printFunc);
         symbols.put("pprint", pprintFunc);
         symbols.put("flat", flatFunc);
+        symbols.put("parseNumber", parseNumberFunc);
 
     }
 }

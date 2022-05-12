@@ -67,6 +67,9 @@ public class TupleTypeElement {
     }
 
     public boolean isAssignableFrom(TupleTypeElement other) {
+        if (elementType == null || other == null || other.elementType == null) {
+            return false;
+        }
         if (!elementType.isAssignableFrom(other.elementType)) {
             return false;
         }

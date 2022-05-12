@@ -125,7 +125,7 @@ BAD_CHARACTER : .+? ;
 
 mode STRING_MODE;
 
-STRING_CONTENT : (ESC | ~[\n"\\])+ ;
+STRING_CONTENT : (ESC | ~["\\\r\n])+ ;
 fragment ESC : '\\' ["\\/bfnrt] ;
 STRING_BREAK : NEW_LINE -> popMode ;
 CLOSE_QUOTE : '"' -> popMode ;

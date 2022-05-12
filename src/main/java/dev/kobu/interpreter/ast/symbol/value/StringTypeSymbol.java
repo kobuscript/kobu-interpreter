@@ -64,7 +64,7 @@ public class StringTypeSymbol extends BuiltinTypeSymbol implements ValType {
         addMethod(new BuiltinFunctionSymbol(this, "contains", new StringContainsMethodImpl(),
                 BuiltinScope.BOOLEAN_TYPE,
                 new FunctionParameter("str", this, false)));
-        addMethod(new BuiltinFunctionSymbol(this,"substring", new SubstringMethodImpl(), stringArrayType,
+        addMethod(new BuiltinFunctionSymbol(this,"substring", new SubstringMethodImpl(), this,
                 new FunctionParameter("beginIndex", BuiltinScope.NUMBER_TYPE, false),
                 new FunctionParameter("endIndex", BuiltinScope.NUMBER_TYPE, true)));
         addMethod(new BuiltinFunctionSymbol(this,"split", new StringSplitMethodImpl(), stringArrayType,

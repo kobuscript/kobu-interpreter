@@ -26,45 +26,30 @@ package dev.kobu.interpreter.ast.eval.function.global;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.NumberValueFactory;
 import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
-import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class FlatArrayFunctionImpl extends BuiltinGlobalFunction {
+public class ParseNumberFunctionImpl extends BuiltinGlobalFunction {
 
     @Override
     protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        ArrayValueExpr arrayValueExpr = (ArrayValueExpr) args.get("array");
+        StringValueExpr strExpr = (StringValueExpr) args.get("str");
 
-        if (arrayValueExpr == null) {
-            throw new IllegalArgumentError("'array' cannot be null", sourceCodeRef);
+        if (strExpr == null) {
+            throw new IllegalArgumentError("'str' cannot be null", sourceCodeRef);
         }
 
-        List<ValueExpr> values = new ArrayList<>();
-        addArray(values, arrayValueExpr);
-        return new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor(BuiltinScope.ANY_TYPE), values);
-    }
-
-    private void addArray(List<ValueExpr> values, ArrayValueExpr arrayExpr) {
-        for (ValueExpr valueExpr : arrayExpr.getValue()) {
-            if (valueExpr instanceof ArrayValueExpr) {
-                addArray(values, (ArrayValueExpr) valueExpr);
-            } else {
-                values.add(valueExpr);
-            }
-        }
+        return NumberValueFactory.parse(strExpr.getValue());
     }
 
     @Override
     public String getDocumentation() {
-        return "Creates a new array with all sub-array elements concatenated into it recursively";
+        return "Parses a string and returns a number";
     }
 
 }
