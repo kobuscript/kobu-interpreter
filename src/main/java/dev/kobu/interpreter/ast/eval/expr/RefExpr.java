@@ -32,6 +32,7 @@ import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.HasTypeParameters;
+import dev.kobu.interpreter.ast.symbol.generics.TypeArgs;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.error.analyzer.*;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
@@ -46,6 +47,8 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     private final SourceCodeRef sourceCodeRef;
 
     private final String symbolName;
+
+    private final TypeArgs typeArgs;
 
     private Type typeScope;
 
@@ -69,10 +72,11 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
 
     private UndefinedSymbolListener undefinedSymbolListener;
 
-    public RefExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String symbolName) {
+    public RefExpr(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String symbolName, TypeArgs typeArgs) {
         this.moduleScope = moduleScope;
         this.sourceCodeRef = sourceCodeRef;
         this.symbolName = symbolName;
+        this.typeArgs = typeArgs;
 
         if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
             if (symbolName.equals("")) {
@@ -84,6 +88,10 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             }
 
         }
+    }
+
+    public TypeArgs getTypeArgs() {
+        return typeArgs;
     }
 
     @Override

@@ -90,6 +90,10 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
             return;
         }
 
+        if (resolvedTypeArgs == null) {
+            resolvedTypeArgs = new HashMap<>();
+        }
+
         if (typeArgs != null && !typeArgs.getTypes().isEmpty()) {
             if (functionRefExpr instanceof HasTypeParameters) {
                 var typeParameters = ((HasTypeParameters) functionRefExpr).getTypeParameters();
@@ -97,15 +101,15 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
                     context.addAnalyzerError(new InvalidTypeArgsError(typeArgs.getSourceCodeRef(),
                             typeParameters.size(), typeArgs.getTypes().size()));
                 }
+                for (int i = 0; i < typeParameters.size() && i < typeArgs.getTypes().size(); i++) {
+                    resolvedTypeArgs.put(typeParameters.get(i).getAlias(), typeArgs.getTypes().get(i));
+                }
             } else {
                 context.addAnalyzerError(new InvalidTypeArgsError(typeArgs.getSourceCodeRef(),
                         0, typeArgs.getTypes().size()));
             }
         }
 
-        if (resolvedTypeArgs == null) {
-            resolvedTypeArgs = new HashMap<>();
-        }
         if (functionRefExpr instanceof MemoryReference) {
             var function = ((MemoryReference) functionRefExpr).getFunction();
             if (function != null) {

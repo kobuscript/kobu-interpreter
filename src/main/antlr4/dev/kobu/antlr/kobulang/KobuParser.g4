@@ -199,10 +199,9 @@ expr : record                                                                   
        | LSB exprSequence? RSB                                                                      #arrayExpr
        | TUPLE LP expr COMMA exprSequence RP                                                        #tupleExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
-       | expr DOT ID?                                                                               #fieldAccessExpr
+       | expr DOT ID? typeArgs?                                                                     #fieldAccessExpr
        | expr AS type                                                                               #castExpr
        | anonymousFunction                                                                          #anonymousFunctionExpr
-       | ID typeArgs LP exprSequence? RP                                                            #parameterizedFunctionCallExpr
        | expr LP exprSequence? RP                                                                   #functionCallExpr
        | expr INSTANCEOF type                                                                       #instanceOfExpr
        | expr ( STAR | DIV | MOD ) expr                                                             #factorExpr
@@ -215,7 +214,7 @@ expr : record                                                                   
        | TRUE                                                                                       #trueExpr
        | FALSE                                                                                      #falseExpr
        | NULL                                                                                       #nullExpr
-       | ID                                                                                         #idExpr
+       | ID typeArgs?                                                                               #idExpr
        | stringLiteral                                                                              #stringExpr
        | NUMBER                                                                                     #numberExpr
        | LP expr RP                                                                                 #parenthesizedExpr

@@ -69,6 +69,8 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
     private TypeParameterContext typeParameterContext;
 
+    private boolean allowTypeArgs = false;
+
     public EvalTreeParserVisitor(ModuleLoader moduleLoader, ModuleScope moduleScope, AnalyzerContext context) {
         super(moduleLoader);
         this.context = context;
@@ -1102,41 +1104,19 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             }
         }
 
+        this.allowTypeArgs = true;
         Expr refExpr = (Expr) visit(ctx.expr());
+        this.allowTypeArgs = false;
         topLevelExpression = exprStatus;
         FunctionCallExpr functionCallExpr = new FunctionCallExpr(getSourceCodeRef(ctx),
                 moduleScope, refExpr, args);
-        return functionCallExpr;
-    }
 
-    @Override
-    public AstNode visitParameterizedFunctionCallExpr(KobuParser.ParameterizedFunctionCallExprContext ctx) {
-        boolean exprStatus = topLevelExpression;
-        topLevelExpression = false;
-
-        List<FunctionArgExpr> args = new ArrayList<>();
-        if (ctx.exprSequence() != null) {
-            for (KobuParser.ExprContext exprContext : ctx.exprSequence().expr()) {
-                var exprNode = visit(exprContext);
-                FunctionArgExpr argExpr = new FunctionArgExpr(getSourceCodeRef(exprContext),
-                        (Expr) exprNode);
-                args.add(argExpr);
+        if (refExpr instanceof RefExpr) {
+            functionCallExpr.setTypeArgs(((RefExpr) refExpr).getTypeArgs());
+        } else if (refExpr instanceof FieldAccessExpr) {
+            if (((FieldAccessExpr) refExpr).getRightExpr() instanceof RefExpr) {
+                functionCallExpr.setTypeArgs(((RefExpr) ((FieldAccessExpr) refExpr).getRightExpr()).getTypeArgs());
             }
-        }
-
-        Expr refExpr = new RefExpr(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText());
-        topLevelExpression = exprStatus;
-        FunctionCallExpr functionCallExpr = new FunctionCallExpr(getSourceCodeRef(ctx),
-                moduleScope, refExpr, args);
-        if (ctx.typeArgs() != null) {
-            List<Type> types = new ArrayList<>();
-            var typeArgCtx = ctx.typeArgs().typeArg();
-            while (typeArgCtx != null) {
-                Type type = (Type) visit(typeArgCtx.type());
-                types.add(type);
-                typeArgCtx = typeArgCtx.typeArg();
-            }
-            functionCallExpr.setTypeArgs(new TypeArgs(getSourceCodeRef(ctx.typeArgs()), types));
         }
         return functionCallExpr;
     }
@@ -1341,9 +1321,27 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         boolean exprStatus = topLevelExpression;
         topLevelExpression = false;
 
+        boolean typeArgsStatus = allowTypeArgs;
+        allowTypeArgs = false;
         AstNode leftExprNode = visit(ctx.expr());
+        allowTypeArgs = typeArgsStatus;
         var exprRight = ctx.ID();
-        AstNode rightExprNode = exprRight != null ? new RefExpr(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText()) : null;
+        TypeArgs typeArgs = null;
+        if (ctx.typeArgs() != null) {
+            if (!allowTypeArgs) {
+                context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            }
+
+            List<Type> types = new ArrayList<>();
+            var typeArgCtx = ctx.typeArgs().typeArg();
+            while (typeArgCtx != null) {
+                Type type = (Type) visit(typeArgCtx.type());
+                types.add(type);
+                typeArgCtx = typeArgCtx.typeArg();
+            }
+            typeArgs = new TypeArgs(getSourceCodeRef(ctx.typeArgs()), types);
+        }
+        AstNode rightExprNode = exprRight != null ? new RefExpr(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText(), typeArgs) : null;
 
         if (exprStatus) {
             context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
@@ -1352,7 +1350,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         if (rightExprNode == null) {
             SourceCodeRef sourceCodeRef = getSourceCodeRef(ctx.DOT());
-            rightExprNode = new RefExpr(moduleScope, sourceCodeRef, "");
+            rightExprNode = new RefExpr(moduleScope, sourceCodeRef, "", null);
         }
 
         return new FieldAccessExpr(getSourceCodeRef(ctx),
@@ -1369,7 +1367,23 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         if (topLevelExpression) {
             context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
         }
-        return new RefExpr(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText());
+
+        TypeArgs typeArgs = null;
+        if (ctx.typeArgs() != null) {
+            if (!allowTypeArgs) {
+                context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+            }
+
+            List<Type> types = new ArrayList<>();
+            var typeArgCtx = ctx.typeArgs().typeArg();
+            while (typeArgCtx != null) {
+                Type type = (Type) visit(typeArgCtx.type());
+                types.add(type);
+                typeArgCtx = typeArgCtx.typeArg();
+            }
+            typeArgs = new TypeArgs(getSourceCodeRef(ctx.typeArgs()), types);
+        }
+        return new RefExpr(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText(), typeArgs);
     }
 
     @Override

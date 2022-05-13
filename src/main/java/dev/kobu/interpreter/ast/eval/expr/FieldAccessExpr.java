@@ -28,6 +28,8 @@ import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
+import dev.kobu.interpreter.ast.symbol.generics.HasTypeParameters;
+import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
 import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.analyzer.InvalidAssignmentError;
@@ -36,9 +38,10 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.symbol.UnknownType;
 
+import java.util.List;
 import java.util.Map;
 
-public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope, UndefinedSymbolNotifier {
+public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope, HasTypeParameters, UndefinedSymbolNotifier {
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -208,4 +211,11 @@ public class FieldAccessExpr implements Expr, MemoryReference, HasTypeScope, Und
         this.undefinedSymbolListener = listener;
     }
 
+    @Override
+    public List<TypeParameter> getTypeParameters() {
+        if (rightExpr instanceof HasTypeParameters) {
+            return ((HasTypeParameters) rightExpr).getTypeParameters();
+        }
+        return null;
+    }
 }

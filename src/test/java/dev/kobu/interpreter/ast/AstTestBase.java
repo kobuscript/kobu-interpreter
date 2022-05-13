@@ -311,7 +311,7 @@ public abstract class AstTestBase {
     }
 
     RefExpr ref(ModuleScope module, String name) {
-        return new RefExpr(module, sourceCodeRef("ref"), name);
+        return new RefExpr(module, sourceCodeRef("ref"), name, null);
     }
 
     List<Evaluable> block(Evaluable... evaluable) {
