@@ -166,7 +166,7 @@ fun javaAnnotation(name: string, package?: string, fields?: (string, OutputJavaV
 }
 
 fun javaAnnotationWithValue(name: string, value: OutputJavaValue, package?: string): OutputJavaAnnotationValue {
-    return javaAnnotation(package, name, [("value", value)])
+    return javaAnnotation(package, name, [Tuple("value", value)])
 }
 
 fun javaLiteralValue(value: AnyVal): OutputJavaLiteralValue {
