@@ -358,7 +358,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
     @Override
     public List<TypeParameter> getTypeParameters() {
         if (function != null) {
-            function.getTypeParameters();
+            return function.getTypeParameters();
         }
         return null;
     }

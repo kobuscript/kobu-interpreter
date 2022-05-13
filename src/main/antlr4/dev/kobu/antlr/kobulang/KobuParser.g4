@@ -202,7 +202,8 @@ expr : record                                                                   
        | expr DOT ID?                                                                               #fieldAccessExpr
        | expr AS type                                                                               #castExpr
        | anonymousFunction                                                                          #anonymousFunctionExpr
-       | expr typeArgs? LP exprSequence? RP                                                         #functionCallExpr
+       | ID typeArgs LP exprSequence? RP                                                            #parameterizedFunctionCallExpr
+       | expr LP exprSequence? RP                                                                   #functionCallExpr
        | expr INSTANCEOF type                                                                       #instanceOfExpr
        | expr ( STAR | DIV | MOD ) expr                                                             #factorExpr
        | expr ( PLUS | MINUS ) expr                                                                 #addSubExpr

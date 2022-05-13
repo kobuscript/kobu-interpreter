@@ -1106,6 +1106,28 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         topLevelExpression = exprStatus;
         FunctionCallExpr functionCallExpr = new FunctionCallExpr(getSourceCodeRef(ctx),
                 moduleScope, refExpr, args);
+        return functionCallExpr;
+    }
+
+    @Override
+    public AstNode visitParameterizedFunctionCallExpr(KobuParser.ParameterizedFunctionCallExprContext ctx) {
+        boolean exprStatus = topLevelExpression;
+        topLevelExpression = false;
+
+        List<FunctionArgExpr> args = new ArrayList<>();
+        if (ctx.exprSequence() != null) {
+            for (KobuParser.ExprContext exprContext : ctx.exprSequence().expr()) {
+                var exprNode = visit(exprContext);
+                FunctionArgExpr argExpr = new FunctionArgExpr(getSourceCodeRef(exprContext),
+                        (Expr) exprNode);
+                args.add(argExpr);
+            }
+        }
+
+        Expr refExpr = new RefExpr(moduleScope, getSourceCodeRef(ctx.ID()), ctx.ID().getText());
+        topLevelExpression = exprStatus;
+        FunctionCallExpr functionCallExpr = new FunctionCallExpr(getSourceCodeRef(ctx),
+                moduleScope, refExpr, args);
         if (ctx.typeArgs() != null) {
             List<Type> types = new ArrayList<>();
             var typeArgCtx = ctx.typeArgs().typeArg();
