@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.symbol.generics;
 
 import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.symbol.AnyTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.BuiltinScope;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
@@ -106,7 +107,15 @@ public class TypeAlias implements Type {
 
     @Override
     public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
-        typeArgs.putIfAbsent(typeParameter.getAlias(), targetType);
+        typeArgs.compute(typeParameter.getAlias(), (k, type) -> {
+            if (type != null && !(type instanceof TypeAlias)) {
+                if (type instanceof AnyTypeSymbol && !(targetType instanceof TypeAlias)) {
+                    return targetType;
+                }
+                return type;
+            }
+            return targetType;
+        });
     }
 
     @Override

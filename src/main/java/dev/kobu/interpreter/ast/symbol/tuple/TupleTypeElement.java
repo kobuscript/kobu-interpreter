@@ -140,7 +140,7 @@ public class TupleTypeElement {
     }
 
     private void addElemStr(StringBuilder str) {
-        str.append(elementType.getName());
+        str.append(elementType != null ? elementType.getName() : "void");
         if (next != null) {
             str.append(", ");
             next.addElemStr(str);

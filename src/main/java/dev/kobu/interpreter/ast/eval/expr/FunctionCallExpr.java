@@ -33,6 +33,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.FunctionType;
 import dev.kobu.interpreter.ast.symbol.function.FunctionWrapperDocumentationSource;
+import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.HasTypeParameters;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
@@ -142,30 +143,58 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
             }
             var arg = args.get(i);
             Type paramType = parameter.getType();
+            Type argType = arg.getType();
             Collection<TypeAlias> aliases = paramType.aliases();
             if (!aliases.isEmpty()) {
                 paramType = paramType.constructFor(resolvedTypeArgs);
                 arg.setResolvedTypes(resolvedTypeArgs);
                 arg.setTargetType(paramType);
-                arg.analyze(context);
                 paramType.resolveAliases(resolvedTypeArgs, arg.getType());
-                paramType = paramType.constructFor(resolvedTypeArgs);
+                if (!(arg.getExpr() instanceof KobuFunction)) {
+                    arg.analyze(context);
+                    paramType.resolveAliases(resolvedTypeArgs, arg.getType());
+                }
             } else {
                 arg.setResolvedTypes(resolvedTypeArgs);
                 arg.setTargetType(parameter.getType());
                 arg.analyze(context);
+                argType = arg.getType();
             }
 
-            if (arg.getType() instanceof UnknownType) {
+            if (argType instanceof UnknownType) {
                 return UnknownType.INSTANCE;
             }
+
+        }
+
+        for (int i = 0; i < functionType.getParameters().size(); i++) {
+            var parameter = functionType.getParameters().get(i);
+            if (i >= args.size()) {
+                break;
+            }
+
+            var arg = args.get(i);
+            Type paramType = parameter.getType();
+            Type argType = arg.getType();
+
+            Collection<TypeAlias> aliases = paramType.aliases();
+            if (!aliases.isEmpty()) {
+                if (arg.getExpr() instanceof KobuFunction) {
+                    arg.analyze(context);
+                    paramType.resolveAliases(resolvedTypeArgs, arg.getType());
+                }
+                paramType = paramType.constructFor(resolvedTypeArgs);
+                argType = arg.getType().constructFor(resolvedTypeArgs);
+            }
+
             if (!(arg.getExpr() instanceof NullValueExpr) &&
-                    (arg.getType() == null || !paramType.isAssignableFrom(arg.getType()))) {
+                    (argType == null || !paramType.isAssignableFrom(argType))) {
                 context.addAnalyzerError(new InvalidTypeError(arg.getSourceCodeRef(),
-                        paramType, arg.getType()));
+                        paramType, argType));
                 return UnknownType.INSTANCE;
             }
         }
+
         if (args.size() > functionType.getParameters().size()) {
             context.addAnalyzerError(new InvalidFunctionCallError(sourceCodeRef, functionType, args));
             return UnknownType.INSTANCE;
