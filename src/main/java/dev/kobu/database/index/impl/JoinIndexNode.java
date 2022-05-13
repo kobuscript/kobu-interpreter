@@ -25,8 +25,8 @@ SOFTWARE.
 package dev.kobu.database.index.impl;
 
 import dev.kobu.database.Fact;
-import dev.kobu.database.index.TwoInputsIndexNode;
 import dev.kobu.database.index.Match;
+import dev.kobu.database.index.TwoInputsIndexNode;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.ContextSnapshot;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
@@ -37,7 +37,6 @@ import dev.kobu.interpreter.ast.query.QueryJoin;
 import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class JoinIndexNode extends TwoInputsIndexNode {
 
@@ -46,6 +45,10 @@ public class JoinIndexNode extends TwoInputsIndexNode {
     private Map<Integer, ContextSnapshot> snapshotMap;
 
     private final Map<MatchPair, Integer> matchPairMap = new HashMap<>();
+
+    private ValueExpr lastOfValueExpr;
+
+    private int lastLeftMatchId;
 
     public JoinIndexNode(QueryJoin queryJoin) {
         this.queryJoin = queryJoin;
@@ -68,7 +71,14 @@ public class JoinIndexNode extends TwoInputsIndexNode {
             dispatch(merge(left, right));
         } else {
 
-            var ofValueExpr = queryJoin.getOfExpr().evalExpr(left.getContext());
+            ValueExpr ofValueExpr;
+            if (lastLeftMatchId == left.getMatchId()) {
+                ofValueExpr = lastOfValueExpr;
+            } else {
+                ofValueExpr = queryJoin.getOfExpr().evalExpr(left.getContext());
+                lastOfValueExpr = ofValueExpr;
+                lastLeftMatchId = left.getMatchId();
+            }
 
             if (ofValueExpr == null || ofValueExpr instanceof NullValueExpr) {
                 if (queryJoin.getTypeClause().accumulator()) {
@@ -87,8 +97,13 @@ public class JoinIndexNode extends TwoInputsIndexNode {
             } else if (ofValueExpr instanceof RecordValueExpr) {
                 RecordValueExpr recordValueExpr = (RecordValueExpr) ofValueExpr;
 
-                if (((Fact)right.getValue()).getCreatorId() == recordValueExpr.getId()) {
-                    dispatch(merge(left, right));
+                Map<Integer, List<Fact>> factMap = ((InternalAccIndexValueExpr)right.getValue()).getFactMap();
+                var facts = factMap.get(recordValueExpr.getId());
+
+                if (facts != null) {
+                    for (Fact fact : facts) {
+                        dispatch(merge(left, right.setValue(fact, right.getBind())));
+                    }
                 }
             } else if (ofValueExpr instanceof ArrayValueExpr) {
 

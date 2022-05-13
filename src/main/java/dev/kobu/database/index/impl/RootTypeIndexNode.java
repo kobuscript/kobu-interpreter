@@ -67,7 +67,7 @@ public class RootTypeIndexNode extends RootIndexNode {
 
     @Override
     public void receive(Fact fact) {
-        if (queryTypeClause.accumulator()) {
+        if (queryTypeClause.joinMode()) {
             if (canDispatch(fact)) {
                 initializeAccMap();
                 registerFact(fact);
@@ -117,7 +117,7 @@ public class RootTypeIndexNode extends RootIndexNode {
 
     @Override
     public void clear() {
-        if (queryTypeClause.accumulator()) {
+        if (queryTypeClause.joinMode()) {
             accMap = null;
             factMap.clear();
         }
@@ -126,7 +126,7 @@ public class RootTypeIndexNode extends RootIndexNode {
 
     @Override
     public void beforeRun() {
-        if (queryTypeClause.accumulator()) {
+        if (queryTypeClause.joinMode()) {
             filterAccMap();
             var evalContext = evalContextProvider.newEvalContext(analyzerContext, moduleScope);
             Match match;
@@ -146,8 +146,12 @@ public class RootTypeIndexNode extends RootIndexNode {
 
     @Override
     public void afterRun() {
-        if (queryTypeClause.accumulator()) {
-            super.clear();
+        if (queryTypeClause.joinMode()) {
+            if (queryTypeClause.accumulator()) {
+                super.clear();
+            } else {
+                clear();
+            }
         }
     }
 
