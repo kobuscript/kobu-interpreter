@@ -197,7 +197,7 @@ templateContentExpr : ( TEMPLATE_EXPR_BEGIN | TEMPLATE_SHIFT_EXPR_BEGIN ) expr? 
 
 expr : record                                                                                       #recordExpr
        | LSB exprSequence? RSB                                                                      #arrayExpr
-       | LP expr COMMA exprSequence RP                                                              #tupleExpr
+       | TUPLE LP expr COMMA exprSequence RP                                                        #tupleExpr
        | expr LSB arrayIndexExpr RSB                                                                #arrayAccessExpr
        | expr DOT ID?                                                                               #fieldAccessExpr
        | expr AS type                                                                               #castExpr

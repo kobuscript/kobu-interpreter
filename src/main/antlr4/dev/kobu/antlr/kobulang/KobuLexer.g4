@@ -61,6 +61,7 @@ COMMA : ',' ;
 COLON : ':' ;
 AS : 'as' ;
 ANY : 'any' ;
+TUPLE: 'Tuple' ;
 
 WHEN : 'when' ;
 NOT : 'not' ;
