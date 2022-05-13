@@ -63,12 +63,21 @@ public class JoinIndexNode extends TwoInputsIndexNode {
 
         if (queryJoin.getOfExpr() == null) {
             if (right.getValue() instanceof InternalAccIndexValueExpr) {
-                right = right.setValue(new ArrayValueExpr(
-                        (ArrayType) queryJoin.getTypeClause().getQueryType(),
-                        ((InternalAccIndexValueExpr)right.getValue()).toList()
-                ), right.getBind());
+                if (queryJoin.getTypeClause().getQueryType() instanceof ArrayType) {
+                    right = right.setValue(new ArrayValueExpr(
+                            (ArrayType) queryJoin.getTypeClause().getQueryType(),
+                            ((InternalAccIndexValueExpr) right.getValue()).toList()
+                    ), right.getBind());
+                    dispatch(merge(left, right));
+                } else {
+                    for (ValueExpr valueExpr : ((InternalAccIndexValueExpr) right.getValue()).toList()) {
+                        right = right.setValue(valueExpr, right.getBind());
+                        dispatch(merge(left, right));
+                    }
+                }
+            } else {
+                dispatch(merge(left, right));
             }
-            dispatch(merge(left, right));
         } else {
 
             ValueExpr ofValueExpr;
