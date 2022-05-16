@@ -223,14 +223,14 @@ ${getJavaConstructorHeader(record.name, cons)}(${strPartitionJoin(paramTmpl, 3, 
 |> as JavaMethodTemplate
 
 def template JavaMethodDeclTemplate
-             for OutputJavaMethod as method
-             join AnyTemplate[] as commentTmpl of method.comments
-             join AnyTemplate[] as annTmpl of method.annotations
-             join AnyTemplate[] as paramTmpl of method.parameters
-             join JavaMethodBodyTemplate as body of method <|
+             for OutputJavaMethod as method22
+             join AnyTemplate[] as commentTmpl of method22.comments
+             join AnyTemplate[] as annTmpl of method22.annotations
+             join AnyTemplate[] as paramTmpl of method22.parameters
+             join JavaMethodBodyTemplate as bodyAsdf of method22 <|
 ${mkString(flat([commentTmpl, annTmpl]), "\n", "\n", "")}
-${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")} {
-    ${body}
+${getJavaMethodHeader(method22)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method22.throws, " throws ", ", ", "")} {
+    ${bodyAsdf}
 }
 |> as JavaMethodTemplate
 

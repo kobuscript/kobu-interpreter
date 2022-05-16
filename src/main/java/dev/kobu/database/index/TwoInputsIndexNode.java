@@ -54,15 +54,21 @@ public abstract class TwoInputsIndexNode implements IndexNode {
     }
 
     private void receiveLeft(Match match) {
+        Integer idx = null;
         if (match.getMatchPath() != null) {
-            Integer idx = leftEntriesMap.get(match.getMatchPath());
+            idx = leftEntriesMap.get(match.getMatchPath());
             if (idx != null) {
-                leftEntries.remove(idx.intValue());
+                leftEntries.set(idx, match);
+            } else {
+                leftEntries.add(match);
+                idx = leftEntries.size() - 1;
             }
+        } else {
+            leftEntries.add(match);
+            idx = leftEntries.size() - 1;
         }
-        leftEntries.add(match);
         if (match.getMatchPath() != null) {
-            leftEntriesMap.put(match.getMatchPath(), leftEntries.size() - 1);
+            leftEntriesMap.put(match.getMatchPath(), idx);
         }
         rightEntries.forEach(right -> {
             receive(match, right);

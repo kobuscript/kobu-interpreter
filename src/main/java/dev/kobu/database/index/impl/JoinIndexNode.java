@@ -173,15 +173,6 @@ public class JoinIndexNode extends TwoInputsIndexNode {
         return newMatch;
     }
 
-    private int getId(ValueExpr valueExpr) {
-        if (valueExpr instanceof RecordValueExpr) {
-            return ((RecordValueExpr)valueExpr).getId();
-        } else if (valueExpr instanceof TemplateValueExpr) {
-            return ((TemplateValueExpr)valueExpr).getId();
-        }
-        return 0;
-    }
-
     private static class MatchPair {
 
         final int leftId;
