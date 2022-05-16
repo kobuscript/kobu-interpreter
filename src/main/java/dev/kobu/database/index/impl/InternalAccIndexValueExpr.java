@@ -25,9 +25,11 @@ SOFTWARE.
 package dev.kobu.database.index.impl;
 
 import dev.kobu.database.Fact;
+import dev.kobu.database.index.Match;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
+import dev.kobu.interpreter.ast.query.Matcher;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 
@@ -40,12 +42,43 @@ public class InternalAccIndexValueExpr implements ValueExpr {
 
     private final Map<Integer, List<Fact>> factMap;
 
-    public InternalAccIndexValueExpr(Map<Integer, List<Fact>> factMap) {
+    private final Map<Fact, Integer> factMatchMap;
+
+    private final List<Matcher> matchers = new ArrayList<>();
+
+    public InternalAccIndexValueExpr(Map<Integer, List<Fact>> factMap, Map<Fact, Integer> factMatchMap) {
         this.factMap = factMap != null ? factMap : new HashMap<>();
+        this.factMatchMap = factMatchMap;
     }
 
-    public Map<Integer, List<Fact>> getFactMap() {
-        return factMap;
+    public void addMatcher(Matcher matcher) {
+        this.matchers.add(matcher);
+    }
+
+    public List<Fact> getFacts(int creatorId) {
+        List<Fact> facts = factMap.get(creatorId);
+        if (facts == null) {
+            return new ArrayList<>();
+        }
+
+        return facts;
+    }
+
+    public List<Match> eval(Match match) {
+        List<Match> result = new ArrayList<>();
+        result.add(match);
+        for (Matcher matcher : matchers) {
+            List<Match> matchList = new ArrayList<>();
+            for (Match m : result) {
+                matchList.addAll(matcher.eval(m));
+            }
+            result = matchList;
+        }
+        return result;
+    }
+
+    public Map<Fact, Integer> getFactMatchMap() {
+        return factMatchMap;
     }
 
     public List<ValueExpr> toList() {

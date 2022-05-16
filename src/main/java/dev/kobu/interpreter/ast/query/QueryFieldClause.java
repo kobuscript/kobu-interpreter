@@ -25,14 +25,16 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.query;
 
 import dev.kobu.database.index.Match;
-import dev.kobu.interpreter.ast.eval.Evaluable;
-import dev.kobu.interpreter.ast.eval.HasTypeScope;
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.database.index.impl.InternalAccIndexValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
-import dev.kobu.interpreter.ast.symbol.*;
+import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
+import dev.kobu.interpreter.ast.symbol.Type;
+import dev.kobu.interpreter.ast.symbol.VariableSymbol;
 import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.error.analyzer.InvalidQueryType;
 import dev.kobu.interpreter.error.analyzer.NotArrayTypeError;
@@ -120,6 +122,13 @@ public class QueryFieldClause implements QueryClause {
 
         List<Match> result = new ArrayList<>();
         ValueExpr valueExpr = valueScope != null ? valueScope : match.getValue();
+
+        if (valueExpr instanceof InternalAccIndexValueExpr) {
+            ((InternalAccIndexValueExpr) valueExpr).addMatcher(this);
+            result.add(match);
+            return result;
+        }
+
         if (arrayItemClause == null) {
             if (valueExpr instanceof RecordValueExpr) {
                 RecordValueExpr record = (RecordValueExpr) valueExpr;

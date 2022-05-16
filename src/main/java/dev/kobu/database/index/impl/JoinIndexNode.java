@@ -70,9 +70,13 @@ public class JoinIndexNode extends TwoInputsIndexNode {
                     ), right.getBind());
                     dispatch(merge(left, right));
                 } else {
-                    for (ValueExpr valueExpr : ((InternalAccIndexValueExpr) right.getValue()).toList()) {
-                        right = right.setValue(valueExpr, right.getBind());
-                        dispatch(merge(left, right));
+                    InternalAccIndexValueExpr index = (InternalAccIndexValueExpr) right.getValue();
+                    for (ValueExpr valueExpr : index.toList()) {
+                        right = right.setValue(valueExpr, right.getBind(), true);
+                        List<Match> matches = index.eval(right);
+                        for (Match rightMatch : matches) {
+                            dispatch(merge(left, rightMatch));
+                        }
                     }
                 }
             } else {
@@ -106,22 +110,34 @@ public class JoinIndexNode extends TwoInputsIndexNode {
             } else if (ofValueExpr instanceof RecordValueExpr) {
                 RecordValueExpr recordValueExpr = (RecordValueExpr) ofValueExpr;
 
-                Map<Integer, List<Fact>> factMap = ((InternalAccIndexValueExpr)right.getValue()).getFactMap();
-                var facts = factMap.get(recordValueExpr.getId());
+                InternalAccIndexValueExpr index = (InternalAccIndexValueExpr) right.getValue();
+                var facts = index.getFacts(recordValueExpr.getId());
 
                 if (facts != null) {
                     for (Fact fact : facts) {
-                        dispatch(merge(left, right.setValue(fact, right.getBind())));
+                        Integer matchId = index.getFactMatchMap().remove(fact);
+                        Match match;
+                        if (matchId == null) {
+                            match = new Match(right.getContext(), null, fact, right.getBind());
+                            index.getFactMatchMap().put(fact, match.getMatchId());
+                        } else {
+                            match = new Match(matchId, right.getContext(), null, fact, right.getBind());
+                        }
+
+                        List<Match> matches = index.eval(match);
+                        for (Match rightMatch : matches) {
+                            dispatch(merge(left, rightMatch));
+                        }
                     }
                 }
             } else if (ofValueExpr instanceof ArrayValueExpr) {
 
                 ArrayValueExpr arrayValueExpr = (ArrayValueExpr) ofValueExpr;
                 List<ValueExpr> recordList = arrayValueExpr.getValue();
-                Map<Integer, List<Fact>> factMap = ((InternalAccIndexValueExpr)right.getValue()).getFactMap();
+                InternalAccIndexValueExpr index = (InternalAccIndexValueExpr) right.getValue();
                 List<ValueExpr> values = new ArrayList<>();
                 for (ValueExpr valueExpr : recordList) {
-                    var facts = factMap.get(((RecordValueExpr)valueExpr).getId());
+                    var facts = index.getFacts(((RecordValueExpr)valueExpr).getId());
                     if (facts != null) {
                         values.addAll(facts);
                     }

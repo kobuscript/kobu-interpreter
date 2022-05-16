@@ -28,16 +28,13 @@ import dev.kobu.database.Fact;
 import dev.kobu.database.index.RootIndexNode;
 import dev.kobu.database.index.Match;
 import dev.kobu.interpreter.ast.AnalyzerContext;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.ast.query.QueryTypeClause;
 import dev.kobu.interpreter.ast.symbol.array.ArrayType;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class RootTypeIndexNode extends RootIndexNode {
 
@@ -53,7 +50,7 @@ public class RootTypeIndexNode extends RootIndexNode {
 
     private final Map<Integer, List<Fact>> factMap = new HashMap<>();
 
-    private Map<Fact, Integer> factMatchMap;
+    private final Map<Fact, Integer> factMatchMap = new HashMap<>();
 
     private int matchId;
 
@@ -75,7 +72,6 @@ public class RootTypeIndexNode extends RootIndexNode {
                 list.add(fact);
             }
         } else {
-            initializeFactMatchMap();
             if (canDispatch(fact)) {
                 var evalContext = evalContextProvider.newEvalContext(analyzerContext, moduleScope);
 
@@ -132,12 +128,12 @@ public class RootTypeIndexNode extends RootIndexNode {
             Match match;
             if (matchId == 0) {
                 match = new Match(evalContext, null,
-                        new InternalAccIndexValueExpr(accMap),
+                        new InternalAccIndexValueExpr(accMap, factMatchMap),
                         queryTypeClause.getBind());
                 matchId = match.getMatchId();
             } else {
                 match = new Match(matchId, evalContext, null,
-                        new InternalAccIndexValueExpr(accMap),
+                        new InternalAccIndexValueExpr(accMap, factMatchMap),
                         queryTypeClause.getBind());
             }
             dispatch(match);
@@ -158,12 +154,6 @@ public class RootTypeIndexNode extends RootIndexNode {
     private void initializeAccMap() {
         if (accMap == null) {
             accMap = new LinkedHashMap<>();
-        }
-    }
-
-    private void initializeFactMatchMap() {
-        if (factMatchMap == null) {
-            factMatchMap = new HashMap<>();
         }
     }
 

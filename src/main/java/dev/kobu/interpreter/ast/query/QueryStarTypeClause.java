@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.query;
 
 import dev.kobu.database.index.Match;
+import dev.kobu.database.index.impl.InternalAccIndexValueExpr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
@@ -123,10 +124,17 @@ public class QueryStarTypeClause implements QueryClause {
         List<ValueExpr> result = new ArrayList<>();
         Set<Integer> idSet = new HashSet<>();
 
+        List<Match> matches = new ArrayList<>();
         ValueExpr valueExpr = valueScope != null ? valueScope : match.getValue();
+
+        if (valueExpr instanceof InternalAccIndexValueExpr) {
+            ((InternalAccIndexValueExpr) valueExpr).addMatcher(this);
+            matches.add(match);
+            return matches;
+        }
+
         findMatches(idSet, result, type, valueExpr);
 
-        List<Match> matches = new ArrayList<>();
         if (type instanceof ArrayType) {
             matches.add(match.setValue(new ArrayValueExpr((ArrayType) type, result), bind));
         } else {
