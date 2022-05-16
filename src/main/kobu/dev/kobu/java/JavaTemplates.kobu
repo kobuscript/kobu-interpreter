@@ -29,9 +29,9 @@ import dev.kobu.functions.Comparators
 import dev.kobu.java.JavaTypes
 import dev.kobu.java.OutputJavaTypes
 
-type template JavaMethodBodyTemplate
+type template JavaMethodBodyTemplateType
 
-type template JavaMethodTemplate
+type template JavaMethodTemplateType
 
 fun javaTemplates(): Rule[] {
     return [JavaImportsAssemblerRule, JavaCommentTemplate, JavaFileTemplate, JavaClassTemplate, JavaInterfaceTemplate,
@@ -56,18 +56,18 @@ fun javaConstructorBodyTemplates(): Rule[] {
 def template JavaDefaultConstructorBodyTemplate
              for OutputJavaConstructor <|
 
-|> as JavaMethodBodyTemplate
+|> as JavaMethodBodyTemplateType
 
 def template JavaDefaultMethodBodyTemplate
              for OutputJavaMethod as method <|
 return null;
-|> as JavaMethodBodyTemplate
+|> as JavaMethodBodyTemplateType
 
 def template JavaDefaultVoidMethodBodyTemplate extends JavaDefaultMethodBodyTemplate
              for OutputJavaMethod as method
              when method.returnType instanceof JavaVoidType <|
 
-|> as JavaMethodBodyTemplate
+|> as JavaMethodBodyTemplateType
 
 def template JavaDefaultIntMethodBodyTemplate extends JavaDefaultMethodBodyTemplate
              for OutputJavaMethod as method
@@ -76,25 +76,25 @@ def template JavaDefaultIntMethodBodyTemplate extends JavaDefaultMethodBodyTempl
                   method.returnType.name == "short" or
                   method.returnType.name == "byte" <|
 return 0;
-|> as JavaMethodBodyTemplate
+|> as JavaMethodBodyTemplateType
 
 def template JavaDefaultFloatMethodBodyTemplate
              for OutputJavaMethod as method
              when method.returnType.name == "float" <|
 return 0f;
-|> as JavaMethodBodyTemplate
+|> as JavaMethodBodyTemplateType
 
 def template JavaDefaultDoubleMethodBodyTemplate
              for OutputJavaMethod as method
              when method.returnType.name == "double" <|
 return 0.0;
-|> as JavaMethodBodyTemplate
+|> as JavaMethodBodyTemplateType
 
 def template JavaDefaultBooleanMethodBodyTemplate
              for OutputJavaMethod as method
              when method.returnType.name == "boolean" <|
 return false;
-|> as JavaMethodBodyTemplate
+|> as JavaMethodBodyTemplateType
 
 def template JavaCommentTemplate
              for OutputJavaComment as comment <|
@@ -132,8 +132,8 @@ def template JavaClassTemplate
              for OutputJavaClass as class
              join AnyTemplate[] as commentTmpl of class.comments
              join AnyTemplate[] as annTmpl of class.annotations
-             join JavaMethodTemplate[] as consTmpl of class.constructors
-             join JavaMethodTemplate[] as methodsTmpl of class.methods
+             join JavaMethodTemplateType[] as consTmpl of class.constructors
+             join JavaMethodTemplateType[] as methodsTmpl of class.methods
              join AnyTemplate[] as fieldsTmpl of class.fields
              join AnyTemplate[] as innerClassesTmpl of class.innerClasses
              join AnyTemplate[] as innerInterfacesTmpl of class.innerInterfaces
@@ -149,7 +149,7 @@ def template JavaInterfaceTemplate
              for OutputJavaInterface as interface
              join AnyTemplate[] as commentTmpl of interface.comments
              join AnyTemplate[] as annTmpl of interface.annotations
-             join JavaMethodTemplate[] as methodsTmpl of interface.methods
+             join JavaMethodTemplateType[] as methodsTmpl of interface.methods
              join AnyTemplate[] as fieldsTmpl of interface.fields
              join AnyTemplate[] as innerClassesTmpl of interface.innerClasses
              join AnyTemplate[] as innerInterfacesTmpl of interface.innerInterfaces
@@ -166,8 +166,8 @@ def template JavaEnumTemplate
              join AnyTemplate[] as commentTmpl of javaEnum.comments
              join AnyTemplate[] as annTmpl of javaEnum.annotations
              join AnyTemplate[] as valuesTmpl of javaEnum.values
-             join JavaMethodTemplate[] as consTmpl of javaEnum.constructors
-             join JavaMethodTemplate[] as methodsTmpl of javaEnum.methods
+             join JavaMethodTemplateType[] as consTmpl of javaEnum.constructors
+             join JavaMethodTemplateType[] as methodsTmpl of javaEnum.methods
              join AnyTemplate[] as fieldsTmpl of javaEnum.fields
              join AnyTemplate[] as innerClassesTmpl of javaEnum.innerClasses
              join AnyTemplate[] as innerInterfacesTmpl of javaEnum.innerInterfaces
@@ -185,8 +185,8 @@ def template JavaRecordTemplate
              join AnyTemplate[] as commentTmpl of javaRecord.comments
              join AnyTemplate[] as annTmpl of javaRecord.annotations
              join AnyTemplate[] as compTmpl of javaRecord.components
-             join JavaMethodTemplate[] as consTmpl of javaRecord.constructors
-             join JavaMethodTemplate[] as methodsTmpl of javaRecord.methods
+             join JavaMethodTemplateType[] as consTmpl of javaRecord.constructors
+             join JavaMethodTemplateType[] as methodsTmpl of javaRecord.methods
              join AnyTemplate[] as fieldsTmpl of javaRecord.fields
              join AnyTemplate[] as innerClassesTmpl of javaRecord.innerClasses
              join AnyTemplate[] as innerInterfacesTmpl of javaRecord.innerInterfaces
@@ -203,36 +203,36 @@ def template JavaClassConstructorTemplate
              join AnyTemplate[] as commentTmpl of cons.comments
              join AnyTemplate[] as annTmpl of cons.annotations
              join AnyTemplate[] as paramTmpl of cons.parameters
-             join JavaMethodBodyTemplate as body of cons <|
+             join JavaMethodBodyTemplateType as body of cons <|
 ${strJoin(flat([commentTmpl, annTmpl]), "\n")}
 ${getJavaConstructorHeader(class.name, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(cons.throws, " throws ", ", ", "")} {
     ${body}
 }
-|> as JavaMethodTemplate
+|> as JavaMethodTemplateType
 
 def template JavaRecordConstructorTemplate
              for OutputJavaRecord as record / constructors[*] as cons
              join AnyTemplate[] as commentTmpl of cons.comments
              join AnyTemplate[] as annTmpl of cons.annotations
              join AnyTemplate[] as paramTmpl of cons.parameters
-             join JavaMethodBodyTemplate as body of cons <|
+             join JavaMethodBodyTemplateType as body of cons <|
 ${strJoin(flat([commentTmpl, annTmpl]), "\n")}
 ${getJavaConstructorHeader(record.name, cons)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(cons.throws, " throws ", ", ", "")} {
     ${body}
 }
-|> as JavaMethodTemplate
+|> as JavaMethodTemplateType
 
 def template JavaMethodDeclTemplate
              for OutputJavaMethod as method
              join AnyTemplate[] as commentTmpl of method.comments
              join AnyTemplate[] as annTmpl of method.annotations
              join AnyTemplate[] as paramTmpl of method.parameters
-             join JavaMethodBodyTemplate as body of method <|
+             join JavaMethodBodyTemplateType as body of method <|
 ${mkString(flat([commentTmpl, annTmpl]), "\n", "\n", "")}
 ${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")} {
     ${body}
 }
-|> as JavaMethodTemplate
+|> as JavaMethodTemplateType
 
 def template JavaInterfaceMethodDeclTemplate extends JavaMethodDeclTemplate
              for OutputJavaInterface / methods[*] as method
@@ -241,7 +241,7 @@ def template JavaInterfaceMethodDeclTemplate extends JavaMethodDeclTemplate
              join AnyTemplate[] as paramTmpl of method.parameters <|
 ${mkString(flat([commentTmpl, annTmpl]), "\n", "\n", "")}
 ${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")};
-|> as JavaMethodTemplate
+|> as JavaMethodTemplateType
 
 def template JavaAbstractMethodDeclTemplate extends JavaMethodDeclTemplate
              for OutputJavaMethod as method
@@ -251,7 +251,7 @@ def template JavaAbstractMethodDeclTemplate extends JavaMethodDeclTemplate
              when method.modifiers != null and method.modifiers.contains("abstract") <|
 ${mkString(flat([commentTmpl, annTmpl]), "\n", "\n", "")}
 ${getJavaMethodHeader(method)}(${strPartitionJoin(paramTmpl, 3, ", ", ",\n")})${mkString(method.throws, " throws ", ", ", "")};
-|> as JavaMethodTemplate
+|> as JavaMethodTemplateType
 
 def template JavaMethodParamTemplate
              for OutputJavaMethodParameter as param
