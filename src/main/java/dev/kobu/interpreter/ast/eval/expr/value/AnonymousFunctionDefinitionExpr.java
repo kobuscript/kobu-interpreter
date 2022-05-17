@@ -41,6 +41,7 @@ import dev.kobu.interpreter.error.analyzer.FunctionMissingReturnStatError;
 import dev.kobu.interpreter.error.analyzer.InvalidRequiredFunctionParamError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -222,7 +223,8 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
         }
 
         if (targetType instanceof FunctionType) {
-            return !((FunctionType) targetType).getReturnType().aliases().isEmpty();
+            Collection<TypeAlias> aliases = ((FunctionType) targetType).getReturnType().aliases();
+            return aliases != null && !aliases.isEmpty();
         }
         return false;
     }
