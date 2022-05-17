@@ -90,7 +90,7 @@ fun javaPublicInterface(name: string, typeParameters?: string[]): OutputJavaInte
     return javaInterface(name, ["public"], typeParameters)
 }
 
-fun javaEnum(name: string, modifiers: string[], values: (string, OutputJavaValue[])[]): OutputJavaEnum {
+fun javaEnum(name: string, modifiers: string[], values: Tuple(string, OutputJavaValue[])[]): OutputJavaEnum {
     var enumValues: OutputJavaEnumValue[] = []
     if (values != null) {
         enumValues = values.map(pair => OutputJavaEnumValue{ name: pair.get1(), args: pair.get2() })
@@ -109,7 +109,7 @@ fun javaEnum(name: string, modifiers: string[], values: (string, OutputJavaValue
     }
 }
 
-fun javaPublicEnum(name: string, values: (string, OutputJavaValue[])[]): OutputJavaEnum {
+fun javaPublicEnum(name: string, values: Tuple(string, OutputJavaValue[])[]): OutputJavaEnum {
     return javaEnum(name, ["public"], values)
 }
 
@@ -147,7 +147,7 @@ fun javaComment(text: string): OutputJavaComment {
     }
 }
 
-fun javaAnnotation(name: string, package?: string, fields?: (string, OutputJavaValue)[]): OutputJavaAnnotationValue {
+fun javaAnnotation(name: string, package?: string, fields?: Tuple(string, OutputJavaValue)[]): OutputJavaAnnotationValue {
     var annFields: OutputJavaAnnotationFieldValue[] = []
     if (fields != null) {
         fields.forEach(pair => {

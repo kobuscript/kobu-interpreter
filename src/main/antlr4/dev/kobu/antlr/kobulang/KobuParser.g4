@@ -256,7 +256,7 @@ typeArg: type ( COMMA typeArg )? ;
 type : typeName                      #typeNameExpr
        | functionType                #functionTypeExpr
        | type LSB RSB                #arrayType
-       | LP type ( COMMA type )+ RP  #tupleType
+       | TUPLE LP type ( COMMA type )+ RP  #tupleType
        | LP functionType RP          #parenthesizedFunctionTypeExpr
        ;
 

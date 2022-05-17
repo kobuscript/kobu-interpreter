@@ -133,7 +133,7 @@ public class TupleTypeElement {
     }
 
     public String getName() {
-        StringBuilder str = new StringBuilder("(");
+        StringBuilder str = new StringBuilder("Tuple(");
         addElemStr(str);
         str.append(")");
         return str.toString();
