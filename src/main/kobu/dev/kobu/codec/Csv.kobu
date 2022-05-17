@@ -70,3 +70,15 @@ type record CsvColumn {
  * and 'charset' to specify the file charset.
  */
 def native readCsv(dir: Path, pattern: string, recursive?: boolean, format?: string, charset?: string): CsvFile[];
+
+/**
+ * Parse a single CSV file
+ */
+fun readCsvFile(csvFilePath: string): CsvFile {
+    var filePath = Path([csvFilePath])
+    var csvFiles = readCsv(filePath.getParent(), filePath.getFileName().toString())
+    if (csvFiles.size() > 0) {
+        return csvFiles[0]
+    }
+    return null
+}
