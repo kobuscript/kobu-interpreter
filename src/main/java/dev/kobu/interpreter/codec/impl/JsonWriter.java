@@ -56,6 +56,7 @@ public class JsonWriter {
             OutputStreamWriter writer = new OutputStreamWriter(out, charset);
 
             appendJson(writer, 0, sourceExpr);
+            writer.flush();
         } catch (IOException ex) {
             throw new BuiltinFunctionError(ex, sourceCodeRef);
         }
@@ -72,7 +73,11 @@ public class JsonWriter {
             appendJson(writer, level, field, recordValueExpr.resolveField(field));
             count++;
         }
-        writer.write("}\n");
+        writer.write('\n');
+        for (int i = 0; i < (level - 1) * TAB_SIZE; i++) {
+            writer.write(' ');
+        }
+        writer.write("}");
     }
 
     private void appendJson(OutputStreamWriter writer, int level, ArrayValueExpr arrayValueExpr) throws IOException {
@@ -106,7 +111,7 @@ public class JsonWriter {
         }
         writer.write('"');
         writer.write(key);
-        writer.write("\", ");
+        writer.write("\": ");
 
         appendJson(writer, level, valueExpr);
     }

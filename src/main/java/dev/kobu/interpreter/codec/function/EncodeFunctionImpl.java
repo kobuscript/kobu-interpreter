@@ -44,12 +44,13 @@ public class EncodeFunctionImpl extends NativeFunction {
 
     @Override
     protected ValueExpr run(EvalContext context, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
-        StringValueExpr sourceExpr = (StringValueExpr) args.get("value");
+        ValueExpr sourceExpr = args.get("value");
         if (sourceExpr == null) {
             throw new IllegalArgumentError("'value' cannot be null", sourceCodeRef);
         }
 
-        return context.getOutputWriter().encode(getModuleScope(), context, writer, sourceExpr, args, sourceCodeRef);
+        ValueExpr result = context.getOutputWriter().encode(getModuleScope(), context, writer, sourceExpr, args, sourceCodeRef);
+        return result;
     }
 
 }
