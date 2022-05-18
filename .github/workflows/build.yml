@@ -18,9 +18,9 @@ jobs:
     - uses: graalvm/setup-graalvm@v1
       with:
         version: '22.1.0'
-          java-version: '11'
-          components: 'native-image'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        java-version: '11'
+        components: 'native-image'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - run: mvn clean install
     - run: mvn -Pnative -DskipTests package
     - run: mkdir staging ** cp target/kobu staging/kobu-${{ matrix.os }}
