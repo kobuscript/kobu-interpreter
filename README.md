@@ -406,3 +406,8 @@ fun main(args: string[]): void {
 }
 ```
 
+## More examples
+
+* **kobu-csv-processor-example**: [https://github.com/kobuscript/kobu-csv-processor-example](https://github.com/kobuscript/kobu-csv-processor-example)
+* **kobu-java-example**: [https://github.com/kobuscript/kobu-java-example](https://github.com/kobuscript/kobu-java-example)
+
