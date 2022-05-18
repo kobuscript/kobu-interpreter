@@ -31,11 +31,54 @@ methods in a class, this will probably be very painful.
 To help with those tasks, Kobu offers the following features:
 
 * **Codecs**: Built-in API for reading and writing CSV, XML, and JSON.
-* **Parsers**: Built-in API for parsing Java files (future releases will also include support for Typescript and Dart).
+* **Parsers**: Built-in API for parsing Java files (future releases will also include support for TypeScript and Dart).
 * **Rule engine and template processor**: Built-in rule engine with a powerful query syntax 
 and integrated template processor.
 * **Language commands**: Built-in API for editing Java files (future releases will also include support 
-for Typescript and Dart)
+for TypeScript and Dart)
+
+## Usage
+
+The Kobu interpreter is a single executable (a Java program compiled with GraalVM's native image).
+It has the following features:
+
+* **run**: Execute a Kobu script: `kobu run ./MyScript.kobu`
+* **new**: create a new Kobu project: `kobu new my-new-project`
+* **format**: Format a Kobu script (can also be triggered with the "Reformat Code" Intellij command).
+* **cmd-list**: List all commands registered in the current project.
+* **cmd**: Run a Kobu command
+
+### Project definition
+
+A project definition file (kobu.xml) is not required to run Kobu scripts but is helpful if your Kobu project
+is composed of multiple files, or if you want to use the "Kobu commands" features. Whe running "kobu new", a
+kobu.xml file is created for you.
+
+### Intellij plugin
+
+The [Kobu Intellij plugin](https://github.com/kobuscript/kobu-intellij) can be used to write and invoke Kobu scripts. 
+Any command registered in the project will be accessible directly from the editor's context menu. Example:
+
+```XML
+<commands>
+    <command>
+        <id>toString</id>
+        <name>Generate toString()</name>
+        <script>ToString.kobu</script>
+        <description>Generate a toString() method for a Java class</description>
+        <pattern>*.java</pattern>
+    </command>
+    <command>
+        <id>Builder</id>
+        <name>Generate builder class</name>
+        <script>Builder.kobu</script>
+        <description>Generate a Builder inner class for a Java class</description>
+        <pattern>*.java</pattern>
+    </command>
+</commands>
+```
+
+![](/home/luiz/desenv/git/kobu-interpreter/assets/commands.png)
 
 ## Language overview
 
@@ -48,9 +91,10 @@ Records and global functions can have type parameters (generics)
 * **Function as value**: Support for global and anonymous functions (closures). 
 * **Data types**:
   * **Records**: Data-only classes with support for single inheritance.
-  * **Arrays**: Supports literal notation (`var myArr = ["my", "array"]`), 
+  * **Arrays**: A sequence of elements of the same type. Supports literal notation (`var myArr = ["my", "array"]`), 
   slicing operator (`myArr[0:1]`) and transformation methods such as map(), flatMap(), filter() and reduce().
-  * **Tuples**: A container with fixed number of elements: `var myTuple: Tuple(number, string) = Tuple(1, "one")`
+  * **Tuples**: A container with fixed number of elements, each with its own type: 
+  `var myTuple: Tuple(number, string) = Tuple(1, "one")`
 
 ### Examples
 
@@ -154,7 +198,7 @@ fun main(args: string[]): void {
 
 ## Rule engine
 
-A rule engine system usually has two main components: the **working memory** and the **production memory**. 
+The rule engine system has two main components: the **working memory** and the **production memory**. 
 The first is the set of data that needs to be processed, and the latter is the set of rules the system will execute.
 
 In Kobu programs, the working memory is an array of records, and each record is recursively processed.
