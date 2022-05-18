@@ -23,7 +23,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - run: mvn clean install
     - run: mvn -Pnative -DskipTests package
-    - run: mkdir staging ** cp target/kobu staging/kobu-${{ matrix.os }}
+    - run: mkdir staging && cp target/kobu staging/kobu-${{ matrix.os }}
     - uses: actions/upload-artifact@v3
       with: 
         name: Package
