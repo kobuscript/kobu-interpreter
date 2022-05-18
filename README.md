@@ -78,7 +78,7 @@ Any command registered in the project will be accessible directly from the edito
 </commands>
 ```
 
-![](/home/luiz/desenv/git/kobu-interpreter/assets/commands.png)
+![](assets/commands.png)
 
 ## Language overview
 
