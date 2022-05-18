@@ -39,8 +39,8 @@ for TypeScript and Dart)
 
 ## Usage
 
-The Kobu interpreter is a single executable (a Java program compiled with GraalVM's native image).
-It has the following features:
+The Kobu interpreter is a [single executable](https://github.com/kobuscript/kobu-interpreter/releases) 
+(a Java program compiled with GraalVM's native image). It has the following features:
 
 * **run**: Execute a Kobu script: `kobu run ./MyScript.kobu`
 * **new**: create a new Kobu project: `kobu new my-new-project`
