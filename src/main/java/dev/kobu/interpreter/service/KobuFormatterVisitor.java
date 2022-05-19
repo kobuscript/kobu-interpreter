@@ -534,7 +534,7 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             printIndentation();
             out.append("when ");
             if (ctx.expr() != null) {
-                pushIndentation(ctx.WHEN().getSymbol().getCharPositionInLine() + 4);
+                pushIndentation(ctx.WHEN().getSymbol().getCharPositionInLine() + 5);
                 printStat(ctx.expr(), true, false);
                 popIndentation();
             }
@@ -678,7 +678,7 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             printIndentation();
             out.append("when ");
             if (ctx.expr() != null) {
-                pushIndentation(ctx.WHEN().getSymbol().getCharPositionInLine() + 4);
+                pushIndentation(ctx.WHEN().getSymbol().getCharPositionInLine() + 5);
                 printStat(ctx.expr(), true, false);
                 popIndentation();
             }
@@ -774,7 +774,7 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             printIndentation();
             out.append("when ");
             if (ctx.expr() != null) {
-                pushIndentation(ctx.WHEN().getSymbol().getCharPositionInLine() + 4);
+                pushIndentation(ctx.WHEN().getSymbol().getCharPositionInLine() + 5);
                 printStat(ctx.expr(), true, false);
                 popIndentation();
             }
