@@ -50,6 +50,8 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     public static final String JAVA_OBJECT_TYPE = "JavaObjectType";
 
+    public static final String JAVA_ARRAY_TYPE = "JavaArrayType";
+
     private static final String JAVA_IMPORT = "InputJavaImport";
 
     private static final String JAVA_DEFINITION = "InputJavaDefinition";
@@ -896,6 +898,12 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
             }
         } else if (ctx.primitiveType() != null) {
             typeRec = (RecordValueExpr) visit(ctx.primitiveType());
+        }
+
+        if (ctx.LBRACK() != null && ctx.RBRACK() != null) {
+            var arrRec = RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_ARRAY_TYPE));
+            arrRec.updateFieldValue(context, "elementType", typeRec);
+            typeRec = arrRec;
         }
 
         return typeRec;

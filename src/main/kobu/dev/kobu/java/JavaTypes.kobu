@@ -38,6 +38,10 @@ type record JavaObjectType extends JavaType {
     innerType: JavaObjectType
 }
 
+type record JavaArrayType extends JavaType {
+    elementType: JavaType
+}
+
 
 fun javaStringType(): JavaObjectType {
     return JavaObjectType{
