@@ -1830,10 +1830,12 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         parameters = new ArrayList<>();
 
         while (paramCtx != null) {
-            var type = paramCtx.type() != null ? (Type) visit(paramCtx.type()) : UnknownType.INSTANCE;
-            FunctionParameter param = new FunctionParameter(getSourceCodeRef(paramCtx.ID()), paramCtx.ID().getText(), type,
-                    paramCtx.QM() != null);
-            parameters.add(param);
+            if (paramCtx.ID() != null) {
+                var type = paramCtx.type() != null ? (Type) visit(paramCtx.type()) : UnknownType.INSTANCE;
+                FunctionParameter param = new FunctionParameter(getSourceCodeRef(paramCtx.ID()), paramCtx.ID().getText(), type,
+                        paramCtx.QM() != null);
+                parameters.add(param);
+            }
 
             paramCtx = paramCtx.functionDeclParam();
         }
