@@ -222,7 +222,7 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
             return true;
         }
 
-        if (targetType instanceof FunctionType) {
+        if (targetType instanceof FunctionType && ((FunctionType) targetType).getReturnType() != null) {
             Collection<TypeAlias> aliases = ((FunctionType) targetType).getReturnType().aliases();
             return aliases != null && !aliases.isEmpty();
         }
