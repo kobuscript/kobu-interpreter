@@ -212,15 +212,49 @@ fun hasJavaAnnotation(javaDef: InputJavaDefinition, annName: string, package?: s
 }
 
 /**
- * If 'annotations' has an annotation with the specified name, returns the value of the specified field.
+ * If 'annotations' has an annotation with the specified name, returns the value of the specified field if it is a string.
  * Otherwise, returns null.
  */
-fun getJavaAnnotationField(annotations: InputJavaAnnotationValue[], annName: string, fieldName: string): string {
+fun getJavaAnnotationStringField(annotations: InputJavaAnnotationValue[], annName: string, fieldName: string): string {
     var ann = annotations.find(a => a.name == annName)
     if (ann != null) {
         var annField = ann.fields.get(fieldName)
         if (annField instanceof InputJavaLiteralString) {
             return (annField as InputJavaLiteralString).value
+        } else if (annField instanceof InputJavaLiteralChar) {
+            return (annField as InputJavaLiteralChar).value
+        }
+    }
+    return null
+}
+
+/**
+ * If 'annotations' has an annotation with the specified name, returns the value of the specified field if it is a number.
+ * Otherwise, returns null.
+ */
+fun getJavaAnnotationNumberField(annotations: InputJavaAnnotationValue[], annName: string, fieldName: string): number {
+    var ann = annotations.find(a => a.name == annName)
+    if (ann != null) {
+        var annField = ann.fields.get(fieldName)
+        if (annField instanceof InputJavaLiteralInt) {
+            return (annField as InputJavaLiteralInt).value
+        } else if (annField instanceof InputJavaLiteralFloat) {
+            return (annField as InputJavaLiteralFloat).value
+        }
+    }
+    return null
+}
+
+/**
+ * If 'annotations' has an annotation with the specified name, returns the value of the specified field if it is a boolean.
+ * Otherwise, returns null.
+ */
+fun getJavaAnnotationBooleanField(annotations: InputJavaAnnotationValue[], annName: string, fieldName: string): boolean {
+    var ann = annotations.find(a => a.name == annName)
+    if (ann != null) {
+        var annField = ann.fields.get(fieldName)
+        if (annField instanceof InputJavaLiteralBoolean) {
+            return (annField as InputJavaLiteralBoolean).value
         }
     }
     return null
