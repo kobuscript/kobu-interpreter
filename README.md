@@ -50,8 +50,8 @@ The Kobu interpreter is a [single executable](https://github.com/kobuscript/kobu
 
 ### Project definition
 
-A project definition file (kobu.xml) is not required to run Kobu scripts but is helpful if your Kobu project
-is composed of multiple files, or if you want to use the "Kobu commands" features. Whe running "kobu new", a
+A project definition file (kobu.xml) is not required to run Kobu scripts but is helpful if your project
+is composed of multiple files, or if you want to use the "Kobu commands" feature. When running "kobu new", a
 kobu.xml file is created for you.
 
 ### Intellij plugin
