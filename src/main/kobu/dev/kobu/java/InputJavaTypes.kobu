@@ -203,3 +203,25 @@ type record InputJavaLiteralChar extends InputJavaLiteralValue {
 type record InputJavaLiteralBoolean extends InputJavaLiteralValue {
     value: boolean
 }
+
+/**
+ * Returns true if 'javaDef' has an annotation with the specified name and package
+ */
+fun hasJavaAnnotation(javaDef: InputJavaDefinition, annName: string, package?: string): boolean {
+    return javaDef.annotations.find(ann => ann.name == annName and (package == null or ann.package == package)) != null
+}
+
+/**
+ * If 'annotations' has an annotation with the specified name, returns the value of the specified field.
+ * Otherwise, returns null.
+ */
+fun getJavaAnnotationField(annotations: InputJavaAnnotationValue[], annName: string, fieldName: string): string {
+    var ann = annotations.find(a => a.name == annName)
+    if (ann != null) {
+        var annField = ann.fields.get(fieldName)
+        if (annField instanceof InputJavaLiteralString) {
+            return (annField as InputJavaLiteralString).value
+        }
+    }
+    return null
+}

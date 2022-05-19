@@ -24,67 +24,195 @@ SOFTWARE.
 
 module dev.kobu.java.JavaTypes
 
+/**
+ * A Java type descriptor
+ */
 type record JavaType {
     name: string
 }
 
+/**
+ * A descriptor for primitive Java types
+ */
 type record JavaPrimitiveType extends JavaType {}
 
+/**
+ * A descriptor of the Java void type
+ */
 type record JavaVoidType extends JavaType {}
 
+/**
+ * A Java object type descriptor
+ */
 type record JavaObjectType extends JavaType {
     package: string,
     typeArgs: JavaObjectType[],
     innerType: JavaObjectType
 }
 
+/**
+ * A descriptor for the Java array type
+ */
 type record JavaArrayType extends JavaType {
     elementType: JavaType
 }
 
 
+/*
+ * Returns the Java String type descriptor.
+ */
 fun javaStringType(): JavaObjectType {
     return JavaObjectType{
         name: "String"
     }
 }
 
+/*
+ * Returns the Java Integer type descriptor.
+ *
+ * If 'primitive' is true, then the int type is returned instead.
+ */
 fun javaIntegerType(primitive?: boolean): JavaType {
     return primitiveOrWrapper("int", "Integer", primitive);
 }
 
+/*
+ * Returns the Java Float type descriptor.
+ *
+ * If 'primitive' is true, then the float type is returned instead.
+ */
 fun javaFloatType(primitive?: boolean): JavaType {
     return primitiveOrWrapper("float", "Float", primitive);
 }
 
+/*
+ * Returns the Java Double type descriptor.
+ *
+ * If 'primitive' is true, then the double type is returned instead.
+ */
 fun javaDoubleType(primitive?: boolean): JavaType {
     return primitiveOrWrapper("double", "Double", primitive);
 }
 
+/*
+ * Returns the Java Char type descriptor.
+ *
+ * If 'primitive' is true, then the char type is returned instead.
+ */
 fun javaCharType(primitive?: boolean): JavaType {
     return primitiveOrWrapper("char", "Char", primitive);
 }
 
+/*
+ * Returns the Java Byte type descriptor.
+ *
+ * If 'primitive' is true, then the byte type is returned instead.
+ */
 fun javaByteType(primitive?: boolean): JavaType {
     return primitiveOrWrapper("byte", "Byte", primitive);
 }
 
+/*
+ * Returns the Java Short type descriptor.
+ *
+ * If 'primitive' is true, then the short type is returned instead.
+ */
 fun javaShortType(primitive?: boolean): JavaType {
     return primitiveOrWrapper("short", "Short", primitive);
 }
 
+/*
+ * Returns the Java Long type descriptor.
+ *
+ * If 'primitive' is true, then the long type is returned instead.
+ */
 fun javaLongType(primitive?: boolean): JavaType {
     return primitiveOrWrapper("long", "Long", primitive);
 }
 
+/*
+ * Returns the Java Boolean type descriptor.
+ *
+ * If 'primitive' is true, then the boolean type is returned instead.
+ */
 fun javaBooleanType(primitive?: boolean): JavaType {
     return primitiveOrWrapper("boolean", "Boolean", primitive);
 }
 
+/*
+ * Returns the Java void type descriptor.
+ */
 fun javaVoidType(): JavaType {
     return JavaVoidType{
         name: "void"
     }
+}
+
+/**
+ * Returns true if 'javaType' is the Integer type, or the int primitive type
+ */
+fun isJavaIntegerType(javaType: JavaType): boolean {
+    return testPrimitiveOrWrapper(javaType, "int", "Integer")
+}
+
+/**
+ * Returns true if 'javaType' is the Float type, or the float primitive type
+ */
+fun isJavaFloatType(javaType: JavaType): boolean {
+    return testPrimitiveOrWrapper(javaType, "float", "Float")
+}
+
+/**
+ * Returns true if 'javaType' is the Double type, or the double primitive type
+ */
+fun isJavaDoubleType(javaType: JavaType): boolean {
+    return testPrimitiveOrWrapper(javaType, "double", "Double")
+}
+
+/**
+ * Returns true if 'javaType' is the Char type, or the char primitive type
+ */
+fun isJavaCharType(javaType: JavaType): boolean {
+    return testPrimitiveOrWrapper(javaType, "char", "Char")
+}
+
+/**
+ * Returns true if 'javaType' is the Byte type, or the byte primitive type
+ */
+fun isJavaByteType(javaType: JavaType): boolean {
+    return testPrimitiveOrWrapper(javaType, "byte", "Byte")
+}
+
+/**
+ * Returns true if 'javaType' is the Short type, or the short primitive type
+ */
+fun isJavaShortType(javaType: JavaType): boolean {
+    return testPrimitiveOrWrapper(javaType, "short", "Short")
+}
+
+/**
+ * Returns true if 'javaType' is the Long type, or the long primitive type
+ */
+fun isJavaLongType(javaType: JavaType): boolean {
+    return testPrimitiveOrWrapper(javaType, "long", "Long")
+}
+
+/**
+ * Returns true if 'javaType' is the Boolean type, or the boolean primitive type
+ */
+fun isJavaBooleanType(javaType: JavaType): boolean {
+    return testPrimitiveOrWrapper(javaType, "boolean", "Boolean")
+}
+
+/**
+ * Returns true if 'javaType' is a JavaObjectType with the specified name and package
+ */
+fun isJavaObject(javaType: JavaType, typeName: string, package?: string): boolean {
+    if (javaType instanceof JavaObjectType) {
+        var objType = javaType as JavaObjectType
+        return objType.name == typeName and (package == null or objType.package == package)
+    }
+    return false;
 }
 
 private fun primitiveOrWrapper(primitiveName: string, wrapperName: string, primitive: boolean): JavaType {
@@ -96,4 +224,14 @@ private fun primitiveOrWrapper(primitiveName: string, wrapperName: string, primi
     return JavaObjectType{
         name: wrapperName
     }
+}
+
+private fun testPrimitiveOrWrapper(javaType: JavaType, primitiveName: string, wrapperName: string): boolean {
+    if (javaType instanceof JavaObjectType) {
+        return javaType.name == wrapperName
+    }
+    if (javaType instanceof JavaPrimitiveType) {
+        return javaType.name == primitiveName
+    }
+    return false
 }
