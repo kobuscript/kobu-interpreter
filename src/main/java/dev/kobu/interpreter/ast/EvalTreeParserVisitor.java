@@ -291,7 +291,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                     }
                     tupleTypeElement = tupleTypeElement.getNext();
                 }
-            } else if (!(expr instanceof StringValueExpr)
+            } else if (expr != null && !(expr instanceof StringValueExpr)
                     && !(expr instanceof NumberValueExpr)
                     && !(expr instanceof BooleanValueExpr)) {
                 context.getErrorScope().addError(new InvalidGlobalConstantValueError(
