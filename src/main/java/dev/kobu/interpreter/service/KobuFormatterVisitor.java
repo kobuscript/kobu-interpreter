@@ -114,6 +114,7 @@ public class KobuFormatterVisitor extends KobuParserBaseVisitor<Void> {
             out.append("\n");
         }
         out.append(tokens.getText(ctx.getSourceInterval()));
+        printHiddenTextAfter(ctx);
         return null;
     }
 
