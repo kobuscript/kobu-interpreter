@@ -113,6 +113,8 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     private final Stack<RecordValueExpr> defStack = new Stack<>();
 
+    private RecordValueExpr javaFileRec;
+
     private String currentPackage;
 
     private RecordValueExpr currentClassMember;
@@ -126,13 +128,13 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
 
     @Override
     public ValueExpr visitCompilationUnit(JavaParser.CompilationUnitContext ctx) {
-        var record = RecordFactory.create(moduleScope, context, JAVA_FILE_TYPE);
+        javaFileRec = RecordFactory.create(moduleScope, context, JAVA_FILE_TYPE);
         FileValueExpr fileExpr = new FileValueExpr(new File(filePath));
-        record.updateFieldValue(context, "file", fileExpr);
+        javaFileRec.updateFieldValue(context, "file", fileExpr);
 
         if (ctx.packageDeclaration() != null && ctx.packageDeclaration().qualifiedName() != null) {
             currentPackage = ctx.packageDeclaration().qualifiedName().getText();
-            record.updateFieldValue(context, "package",
+            javaFileRec.updateFieldValue(context, "package",
                     new StringValueExpr(currentPackage));
         }
 
@@ -157,7 +159,7 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
                 importValues.add(importRecord);
             }
         }
-        record.updateFieldValue(context, "imports",
+        javaFileRec.updateFieldValue(context, "imports",
                 new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_IMPORT)),
                         importValues));
 
@@ -176,11 +178,11 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
             return null;
         }
 
-        record.updateFieldValue(context, "definitions",
+        javaFileRec.updateFieldValue(context, "definitions",
                 new ArrayValueExpr(ArrayTypeFactory.getArrayTypeFor((Type) moduleScope.resolve(JAVA_DEFINITION)),
                         definitionValues));
 
-        return record;
+        return javaFileRec;
     }
 
     private boolean runFilter(RecordValueExpr javaDefExpr) {
@@ -275,6 +277,7 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
             return null;
         }
 
+        defRecExpr.updateFieldValue(context, "javaFile", javaFileRec);
         defRecExpr.updateFieldValue(context, "abstract", BooleanValueExpr.FALSE);
         defRecExpr.updateFieldValue(context, "final", BooleanValueExpr.FALSE);
         defRecExpr.updateFieldValue(context, "static", BooleanValueExpr.FALSE);

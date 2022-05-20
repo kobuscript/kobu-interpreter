@@ -38,7 +38,7 @@ type record InputJavaFile {
 }
 
 type record InputJavaDefinition {
-    file: File,
+    javaFile: InputJavaFile,
     name: string,
     abstract: boolean,
     final: boolean,
