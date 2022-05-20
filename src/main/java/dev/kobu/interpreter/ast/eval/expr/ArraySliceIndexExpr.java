@@ -40,6 +40,7 @@ import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 
 public class ArraySliceIndexExpr implements ArrayIndexExpr {
@@ -129,7 +130,7 @@ public class ArraySliceIndexExpr implements ArrayIndexExpr {
             throw new NullPointerError(sourceCodeRef, expr.getSourceCodeRef());
         }
         if (!(indexValue instanceof NumberValueExpr)) {
-            throw new InternalInterpreterError("Expected: Number. Found: " + indexValue.getStringValue(),
+            throw new InternalInterpreterError("Expected: Number. Found: " + indexValue.getStringValue(new HashSet<>()),
                     arrayExpr.getSourceCodeRef());
         }
         return (NumberValueExpr) indexValue;

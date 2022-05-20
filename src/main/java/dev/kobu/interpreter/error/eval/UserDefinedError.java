@@ -28,6 +28,8 @@ import dev.kobu.interpreter.ast.eval.context.ErrorValue;
 import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.error.EvalError;
 
+import java.util.HashSet;
+
 public class UserDefinedError extends EvalError {
 
     private final ErrorValue errorValue;
@@ -46,6 +48,6 @@ public class UserDefinedError extends EvalError {
         if (errorValue.getValue() instanceof StringValueExpr) {
             return ((StringValueExpr) errorValue.getValue()).getValue();
         }
-        return errorValue.getValue().getStringValue();
+        return errorValue.getValue().getStringValue(new HashSet<>());
     }
 }

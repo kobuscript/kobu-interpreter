@@ -33,6 +33,7 @@ import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.value.NumberTypeSymbol;
 
 import java.util.Objects;
+import java.util.Set;
 
 public abstract class NumberValueExpr implements ValueExpr, HasMethods {
 
@@ -162,13 +163,13 @@ public abstract class NumberValueExpr implements ValueExpr, HasMethods {
     public abstract NumberValueExpr div(DoubleValueExpr other);
 
     @Override
-    public String getStringValue() {
+    public String getStringValue(Set<Integer> idSet) {
         return value.toString();
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
-        out.append(getStringValue());
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
+        out.append(getStringValue(idSet));
     }
 
     @Override

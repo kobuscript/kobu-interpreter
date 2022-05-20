@@ -39,6 +39,7 @@ import dev.kobu.interpreter.error.eval.NullPointerError;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -103,7 +104,7 @@ public class ArrayItemIndexExpr implements ArrayIndexExpr {
             throw new NullPointerError(sourceCodeRef, expr.getSourceCodeRef());
         }
         if (!(indexValue instanceof NumberValueExpr)) {
-            throw new InternalInterpreterError("Expected: Number. Found: " + indexValue.getStringValue(),
+            throw new InternalInterpreterError("Expected: Number. Found: " + indexValue.getStringValue(new HashSet<>()),
                     arrayExpr.getSourceCodeRef());
         }
         return (NumberValueExpr) indexValue;

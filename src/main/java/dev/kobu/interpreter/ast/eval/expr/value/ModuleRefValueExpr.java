@@ -31,6 +31,8 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.*;
 
+import java.util.Set;
+
 public class ModuleRefValueExpr implements ValueExpr, HasFields {
 
     private final ModuleRefSymbol moduleRefSymbol;
@@ -63,13 +65,13 @@ public class ModuleRefValueExpr implements ValueExpr, HasFields {
     }
 
     @Override
-    public String getStringValue() {
+    public String getStringValue(Set<Integer> idSet) {
         return moduleRefSymbol.getName();
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
-        out.append(getStringValue());
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
+        out.append(getStringValue(idSet));
     }
 
     @Override

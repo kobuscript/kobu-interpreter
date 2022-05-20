@@ -39,6 +39,7 @@ import dev.kobu.interpreter.error.eval.UserDefinedError;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class AnonymousFunctionValueExpr implements ValueExpr, UserDefinedFunction {
 
@@ -119,13 +120,13 @@ public class AnonymousFunctionValueExpr implements ValueExpr, UserDefinedFunctio
     }
 
     @Override
-    public String getStringValue() {
+    public String getStringValue(Set<Integer> idSet) {
         return definition.getType().getName();
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
-        out.append(getStringValue());
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
+        out.append(getStringValue(idSet));
     }
 
     @Override

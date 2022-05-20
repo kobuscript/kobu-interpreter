@@ -267,7 +267,7 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             }
 
             throw new InternalInterpreterError(
-                    "Invalid value for this operation: " + valueScope.getStringValue(), sourceCodeRef);
+                    "Invalid value for this operation: " + valueScope.getStringValue(new HashSet<>()), sourceCodeRef);
 
         }
     }

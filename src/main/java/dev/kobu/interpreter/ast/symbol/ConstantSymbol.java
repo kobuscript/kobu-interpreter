@@ -31,6 +31,8 @@ import dev.kobu.interpreter.error.analyzer.ConstNotInitializedError;
 import dev.kobu.interpreter.error.analyzer.InvalidAssignExprTypeError;
 import dev.kobu.interpreter.error.analyzer.InvalidVariableDeclError;
 
+import java.util.HashSet;
+
 public class ConstantSymbol extends Symbol implements HasExpr {
 
     private Type type;
@@ -75,7 +77,7 @@ public class ConstantSymbol extends Symbol implements HasExpr {
         if (documentation == null) {
             String description = "var " + getName() + ": " + getType().getName();
             if (valueExpr != null) {
-                description += " = " + valueExpr.getStringValue();
+                description += " = " + valueExpr.getStringValue(new HashSet<>());
             }
             documentation = new SymbolDocumentation(getModuleScope().getModuleId(),
                     SymbolTypeEnum.VARIABLE, description);

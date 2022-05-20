@@ -47,6 +47,8 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods, Fact {
 
     private final int id;
 
+    private final boolean printId;
+
     private int version;
 
     private int creatorId;
@@ -57,10 +59,15 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods, Fact {
 
     private RuleSymbol originRule;
 
-    public RecordValueExpr(Type type, Map<String, ValueExpr> fieldValues, int id) {
+    public RecordValueExpr(Type type, Map<String, ValueExpr> fieldValues, int id, boolean printId) {
         this.type = type;
         this.fieldValues = new LinkedHashMap<>(fieldValues);
         this.id = id;
+        this.printId = printId;
+    }
+
+    public RecordValueExpr(Type type, Map<String, ValueExpr> fieldValues, int id) {
+        this(type, fieldValues, id, true);
     }
 
     @Override
@@ -103,28 +110,58 @@ public class RecordValueExpr implements ValueExpr, HasFields, HasMethods, Fact {
     }
 
     @Override
-    public String getStringValue() {
-        return ((RecordTypeSymbol) type).getNameInModule() + "{" +
-                fieldValues.entrySet().stream()
-                        .map(e -> e.getKey() + ": " + e.getValue().getStringValue())
-                        .collect(Collectors.joining(", ")) +
-                "}";
+    public String getStringValue(Set<Integer> idSet) {
+        String strValue = ((RecordTypeSymbol) type).getNameInModule();
+        if (idSet.add(this.id)) {
+            if (fieldValues.isEmpty()) {
+                if (!printId) {
+                    return strValue + "{}";
+                }
+                return strValue + "{@id: " + this.id + "}";
+            }
+            if (!printId) {
+                return strValue + "{" +
+                        fieldValues.entrySet().stream()
+                                .map(e -> e.getKey() + ": " + e.getValue().getStringValue(idSet))
+                                .collect(Collectors.joining(", ")) +
+                        "}";
+            }
+            return strValue + "{@id: " +
+                    this.id + ",  " +
+                    fieldValues.entrySet().stream()
+                            .map(e -> e.getKey() + ": " + e.getValue().getStringValue(idSet))
+                            .collect(Collectors.joining(", ")) +
+                    "}";
+        }
+        return strValue + "{@id: " + this.id + "}";
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
         out.append(((RecordTypeSymbol) type).getNameInModule());
         out.append("{\n");
-        int count = 0;
-        for (Map.Entry<String, ValueExpr> entry : fieldValues.entrySet()) {
-            if (count > 0) {
-                out.append(",\n");
+        if (idSet.add(this.id)) {
+            int count = 0;
+            if (printId) {
+                out.append(" ".repeat((level + 1) * PRETTY_PRINT_TAB_SIZE));
+                out.append("@id: ");
+                out.append(this.id);
+                count = 1;
             }
+            for (Map.Entry<String, ValueExpr> entry : fieldValues.entrySet()) {
+                if (count > 0) {
+                    out.append(",\n");
+                }
+                out.append(" ".repeat((level + 1) * PRETTY_PRINT_TAB_SIZE));
+                out.append(entry.getKey());
+                out.append(": ");
+                entry.getValue().prettyPrint(idSet, out, level + 1);
+                count++;
+            }
+        } else if (printId) {
             out.append(" ".repeat((level + 1) * PRETTY_PRINT_TAB_SIZE));
-            out.append(entry.getKey());
-            out.append(": ");
-            entry.getValue().prettyPrint(out, level + 1);
-            count++;
+            out.append("@id: ");
+            out.append(this.id);
         }
         out.append('\n');
         out.append(" ".repeat(level * PRETTY_PRINT_TAB_SIZE));

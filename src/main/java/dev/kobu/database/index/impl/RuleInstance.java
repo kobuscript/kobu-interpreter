@@ -34,6 +34,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
 import dev.kobu.interpreter.ast.symbol.RuleSymbol;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 
+import java.util.HashSet;
 import java.util.List;
 
 public class RuleInstance implements RuleContext {
@@ -73,7 +74,7 @@ public class RuleInstance implements RuleContext {
         if (whenExpr != null) {
             ValueExpr valueExpr = whenExpr.evalExpr(context);
             if (!(valueExpr instanceof BooleanValueExpr)) {
-                throw new InternalInterpreterError("Expected: Boolean. Found: " + valueExpr.getStringValue(),
+                throw new InternalInterpreterError("Expected: Boolean. Found: " + valueExpr.getStringValue(new HashSet<>()),
                         valueExpr.getSourceCodeRef());
             }
             return ((BooleanValueExpr) valueExpr).getValue();

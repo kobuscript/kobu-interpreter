@@ -903,10 +903,14 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
             typeRec = (RecordValueExpr) visit(ctx.primitiveType());
         }
 
-        if (ctx.LBRACK() != null && ctx.RBRACK() != null) {
-            var arrRec = RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_ARRAY_TYPE));
-            arrRec.updateFieldValue(context, "elementType", typeRec);
-            typeRec = arrRec;
+        if (ctx.LBRACK() != null && !ctx.LBRACK().isEmpty() && ctx.RBRACK() != null && ctx.RBRACK().isEmpty()) {
+            var resultRec = typeRec;
+            for (int i = 0; i < ctx.LBRACK().size(); i++) {
+                var arrRec = RecordFactory.create(context, (RecordTypeSymbol) moduleScope.resolve(JAVA_ARRAY_TYPE));
+                arrRec.updateFieldValue(context, "elementType", resultRec);
+                resultRec = arrRec;
+            }
+            typeRec = resultRec;
         }
 
         return typeRec;

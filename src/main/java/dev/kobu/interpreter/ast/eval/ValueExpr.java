@@ -27,15 +27,17 @@ package dev.kobu.interpreter.ast.eval;
 import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.Type;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public interface ValueExpr extends Expr {
 
     int PRETTY_PRINT_TAB_SIZE = 4;
 
-    String getStringValue();
+    String getStringValue(Set<Integer> idSet);
 
-    void prettyPrint(StringBuilder out, int level);
+    void prettyPrint(Set<Integer> idSet, StringBuilder out, int level);
 
     SnapshotValue getSnapshotValue();
 

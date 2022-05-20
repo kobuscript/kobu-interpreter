@@ -227,6 +227,9 @@ public abstract class JavaCommandProducer  extends JavaParserBaseVisitor<Void> i
             }
 
             return str.toString();
+        } else if (RecordUtils.recordOfType(moduleScope, javaTypeRec, JavaParserVisitor.JAVA_ARRAY_TYPE)) {
+            RecordValueExpr elementTypeRec = (RecordValueExpr) RecordUtils.getRequiredField(javaTypeRec, "elementType", sourceCodeRef);
+            return javaTypeToString(elementTypeRec, sourceCodeRef) + "[]";
         }
 
         throw new IllegalArgumentError("Invalid java type: " + javaTypeRec.getType().getName(), sourceCodeRef);

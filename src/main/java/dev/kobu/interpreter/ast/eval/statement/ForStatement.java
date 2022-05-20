@@ -38,6 +38,7 @@ import dev.kobu.interpreter.error.analyzer.InvalidTypeError;
 import dev.kobu.interpreter.error.eval.InternalInterpreterError;
 import dev.kobu.interpreter.error.eval.NullPointerError;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -121,7 +122,7 @@ public class ForStatement implements Statement {
                     }
                     if (!(valueExpr instanceof BooleanValueExpr)) {
                         throw new InternalInterpreterError("Expected: Boolean. Found: " +
-                                valueExpr.getStringValue(), getSourceCodeRef());
+                                valueExpr.getStringValue(new HashSet<>()), getSourceCodeRef());
                     }
                     cond = ((BooleanValueExpr) valueExpr).getValue();
                 }

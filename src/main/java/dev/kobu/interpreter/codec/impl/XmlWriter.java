@@ -50,6 +50,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.HashSet;
 import java.util.List;
 
 public class XmlWriter extends XmlCodec {
@@ -111,11 +112,11 @@ public class XmlWriter extends XmlCodec {
                 RecordAttributeKey attrKey = new RecordAttributeKey((RecordTypeSymbol) recordValueExpr.getType(), field);
                 TagAttribute tagAttribute = tagAttributeMap.get(attrKey);
                 if (tagAttribute != null) {
-                    String valueStr = fieldValueExpr.getStringValue();
+                    String valueStr = fieldValueExpr.getStringValue(new HashSet<>());
                     addAttribute(element, field, valueStr);
                 } else {
                     if (starTagAttribute != null && !((RecordTypeSymbol) recordValueExpr.getType()).hasAttribute(field)) {
-                        String valueStr = fieldValueExpr.getStringValue();
+                        String valueStr = fieldValueExpr.getStringValue(new HashSet<>());
                         addAttribute(element, field, valueStr);
                     } else if (fieldValueExpr instanceof ArrayValueExpr) {
                         List<ValueExpr> valueExprList = ((ArrayValueExpr) fieldValueExpr).getValue();
@@ -135,7 +136,7 @@ public class XmlWriter extends XmlCodec {
 
             return element;
         } else {
-            return doc.createTextNode(valueExpr.getStringValue());
+            return doc.createTextNode(valueExpr.getStringValue(new HashSet<>()));
         }
     }
 

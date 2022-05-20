@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.HashSet;
 import java.util.List;
 
 public class JsonWriter {
@@ -117,7 +118,7 @@ public class JsonWriter {
     }
 
     private void appendJsonScalarValue(OutputStreamWriter writer, ValueExpr valueExpr) throws IOException {
-        writer.write(valueExpr.getStringValue());
+        writer.write(valueExpr.getStringValue(new HashSet<>()));
     }
 
     private void appendJson(OutputStreamWriter writer, int level, ValueExpr valueExpr) throws IOException {

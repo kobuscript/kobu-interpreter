@@ -35,6 +35,7 @@ import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Set;
 
 public class PathValueExpr implements ValueExpr, HasMethods {
 
@@ -83,13 +84,13 @@ public class PathValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public String getStringValue() {
+    public String getStringValue(Set<Integer> idSet) {
         return path.toString();
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
-        out.append(getStringValue());
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
+        out.append(getStringValue(idSet));
     }
 
     @Override

@@ -49,10 +49,19 @@ public class RecordConstructorCallExpr implements Expr {
 
     private final Type recordType;
 
-    public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, ModuleScope moduleScope, Type recordType) {
+    private final boolean printId;
+
+    public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, ModuleScope moduleScope,
+                                     Type recordType, boolean printId) {
         this.sourceCodeRef = sourceCodeRef;
         this.moduleScope = moduleScope;
         this.recordType = recordType;
+        this.printId = printId;
+    }
+
+    public RecordConstructorCallExpr(SourceCodeRef sourceCodeRef, ModuleScope moduleScope,
+                                     Type recordType) {
+        this(sourceCodeRef, moduleScope, recordType, true);
     }
 
     public void addField(RecordFieldExpr recordField) {
@@ -118,7 +127,7 @@ public class RecordConstructorCallExpr implements Expr {
             fieldValues.put(fieldExpr.getFieldName(), fieldValueExpr);
         }
 
-        return new RecordValueExpr(recordType, fieldValues, id);
+        return new RecordValueExpr(recordType, fieldValues, id, printId);
     }
 
 }

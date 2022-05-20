@@ -33,6 +33,7 @@ import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.ast.utils.TemplateIndentation;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
+import java.util.HashSet;
 import java.util.Map;
 
 public class TemplateContentStatement extends TemplateStatement {
@@ -80,7 +81,7 @@ public class TemplateContentStatement extends TemplateStatement {
         if (value instanceof StringValueExpr) {
             content = TemplateIndentation.indent(((StringValueExpr) value).getValue(), insertionIndex, false);
         } else if (!(value instanceof NullValueExpr)) {
-            content = TemplateIndentation.indent(value.getStringValue(), insertionIndex, false);
+            content = TemplateIndentation.indent(value.getStringValue(new HashSet<>()), insertionIndex, false);
         }
 
         result.append(content);

@@ -33,10 +33,7 @@ import dev.kobu.interpreter.ast.query.Matcher;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InternalAccIndexValueExpr implements ValueExpr {
 
@@ -110,12 +107,12 @@ public class InternalAccIndexValueExpr implements ValueExpr {
     }
 
     @Override
-    public String getStringValue() {
+    public String getStringValue(Set<Integer> idSet) {
         return null;
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
 
     }
 

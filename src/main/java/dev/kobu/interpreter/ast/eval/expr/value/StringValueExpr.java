@@ -34,6 +34,7 @@ import dev.kobu.interpreter.ast.symbol.value.StringTypeSymbol;
 import dev.kobu.interpreter.ast.utils.StringFunctions;
 
 import java.util.Objects;
+import java.util.Set;
 
 public class StringValueExpr implements ValueExpr, HasMethods {
 
@@ -82,13 +83,13 @@ public class StringValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public String getStringValue() {
+    public String getStringValue(Set<Integer> idSet) {
         return '"' + StringFunctions.encodeString(value) + '"';
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
-        out.append(getStringValue());
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
+        out.append(getStringValue(idSet));
     }
 
     @Override

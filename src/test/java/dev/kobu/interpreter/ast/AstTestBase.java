@@ -102,10 +102,10 @@ public abstract class AstTestBase {
         assertEquals(type.getName(), varType.getName(), () -> "var '" + varName + "' has type '" + varType.getName()
                 + "'. Expected: '" + type.getName() + "'");
         var actualValue = evalContext.getCurrentScope().getValue(varName);
-        var actualValueStr = actualValue != null ? actualValue.getStringValue() : null;
+        var actualValueStr = actualValue != null ? actualValue.getStringValue(new HashSet<>()) : null;
         assertEquals(new ValueWrapper(value), new ValueWrapper(actualValue),
                 () -> "var '" + varName + "' has value " + actualValueStr
-                    + ". Expected: " + value.getStringValue());
+                    + ". Expected: " + value.getStringValue(new HashSet<>()));
     }
 
     EvalContext evalContext(ModuleScope module) {
@@ -446,11 +446,11 @@ public abstract class AstTestBase {
     }
 
     RecordConstructorCallExpr recordConstructor(ModuleScope moduleScope, Type recordType) {
-        return new RecordConstructorCallExpr(sourceCodeRef("new-record_" + recordType), moduleScope, recordType);
+        return new RecordConstructorCallExpr(sourceCodeRef("new-record_" + recordType), moduleScope, recordType, false);
     }
 
     RecordConstructorCallExpr recordConstructor(ModuleScope moduleScope, Type recordType, RecordFieldExpr... fields) {
-        var recordConstructor = new RecordConstructorCallExpr(sourceCodeRef("new-record_" + recordType), moduleScope, recordType);
+        var recordConstructor = new RecordConstructorCallExpr(sourceCodeRef("new-record_" + recordType), moduleScope, recordType, false);
         for (RecordFieldExpr field : fields) {
             recordConstructor.addField(field);
         }
@@ -666,7 +666,7 @@ public abstract class AstTestBase {
                 if (value instanceof RecordValueExpr && other instanceof RecordValueExpr) {
                     RecordValueExpr r1 = (RecordValueExpr) value;
                     RecordValueExpr r2 = (RecordValueExpr) other;
-                    return r1.getType().equals(r2.getType()) && r1.getStringValue().equals(r2.getStringValue());
+                    return r1.getType().equals(r2.getType()) && r1.getStringValue(new HashSet<>()).equals(r2.getStringValue(new HashSet<>()));
                 }
                 if (value instanceof ArrayValueExpr && other instanceof ArrayValueExpr) {
                     ArrayValueExpr thisValue = (ArrayValueExpr) this.value;

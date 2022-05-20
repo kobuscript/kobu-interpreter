@@ -31,6 +31,8 @@ import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 
+import java.util.Set;
+
 public class ProxyValueExpr implements ValueExpr {
 
     private final SourceCodeRef sourceCodeRef;
@@ -64,16 +66,16 @@ public class ProxyValueExpr implements ValueExpr {
     }
 
     @Override
-    public String getStringValue() {
+    public String getStringValue(Set<Integer> idSet) {
         if (value != null) {
-            return value.getStringValue();
+            return value.getStringValue(idSet);
         }
-        return (new NullValueExpr()).getStringValue();
+        return (new NullValueExpr()).getStringValue(idSet);
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
-        out.append(getStringValue());
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
+        out.append(getStringValue(idSet));
     }
 
     @Override

@@ -41,6 +41,7 @@ import dev.kobu.interpreter.ast.eval.HasTypeScope;
 import dev.kobu.interpreter.ast.eval.MemoryReference;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 
+import java.util.HashSet;
 import java.util.Map;
 
 public class ArrayAccessExpr implements Expr, HasTypeScope, MemoryReference {
@@ -107,7 +108,7 @@ public class ArrayAccessExpr implements Expr, HasTypeScope, MemoryReference {
             throw new NullPointerError(sourceCodeRef, arrayExpr.getSourceCodeRef());
         }
         if (!(arrayValue instanceof ArrayValueExpr)) {
-            throw new InternalInterpreterError("Expected: Array. Found: " + arrayValue.getStringValue(),
+            throw new InternalInterpreterError("Expected: Array. Found: " + arrayValue.getStringValue(new HashSet<>()),
                     arrayExpr.getSourceCodeRef());
         }
         return (ArrayValueExpr) arrayValue;

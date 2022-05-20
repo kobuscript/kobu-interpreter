@@ -37,6 +37,7 @@ import dev.kobu.interpreter.ast.eval.ValueExpr;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class TupleValueExpr implements ValueExpr, HasMethods {
@@ -80,15 +81,15 @@ public class TupleValueExpr implements ValueExpr, HasMethods {
     }
 
     @Override
-    public String getStringValue() {
-        return "(" + valueExprList.stream().map(ValueExpr::getStringValue).collect(Collectors.joining(", ")) + ")";
+    public String getStringValue(Set<Integer> idSet) {
+        return "(" + valueExprList.stream().map(v -> v.getStringValue(idSet)).collect(Collectors.joining(", ")) + ")";
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
         if (valueExprList.stream().allMatch(v -> v.getType() == null || v.getType() instanceof ValType)) {
             out.append('(');
-            out.append(valueExprList.stream().map(ValueExpr::getStringValue).collect(Collectors.joining(", ")));
+            out.append(valueExprList.stream().map(v -> v.getStringValue(idSet)).collect(Collectors.joining(", ")));
             out.append(')');
         } else {
             out.append("(\n");
@@ -98,7 +99,7 @@ public class TupleValueExpr implements ValueExpr, HasMethods {
                     out.append(",\n");
                 }
                 out.append(" ".repeat(level * PRETTY_PRINT_TAB_SIZE));
-                valueExpr.prettyPrint(out, level + 1);
+                valueExpr.prettyPrint(idSet, out, level + 1);
                 count++;
             }
             out.append('\n');

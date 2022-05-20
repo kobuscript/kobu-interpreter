@@ -36,6 +36,7 @@ import dev.kobu.interpreter.error.eval.NullPointerError;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.value.BooleanTypeSymbol;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -101,7 +102,7 @@ public class WhileStatement implements Statement {
                 throw new NullPointerError(sourceCodeRef, condExpr.getSourceCodeRef());
             }
             if (!(condValue instanceof BooleanValueExpr)) {
-                throw new InternalInterpreterError("Expected: Boolean. Found: " + condValue.getStringValue(),
+                throw new InternalInterpreterError("Expected: Boolean. Found: " + condValue.getStringValue(new HashSet<>()),
                         condExpr.getSourceCodeRef());
             }
 

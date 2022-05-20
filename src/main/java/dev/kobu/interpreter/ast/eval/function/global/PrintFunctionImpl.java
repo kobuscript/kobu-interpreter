@@ -31,6 +31,7 @@ import dev.kobu.interpreter.ast.eval.expr.value.StringValueExpr;
 import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
+import java.util.HashSet;
 import java.util.Map;
 
 public class PrintFunctionImpl extends BuiltinGlobalFunction {
@@ -43,7 +44,7 @@ public class PrintFunctionImpl extends BuiltinGlobalFunction {
         } else if (valueExpr instanceof StringBuilderValueExpr) {
             context.getOutputWriter().getStdOut().println(((StringBuilderValueExpr) valueExpr).getValue());
         } else if (valueExpr != null) {
-            context.getOutputWriter().getStdOut().println(valueExpr.getStringValue());
+            context.getOutputWriter().getStdOut().println(valueExpr.getStringValue(new HashSet<>()));
         } else {
             context.getOutputWriter().getStdOut().println("null");
         }

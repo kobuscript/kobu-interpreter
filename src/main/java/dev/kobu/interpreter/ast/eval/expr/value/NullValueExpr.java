@@ -30,6 +30,8 @@ import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.ast.symbol.Type;
 
+import java.util.Set;
+
 public class NullValueExpr implements ValueExpr {
 
     private SourceCodeRef sourceCodeRef;
@@ -63,13 +65,13 @@ public class NullValueExpr implements ValueExpr {
     }
 
     @Override
-    public String getStringValue() {
+    public String getStringValue(Set<Integer> idSet) {
         return "null";
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
-        out.append(getStringValue());
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
+        out.append(getStringValue(idSet));
     }
 
     @Override

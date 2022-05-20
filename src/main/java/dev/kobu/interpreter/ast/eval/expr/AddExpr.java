@@ -38,6 +38,7 @@ import dev.kobu.interpreter.error.eval.NullPointerError;
 import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 
+import java.util.HashSet;
 import java.util.Map;
 
 public class AddExpr implements Expr {
@@ -133,7 +134,7 @@ public class AddExpr implements Expr {
         if (valueExpr instanceof StringValueExpr) {
             return ((StringValueExpr)valueExpr).getValue();
         }
-        return valueExpr.getStringValue();
+        return valueExpr.getStringValue(new HashSet<>());
     }
 
 }

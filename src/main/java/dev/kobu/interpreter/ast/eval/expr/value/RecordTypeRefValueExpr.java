@@ -30,6 +30,7 @@ import dev.kobu.interpreter.ast.eval.context.SnapshotValue;
 import dev.kobu.interpreter.ast.symbol.*;
 
 import java.util.Objects;
+import java.util.Set;
 
 public class RecordTypeRefValueExpr implements ValueExpr {
 
@@ -69,13 +70,13 @@ public class RecordTypeRefValueExpr implements ValueExpr {
     }
 
     @Override
-    public String getStringValue() {
+    public String getStringValue(Set<Integer> idSet) {
         return value.getName();
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
-        out.append(getStringValue());
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
+        out.append(getStringValue(idSet));
     }
 
     @Override

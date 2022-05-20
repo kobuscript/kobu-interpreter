@@ -32,6 +32,7 @@ import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.template.TemplateExecutor;
 
 import java.util.Objects;
+import java.util.Set;
 
 public class TemplateValueExpr implements ValueExpr, Fact {
 
@@ -109,13 +110,13 @@ public class TemplateValueExpr implements ValueExpr, Fact {
     }
 
     @Override
-    public String getStringValue() {
+    public String getStringValue(Set<Integer> idSet) {
         return getValue();
     }
 
     @Override
-    public void prettyPrint(StringBuilder out, int level) {
-        out.append(getStringValue());
+    public void prettyPrint(Set<Integer> idSet, StringBuilder out, int level) {
+        out.append(getStringValue(idSet));
     }
 
     @Override

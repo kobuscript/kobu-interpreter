@@ -36,6 +36,7 @@ import dev.kobu.interpreter.ast.eval.Expr;
 import dev.kobu.interpreter.ast.eval.Statement;
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -91,7 +92,7 @@ public class ElseIfStatement implements Statement {
         } else if (condValueExpr instanceof BooleanValueExpr) {
             condValue = ((BooleanValueExpr) condValueExpr).getValue();
         } else {
-            throw new InternalInterpreterError("Expected: boolean. Found: " + condValueExpr.getStringValue(),
+            throw new InternalInterpreterError("Expected: boolean. Found: " + condValueExpr.getStringValue(new HashSet<>()),
                     condExpr.getSourceCodeRef());
         }
 

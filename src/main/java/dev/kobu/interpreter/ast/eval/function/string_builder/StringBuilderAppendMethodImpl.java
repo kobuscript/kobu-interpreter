@@ -32,6 +32,7 @@ import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
+import java.util.HashSet;
 import java.util.Map;
 
 public class StringBuilderAppendMethodImpl extends BuiltinMethod {
@@ -52,7 +53,7 @@ public class StringBuilderAppendMethodImpl extends BuiltinMethod {
         } else if (strExpr instanceof StringBuilderValueExpr) {
             content = ((StringBuilderValueExpr)strExpr).getValue().toString();
         } else {
-            content = strExpr.getStringValue();
+            content = strExpr.getStringValue(new HashSet<>());
         }
         stringBuilder.append(content);
         return null;

@@ -29,6 +29,7 @@ import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.function.BuiltinGlobalFunction;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
+import java.util.HashSet;
 import java.util.Map;
 
 public class PrettyPrintFunctionImpl extends BuiltinGlobalFunction {
@@ -38,7 +39,7 @@ public class PrettyPrintFunctionImpl extends BuiltinGlobalFunction {
         ValueExpr valueExpr = args.get("obj");
 
         StringBuilder out = new StringBuilder();
-        valueExpr.prettyPrint(out, 0);
+        valueExpr.prettyPrint(new HashSet<>(), out, 0);
         context.getOutputWriter().getStdOut().println(out);
 
         return null;
