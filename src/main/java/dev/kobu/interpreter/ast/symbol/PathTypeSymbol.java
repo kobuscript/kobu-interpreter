@@ -65,6 +65,8 @@ public class PathTypeSymbol extends BuiltinTypeSymbol implements HasConstructor 
         addMethod(new BuiltinFunctionSymbol(this, "normalize", new PathNormalizeMethodImpl(), this));
         addMethod(new BuiltinFunctionSymbol(this, "resolve", new PathResolveMethodImpl(), this,
                 new FunctionParameter("other", this, false)));
+        addMethod(new BuiltinFunctionSymbol(this, "relativize", new PathRelativizeMethodImpl(), this,
+                new FunctionParameter("other", this, false)));
         addMethod(new BuiltinFunctionSymbol(this, "toAbsolutePath", new PathToAbsolutePathMethodImpl(), this));
         addMethod(new BuiltinFunctionSymbol(this, "toString", new PathToStringMethodImpl(), BuiltinScope.STRING_TYPE));
     }
