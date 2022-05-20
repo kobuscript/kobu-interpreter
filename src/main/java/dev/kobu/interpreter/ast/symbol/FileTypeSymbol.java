@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.eval.HasConstructor;
 import dev.kobu.interpreter.ast.eval.function.file.*;
+import dev.kobu.interpreter.ast.symbol.array.ArrayTypeFactory;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 
 public class FileTypeSymbol extends BuiltinTypeSymbol implements HasConstructor {
@@ -76,6 +77,8 @@ public class FileTypeSymbol extends BuiltinTypeSymbol implements HasConstructor 
                 BuiltinScope.BOOLEAN_TYPE));
         addMethod(new BuiltinFunctionSymbol("isFile", new FileIsFileMethodImpl(),
                 BuiltinScope.BOOLEAN_TYPE));
+        addMethod(new BuiltinFunctionSymbol("list", new FileListMethodImpl(),
+                ArrayTypeFactory.getArrayTypeFor(this)));
         addMethod(new BuiltinFunctionSymbol("read", new FileReadMethodImpl(),
                 BuiltinScope.STRING_TYPE,
                 new FunctionParameter("charset", BuiltinScope.STRING_TYPE, true)));
