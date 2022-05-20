@@ -89,3 +89,28 @@ fun parseJavaFile(javaFilePath: string): InputJavaFile {
     }
     return null
 }
+
+/**
+ * Returns the root directory of a Java file.
+ *
+ * The root directory is the directory that contains the file's package.
+ */
+fun getJavaRootDir(javaFile: InputJavaFile): Path {
+    var parts = javaFile.package.split("\\.")
+    var filePath = javaFile.file.getPath()
+    var rootDir = filePath
+    for (var i = 0; i < parts.length(); i++) {
+        rootDir = rootDir.getParent()
+    }
+    return rootDir
+}
+
+/**
+ * Returns the path of a java file, denoted bu it's package and name.
+ *
+ */
+fun getJavaFilePath(rootDir: Path, package: string, name: string): Path {
+    var parts = package.split("\\.")
+    parts.add(name + ".java")
+    return rootDir.resolve(Path(parts))
+}
