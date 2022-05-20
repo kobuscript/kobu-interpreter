@@ -1212,6 +1212,11 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             topLevelExpression = false;
         }
 
+        if (ctx.expr() == null) {
+            context.getErrorScope().addError(new MissingExpressionError(getSourceCodeRef(ctx)));
+            return null;
+        }
+
         var exprNode = visit(ctx.expr());
 
         topLevelExpression = exprStatus;
