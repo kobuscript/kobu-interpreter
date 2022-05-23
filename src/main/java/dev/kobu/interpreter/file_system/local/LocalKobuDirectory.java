@@ -49,4 +49,9 @@ public class LocalKobuDirectory implements KobuDirectory {
     public File getDir() {
         return dir;
     }
+
+    @Override
+    public String toString() {
+        return dir.toString();
+    }
 }

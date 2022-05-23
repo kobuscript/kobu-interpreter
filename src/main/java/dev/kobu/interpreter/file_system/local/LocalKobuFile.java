@@ -58,4 +58,9 @@ public class LocalKobuFile implements KobuFile {
         return new FileInputStream(file);
     }
 
+    @Override
+    public String toString() {
+        return file.toString();
+    }
+
 }

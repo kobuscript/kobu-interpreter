@@ -54,7 +54,7 @@ public class KobuScriptRunner {
 
             LocalKobuFileSystem fileSystem = new LocalKobuFileSystem();
             AnalyzerContext analyzerContext = new AnalyzerContext();
-            LocalKobuFile localFile = new LocalKobuFile(this.scriptFile);
+            LocalKobuFile localFile = new LocalKobuFile(this.scriptFile.getAbsoluteFile());
 
             Project project = this.project;
 
