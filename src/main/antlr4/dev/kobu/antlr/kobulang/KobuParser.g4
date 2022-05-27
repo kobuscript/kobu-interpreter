@@ -267,6 +267,8 @@ typeName : ID ( DOT ID )? typeArgs?
            | ANY {notifyErrorListenersPrevToken("'any' not allowed here. Did you mean 'Any'?");}
            ;
 
-stringLiteral : OPEN_QUOTE STRING_CONTENT? CLOSE_QUOTE
-                | OPEN_QUOTE STRING_CONTENT? STRING_BREAK {notifyErrorListenersPrevToken("illegal line end in string literal");}
+stringLiteral : OPEN_QUOTE stringLiteralContent CLOSE_QUOTE
+                | OPEN_QUOTE stringLiteralContent STRING_BREAK {notifyErrorListenersPrevToken("illegal line end in string literal");}
                 ;
+
+stringLiteralContent : ( STRING_CONTENT | STRING_BAD_ESC )* ;

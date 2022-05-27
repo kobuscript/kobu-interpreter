@@ -51,6 +51,7 @@ import dev.kobu.interpreter.ast.utils.StringFunctions;
 import dev.kobu.interpreter.ast.utils.SymbolDescriptorUtils;
 import dev.kobu.interpreter.error.analyzer.*;
 import dev.kobu.interpreter.module.ModuleLoader;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -1367,6 +1368,16 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
     public AstNode visitStringExpr(KobuParser.StringExprContext ctx) {
         if (topLevelExpression) {
             context.getErrorScope().addError(new InvalidStatementError(getSourceCodeRef(ctx)));
+        }
+
+        if (ctx.stringLiteral().stringLiteralContent() != null) {
+            var badEscapeList = ctx.stringLiteral().stringLiteralContent().STRING_BAD_ESC();
+            if (badEscapeList != null && !badEscapeList.isEmpty()) {
+                for (TerminalNode badEscape : badEscapeList) {
+                    context.getErrorScope().addError(new IllegalEscapeCharacterError(getSourceCodeRef(badEscape)));
+                }
+                return new StringValueExpr("");
+            }
         }
 
         String source = ctx.stringLiteral().getText();
