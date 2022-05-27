@@ -73,10 +73,14 @@ public class FileTypeSymbol extends BuiltinTypeSymbol implements HasConstructor 
                 BuiltinScope.BOOLEAN_TYPE));
         addMethod(new BuiltinFunctionSymbol("getPath", new FileGetPathMethodImpl(),
                 BuiltinScope.PATH_TYPE));
+        addMethod(new BuiltinFunctionSymbol("getParent", new FileGetParentMethodImpl(),
+                this));
         addMethod(new BuiltinFunctionSymbol("isDirectory", new FileIsDirectoryMethodImpl(),
                 BuiltinScope.BOOLEAN_TYPE));
         addMethod(new BuiltinFunctionSymbol("isFile", new FileIsFileMethodImpl(),
                 BuiltinScope.BOOLEAN_TYPE));
+        addMethod(new BuiltinFunctionSymbol("length", new FileLengthMethodImpl(),
+                BuiltinScope.NUMBER_TYPE));
         addMethod(new BuiltinFunctionSymbol("list", new FileListMethodImpl(),
                 ArrayTypeFactory.getArrayTypeFor(this)));
         addMethod(new BuiltinFunctionSymbol("read", new FileReadMethodImpl(),

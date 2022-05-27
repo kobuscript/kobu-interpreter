@@ -47,7 +47,7 @@ public class FormatCliCommand implements Callable<Integer> {
     int tabSize;
 
     @Override
-    public Integer call() throws Exception {
+    public Integer call() {
 
         try {
 
@@ -71,7 +71,7 @@ public class FormatCliCommand implements Callable<Integer> {
             System.err.println(ex.getMessage());
             return 1;
         } catch (ProjectError ex) {
-            System.err.println(ErrorMessageFormatter.getMessage(ex));
+            System.err.println(ErrorMessageFormatter.getMessage(ex, null));
             return 1;
         }
 

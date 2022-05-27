@@ -25,15 +25,11 @@ SOFTWARE.
 package dev.kobu.integration;
 
 import dev.kobu.KobuScriptRunner;
-import dev.kobu.integration.file_system.IntegrationTestFile;
-import dev.kobu.integration.file_system.IntegrationTestFileSystem;
+import dev.kobu.interpreter.file_system.local.LocalKobuFile;
+import dev.kobu.interpreter.file_system.local.LocalKobuFileSystem;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,8 +40,8 @@ public abstract class IntegrationTestBase {
         try (InputStream expectedResultIn = getInputStream(expectedResultPath)) {
             var expectedResult = new String(expectedResultIn.readAllBytes(), StandardCharsets.UTF_8);
 
-            var fileSystem = new IntegrationTestFileSystem();
-            var scriptFile = new IntegrationTestFile(Path.of("/", getFullPath(scriptPath)).toString());
+            var fileSystem = new LocalKobuFileSystem();
+            var scriptFile = new LocalKobuFile(new File(getFullPath(scriptPath)));
 
             var runner = new KobuScriptRunner(fileSystem, scriptFile, Arrays.asList(args));
             var out = new ByteArrayOutputStream();
@@ -57,11 +53,12 @@ public abstract class IntegrationTestBase {
         }
     }
 
-    private InputStream getInputStream(String path) {
-        return getClass().getClassLoader().getResourceAsStream(getFullPath(path));
+    private InputStream getInputStream(String path) throws IOException {
+        return new FileInputStream(getFullPath(path));
     }
 
     private String getFullPath(String path) {
-        return Path.of("dev/kobu/integration").resolve(path).toString();
+        File dir = new File("src/test/resources/dev/kobu/integration");
+        return new File(dir, path).getAbsolutePath();
     }
 }

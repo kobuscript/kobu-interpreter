@@ -130,24 +130,12 @@ public class LocalKobuFileSystem implements KobuFileSystem {
     }
 
     @Override
-    public String loadFileContent(Path filePath, Charset charset) throws IOException {
-        return Files.readString(filePath, charset);
-    }
-
-    @Override
     public void writeFileContent(Path filePath, String content, Charset charset) throws IOException {
         File file = filePath.toFile();
         File parentFile = file.getParentFile();
         parentFile.mkdirs();
         try (FileWriter fileWriter = new FileWriter(file, charset)) {
             fileWriter.write(content);
-        }
-    }
-
-    @Override
-    public void appendFileContent(Path filePath, String content, Charset charset) throws IOException {
-        try (FileWriter fileWriter = new FileWriter(filePath.toFile(), charset)) {
-            fileWriter.append(content);
         }
     }
 

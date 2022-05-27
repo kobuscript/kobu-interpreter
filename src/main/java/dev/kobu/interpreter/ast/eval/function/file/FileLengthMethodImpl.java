@@ -22,28 +22,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.integration.file_system;
+package dev.kobu.interpreter.ast.eval.function.file;
 
-import dev.kobu.interpreter.file_system.KobuDirectory;
+import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.FileValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.number.LongValueExpr;
+import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
-import java.nio.file.Path;
+import java.io.File;
+import java.util.Map;
 
-public class IntegrationTestDirectory implements KobuDirectory {
+public class FileLengthMethodImpl extends BuiltinMethod {
 
-    private final String absolutePath;
+    @Override
+    protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
+        FileValueExpr fileExpr = (FileValueExpr) object;
+        File file = fileExpr.getFile();
 
-    public IntegrationTestDirectory(String absolutePath) {
-        this.absolutePath = absolutePath;
+        return new LongValueExpr(file.length());
     }
 
     @Override
-    public String getAbsolutePath() {
-        return absolutePath;
-    }
-
-    @Override
-    public String getName() {
-        return Path.of(absolutePath).getFileName().toString();
+    public String getDocumentation() {
+        return "Returns the length of this file.";
     }
 
 }

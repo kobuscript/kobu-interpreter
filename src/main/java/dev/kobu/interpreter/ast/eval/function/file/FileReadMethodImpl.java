@@ -35,6 +35,7 @@ import dev.kobu.interpreter.error.eval.BuiltinFunctionError;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.Map;
 
 public class FileReadMethodImpl extends BuiltinMethod {
@@ -52,7 +53,7 @@ public class FileReadMethodImpl extends BuiltinMethod {
 
         String text;
         try {
-            text = context.getFileSystem().loadFileContent(file.toPath(), charset);
+            text = Files.readString(file.toPath(), charset);
         } catch (IOException e) {
             throw new BuiltinFunctionError(e, sourceCodeRef);
         }

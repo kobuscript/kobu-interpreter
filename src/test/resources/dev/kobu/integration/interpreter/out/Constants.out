@@ -1,9 +1,9 @@
-ERROR: /dev/kobu/integration/interpreter/src/Constants.kobu
+ERROR: src/Constants.kobu
  13:4 Cannot assign a value to constant 'MY_CONST'
   MY_CONST = "anotherValue"
   ^^^^^^^^
 
-ERROR: /dev/kobu/integration/interpreter/src/Constants.kobu
+ERROR: src/Constants.kobu
  14:4 Cannot assign a value to constant 'myLocalConst'
   myLocalConst = [3.4, 5.67]
   ^^^^^^^^^^^^

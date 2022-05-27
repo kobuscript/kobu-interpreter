@@ -35,6 +35,7 @@ import dev.kobu.interpreter.error.eval.BuiltinFunctionError;
 import dev.kobu.interpreter.error.eval.IllegalArgumentError;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -59,7 +60,9 @@ public class FileAppendStringMethodImpl extends BuiltinMethod {
         }
 
         try {
-            context.getFileSystem().appendFileContent(file.toPath(), text, charset);
+            try (FileWriter fileWriter = new FileWriter(file, charset)) {
+                fileWriter.append(text);
+            }
         } catch (IOException e) {
             throw new BuiltinFunctionError(e, sourceCodeRef);
         }

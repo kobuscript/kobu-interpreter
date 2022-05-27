@@ -24,14 +24,17 @@ SOFTWARE.
 
 package dev.kobu.interpreter.ast.utils;
 
+import dev.kobu.config.Project;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.error.EvalError;
 import dev.kobu.interpreter.error.ParserError;
+import dev.kobu.interpreter.file_system.ResourceRef;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
 
 public class ErrorMessageFormatter {
 
@@ -143,12 +146,12 @@ public class ErrorMessageFormatter {
         return source.toString();
     }
 
-    public static StringBuilder getMessage(AnalyzerError analyzerError) {
+    public static StringBuilder getMessage(AnalyzerError analyzerError, Project project) {
         StringBuilder message = new StringBuilder();
 
         if (analyzerError.getSourceCodeRefs().size() == 1) {
             SourceCodeRef sourceCodeRef = analyzerError.getSourceCodeRefs().get(0);
-            message.append("ERROR: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
+            message.append("ERROR: ").append(getPathOf(sourceCodeRef.getFile(), project)).append('\n');
             if (sourceCodeRef.hasPosition()) {
                 message.append(' ').append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
                 message.append(' ');
@@ -161,7 +164,7 @@ public class ErrorMessageFormatter {
             message.append("\n\n");
 
             for (SourceCodeRef sourceCodeRef : analyzerError.getSourceCodeRefs()) {
-                message.append("File: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
+                message.append("File: ").append(getPathOf(sourceCodeRef.getFile(), project)).append('\n');
                 if (sourceCodeRef.hasPosition()) {
                     message.append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
                     message.append('\n');
@@ -173,10 +176,10 @@ public class ErrorMessageFormatter {
         return message;
     }
 
-    public static StringBuilder getMessage(EvalError evalError) {
+    public static StringBuilder getMessage(EvalError evalError, Project project) {
         StringBuilder message = new StringBuilder();
         SourceCodeRef sourceCodeRef = evalError.getSourceCodeRef();
-        message.append("ERROR: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
+        message.append("ERROR: ").append(getPathOf(sourceCodeRef.getFile(), project)).append('\n');
         message.append(' ').append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
         message.append(' ');
         message.append(evalError.getDescription());
@@ -186,10 +189,10 @@ public class ErrorMessageFormatter {
         return message;
     }
 
-    public static StringBuilder getMessage(ParserError parserError) {
+    public static StringBuilder getMessage(ParserError parserError, Project project) {
         StringBuilder message = new StringBuilder();
         SourceCodeRef sourceCodeRef = parserError.getSourceCodeRef();
-        message.append("ERROR: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
+        message.append("ERROR: ").append(getPathOf(sourceCodeRef.getFile(), project)).append('\n');
         message.append(' ').append(sourceCodeRef.getLineStart()).append(':').append(sourceCodeRef.getCharStart());
         message.append(' ');
         message.append(parserError.getMessage());
@@ -207,6 +210,14 @@ public class ErrorMessageFormatter {
                     .append(sourceCodeRef.getFile().getAbsolutePath())
                     .append(">");
         }
+    }
+
+    private static String getPathOf(ResourceRef file, Project project) {
+        if (project != null && project.getProjectDirectory() != null) {
+            return Path.of(project.getProjectDirectory().getAbsolutePath())
+                    .relativize(Path.of(file.getAbsolutePath())).toString();
+        }
+        return file.getAbsolutePath();
     }
 
 }

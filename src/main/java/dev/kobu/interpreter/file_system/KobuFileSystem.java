@@ -52,10 +52,6 @@ public interface KobuFileSystem {
 
     InputStream getInputStream(Path filePath) throws IOException;
 
-    String loadFileContent(Path filePath, Charset charset) throws IOException;
-
     void writeFileContent(Path filePath, String content, Charset charset) throws IOException;
-
-    void appendFileContent(Path filePath, String content, Charset charset) throws IOException;
 
 }

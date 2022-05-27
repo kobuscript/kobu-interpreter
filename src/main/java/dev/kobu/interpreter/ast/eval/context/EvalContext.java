@@ -28,12 +28,14 @@ import dev.kobu.config.ProjectProperty;
 import dev.kobu.database.Database;
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.*;
+import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.function.KobuFunction;
 import dev.kobu.interpreter.ast.symbol.function.NativeFunctionSymbol;
 import dev.kobu.interpreter.codec.OutputWriter;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.error.analyzer.UnreachableCodeError;
+import dev.kobu.interpreter.error.eval.NullPointerError;
 import dev.kobu.interpreter.error.eval.UserDefinedError;
 import dev.kobu.interpreter.file_system.KobuFileSystem;
 import dev.kobu.interpreter.codec.InputReader;
@@ -221,6 +223,10 @@ public class EvalContext {
 
     public ValueExpr evalMethod(ValueExpr object, KobuFunction function, List<ValueExpr> args, SourceCodeRef sourceCodeRef) {
         if (function instanceof BuiltinFunctionSymbol) {
+            if (object instanceof NullValueExpr) {
+                throw new NullPointerError("Cannot invoke '" +
+                        ((BuiltinFunctionSymbol) function).getNameInModule() + "()' method on null object", sourceCodeRef);
+            }
             BuiltinFunctionSymbol builtinFunctionSymbol = (BuiltinFunctionSymbol) function;
             return builtinFunctionSymbol.getFunctionImpl().run(this, object, args, sourceCodeRef);
         }

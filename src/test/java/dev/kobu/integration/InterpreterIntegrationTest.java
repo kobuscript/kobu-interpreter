@@ -53,4 +53,9 @@ public class InterpreterIntegrationTest extends IntegrationTestBase {
         runTest("interpreter/src/Modules.kobu", "interpreter/out/Modules.out");
         runTest("interpreter/src/ModulesErr.kobu", "interpreter/out/ModulesErr.out");
     }
+
+    @Test
+    void fileSystemAPI() throws IOException {
+        runTest("interpreter/src/FileSystemAPI.kobu", "interpreter/out/FileSystemAPI.out");
+    }
 }

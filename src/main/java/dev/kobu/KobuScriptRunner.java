@@ -49,11 +49,12 @@ public class KobuScriptRunner {
     }
 
     public int run(PrintStream out, PrintStream err) {
+        Project project = null;
         try {
 
             AnalyzerContext analyzerContext = new AnalyzerContext();
 
-            Project project = this.project;
+            project = this.project;
 
             if (project == null) {
                 KobuFile projectFile = fileSystem.findProjectDefinition(scriptFile);
@@ -93,19 +94,19 @@ public class KobuScriptRunner {
 
         } catch (ParserErrorList e) {
             for (ParserError error : e.getErrors()) {
-                err.println(ErrorMessageFormatter.getMessage(error));
+                err.println(ErrorMessageFormatter.getMessage(error, project));
             }
             return 1;
         } catch (AnalyzerErrorList e) {
             for (AnalyzerError error : e.getErrors()) {
-                err.println(ErrorMessageFormatter.getMessage(error));
+                err.println(ErrorMessageFormatter.getMessage(error, project));
             }
             return 1;
         } catch (AnalyzerError e) {
-            err.println(ErrorMessageFormatter.getMessage(e));
+            err.println(ErrorMessageFormatter.getMessage(e, project));
             return 1;
         } catch (EvalError e) {
-            err.println(ErrorMessageFormatter.getMessage(e));
+            err.println(ErrorMessageFormatter.getMessage(e, project));
             return 1;
         }
 

@@ -1,15 +1,15 @@
 ERROR: 'myFunction' is already defined
 
-File: /dev/kobu/integration/interpreter/src/modules/SubModule1.kobu
+File: src/modules/SubModule1.kobu
 5:4
   fun myFunction(): void {
       ^^^^^^^^^^
-File: /dev/kobu/integration/interpreter/src/modules/SubModule2.kobu
+File: src/modules/SubModule2.kobu
 5:4
   fun myFunction(): void {
       ^^^^^^^^^^
 
-ERROR: /dev/kobu/integration/interpreter/src/ModulesErr.kobu
+ERROR: src/ModulesErr.kobu
  11:4 'myPrivateFunction' is not defined
   myPrivateFunction()
   ^^^^^^^^^^^^^^^^^^^

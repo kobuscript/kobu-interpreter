@@ -2,6 +2,16 @@ module FileSystemAPI
 
 fun main(): void {
 
+    var inPath = Path(["in", "loremIpsum"])
+    var inAbsolutePath = projectRootDir().resolve(inPath)
+    var inDirectory = File(inAbsolutePath)
 
+    inDirectory.list().forEach(txtFile => {
+        print(txtFile.getName() + ": " + wordCount(txtFile) + " words, " + txtFile.length() + " bytes.")
+    })
 
+}
+
+private fun wordCount(file: File): number {
+    return file.read().split("[ \t\f\n]+").length()
 }
