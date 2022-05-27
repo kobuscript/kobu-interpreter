@@ -270,34 +270,6 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                 expr = (Expr) visit(ctx.varDeclBody().expr());
             }
 
-            if (expr instanceof ArrayValueExpr) {
-                Type itemType = ((ArrayType) expr.getType()).getElementType();
-                if (!(itemType instanceof StringValueExpr)
-                    && !(itemType instanceof NumberValueExpr)
-                    && !(itemType instanceof BooleanValueExpr)) {
-                    context.getErrorScope().addError(new InvalidGlobalConstantValueError(
-                            getSourceCodeRef(ctx.varDeclBody().expr())));
-                }
-            } else if (expr instanceof TupleValueExpr) {
-                TupleTypeElement tupleTypeElement = ((TupleType) expr.getType()).getTypeElement();
-                while (tupleTypeElement != null) {
-                    Type itemType = tupleTypeElement.getElementType();
-                    if (!(itemType instanceof StringValueExpr)
-                            && !(itemType instanceof NumberValueExpr)
-                            && !(itemType instanceof BooleanValueExpr)) {
-                        context.getErrorScope().addError(new InvalidGlobalConstantValueError(
-                                getSourceCodeRef(ctx.varDeclBody().expr())));
-                        break;
-                    }
-                    tupleTypeElement = tupleTypeElement.getNext();
-                }
-            } else if (expr != null && !(expr instanceof StringValueExpr)
-                    && !(expr instanceof NumberValueExpr)
-                    && !(expr instanceof BooleanValueExpr)) {
-                context.getErrorScope().addError(new InvalidGlobalConstantValueError(
-                        getSourceCodeRef(ctx.varDeclBody().expr())));
-            }
-
             topLevelExpression = true;
 
             ConstantSymbol constSymbol = new ConstantSymbol(moduleScope, getSourceCodeRef(ctx.varDeclBody().ID()),

@@ -1,0 +1,6 @@
+<kobu-project>
+    <name>integration-tests-parser</name>
+    <version>0.1</version>
+
+    <sourcePath>src</sourcePath>
+</kobu-project>

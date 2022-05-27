@@ -25,9 +25,10 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.AnalyzerContext;
+import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 
 public interface AnalyzerListener {
 
-    void afterAnalyzer(AnalyzerContext context);
+    void afterAnalyzer(AnalyzerContext context, EvalContextProvider evalContextProvider);
 
 }

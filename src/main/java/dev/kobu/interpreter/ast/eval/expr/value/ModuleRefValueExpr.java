@@ -88,6 +88,9 @@ public class ModuleRefValueExpr implements ValueExpr, HasFields {
         if (symbol instanceof RecordTypeSymbol) {
             return new RecordTypeRefValueExpr((RecordTypeSymbol) symbol);
         }
+        if (symbol instanceof ConstantSymbol) {
+            return ((ConstantSymbol) symbol).getValueExpr();
+        }
         return null;
     }
 

@@ -14,6 +14,7 @@ import dev.kobu.interpreter.codec.InputReader;
 import dev.kobu.interpreter.codec.OutputWriter;
 import dev.kobu.interpreter.error.*;
 import dev.kobu.interpreter.file_system.KobuFile;
+import dev.kobu.interpreter.file_system.KobuFileSystem;
 import dev.kobu.interpreter.file_system.local.LocalKobuFile;
 import dev.kobu.interpreter.file_system.local.LocalKobuFileSystem;
 import dev.kobu.interpreter.module.ModuleLoader;
@@ -25,7 +26,9 @@ import java.util.List;
 
 public class KobuScriptRunner {
 
-    private final File scriptFile;
+    private final KobuFileSystem fileSystem;
+
+    private final KobuFile scriptFile;
 
     private final List<String> arguments;
 
@@ -33,13 +36,14 @@ public class KobuScriptRunner {
 
     private String commandOutDir;
 
-    public KobuScriptRunner(File scriptFile, List<String> arguments) {
+    public KobuScriptRunner(KobuFileSystem fileSystem, KobuFile scriptFile, List<String> arguments) {
+        this.fileSystem = fileSystem;
         this.scriptFile = scriptFile;
         this.arguments = arguments != null ? arguments : new ArrayList<>();
     }
 
-    public KobuScriptRunner(File scriptFile, List<String> arguments, Project project, String commandOutDir) {
-        this(scriptFile, arguments);
+    public KobuScriptRunner(KobuFileSystem fileSystem, KobuFile scriptFile, List<String> arguments, Project project, String commandOutDir) {
+        this(fileSystem, scriptFile, arguments);
         this.project = project;
         this.commandOutDir = commandOutDir;
     }
@@ -47,25 +51,18 @@ public class KobuScriptRunner {
     public int run(PrintStream out, PrintStream err) {
         try {
 
-            if (!scriptFile.isFile()) {
-                err.println("ERROR: File not found: " + scriptFile.getAbsolutePath());
-                return 1;
-            }
-
-            LocalKobuFileSystem fileSystem = new LocalKobuFileSystem();
             AnalyzerContext analyzerContext = new AnalyzerContext();
-            LocalKobuFile localFile = new LocalKobuFile(this.scriptFile.getAbsoluteFile());
 
             Project project = this.project;
 
             if (project == null) {
-                KobuFile projectFile = fileSystem.findProjectDefinition(localFile);
+                KobuFile projectFile = fileSystem.findProjectDefinition(scriptFile);
                 ProjectReader projectReader = new ProjectReader(fileSystem);
 
                 if (projectFile != null) {
                     project = projectReader.load(projectFile);
                 } else {
-                    project = projectReader.loadDefaultProject(localFile);
+                    project = projectReader.loadDefaultProject(scriptFile);
                 }
             }
 
@@ -81,7 +78,7 @@ public class KobuScriptRunner {
 
             ModuleLoader moduleLoader = new ModuleLoader(evalContextProvider, fileSystem, project, EvalModeEnum.EXECUTION);
             CodecNativeFunctionRegistry.register(moduleLoader);
-            ModuleScope moduleScope = moduleLoader.load(analyzerContext, localFile);
+            ModuleScope moduleScope = moduleLoader.load(analyzerContext, scriptFile);
 
             analyzerContext.getParserErrorListener().checkErrors();
 

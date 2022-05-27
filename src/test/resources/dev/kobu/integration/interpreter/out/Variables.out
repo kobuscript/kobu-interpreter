@@ -1,0 +1,27 @@
+n: 10
+n2: 102.34
+n3: 34.11333333333334
+n4: 44.11333333333334
+b and true: true
+b or false: true
+str
+str2
+str_str2
+str3.substring(0, 3): str
+MyRecord{@id: 1,  attr1: "value", attr2: "value2"}
+MyRecord2{@id: 2,  attr2: "value2", attr3: 2.5}
+MyRecord3{@id: 3,  id: 1, myAttr1: "value", myAttr2: "value2", test: true, MyOtherAttr: "otherValue"}
+ParamRec{@id: 4,  attr: 10}
+nArr[2]: 3
+nArr[0:4]: [1, 2, 3, 4]
+nArr[-1]: 9
+nArr[0:-2]: [1, 2, 3, 4, 5, 6, 6, 7]
+nArr[1:]: [2, 3, 4, 5, 6, 6, 7, 8, 9]
+nArr[:-3]: [1, 2, 3, 4, 5, 6, 6]
+nArr.distinct(): [1, 2, 3, 4, 5, 6, 7, 8, 9]
+nValue: 78
+Tuple(1, "value")
+Tuple(2, "value2", true)
+t3.get1(): 2
+t3.get2(): value2
+t3.get3(): true

@@ -1,0 +1,16 @@
+module Constants
+
+const MY_CONST = "MyConstValue"
+
+const NUMBER_CONST = 100 * 36 * 60 * 24
+
+fun main(): void {
+
+    print(MY_CONST)
+    const myLocalConst = [1,2,3]
+
+    //ERROR: cannot change constant's value
+    MY_CONST = "anotherValue"
+    myLocalConst = [3.4, 5.67]
+
+}

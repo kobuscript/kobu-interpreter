@@ -1,0 +1,9 @@
+module HelloWorld
+
+fun main(args: string[]): void {
+    if (args.length() == 0) {
+        print("Hello, world!")
+    } else {
+        print("Hello, " + args[0] + "!")
+    }
+}

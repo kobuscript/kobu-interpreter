@@ -82,7 +82,7 @@ public class TupleValueExpr implements ValueExpr, HasMethods {
 
     @Override
     public String getStringValue(Set<Integer> idSet) {
-        return "(" + valueExprList.stream().map(v -> v.getStringValue(idSet)).collect(Collectors.joining(", ")) + ")";
+        return "Tuple(" + valueExprList.stream().map(v -> v.getStringValue(idSet)).collect(Collectors.joining(", ")) + ")";
     }
 
     @Override

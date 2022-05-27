@@ -231,7 +231,7 @@ public class ModuleScope implements Scope {
         }
         for (Symbol sym : symbols.values()) {
             if (sym instanceof AnalyzerListener) {
-                ((AnalyzerListener) sym).afterAnalyzer(context);
+                ((AnalyzerListener) sym).afterAnalyzer(context, evalContextProvider);
             }
         }
     }
@@ -316,7 +316,12 @@ public class ModuleScope implements Scope {
                     if (currentDef != null) {
                         context.getErrorScope().addError(new SymbolConflictError(currentDef, symbol));
                     } else {
-                        dependenciesSymbols.put(name, symbol);
+                        currentDef = dependenciesSymbols.get(name);
+                        if (currentDef != null) {
+                            context.getErrorScope().addError(new SymbolConflictError(currentDef, symbol));
+                        } else {
+                            dependenciesSymbols.put(name, symbol);
+                        }
                     }
                 }
             });

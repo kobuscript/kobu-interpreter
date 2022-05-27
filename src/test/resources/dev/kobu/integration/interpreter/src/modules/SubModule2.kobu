@@ -1,0 +1,11 @@
+module modules.SubModule2
+
+const MY_CONST_2 = "MY_CONST_2"
+
+fun myFunction(): void {
+    print("myFunction2")
+}
+
+private fun myPrivateFunction(): void {
+    print("myPrivateFunction")
+}

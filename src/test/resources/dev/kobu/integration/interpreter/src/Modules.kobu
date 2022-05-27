@@ -1,0 +1,12 @@
+module Modules
+
+import modules.SubModule1
+import modules.SubModule2 as m2
+
+fun main(): void {
+    print(MY_CONST_1)
+    print(m2.MY_CONST_2)
+
+    myFunction()
+    m2.myFunction()
+}

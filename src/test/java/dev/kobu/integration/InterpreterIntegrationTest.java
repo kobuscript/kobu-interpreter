@@ -22,7 +22,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.database;
+package dev.kobu.integration;
 
-public abstract class DatabaseTestBase {
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+@DisplayName("Integration test - interpreter")
+public class InterpreterIntegrationTest extends IntegrationTestBase {
+
+    @Test
+    void helloWorld() throws IOException {
+        runTest("interpreter/src/HelloWorld.kobu", "interpreter/out/HelloWorld.out");
+        runTest("interpreter/src/HelloWorld.kobu", "interpreter/out/HelloWorld2.out", "user");
+    }
+
+    @Test
+    void variables() throws IOException {
+        runTest("interpreter/src/Variables.kobu", "interpreter/out/Variables.out");
+    }
+
+    @Test
+    void constants() throws IOException {
+        runTest("interpreter/src/Constants.kobu", "interpreter/out/Constants.out");
+    }
+
+    @Test
+    void modules() throws IOException {
+        runTest("interpreter/src/Modules.kobu", "interpreter/out/Modules.out");
+        runTest("interpreter/src/ModulesErr.kobu", "interpreter/out/ModulesErr.out");
+    }
 }

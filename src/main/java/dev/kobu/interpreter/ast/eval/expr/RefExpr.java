@@ -132,10 +132,9 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             if (symbol instanceof ConstantSymbol) {
                 if (assignMode) {
                     context.addAnalyzerError(new ConstAssignError(sourceCodeRef, (ConstantSymbol) symbol));
-                } else {
-                    this.elementRef = symbol.getSourceCodeRef();
-                    this.type = ((ConstantSymbol) symbol).getType();
                 }
+                this.elementRef = symbol.getSourceCodeRef();
+                this.type = ((ConstantSymbol) symbol).getType();
                 return;
             }
             if (!assignMode) {

@@ -1,0 +1,117 @@
+module Variables
+
+type record MyRecord {
+    attr1: string,
+    attr2: string
+}
+
+type record MyRecord2 extends MyRecord {
+    attr3: number
+}
+
+//A record with a '*' attribute can be used like a hash map.
+type record MyRecord3 {
+    id: number,
+    test: boolean,
+    *: string
+}
+
+//Records can have type parameters
+type record ParamRec<A> {
+    attr: A
+}
+
+fun main(): void {
+
+    // numbers
+
+    var n = 10
+    var n2 = 102.34
+    var n3 = n2 / 3
+    var n4 = n3 + n
+
+    print("n: " + n)
+    print("n2: " + n2)
+    print("n3: " + n3)
+    print("n4: " + n4)
+
+    //booleans
+
+    var b = true
+    print("b and true: " + (b and true))
+    print("b or false: " + (b or false))
+
+    //strings
+
+    var str = "str"
+    var str2 = "str2"
+    var str3 = str + "_" + str2
+
+    print(str)
+    print(str2)
+    print(str3)
+    print("str3.substring(0, 3): " + str3.substring(0, 3))
+
+    //records
+
+    var rec1 = MyRecord{
+        attr1: "value"
+    }
+
+    var rec2 = MyRecord2{
+        attr2: "value2",
+        attr3: 2.5
+    }
+
+    var rec3 = MyRecord3{
+        id: 1,
+        myAttr1: "value",
+        myAttr2: "value2"
+    }
+
+    var rec4 = ParamRec<number>{
+        attr: 10
+    }
+
+    rec1.attr2 = "value2"
+    rec3.test = true
+    rec3.MyOtherAttr = "otherValue"
+
+    print(rec1)
+    print(rec2)
+    print(rec3)
+    print(rec4)
+
+    //arrays
+
+    var nArr = [1, 2, 3, 4, 5]
+    nArr.add(6)
+    nArr.addAll([6, 7, 8, 9])
+
+    var nValue = nArr
+            .filter(n => n % 2 == 0)
+            .map(n => n * 3)
+            .reduce((n1, n2) => n1 + n2, 0)
+
+    print("nArr[2]: " + nArr[2])
+    print("nArr[0:4]: " + nArr[0:4])
+    print("nArr[-1]: " + nArr[-1])
+    print("nArr[0:-2]: " + nArr[0:-2])
+    print("nArr[1:]: " + nArr[1:])
+    print("nArr[:-3]: " + nArr[:-3])
+    print("nArr.distinct(): " + nArr.distinct())
+    print("nValue: " + nValue)
+
+    //tuples
+
+    var t2 = Tuple(1, "value")
+    var t3 = Tuple(2, "value2", false)
+    t3.set3(true)
+
+    print(t2)
+    print(t3)
+    print("t3.get1(): " + t3.get1())
+    print("t3.get2(): " + t3.get2())
+    print("t3.get3(): " + t3.get3())
+
+}

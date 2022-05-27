@@ -1,0 +1,12 @@
+module ModulesErr
+
+import modules.SubModule1
+import modules.SubModule2
+
+fun main(): void {
+    print(MY_CONST_1)
+    print(MY_CONST_2)
+
+    myFunction()
+    myPrivateFunction()
+}

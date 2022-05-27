@@ -22,19 +22,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.error.analyzer;
+package dev.kobu.integration.file_system;
 
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.error.AnalyzerError;
+import dev.kobu.interpreter.file_system.KobuFile;
 
-public class InvalidGlobalConstantValueError extends AnalyzerError {
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 
-    public InvalidGlobalConstantValueError(SourceCodeRef sourceCodeRef) {
-        super(sourceCodeRef);
+public class IntegrationTestFile implements KobuFile {
+
+    private final String absolutePath;
+
+    public IntegrationTestFile(String absolutePath) {
+        this.absolutePath = absolutePath;
     }
 
     @Override
-    public String getDescription() {
-        return "Invalid global constant value. Only literal values are allowed.";
+    public InputStream newInputStream() throws IOException {
+        return getClass().getClassLoader().getResourceAsStream(Path.of("/").relativize(Path.of(absolutePath)).toString());
     }
+
+    @Override
+    public String getAbsolutePath() {
+        return absolutePath;
+    }
+
+    @Override
+    public String getName() {
+        return Path.of(absolutePath).getFileName().toString();
+    }
+
 }

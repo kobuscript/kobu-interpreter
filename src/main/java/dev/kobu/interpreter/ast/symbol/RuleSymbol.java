@@ -179,7 +179,7 @@ public class RuleSymbol extends Symbol implements HasExpr, AnalyzerListener, Ast
     }
 
     @Override
-    public void afterAnalyzer(AnalyzerContext context) {
+    public void afterAnalyzer(AnalyzerContext context, EvalContextProvider evalContextProvider) {
         if (parentRuleSymbol != null && query != null) {
             AnalyzerErrorScope errorScope = context.getErrorScope();
             if (!query.getTypeClause().compatibleWith(parentRuleSymbol.getQuery().getTypeClause())) {

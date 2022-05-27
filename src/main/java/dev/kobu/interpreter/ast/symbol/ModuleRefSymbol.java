@@ -62,6 +62,8 @@ public class ModuleRefSymbol extends Symbol implements Type {
         for (Symbol symbol : moduleScopeRef.getSymbols()) {
             if (symbol instanceof RuleSymbol) {
                 fields.add(new FieldDescriptor(symbol.getName(), ((RuleSymbol)symbol).getRuleType().name()));
+            } else if (symbol instanceof ConstantSymbol) {
+                fields.add(new FieldDescriptor(symbol.getName(), ((ConstantSymbol)symbol).getType().getName()));
             }
         }
         return fields;
@@ -83,6 +85,8 @@ public class ModuleRefSymbol extends Symbol implements Type {
         var symbol = moduleScopeRef.resolveLocal(name);
         if (symbol instanceof RuleSymbol) {
             return BuiltinScope.RULE_REF_TYPE;
+        } else if (symbol instanceof ConstantSymbol) {
+            return ((ConstantSymbol) symbol).getType();
         }
         return null;
     }

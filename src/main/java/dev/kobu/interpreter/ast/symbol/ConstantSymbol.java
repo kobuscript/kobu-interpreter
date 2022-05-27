@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.AnalyzerContext;
 import dev.kobu.interpreter.ast.eval.*;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 import dev.kobu.interpreter.error.analyzer.ConstNotInitializedError;
 import dev.kobu.interpreter.error.analyzer.InvalidAssignExprTypeError;
@@ -33,7 +34,7 @@ import dev.kobu.interpreter.error.analyzer.InvalidVariableDeclError;
 
 import java.util.HashSet;
 
-public class ConstantSymbol extends Symbol implements HasExpr {
+public class ConstantSymbol extends Symbol implements HasExpr, AnalyzerListener {
 
     private Type type;
 
@@ -118,15 +119,17 @@ public class ConstantSymbol extends Symbol implements HasExpr {
         if (!getType().isAssignableFrom(valueType)) {
             context.getErrorScope().addError(new InvalidAssignExprTypeError(getExpr().getSourceCodeRef(),
                     getType(), valueType));
-            return;
         } else if (getType() instanceof ModuleRefSymbol) {
             context.getErrorScope().addError(new InvalidAssignExprTypeError(getExpr().getSourceCodeRef(),
                     getType(), valueType));
             setType(BuiltinScope.ANY_TYPE);
-            return;
         }
 
-        valueExpr = expr.evalExpr(evalContext);
+    }
 
+    @Override
+    public void afterAnalyzer(AnalyzerContext context, EvalContextProvider evalContextProvider) {
+        var evalContext = evalContextProvider.newEvalContext(context, getModuleScope());
+        valueExpr = expr.evalExpr(evalContext);
     }
 }

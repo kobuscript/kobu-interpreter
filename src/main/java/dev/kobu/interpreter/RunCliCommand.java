@@ -60,7 +60,16 @@ public class RunCliCommand implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        return new KobuScriptRunner(file, scriptArgs).run(System.out, System.err);
+
+        if (!file.isFile()) {
+            System.err.println("ERROR: File not found: " + file.getAbsolutePath());
+            return 1;
+        }
+
+        var fileSystem = new LocalKobuFileSystem();
+        var scriptFile = new LocalKobuFile(file.getAbsoluteFile());
+
+        return new KobuScriptRunner(fileSystem, scriptFile, scriptArgs).run(System.out, System.err);
     }
 
 }

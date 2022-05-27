@@ -22,7 +22,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter;
+package dev.kobu.integration.file_system;
 
-public abstract class InterpreterTestBase {
+import dev.kobu.interpreter.file_system.KobuDirectory;
+
+import java.nio.file.Path;
+
+public class IntegrationTestDirectory implements KobuDirectory {
+
+    private final String absolutePath;
+
+    public IntegrationTestDirectory(String absolutePath) {
+        this.absolutePath = absolutePath;
+    }
+
+    @Override
+    public String getAbsolutePath() {
+        return absolutePath;
+    }
+
+    @Override
+    public String getName() {
+        return Path.of(absolutePath).getFileName().toString();
+    }
+
 }

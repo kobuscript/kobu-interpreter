@@ -30,6 +30,7 @@ import dev.kobu.config.ProjectCommand;
 import dev.kobu.config.ProjectReader;
 import dev.kobu.interpreter.file_system.KobuFile;
 import dev.kobu.interpreter.file_system.local.LocalKobuDirectory;
+import dev.kobu.interpreter.file_system.local.LocalKobuFile;
 import dev.kobu.interpreter.file_system.local.LocalKobuFileSystem;
 import picocli.CommandLine;
 
@@ -82,8 +83,16 @@ public class RunCmdCliCommand implements Callable<Integer> {
             rootPath = rootPath.resolve(project.getSourcePath());
         }
 
-        File scriptFile = rootPath.resolve(projectCommand.getScriptPath()).toFile();
-        int status = new KobuScriptRunner(scriptFile, scriptArgs, project, outDir).run(System.out, System.err);
+        File file = rootPath.resolve(projectCommand.getScriptPath()).toFile();
+
+        if (!file.isFile()) {
+            System.err.println("ERROR: File not found: " + file.getAbsolutePath());
+            return 1;
+        }
+
+        var scriptFile = new LocalKobuFile(file.getAbsoluteFile());
+
+        int status = new KobuScriptRunner(fileSystem, scriptFile, scriptArgs, project, outDir).run(System.out, System.err);
 
         if (status == 0) {
             System.out.println("\nCommand executed\n");

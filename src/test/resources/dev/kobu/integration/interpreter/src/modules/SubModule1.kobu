@@ -1,0 +1,7 @@
+module modules.SubModule1
+
+const MY_CONST_1 = "MY_CONST_1"
+
+fun myFunction(): void {
+    print("myFunction")
+}

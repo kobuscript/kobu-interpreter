@@ -111,6 +111,7 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
         var fnCtx = context.getProvider().newEvalContext(context.getAnalyzerContext(),
                 moduleScope, this);
         fnCtx.getCurrentScope().addAll(scope);
+        fnCtx.pushNewScope();
 
         if (targetType instanceof FunctionType) {
             FunctionType targetFunctionType = (FunctionType) targetType;
@@ -172,6 +173,9 @@ public class AnonymousFunctionDefinitionExpr implements Expr, HasTargetType, Use
         if (closeBlockSourceCodeRef != null && returnType != null && !branch.hasTerminalStatement()) {
             fnCtx.getAnalyzerContext().getErrorScope().addError(new FunctionMissingReturnStatError(closeBlockSourceCodeRef));
         }
+
+        fnCtx.popBranch();
+        fnCtx.popScope();
 
     }
 

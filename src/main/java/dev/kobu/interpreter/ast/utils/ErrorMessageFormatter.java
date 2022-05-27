@@ -95,9 +95,12 @@ public class ErrorMessageFormatter {
         }
 
         String out = source.toString();
-        out = out.replaceAll("^[ \t\b\f]{" + pad + "}", "  ");
-        out = out.replaceAll("\n[ \t\b\f]{" + pad + "}", "\n  ");
-
+        if (pad > 0) {
+            out = out.replaceAll("^[ \t\b\f]{" + pad + "}", "  ");
+            out = out.replaceAll("\n[ \t\b\f]{" + pad + "}", "\n  ");
+        } else {
+            out = "  " + out.replaceAll("\n", "\n  ").replaceAll("[ \t\b\f]+$", "");
+        }
         return out;
     }
 
@@ -155,7 +158,7 @@ public class ErrorMessageFormatter {
             appendSource(message, sourceCodeRef);
         } else {
             message.append("ERROR: ").append(analyzerError.getDescription());
-            message.append('\n').append('\n');
+            message.append("\n\n");
 
             for (SourceCodeRef sourceCodeRef : analyzerError.getSourceCodeRefs()) {
                 message.append("File: ").append(sourceCodeRef.getFile().getAbsolutePath()).append('\n');
