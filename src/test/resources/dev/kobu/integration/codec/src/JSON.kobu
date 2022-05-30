@@ -1,0 +1,36 @@
+module JSON
+
+import dev.kobu.codec.Json
+
+type record Glossary {
+    title: string,
+    GlossDiv: GlossDiv
+}
+
+type record GlossDiv {
+    title: string,
+    GlossList: GlossEntry[]
+}
+
+type record GlossEntry {
+    ID: string,
+    SortAs: string,
+    GlossTerm: string,
+    Acronym: string,
+    Abbrev: string,
+    GlossDef: GlossDef,
+    GlossSee: string
+}
+
+type record GlossDef {
+    para: string,
+    GlossSeeAlso: string[]
+}
+
+fun main(args: string[]): void {
+    var jsonFilePath = Path(["in", "glossary.json"])
+    var jsonFile = readJsonFile(projectRootDir().resolve(jsonFilePath).toString(), Glossary)
+    var glossary = jsonFile.json
+    glossary.title = "Updated glossary"
+    print(toJson(glossary))
+}

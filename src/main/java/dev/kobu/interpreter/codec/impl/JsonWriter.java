@@ -94,7 +94,10 @@ public class JsonWriter {
     }
 
     private void appendJson(OutputStreamWriter writer, List<ValueExpr> valueExprList, int level) throws IOException {
-        writer.write('[');
+        writer.write("[\n");
+        for (int i = 0; i < level * TAB_SIZE; i++) {
+            writer.write(' ');
+        }
         int count = 0;
         for (ValueExpr valueExpr : valueExprList) {
             if (count > 0) {
@@ -102,6 +105,10 @@ public class JsonWriter {
             }
             appendJson(writer, level, valueExpr);
             count++;
+        }
+        writer.write('\n');
+        for (int i = 0; i < (level - 1) * TAB_SIZE; i++) {
+            writer.write(' ');
         }
         writer.write(']');
     }

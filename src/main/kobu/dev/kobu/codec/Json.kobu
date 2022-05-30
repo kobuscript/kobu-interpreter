@@ -29,12 +29,54 @@ type record JsonFile<T> {
     json: T
 }
 
+/*
+ * Deserializes JSON files to a given record type.
+ *
+ * The 'pattern' argument can be a single filename or a glob pattern (like "*.json"). If 'recursive' is
+ * true, then all subdirectories will be scanned. Use 'charset' to specify the file charset.
+ */
 def native readJson<T>(dir: Path, pattern: string, recordType: RecordType<T>,
-                       recursive?: boolean, charset?: string): JsonFile<T>;
+                       recursive?: boolean, charset?: string): JsonFile<T>[];
 
+/*
+ * Deserializes JSON files to a given record type. The content of each file is expected to be an array.
+ *
+ * The 'pattern' argument can be a single filename or a glob pattern (like "*.json"). If 'recursive' is
+ * true, then all subdirectories will be scanned. Use 'charset' to specify the file charset.
+ */
 def native readJsonArray<T>(dir: Path, pattern: string, recordType: RecordType<T>,
-                            recursive?: boolean, charset?: string): JsonFile<T[]>
+                            recursive?: boolean, charset?: string): JsonFile<T[]>[]
 
+/**
+ * Deserializes a single JSON file
+ */
+fun readJsonFile<T>(jsonFilePath: string, recordType: RecordType<T>, charset?: string): JsonFile<T> {
+    var filePath = Path([jsonFilePath])
+    var jsonFiles = readJson(filePath.getParent(), filePath.getFileName().toString(), recordType, false, charset)
+    if (jsonFiles.size() > 0) {
+        return jsonFiles[0]
+    }
+    return null
+}
+
+/**
+ * Deserializes a single JSON file. The content of the file is expected to be an array.
+ */
+fun readJsonArrayFile<T>(jsonFilePath: string, recordType: RecordType<T>, charset?: string): JsonFile<T[]> {
+    var filePath = Path([jsonFilePath])
+    var jsonFiles = readJsonArray(filePath.getParent(), filePath.getFileName().toString(), recordType, false, charset)
+    if (jsonFiles.size() > 0) {
+        return jsonFiles[0]
+    }
+    return null
+}
+
+/**
+ * Serializes a value to JSON and writes it to the given file.
+ */
 def native writeJson(file: File, value: Any, charset?: string): void;
 
+/**
+ * Serializes a value to JSON
+ */
 def native toJson(value: Any): string;

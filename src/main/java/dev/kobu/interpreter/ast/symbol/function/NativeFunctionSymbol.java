@@ -61,6 +61,12 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasEx
         this.docText = docText;
     }
 
+    public void buildType() {
+        this.type = new FunctionType(
+                parameters.stream().map(FunctionParameter::toFunctionTypeParameter).collect(Collectors.toList()),
+                returnType);
+    }
+
     @Override
     public Map<String, Type> providedTypeArguments() {
         return new HashMap<>();
@@ -92,9 +98,7 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasEx
 
     @Override
     public void analyze(AnalyzerContext context, EvalContextProvider evalContextProvider) {
-        this.type = new FunctionType(
-                parameters.stream().map(FunctionParameter::toFunctionTypeParameter).collect(Collectors.toList()),
-                returnType);
+
     }
 
     public void setParameters(List<FunctionParameter> parameters) {

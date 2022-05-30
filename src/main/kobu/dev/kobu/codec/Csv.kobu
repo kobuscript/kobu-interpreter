@@ -63,20 +63,20 @@ type record CsvColumn {
 }
 
 /*
- * Read CSV files.
+ * Reads CSV files.
  *
- * The 'pattern' argument can be a single filename or a glob pattern (like "*.csv"), If 'recursive' is
+ * The 'pattern' argument can be a single filename or a glob pattern (like "*.csv"). If 'recursive' is
  * true, then all subdirectories will be scanned. Use 'format' to specify the file format,
  * and 'charset' to specify the file charset.
  */
 def native readCsv(dir: Path, pattern: string, recursive?: boolean, format?: string, charset?: string): CsvFile[];
 
 /**
- * Parse a single CSV file
+ * Parses a single CSV file
  */
-fun readCsvFile(csvFilePath: string): CsvFile {
+fun readCsvFile(csvFilePath: string, format?: string, charset?: string): CsvFile {
     var filePath = Path([csvFilePath])
-    var csvFiles = readCsv(filePath.getParent(), filePath.getFileName().toString())
+    var csvFiles = readCsv(filePath.getParent(), filePath.getFileName().toString(), false, format, charset)
     if (csvFiles.size() > 0) {
         return csvFiles[0]
     }

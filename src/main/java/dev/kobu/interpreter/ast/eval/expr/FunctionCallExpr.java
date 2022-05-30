@@ -153,7 +153,6 @@ public class FunctionCallExpr implements Expr, UndefinedSymbolListener {
                 paramType = paramType.constructFor(resolvedTypeArgs);
                 arg.setResolvedTypes(resolvedTypeArgs);
                 arg.setTargetType(paramType);
-                paramType.resolveAliases(resolvedTypeArgs, arg.getType());
                 if (!(arg.getExpr() instanceof KobuFunction)) {
                     arg.analyze(context);
                     paramType.resolveAliases(resolvedTypeArgs, arg.getType());

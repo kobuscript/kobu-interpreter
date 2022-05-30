@@ -97,7 +97,7 @@ fun useAttributeFor(xmlMapping: XmlMapping<AnyRecord>, record: RecordType<AnyRec
 }
 
 def native readXml<T>(dir: Path, pattern: string, xmlMapping: XmlMapping<T>,
-                      recursive?: boolean, charset?: string): XmlFile<T>;
+                      recursive?: boolean, charset?: string): XmlFile<T>[];
 
 def native writeXml<T>(file: File, value: T, xmlMapping: XmlMapping<T>, charset?: string): void;
 

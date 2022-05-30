@@ -1,0 +1,9 @@
+module CSV
+
+import dev.kobu.codec.Csv
+
+fun main(): void {
+    var csvFilePath = Path(["in", "username.csv"])
+    var csv = readCsvFile(projectRootDir().resolve(csvFilePath).toString())
+    pprint(csv.rows)
+}

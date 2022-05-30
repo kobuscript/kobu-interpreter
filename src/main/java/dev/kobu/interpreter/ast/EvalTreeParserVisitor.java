@@ -406,6 +406,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
         if (ctx.functionDeclRet().type() != null) {
             function.setReturnType((Type) visit(ctx.functionDeclRet().type()));
         }
+        function.buildType();
 
         typeParameterContext = null;
 
