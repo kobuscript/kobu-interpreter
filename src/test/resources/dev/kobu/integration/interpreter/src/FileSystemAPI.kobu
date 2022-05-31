@@ -5,8 +5,10 @@ fun main(): void {
     var inPath = Path(["in", "loremIpsum"])
     var inAbsolutePath = projectRootDir().resolve(inPath)
     var inDirectory = File(inAbsolutePath)
+    var files = inDirectory.list()
+    files.sort((f1, f2) => f1.getName().compare(f2.getName()))
 
-    inDirectory.list().forEach(txtFile => {
+    files.forEach(txtFile => {
         print(txtFile.getName() + ": " + wordCount(txtFile) + " words, " + txtFile.length() + " bytes.")
     })
 
