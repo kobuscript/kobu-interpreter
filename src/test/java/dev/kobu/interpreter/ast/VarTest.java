@@ -31,6 +31,7 @@ import dev.kobu.interpreter.ast.eval.expr.VarDeclExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayConstructorCallExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.TupleConstructorCallExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordConstructorCallExpr;
+import dev.kobu.interpreter.ast.eval.statement.AssignElemValueStatement;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.error.AnalyzerError;
@@ -359,7 +360,7 @@ public class VarTest extends AstTestBase {
         var fnCall = functionCall(module, "myFunc");
         var myVar = var(module, "myVar", fnCall);
         analyze(module, block(myVar));
-        assertErrors(new InvalidVariableDeclError(myVar.getSourceCodeRef()));
+        assertErrors(new InvalidAssignExprTypeError(fnCall.getSourceCodeRef(), null, null));
     }
 
     @Test

@@ -44,7 +44,10 @@ public class InvalidAssignExprTypeError extends AnalyzerError {
 
     @Override
     public String getDescription() {
-        var foundStr = found != null ? found.getName() : "void";
+        if (found == null) {
+            return "Cannot assign void to a variable or constant.";
+        }
+        var foundStr = found.getName();
         var expectedStr = expected != null ? expected.getName() : "void";
         return "Type '" + foundStr + "' is not assignable to type '" + expectedStr + "'";
     }

@@ -63,8 +63,9 @@ public class VarDeclExpr implements Statement {
             if (varSymbol.getType() == null) {
                 valueExpr.analyze(context);
                 if (valueExpr.getType() == null) {
+                    context.addAnalyzerError(new InvalidAssignExprTypeError(valueExpr.getSourceCodeRef(),
+                            varSymbol.getType(), valueExpr.getType()));
                     varSymbol.setType(BuiltinScope.ANY_TYPE);
-                    context.addAnalyzerError(new InvalidVariableDeclError(varSymbol.getSourceCodeRef()));
                 } else if (valueExpr.getType() instanceof UnknownType) {
                     varSymbol.setType(BuiltinScope.ANY_TYPE);
                 } else {
