@@ -35,6 +35,9 @@ fun main(): void {
     print("n3: " + n3)
     print("n4: " + n4)
 
+    n4 = null
+    print("n4: " + n4)
+
     //booleans
 
     var b = true
@@ -81,6 +84,9 @@ fun main(): void {
     print(rec2)
     print(rec3)
     print(rec4)
+
+    rec3.myAttr2 = null
+    print(rec3)
 
     //arrays
 

@@ -62,7 +62,7 @@ public class VarDeclExpr implements Statement {
         if (valueExpr != null && !(valueExpr instanceof NullValueExpr)) {
             if (varSymbol.getType() == null) {
                 valueExpr.analyze(context);
-                if (valueExpr.getType() == null) {
+                if (!(valueExpr instanceof NullValueExpr) && valueExpr.getType() == null) {
                     context.addAnalyzerError(new InvalidAssignExprTypeError(valueExpr.getSourceCodeRef(),
                             varSymbol.getType(), valueExpr.getType()));
                     varSymbol.setType(BuiltinScope.ANY_TYPE);

@@ -1,0 +1,14 @@
+module JavaParser
+
+import dev.kobu.java.JavaParser
+import dev.kobu.java.JavaTemplates
+
+fun main(): void {
+
+    var javaFilePath = Path(["in", "EmployeeController.java"])
+    var javaFile = parseJavaFile(projectRootDir().resolve(javaFilePath).toString())
+
+    javaFile.file = null
+    pprint(javaFile)
+
+}

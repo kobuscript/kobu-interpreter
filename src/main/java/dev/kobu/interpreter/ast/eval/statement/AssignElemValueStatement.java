@@ -26,6 +26,7 @@ package dev.kobu.interpreter.ast.eval.statement;
 
 import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.symbol.ModuleRefSymbol;
 import dev.kobu.interpreter.ast.symbol.Type;
 import dev.kobu.interpreter.error.analyzer.InvalidAssignExprTypeError;
@@ -78,7 +79,8 @@ public class AssignElemValueStatement implements Statement, Assignment {
         }
         exprRight.analyze(context);
 
-        if (exprRight.getType() instanceof ModuleRefSymbol || !type.isAssignableFrom(exprRight.getType())) {
+        if (exprRight.getType() instanceof ModuleRefSymbol || (!(exprRight instanceof NullValueExpr) &&
+                !type.isAssignableFrom(exprRight.getType()))) {
             context.addAnalyzerError(new InvalidAssignExprTypeError(exprRight.getSourceCodeRef(),
                     type, exprRight.getType()));
         }

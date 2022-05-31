@@ -1,0 +1,411 @@
+InputJavaFile{
+    @id: 1,
+    file: null,
+    package: "payroll",
+    imports: [
+        InputJavaImport{
+            @id: 2,
+            qualifiedName: "java.util.List"
+        },
+        InputJavaImport{
+            @id: 3,
+            qualifiedName: "org.springframework.web.bind.annotation.DeleteMapping"
+        },
+        InputJavaImport{
+            @id: 4,
+            qualifiedName: "org.springframework.web.bind.annotation.GetMapping"
+        },
+        InputJavaImport{
+            @id: 5,
+            qualifiedName: "org.springframework.web.bind.annotation.PathVariable"
+        },
+        InputJavaImport{
+            @id: 6,
+            qualifiedName: "org.springframework.web.bind.annotation.PostMapping"
+        },
+        InputJavaImport{
+            @id: 7,
+            qualifiedName: "org.springframework.web.bind.annotation.PutMapping"
+        },
+        InputJavaImport{
+            @id: 8,
+            qualifiedName: "org.springframework.web.bind.annotation.RequestBody"
+        },
+        InputJavaImport{
+            @id: 9,
+            qualifiedName: "org.springframework.web.bind.annotation.RestController"
+        }
+    ],
+    definitions: [
+        InputJavaClass{
+            @id: 10,
+            package: "payroll",
+            name: "EmployeeController",
+            typeParameters: [
+
+            ],
+            constructors: [
+                InputJavaConstructor{
+                    @id: 13,
+                    parameters: [
+                        InputJavaMethodParameter{
+                            @id: 14,
+                            paramName: "repository",
+                            paramType: JavaObjectType{
+                                @id: 15,
+                                name: "EmployeeRepository"
+                            },
+                            annotations: [
+
+                            ],
+                            varArg: false
+                        }
+                    ],
+                    typeParameters: [
+
+                    ],
+                    abstract: false,
+                    final: false,
+                    static: false,
+                    publicAccess: false,
+                    privateAccess: false,
+                    protectedAccess: false,
+                    default: false,
+                    annotations: [
+
+                    ]
+                }
+            ],
+            fields: [
+                InputJavaField{
+                    @id: 12,
+                    fieldType: JavaObjectType{
+                        @id: 11,
+                        name: "EmployeeRepository"
+                    },
+                    name: "repository",
+                    abstract: false,
+                    final: true,
+                    static: false,
+                    publicAccess: false,
+                    privateAccess: true,
+                    protectedAccess: false,
+                    default: false,
+                    annotations: [
+
+                    ]
+                }
+            ],
+            methods: [
+                InputJavaMethod{
+                    @id: 16,
+                    name: "all",
+                    returnType: JavaObjectType{
+                        @id: 17,
+                        package: "java.util",
+                        name: "List",
+                        typeArgs: [
+                            JavaObjectType{
+                                @id: 18,
+                                name: "Employee"
+                            }
+                        ]
+                    },
+                    parameters: [
+
+                    ],
+                    typeParameters: [
+
+                    ],
+                    abstract: false,
+                    final: false,
+                    static: false,
+                    publicAccess: false,
+                    privateAccess: false,
+                    protectedAccess: false,
+                    default: false,
+                    annotations: [
+                        InputJavaAnnotationValue{
+                            @id: 19,
+                            package: "org.springframework.web.bind.annotation",
+                            name: "GetMapping",
+                            fields: InputJavaAnnotationFieldValues{
+                                @id: 20,
+                                value: InputJavaLiteralString{
+                                    @id: 21,
+                                    value: "/employees",
+                                    source: "\"/employees\""
+                                }
+                            }
+                        }
+                    ]
+                },
+                InputJavaMethod{
+                    @id: 22,
+                    name: "newEmployee",
+                    returnType: JavaObjectType{
+                        @id: 23,
+                        name: "Employee"
+                    },
+                    parameters: [
+                        InputJavaMethodParameter{
+                            @id: 24,
+                            paramName: "newEmployee",
+                            paramType: JavaObjectType{
+                                @id: 25,
+                                name: "Employee"
+                            },
+                            annotations: [
+                                InputJavaAnnotationValue{
+                                    @id: 26,
+                                    package: "org.springframework.web.bind.annotation",
+                                    name: "RequestBody",
+                                    fields: InputJavaAnnotationFieldValues{
+                                        @id: 27
+                                    }
+                                }
+                            ],
+                            varArg: false
+                        }
+                    ],
+                    typeParameters: [
+
+                    ],
+                    abstract: false,
+                    final: false,
+                    static: false,
+                    publicAccess: false,
+                    privateAccess: false,
+                    protectedAccess: false,
+                    default: false,
+                    annotations: [
+                        InputJavaAnnotationValue{
+                            @id: 28,
+                            package: "org.springframework.web.bind.annotation",
+                            name: "PostMapping",
+                            fields: InputJavaAnnotationFieldValues{
+                                @id: 29,
+                                value: InputJavaLiteralString{
+                                    @id: 30,
+                                    value: "/employees",
+                                    source: "\"/employees\""
+                                }
+                            }
+                        }
+                    ]
+                },
+                InputJavaMethod{
+                    @id: 31,
+                    name: "one",
+                    returnType: JavaObjectType{
+                        @id: 32,
+                        name: "Employee"
+                    },
+                    parameters: [
+                        InputJavaMethodParameter{
+                            @id: 33,
+                            paramName: "id",
+                            paramType: JavaObjectType{
+                                @id: 34,
+                                name: "Long"
+                            },
+                            annotations: [
+                                InputJavaAnnotationValue{
+                                    @id: 35,
+                                    package: "org.springframework.web.bind.annotation",
+                                    name: "PathVariable",
+                                    fields: InputJavaAnnotationFieldValues{
+                                        @id: 36
+                                    }
+                                }
+                            ],
+                            varArg: false
+                        }
+                    ],
+                    typeParameters: [
+
+                    ],
+                    abstract: false,
+                    final: false,
+                    static: false,
+                    publicAccess: false,
+                    privateAccess: false,
+                    protectedAccess: false,
+                    default: false,
+                    annotations: [
+                        InputJavaAnnotationValue{
+                            @id: 37,
+                            package: "org.springframework.web.bind.annotation",
+                            name: "GetMapping",
+                            fields: InputJavaAnnotationFieldValues{
+                                @id: 38,
+                                value: InputJavaLiteralString{
+                                    @id: 39,
+                                    value: "/employees/{id}",
+                                    source: "\"/employees/{id}\""
+                                }
+                            }
+                        }
+                    ]
+                },
+                InputJavaMethod{
+                    @id: 40,
+                    name: "replaceEmployee",
+                    returnType: JavaObjectType{
+                        @id: 41,
+                        name: "Employee"
+                    },
+                    parameters: [
+                        InputJavaMethodParameter{
+                            @id: 42,
+                            paramName: "newEmployee",
+                            paramType: JavaObjectType{
+                                @id: 43,
+                                name: "Employee"
+                            },
+                            annotations: [
+                                InputJavaAnnotationValue{
+                                    @id: 44,
+                                    package: "org.springframework.web.bind.annotation",
+                                    name: "RequestBody",
+                                    fields: InputJavaAnnotationFieldValues{
+                                        @id: 45
+                                    }
+                                }
+                            ],
+                            varArg: false
+                        },
+                        InputJavaMethodParameter{
+                            @id: 46,
+                            paramName: "id",
+                            paramType: JavaObjectType{
+                                @id: 47,
+                                name: "Long"
+                            },
+                            annotations: [
+                                InputJavaAnnotationValue{
+                                    @id: 48,
+                                    package: "org.springframework.web.bind.annotation",
+                                    name: "PathVariable",
+                                    fields: InputJavaAnnotationFieldValues{
+                                        @id: 49
+                                    }
+                                }
+                            ],
+                            varArg: false
+                        }
+                    ],
+                    typeParameters: [
+
+                    ],
+                    abstract: false,
+                    final: false,
+                    static: false,
+                    publicAccess: false,
+                    privateAccess: false,
+                    protectedAccess: false,
+                    default: false,
+                    annotations: [
+                        InputJavaAnnotationValue{
+                            @id: 50,
+                            package: "org.springframework.web.bind.annotation",
+                            name: "PutMapping",
+                            fields: InputJavaAnnotationFieldValues{
+                                @id: 51,
+                                value: InputJavaLiteralString{
+                                    @id: 52,
+                                    value: "/employees/{id}",
+                                    source: "\"/employees/{id}\""
+                                }
+                            }
+                        }
+                    ]
+                },
+                InputJavaMethod{
+                    @id: 53,
+                    name: "deleteEmployee",
+                    returnType: JavaVoidType{
+                        @id: 54
+                    },
+                    parameters: [
+                        InputJavaMethodParameter{
+                            @id: 55,
+                            paramName: "id",
+                            paramType: JavaObjectType{
+                                @id: 56,
+                                name: "Long"
+                            },
+                            annotations: [
+                                InputJavaAnnotationValue{
+                                    @id: 57,
+                                    package: "org.springframework.web.bind.annotation",
+                                    name: "PathVariable",
+                                    fields: InputJavaAnnotationFieldValues{
+                                        @id: 58
+                                    }
+                                }
+                            ],
+                            varArg: false
+                        }
+                    ],
+                    typeParameters: [
+
+                    ],
+                    abstract: false,
+                    final: false,
+                    static: false,
+                    publicAccess: false,
+                    privateAccess: false,
+                    protectedAccess: false,
+                    default: false,
+                    annotations: [
+                        InputJavaAnnotationValue{
+                            @id: 59,
+                            package: "org.springframework.web.bind.annotation",
+                            name: "DeleteMapping",
+                            fields: InputJavaAnnotationFieldValues{
+                                @id: 60,
+                                value: InputJavaLiteralString{
+                                    @id: 61,
+                                    value: "/employees/{id}",
+                                    source: "\"/employees/{id}\""
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            innerClasses: [
+
+            ],
+            innerInterfaces: [
+
+            ],
+            innerEnums: [
+
+            ],
+            innerRecords: [
+
+            ],
+            javaFile: InputJavaFile{
+                @id: 1
+            },
+            abstract: false,
+            final: false,
+            static: false,
+            publicAccess: false,
+            privateAccess: false,
+            protectedAccess: false,
+            annotations: [
+                InputJavaAnnotationValue{
+                    @id: 62,
+                    package: "org.springframework.web.bind.annotation",
+                    name: "RestController",
+                    fields: InputJavaAnnotationFieldValues{
+                        @id: 63
+                    }
+                }
+            ]
+        }
+    ]
+}
