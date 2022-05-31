@@ -32,5 +32,9 @@ fun main(): void {
     var jsonFile = readJsonFile(projectRootDir().resolve(jsonFilePath).toString(), Glossary)
     var glossary = jsonFile.json
     glossary.title = "Updated glossary"
+    glossary.GlossDiv.GlossList.add(GlossEntry{
+        ID: "new-entry",
+        GlossTerm: "new-entry"
+    })
     print(toJson(glossary))
 }

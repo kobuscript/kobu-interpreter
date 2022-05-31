@@ -101,7 +101,10 @@ public class JsonWriter {
         int count = 0;
         for (ValueExpr valueExpr : valueExprList) {
             if (count > 0) {
-                writer.write(", ");
+                writer.write(",\n");
+                for (int i = 0; i < level * TAB_SIZE; i++) {
+                    writer.write(' ');
+                }
             }
             appendJson(writer, level, valueExpr);
             count++;
