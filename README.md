@@ -1,7 +1,10 @@
-# kobu-interpreter
+<p align="center">
+    <img  src="assets/kobu-logo.png"
+      width="284" border="0" alt="Kobu">
+</p>
 
 
-![KOBU logo](assets/kobu-logo.png)
+[![Java CI with Maven](https://github.com/kobuscript/kobu-interpreter/actions/workflows/ci-tests.yml/badge.svg)](https://github.com/kobuscript/kobu-interpreter/actions/workflows/ci-tests.yml)
 
 Kobu is a domain-specific programming language for writing source code generators.
 
