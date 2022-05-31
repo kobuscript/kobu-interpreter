@@ -26,10 +26,7 @@ package dev.kobu.interpreter.codec.impl;
 
 import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
-import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
-import dev.kobu.interpreter.ast.eval.expr.value.TupleValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.*;
 import dev.kobu.interpreter.ast.symbol.ModuleScope;
 import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
 import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
@@ -52,6 +49,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class XmlWriter extends XmlCodec {
 
@@ -85,6 +83,8 @@ public class XmlWriter extends XmlCodec {
                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
                 Transformer transformer = transformerFactory.newTransformer();
                 transformer.setOutputProperty(OutputKeys.ENCODING, charset.displayName());
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
                 DOMSource domSource = new DOMSource(doc);
                 StreamResult streamResult = new StreamResult(out);
                 transformer.transform(domSource, streamResult);
@@ -112,11 +112,11 @@ public class XmlWriter extends XmlCodec {
                 RecordAttributeKey attrKey = new RecordAttributeKey((RecordTypeSymbol) recordValueExpr.getType(), field);
                 TagAttribute tagAttribute = tagAttributeMap.get(attrKey);
                 if (tagAttribute != null) {
-                    String valueStr = fieldValueExpr.getStringValue(new HashSet<>());
+                    String valueStr = getValue(fieldValueExpr);
                     addAttribute(element, field, valueStr);
                 } else {
                     if (starTagAttribute != null && !((RecordTypeSymbol) recordValueExpr.getType()).hasAttribute(field)) {
-                        String valueStr = fieldValueExpr.getStringValue(new HashSet<>());
+                        String valueStr = getValue(fieldValueExpr);
                         addAttribute(element, field, valueStr);
                     } else if (fieldValueExpr instanceof ArrayValueExpr) {
                         List<ValueExpr> valueExprList = ((ArrayValueExpr) fieldValueExpr).getValue();
@@ -136,8 +136,15 @@ public class XmlWriter extends XmlCodec {
 
             return element;
         } else {
-            return doc.createTextNode(valueExpr.getStringValue(new HashSet<>()));
+            return doc.createTextNode(getValue(valueExpr));
         }
+    }
+
+    private String getValue(ValueExpr valueExpr) {
+        if (valueExpr instanceof StringValueExpr) {
+            return ((StringValueExpr) valueExpr).getValue();
+        }
+        return valueExpr.getStringValue(new HashSet<>());
     }
 
     private void addCollectionItem(RecordValueExpr recordValueExpr, Element element, String field, List<ValueExpr> valueExprList) {

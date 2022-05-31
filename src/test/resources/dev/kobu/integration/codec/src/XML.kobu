@@ -1,0 +1,43 @@
+module XML
+
+import dev.kobu.codec.Xml
+
+type record Catalog {
+    books: Book[]
+}
+
+type record Book {
+    id: string,
+    author: string,
+    title: string,
+    genre: string,
+    price: number,
+    publishDate: string,
+    description: string
+}
+
+fun main(): void {
+    //xml mapping configuration
+    var xmlMapping = newXmlMapping(Catalog)
+    alias(xmlMapping, "catalog", Catalog)
+    alias(xmlMapping, "book", Book)
+    useAttributeFor(xmlMapping, Book, "id")
+    addImplicitCollection(xmlMapping, Catalog, "books")
+    aliasAttribute(xmlMapping, "publish_date", Book, "publishDate")
+
+    var xmlFilePath = Path(["in", "books.xml"])
+    var xmlFile = readXmlFile(projectRootDir().resolve(xmlFilePath).toString(), xmlMapping)
+    var catalog = xmlFile.xml;
+
+    catalog.books.add(Book{
+        id: "new-book",
+        author: "Author",
+        title: "New Book",
+        genre: "genre",
+        price: 3.33,
+        publishDate: "2022-05-31",
+        description: "new test entry"
+    })
+
+    print(toXml(catalog, xmlMapping))
+}

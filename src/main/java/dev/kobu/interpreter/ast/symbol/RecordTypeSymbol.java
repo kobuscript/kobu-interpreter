@@ -29,7 +29,6 @@ import dev.kobu.interpreter.ast.eval.FieldDescriptor;
 import dev.kobu.interpreter.ast.eval.SymbolDocumentation;
 import dev.kobu.interpreter.ast.eval.SymbolTypeEnum;
 import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
-import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.ast.symbol.generics.TypeAlias;
 import dev.kobu.interpreter.ast.symbol.generics.TypeParameter;
@@ -168,10 +167,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
             return true;
         }
         Type fieldType = resolveSuperTypeField(name);
-        if (fieldType != null) {
-            return true;
-        }
-        return false;
+        return fieldType != null;
     }
 
     @Override
@@ -300,7 +296,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     public boolean isAssignableFrom(Type type) {
         if (type instanceof RecordTypeSymbol) {
             RecordTypeSymbol otherRecord = (RecordTypeSymbol) type;
-            if (getModuleScope().equals(otherRecord.getModuleScope()) && getName().equals(otherRecord.getName())) {
+            if (getModuleScope().equals(otherRecord.getModuleScope()) && getNameInModule().equals(otherRecord.getNameInModule())) {
                 if (typeArgs.size() == otherRecord.typeArgs.size()) {
                     for (int i = 0; i < typeArgs.size(); i++) {
                         if (!typeArgs.get(i).isAssignableFrom(otherRecord.typeArgs.get(i))) {
@@ -368,8 +364,10 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
     @Override
     public void resolveAliases(Map<String, Type> typeArgs, Type targetType) {
         if (super.equals(targetType)) {
-            for (Type typeArg : this.typeArgs) {
-                typeArg.resolveAliases(typeArgs, typeArg);
+            RecordTypeSymbol otherType = (RecordTypeSymbol) targetType;
+            for (int i = 0; i < this.typeArgs.size(); i++) {
+                var typeArg = this.typeArgs.get(i);
+                typeArg.resolveAliases(typeArgs, otherType.typeArgs.get(i));
             }
         } else if (targetType == null) {
             for (Type typeArg : this.typeArgs) {

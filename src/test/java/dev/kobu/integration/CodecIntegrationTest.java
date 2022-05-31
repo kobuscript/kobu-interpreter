@@ -42,4 +42,8 @@ public class CodecIntegrationTest extends IntegrationTestBase {
         runTest("codec/src/JSON.kobu", "codec/out/JSON.out");
     }
 
+    @Test
+    void xml() throws IOException {
+        runTest("codec/src/XML.kobu", "codec/out/XML.out");
+    }
 }

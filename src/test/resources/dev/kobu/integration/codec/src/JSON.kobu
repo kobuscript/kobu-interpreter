@@ -27,7 +27,7 @@ type record GlossDef {
     GlossSeeAlso: string[]
 }
 
-fun main(args: string[]): void {
+fun main(): void {
     var jsonFilePath = Path(["in", "glossary.json"])
     var jsonFile = readJsonFile(projectRootDir().resolve(jsonFilePath).toString(), Glossary)
     var glossary = jsonFile.json

@@ -96,11 +96,35 @@ fun useAttributeFor(xmlMapping: XmlMapping<AnyRecord>, record: RecordType<AnyRec
     });
 }
 
+/*
+ * Deserializes XML files using the given mapping configuration.
+ *
+ * The 'pattern' argument can be a single filename or a glob pattern (like "*.xml"). If 'recursive' is
+ * true, then all subdirectories will be scanned. Use 'charset' to specify the file charset.
+ */
 def native readXml<T>(dir: Path, pattern: string, xmlMapping: XmlMapping<T>,
                       recursive?: boolean, charset?: string): XmlFile<T>[];
 
+/**
+ * Deserializes a single XML file, using the given mapping configuration
+ */
+fun readXmlFile<T>(xmlFilePath: string, xmlMapping: XmlMapping<T>, charset?: string): XmlFile<T> {
+    var filePath = Path([xmlFilePath])
+    var xmlFiles = readXml(filePath.getParent(), filePath.getFileName().toString(), xmlMapping, false, charset)
+    if (xmlFiles.size() > 0) {
+        return xmlFiles[0]
+    }
+    return null
+}
+
+/**
+ * Serializes a value to XML using the given mapping configuration, and writes it to the specified file.
+ */
 def native writeXml<T>(file: File, value: T, xmlMapping: XmlMapping<T>, charset?: string): void;
 
+/**
+ * Serializes a value to XML using the given mapping configuration
+ */
 def native toXml<T>(value: T, xmlMapping: XmlMapping<T>): string;
 
 

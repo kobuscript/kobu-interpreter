@@ -29,6 +29,8 @@ import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 import dev.kobu.interpreter.error.AnalyzerError;
 import dev.kobu.interpreter.error.EvalError;
 import dev.kobu.interpreter.error.ParserError;
+import dev.kobu.interpreter.file_system.ClasspathScriptRef;
+import dev.kobu.interpreter.file_system.KobuScriptFile;
 import dev.kobu.interpreter.file_system.ResourceRef;
 
 import java.io.BufferedReader;
@@ -214,8 +216,13 @@ public class ErrorMessageFormatter {
 
     private static String getPathOf(ResourceRef file, Project project) {
         if (project != null && project.getProjectDirectory() != null) {
-            return Path.of(project.getProjectDirectory().getAbsolutePath())
+            var relPath = Path.of(project.getProjectDirectory().getAbsolutePath())
                     .relativize(Path.of(file.getAbsolutePath())).toString();
+            if (!relPath.startsWith("..")) {
+                return relPath;
+            } else if (file instanceof ClasspathScriptRef) {
+                return ((ClasspathScriptRef) file).extractModuleId();
+            }
         }
         return file.getAbsolutePath();
     }

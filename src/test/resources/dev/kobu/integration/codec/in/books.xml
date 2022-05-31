@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0"?>
 <catalog>
     <book id="bk101">
         <author>Gambardella, Matthew</author>
@@ -117,13 +117,4 @@
             integrated into a comprehensive development
             environment.</description>
     </book>
-    <book id="new-book">
-        <author>Author</author>
-        <title>New Book</title>
-        <genre>genre</genre>
-        <price>3.33</price>
-        <publish_date>2022-05-31</publish_date>
-        <description>new test entry</description>
-    </book>
 </catalog>
-

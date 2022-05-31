@@ -100,8 +100,8 @@ public class XmlFileParser extends XmlCodec {
             ValueExpr result = parseNode(rootRecordType, doc.getDocumentElement());
 
             if (!(result instanceof RecordValueExpr) && !rootRecordType.isAssignableFrom(result.getType())) {
-                throw new InvalidCallError("Expected '" + rootRecordType.getName() +
-                        "', but got '" + result.getType().getName() + "'", sourceCodeRef);
+                throw new InvalidCallError(getErrorMessage("Expected '" + rootRecordType.getName() +
+                        "', but got '" + result.getType().getName() + "'"), sourceCodeRef);
             }
 
             record.updateFieldValue(context, "xml", result);
@@ -159,12 +159,26 @@ public class XmlFileParser extends XmlCodec {
                 valueExpr = new TupleValueExpr((TupleType) targetType, values);
             }
         } else if (targetType instanceof StringTypeSymbol) {
-            return new StringValueExpr(node.getNodeValue());
+            String value = node.getNodeValue();
+            if (value == null && node.getFirstChild() != null) {
+                value = node.getFirstChild().getNodeValue();
+            }
+            if (value == null) {
+                return new NullValueExpr();
+            }
+            return new StringValueExpr(value);
         } else if (targetType instanceof NumberTypeSymbol) {
             try {
-                return NumberValueFactory.parse(node.getNodeValue());
+                String value = node.getNodeValue();
+                if (value == null && node.getFirstChild() != null) {
+                    value = node.getFirstChild().getNodeValue();
+                }
+                if (value == null) {
+                    return new NullValueExpr();
+                }
+                return NumberValueFactory.parse(value);
             } catch (Exception ex) {
-                throw new InvalidCallError("invalid number: '" + node.getNodeValue() + "'", sourceCodeRef);
+                throw new InvalidCallError(getErrorMessage("invalid number: '" + node.getNodeValue() + "'"), sourceCodeRef);
             }
         } else if (targetType instanceof BooleanTypeSymbol) {
             return BooleanValueExpr.fromValue("true".equalsIgnoreCase(node.getNodeValue()));
@@ -190,14 +204,14 @@ public class XmlFileParser extends XmlCodec {
             if (tagAttribute != null) {
                 Type targetType = recordType.resolveField(attrName);
                 if (targetType == null) {
-                    throw new InvalidCallError("Attribute '" + attrName + "' does not exist on type '" +
-                            recordType.getName() + "'", sourceCodeRef);
+                    throw new InvalidCallError(getErrorMessage("Attribute '" + attrName + "' does not exist on type '" +
+                            recordType.getName() + "'"), sourceCodeRef);
                 }
                 ValueExpr valueExpr = parseNode(targetType, attrNode);
                 if (!targetType.isAssignableFrom(valueExpr.getType())) {
-                    throw new InvalidCallError(recordType.getName() + "." + attrName + ": Type '" +
+                    throw new InvalidCallError(getErrorMessage(recordType.getName() + "." + attrName + ": Type '" +
                             targetType.getName() + "' is not assignable to type '" +
-                            valueExpr.getType().getName() + "'", sourceCodeRef);
+                            valueExpr.getType().getName() + "'"), sourceCodeRef);
                 }
                 recordExpr.updateFieldValue(context, attrName, valueExpr);
             }
@@ -218,10 +232,10 @@ public class XmlFileParser extends XmlCodec {
 
                 if (targetType != null) {
                     ValueExpr valueExpr = parseNode(targetType, childElement);
-                    if (!targetType.isAssignableFrom(valueExpr.getType())) {
-                        throw new InvalidCallError(recordType.getName() + "." + attrName + ": Type '" +
+                    if (!(valueExpr instanceof NullValueExpr) && !targetType.isAssignableFrom(valueExpr.getType())) {
+                        throw new InvalidCallError(getErrorMessage(recordType.getName() + "." + attrName + ": Type '" +
                                 targetType.getName() + "' is not assignable to type '" +
-                                valueExpr.getType().getName() + "'", sourceCodeRef);
+                                valueExpr.getType().getName() + "'"), sourceCodeRef);
                     }
                     recordExpr.updateFieldValue(context, attrName, valueExpr);
                 }
@@ -233,8 +247,8 @@ public class XmlFileParser extends XmlCodec {
             for (ImplicitCollection implicitCol : implicitColList) {
                 Type targetType = recordType.resolveField(implicitCol.recordAttr);
                 if (targetType == null) {
-                    throw new InvalidCallError("Attribute '" + implicitCol.recordAttr + "' does not exist on type '" +
-                            recordType.getName() + "'", sourceCodeRef);
+                    throw new InvalidCallError(getErrorMessage("Attribute '" + implicitCol.recordAttr + "' does not exist on type '" +
+                            recordType.getName() + "'"), sourceCodeRef);
                 }
 
                 if (targetType instanceof ArrayType) {
@@ -278,7 +292,7 @@ public class XmlFileParser extends XmlCodec {
 
     private void validateArrayType(ArrayType arrayType) {
         if (!(arrayType.getElementType() instanceof RecordTypeSymbol)) {
-            throw new InvalidCallError("type '" + arrayType.getName() + "' is not supported in xml mapping",
+            throw new InvalidCallError(getErrorMessage("type '" + arrayType.getName() + "' is not supported in xml mapping"),
                     sourceCodeRef);
         }
     }
@@ -287,11 +301,15 @@ public class XmlFileParser extends XmlCodec {
         TupleTypeElement tupleTypeElement = tupleType.getTypeElement();
         while (tupleTypeElement != null) {
             if (!(tupleTypeElement.getElementType() instanceof RecordTypeSymbol)) {
-                throw new InvalidCallError("type '" + tupleType.getName() + "' is not supported in xml mapping",
+                throw new InvalidCallError(getErrorMessage("type '" + tupleType.getName() + "' is not supported in xml mapping"),
                         sourceCodeRef);
             }
             tupleTypeElement = tupleTypeElement.getNext();
         }
+    }
+
+    private String getErrorMessage(String errorDescription) {
+        return "Error while parsing '" + filePath + "': " + errorDescription;
     }
 
 }

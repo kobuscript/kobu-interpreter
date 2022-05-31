@@ -49,6 +49,9 @@ public abstract class EvalError extends RuntimeException {
     }
 
     public String getDescription() {
+        if (getMessage() != null) {
+            return getMessage();
+        }
         return getClass().getSimpleName();
     }
 
