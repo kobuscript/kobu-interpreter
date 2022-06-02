@@ -8,7 +8,7 @@ fun main(): void {
     var javaFilePath = Path(["in", "EmployeeController.java"])
     var javaFile = parseJavaFile(projectRootDir().resolve(javaFilePath).toString())
 
-    javaFile.file = null
+    javaFile.file = null //removes the file's absolute path from the output
     pprint(javaFile)
 
 }

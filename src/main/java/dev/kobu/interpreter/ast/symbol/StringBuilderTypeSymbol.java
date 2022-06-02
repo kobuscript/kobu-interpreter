@@ -25,10 +25,7 @@ SOFTWARE.
 package dev.kobu.interpreter.ast.symbol;
 
 import dev.kobu.interpreter.ast.eval.HasConstructor;
-import dev.kobu.interpreter.ast.eval.function.string_builder.StringBuilderAppendMethodImpl;
-import dev.kobu.interpreter.ast.eval.function.string_builder.StringBuilderConstructorImpl;
-import dev.kobu.interpreter.ast.eval.function.string_builder.StringBuilderLengthMethodImpl;
-import dev.kobu.interpreter.ast.eval.function.string_builder.StringBuilderToStringMethodImpl;
+import dev.kobu.interpreter.ast.eval.function.string_builder.*;
 import dev.kobu.interpreter.ast.symbol.function.FunctionParameter;
 
 public class StringBuilderTypeSymbol extends BuiltinTypeSymbol implements HasConstructor {
@@ -68,6 +65,8 @@ public class StringBuilderTypeSymbol extends BuiltinTypeSymbol implements HasCon
                 BuiltinScope.STRING_TYPE));
         addMethod(new BuiltinFunctionSymbol(this, "length", new StringBuilderLengthMethodImpl(),
                 BuiltinScope.NUMBER_TYPE));
+        addMethod(new BuiltinFunctionSymbol(this, "toTemplate", new StringBuilderToTemplateMethodImpl(),
+                BuiltinScope.ANY_TEMPLATE_TYPE));
     }
 
 }

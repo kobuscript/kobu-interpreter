@@ -61,6 +61,12 @@ public class TemplateValueExpr implements ValueExpr, Fact {
         this.creatorId = creatorId;
     }
 
+    public TemplateValueExpr(int id, TemplateExecutor templateExecutor) {
+        this.id = id;
+        this.templateExecutor = templateExecutor;
+        this.rootRecord = null;
+    }
+
     public TemplateTypeSymbol getTargetType() {
         return targetType;
     }
