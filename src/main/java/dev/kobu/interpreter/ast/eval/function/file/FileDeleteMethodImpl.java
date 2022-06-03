@@ -22,23 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.integration;
+package dev.kobu.interpreter.ast.eval.function.file;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.BooleanValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.FileValueExpr;
+import dev.kobu.interpreter.ast.eval.function.BuiltinMethod;
+import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
 
-import java.io.IOException;
+import java.util.Map;
 
-@DisplayName("Integration test - codec")
-public class ParserIntegrationTest extends IntegrationTestBase {
+public class FileDeleteMethodImpl extends BuiltinMethod {
 
-    @Test
-    void javaParser() throws IOException {
-        runTest("parser/src/JavaParser.kobu", "parser/out/JavaParser.out");
+    @Override
+    protected ValueExpr run(EvalContext context, ValueExpr object, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
+        FileValueExpr fileValueExpr = (FileValueExpr) object;
+        return BooleanValueExpr.fromValue(fileValueExpr.getFile().delete());
     }
 
-    @Test
-    void javaCommands() throws IOException {
-        runTest("parser/src/JavaCommands.kobu", "parser/out/JavaCommands.out");
+    @Override
+    public String getDocumentation() {
+        return "Deletes the file or directory denoted by this abstract pathname. If this pathname denotes a directory, " +
+                "then the directory must be empty in order to be deleted.";
     }
+
 }

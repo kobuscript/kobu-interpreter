@@ -1,7 +1,6 @@
 module JavaParser
 
 import dev.kobu.java.JavaParser
-import dev.kobu.java.JavaTemplates
 
 fun main(): void {
 

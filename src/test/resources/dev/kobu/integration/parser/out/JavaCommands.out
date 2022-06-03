@@ -15,6 +15,8 @@ class EmployeeController {
 
     private final EmployeeRepository repository;
 
+    private String name;
+
     EmployeeController(EmployeeRepository repository) {
         this.repository = repository;
     }
@@ -61,4 +63,10 @@ class EmployeeController {
     void deleteEmployee(@PathVariable Long id) {
         repository.deleteById(id);
     }
+
+    @Override
+    public String toString() {
+        return "EmployeeController";
+    }
 }
+

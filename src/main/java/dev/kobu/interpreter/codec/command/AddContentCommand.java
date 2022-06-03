@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.kobu.interpreter.codec.command;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.file_system.KobuFileSystem;
 
 import java.io.IOException;
@@ -40,7 +41,8 @@ public class AddContentCommand extends TextFileCommand {
 
     private final String content;
 
-    public AddContentCommand(String filePath, int startIndex, String content) {
+    public AddContentCommand(RecordValueExpr commandRec, String filePath, int startIndex, String content) {
+        super(commandRec);
         this.filePath = filePath;
         this.startIndex = startIndex;
         this.content = content;

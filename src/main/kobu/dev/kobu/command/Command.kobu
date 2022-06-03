@@ -24,6 +24,13 @@ SOFTWARE.
 
 module dev.kobu.command.Command
 
+/**
+ * Base command record.
+ */
 type record Command {
-    file: File
+    //The file that will be updated
+    file: File,
+    //If specified, the original file won't be overwritten.
+    //Instead, a new file will be created in the given path.
+    outputFilePath: Path
 }

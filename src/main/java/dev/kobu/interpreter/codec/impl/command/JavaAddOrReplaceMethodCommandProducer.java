@@ -78,14 +78,14 @@ public class JavaAddOrReplaceMethodCommandProducer extends JavaCommandProducer {
         int startIdx;
         String content;
         if (ref != null) {
-            commands.add(new RemoveContentCommand(filePath, ref.startIdx, ref.stopIdx));
+            commands.add(new RemoveContentCommand(commandRec, filePath, ref.startIdx, ref.stopIdx));
             startIdx = ref.startIdx;
             content = TemplateIndentation.indent("\n" + contentExpr.getValue(), DEFAULT_MARGIN, true);
         } else {
             startIdx = IntStream.of(bodyStartIdx, lastFieldStopIdx, lastConstructorStopIdx, lastMethodStopIdx).max().getAsInt();
             content = "\n" + TemplateIndentation.indent("\n" + contentExpr.getValue(), DEFAULT_MARGIN, true);
         }
-        commands.add(new AddContentCommand(filePath, startIdx, content));
+        commands.add(new AddContentCommand(commandRec, filePath, startIdx, content));
 
         return commands;
     }

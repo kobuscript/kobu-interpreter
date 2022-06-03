@@ -24,7 +24,11 @@ SOFTWARE.
 
 package dev.kobu.interpreter.codec.command;
 
+import dev.kobu.interpreter.ast.eval.ValueExpr;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.PathValueExpr;
+import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
+import dev.kobu.interpreter.ast.utils.RecordUtils;
 import dev.kobu.interpreter.file_system.KobuFileSystem;
 
 import java.io.IOException;
@@ -33,6 +37,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class TextFileCommand {
+
+    private final RecordValueExpr commandRec;
+
+    public TextFileCommand(RecordValueExpr commandRec) {
+        this.commandRec = commandRec;
+    }
 
     private static final Map<String, String> fileDestMap = new HashMap<>();
 
@@ -44,6 +54,10 @@ public abstract class TextFileCommand {
     public abstract void run(EvalContext evalContext, KobuFileSystem fileSystem) throws IOException;
 
     protected Path getDestPath(EvalContext evalContext, Path filePath) {
+        ValueExpr outPathValueExpr = commandRec.resolveField("outputFilePath");
+        if (outPathValueExpr instanceof PathValueExpr) {
+            return ((PathValueExpr) outPathValueExpr).getPath();
+        }
         if (evalContext.getCommandOutDir() != null) {
             Path outPath = Path.of(evalContext.getCommandOutDir());
             return outPath.resolve(filePath.getRoot().relativize(filePath));

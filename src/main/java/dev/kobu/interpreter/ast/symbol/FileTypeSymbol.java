@@ -83,6 +83,8 @@ public class FileTypeSymbol extends BuiltinTypeSymbol implements HasConstructor 
                 BuiltinScope.NUMBER_TYPE));
         addMethod(new BuiltinFunctionSymbol("list", new FileListMethodImpl(),
                 ArrayTypeFactory.getArrayTypeFor(this)));
+        addMethod(new BuiltinFunctionSymbol("delete", new FileDeleteMethodImpl(),
+                BuiltinScope.BOOLEAN_TYPE));
         addMethod(new BuiltinFunctionSymbol("read", new FileReadMethodImpl(),
                 BuiltinScope.STRING_TYPE,
                 new FunctionParameter("charset", BuiltinScope.STRING_TYPE, true)));

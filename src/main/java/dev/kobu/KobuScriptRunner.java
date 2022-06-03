@@ -42,9 +42,15 @@ public class KobuScriptRunner {
         this.arguments = arguments != null ? arguments : new ArrayList<>();
     }
 
-    public KobuScriptRunner(KobuFileSystem fileSystem, KobuFile scriptFile, List<String> arguments, Project project, String commandOutDir) {
+    public KobuScriptRunner(KobuFileSystem fileSystem, KobuFile scriptFile, List<String> arguments, Project project,
+                            String commandOutDir) {
         this(fileSystem, scriptFile, arguments);
         this.project = project;
+        this.commandOutDir = commandOutDir;
+    }
+
+    public KobuScriptRunner(KobuFileSystem fileSystem, KobuFile scriptFile, List<String> arguments, String commandOutDir) {
+        this(fileSystem, scriptFile, arguments);
         this.commandOutDir = commandOutDir;
     }
 

@@ -71,7 +71,7 @@ public class JavaAddImportCommandProducer extends JavaCommandProducer {
         this.visit(tree);
 
         if (!found) {
-            commands.add(new AddContentCommand(filePath, startIndex, "\nimport " + qualifiedName + ";\n"));
+            commands.add(new AddContentCommand(commandRec, filePath, startIndex, "\nimport " + qualifiedName + ";\n"));
         }
 
         return commands;

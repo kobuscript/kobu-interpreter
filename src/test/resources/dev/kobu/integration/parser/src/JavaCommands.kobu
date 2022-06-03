@@ -1,0 +1,35 @@
+module JavaCommands
+
+import dev.kobu.java.JavaParser
+import dev.kobu.java.JavaCommands
+import dev.kobu.java.OutputJavaTypes
+import dev.kobu.java.JavaTypes
+
+fun main(): void {
+
+    var javaFilePath = projectRootDir().resolve(Path(["in", "EmployeeController.java"]))
+    var outFilePath = projectRootDir().resolve(Path(["tmp", "EmployeeController.java"]))
+
+    var toString = javaPublicMethod("toString", [], javaStringType(), [javaAnnotation("Override")])
+
+    var methodCmd = JavaAddOrReplaceMethod{
+        file: File(javaFilePath),
+        outputFilePath: outFilePath,
+        method: toString,
+        content: "\n@Override\npublic String toString() {\n    return \"EmployeeController\";\n}".toTemplate()
+    }
+    runJavaCommand(methodCmd)
+
+    var fieldCmd = JavaAddOrReplaceField{
+        file: File(javaFilePath),
+        outputFilePath: outFilePath,
+        field: "name",
+        content: "\nprivate String name;".toTemplate()
+    }
+    runJavaCommand(fieldCmd)
+
+    var outFile = File(outFilePath)
+    print(outFile.read())
+    outFile.delete()
+
+}

@@ -25,6 +25,7 @@ SOFTWARE.
 package dev.kobu.interpreter.codec.command;
 
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
 import dev.kobu.interpreter.file_system.KobuFileSystem;
 
 import java.io.IOException;
@@ -40,7 +41,8 @@ public class RemoveContentCommand extends TextFileCommand {
 
     private final int stopIndex;
 
-    public RemoveContentCommand(String filePath, int startIndex, int stopIndex) {
+    public RemoveContentCommand(RecordValueExpr commandRec, String filePath, int startIndex, int stopIndex) {
+        super(commandRec);
         this.filePath = filePath;
         this.startIndex = startIndex;
         this.stopIndex = stopIndex;
