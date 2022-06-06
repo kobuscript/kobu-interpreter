@@ -1,0 +1,72 @@
+module JavaToString
+
+import dev.kobu.java.JavaParser
+import dev.kobu.java.JavaTypes
+import dev.kobu.java.InputJavaTypes
+import dev.kobu.java.JavaTemplates
+import dev.kobu.functions.TemplateFunctions
+import dev.kobu.java.OutputJavaTypes
+import dev.kobu.java.JavaCommands
+
+def rule ToStringMethodRule
+         for InputJavaClass as class {
+    var method = javaPublicMethod("toString", [], javaStringType(), [javaAnnotation("Override")])
+    insert(method)
+}
+
+def template JavaToStringFieldTemplate
+             for InputJavaClass / fields[*] as field
+             when not field.static <|
+", ${field.name}= " + this.${field.name}
+|>
+
+def template JavaToStringFirstFieldTemplate extends JavaToStringFieldTemplate
+             for InputJavaClass as class / fields[*] as field
+             when field.name == firstInstanceFieldName(class) <|
+${field.name}= " + this.${field.name}
+|>
+
+def template ToStringBodyTemplate
+             for OutputJavaMethod as method
+             join InputJavaClass as class
+             join AnyTemplate[] as fieldsTmpl of class.fields <|
+return "${class.name}(${strPartitionJoin(fieldsTmpl, 2, " + ", " +\n" + " ".repeat(class.name.length() + 9))} + ")";
+|> as JavaMethodBodyTemplateType
+
+def action AddToStringAction
+           for InputJavaFile as javaFile
+           join OutputJavaMethod as method
+           join JavaMethodTemplateType as methodTmpl of method {
+
+    var outFilePath = projectRootDir().resolve(Path(["tmp", "Person.java"]))
+
+    var command = JavaAddOrReplaceMethod{
+        file: javaFile.file,
+        outputFilePath: outFilePath,
+        method: method,
+        content: methodTmpl
+    }
+    runJavaCommand(command)
+
+    var outFile = File(outFilePath)
+    print(outFile.read())
+    outFile.delete()
+}
+
+fun main(args: string[]): void {
+    var javaFilePath = projectRootDir().resolve(Path(["in", "Person.java"])).toString()
+    var javaFile = parseJavaFile(javaFilePath)
+
+    addRules(javaTemplates())
+    addRules([ToStringMethodRule, JavaToStringFieldTemplate, JavaToStringFirstFieldTemplate, ToStringBodyTemplate,
+                AddToStringAction])
+    fireRules([javaFile])
+}
+
+fun firstInstanceFieldName(class: InputJavaClass): string {
+    var field = class.fields.find(f => not f.static)
+    if (field != null) {
+        return field.name
+    }
+    return null
+}

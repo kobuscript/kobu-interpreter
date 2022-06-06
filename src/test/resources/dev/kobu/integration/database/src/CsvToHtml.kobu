@@ -1,0 +1,58 @@
+module CsvToHtml
+
+import dev.kobu.codec.Csv
+import dev.kobu.functions.TemplateFunctions
+
+def template ColumnTemplate
+             for CsvColumn as col <|
+<td>${col.value}</td>
+|>
+
+def template ColumnHeaderTemplate extends ColumnTemplate
+             for CsvFile / rows[0] / columns[*] as col <|
+<th>${col.value}</th>
+|>
+
+def template RowTemplate
+             for CsvRow as row
+             join AnyTemplate[] as colTmpl of row.columns <|
+<tr>
+    ${strJoin(colTmpl, "\n")}
+</tr>
+|>
+
+def template HtmlTemplate
+             for CsvFile as file
+             join AnyTemplate[] as rowsTmpl of file.rows <|
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <table>
+        <thead>
+            ${rowsTmpl[0]}
+        </thead>
+        <tbody>
+            ${strJoin(rowsTmpl[1:], "\n")}
+        </tbody>
+    <table>
+</body>
+</html>
+|>
+
+def action PrintAction
+           for CsvFile as file
+           join AnyTemplate as htmlTemplate of file {
+    print(htmlTemplate)
+}
+
+fun main(args: string[]): void {
+    var csvFilePath = Path(["in", "username.csv"])
+    var csvFile = readCsvFile(projectRootDir().resolve(csvFilePath).toString())
+
+    addRules([ColumnTemplate, ColumnHeaderTemplate, RowTemplate, HtmlTemplate, PrintAction])
+    fireRules([csvFile])
+}

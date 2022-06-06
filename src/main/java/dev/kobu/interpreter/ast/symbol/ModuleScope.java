@@ -224,15 +224,27 @@ public class ModuleScope implements Scope {
                 }
             }
         }
+
+        List<HasExpr> toAnalyze = new ArrayList<>();
         for (Symbol sym : symbols.values()) {
             if (sym instanceof HasExpr) {
-                ((HasExpr) sym).analyze(context, evalContextProvider);
+                toAnalyze.add((HasExpr) sym);
             }
         }
+        toAnalyze.sort(Comparator.comparing(HasExpr::getAnalyzerPriority));
+        for (HasExpr sym : toAnalyze) {
+            sym.analyze(context, evalContextProvider);
+        }
+
+        List<AnalyzerListener> listeners = new ArrayList<>();
         for (Symbol sym : symbols.values()) {
             if (sym instanceof AnalyzerListener) {
-                ((AnalyzerListener) sym).afterAnalyzer(context, evalContextProvider);
+                listeners.add((AnalyzerListener) sym);
             }
+        }
+        listeners.sort(Comparator.comparing(AnalyzerListener::getAnalyzerListenerPriority));
+        for (AnalyzerListener listener : listeners) {
+            listener.afterAnalyzer(context, evalContextProvider);
         }
     }
 

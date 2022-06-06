@@ -1,0 +1,11 @@
+<html>
+    <head>
+        <title>MyPage</title>
+    </head>
+    <body>
+        <h1>
+            MyPage
+        </h1>
+        <span class="font-size: 12px">Lorem ipsum</span>
+    </body>
+</html>

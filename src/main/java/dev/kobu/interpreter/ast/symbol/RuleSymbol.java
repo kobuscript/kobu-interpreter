@@ -108,6 +108,11 @@ public class RuleSymbol extends Symbol implements HasExpr, AnalyzerListener, Ast
     }
 
     @Override
+    public int getAnalyzerPriority() {
+        return 5;
+    }
+
+    @Override
     public void analyze(AnalyzerContext context, EvalContextProvider evalContextProvider) {
         AnalyzerErrorScope errorScope = context.getErrorScope();
         if (parentRuleSymbol != null) {
@@ -176,6 +181,11 @@ public class RuleSymbol extends Symbol implements HasExpr, AnalyzerListener, Ast
             return false;
         }
         return equalsOrSubTypeOf(other) || other.equalsOrSubTypeOf(this);
+    }
+
+    @Override
+    public int getAnalyzerListenerPriority() {
+        return 0;
     }
 
     @Override

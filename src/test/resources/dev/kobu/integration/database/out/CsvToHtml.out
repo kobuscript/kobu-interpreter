@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Identifier</th>
+                <th>First name</th>
+                <th>Last name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>booker12</td>
+                <td>9012</td>
+                <td>Rachel</td>
+                <td>Booker</td>
+            </tr>
+            <tr>
+                <td>grey07</td>
+                <td>2070</td>
+                <td>Laura</td>
+                <td>Grey</td>
+            </tr>
+            <tr>
+                <td>johnson81</td>
+                <td>4081</td>
+                <td>Craig</td>
+                <td>Johnson</td>
+            </tr>
+            <tr>
+                <td>jenkins46</td>
+                <td>9346</td>
+                <td>Mary</td>
+                <td>Jenkins</td>
+            </tr>
+            <tr>
+                <td>smith79</td>
+                <td>5079</td>
+                <td>Jamie</td>
+                <td>Smith</td>
+            </tr>
+        </tbody>
+    <table>
+</body>
+</html>

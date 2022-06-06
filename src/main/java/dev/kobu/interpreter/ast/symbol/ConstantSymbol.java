@@ -87,6 +87,11 @@ public class ConstantSymbol extends Symbol implements HasExpr, AnalyzerListener 
     }
 
     @Override
+    public int getAnalyzerPriority() {
+        return 2;
+    }
+
+    @Override
     public void analyze(AnalyzerContext context, EvalContextProvider evalContextProvider) {
         if (expr == null) {
             context.getErrorScope().addError(new ConstNotInitializedError(getSourceCodeRef(), this));
@@ -125,6 +130,11 @@ public class ConstantSymbol extends Symbol implements HasExpr, AnalyzerListener 
             setType(BuiltinScope.ANY_TYPE);
         }
 
+    }
+
+    @Override
+    public int getAnalyzerListenerPriority() {
+        return 1;
     }
 
     @Override

@@ -1,0 +1,105 @@
+module HtmlPage;
+
+import dev.kobu.functions.TemplateFunctions
+
+type record Description {
+    title: string,
+    content: string
+}
+
+type record HtmlPage {
+    title: string,
+    body: HtmlTag[]
+}
+
+type record HtmlContent {
+
+}
+
+type record HtmlTag extends HtmlContent {
+    tag: string,
+    attrs: HtmlAttribute[],
+    content: HtmlContent[]
+}
+
+type record HtmlAttribute {
+    name: string,
+    value: string
+}
+
+type record StringContent extends HtmlContent {
+    value: string
+}
+
+def rule DescriptionToHtml for Description as desc {
+    insert(HtmlPage {
+        title: desc.title,
+        body: [
+            HtmlTag {
+                tag: "h1",
+                content: [ StringContent { value: desc.title } ]
+            },
+            HtmlTag {
+                tag: "span",
+                attrs: [
+                    HtmlAttribute { name: "class", value: "font-size: 12px" }
+                ],
+                content: [ StringContent { value: desc.content } ]
+            }
+        ]
+    });
+}
+
+def template HtmlAttributeTemplate for HtmlAttribute as attr <|
+${attr.name}="${attr.value}"
+|>
+
+def template StringContentTemplate for StringContent as str <|
+${str.value}
+|>
+
+def template HtmlTagTemplate for HtmlTag as htmlTag
+                             join AnyTemplate[] as attrsTmpl of htmlTag.attrs
+                             join AnyTemplate[] as contentsTmpl of htmlTag.content <|
+<${htmlTag.tag}${mkString(attrsTmpl, " ", " ", "")}>
+    ${strJoin(contentsTmpl, "\n")}
+</${htmlTag.tag}>
+|>
+
+def template InlineElementTemplate extends HtmlTagTemplate for HtmlTag as htmlTag
+                                   join AnyTemplate[] as attrsTmpl of htmlTag.attrs
+                                   join AnyTemplate[] as contentsTmpl of htmlTag.content
+                                   when htmlTag.tag == "span" <|
+<${htmlTag.tag}${mkString(attrsTmpl, " ", " ", "")}>${strJoin(contentsTmpl, "\n")}</${htmlTag.tag}>
+|>
+
+def template HtmlPageTemplate for HtmlPage as page
+                              join AnyTemplate[] as bodyTmpl of page.body <|
+<html>
+    <head>
+        <title>${page.title}</title>
+    </head>
+    <body>
+        ${strJoin(bodyTmpl, "\n")}
+    </body>
+</html>
+|>
+
+def action PrintAction for HtmlPage as page
+		   join AnyTemplate as tmpl of page {
+    print(tmpl)
+}
+
+fun main(): void {
+
+    addRules([DescriptionToHtml,
+              HtmlAttributeTemplate, StringContentTemplate,
+              HtmlTagTemplate, InlineElementTemplate, HtmlPageTemplate,
+              PrintAction]);
+
+    fireRules([Description {
+        title: "MyPage",
+        content: "Lorem ipsum"
+    }]);
+
+}

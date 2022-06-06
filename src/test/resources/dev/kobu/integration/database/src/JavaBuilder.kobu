@@ -1,0 +1,163 @@
+module JavaBuilder
+
+import dev.kobu.java.JavaParser
+import dev.kobu.java.JavaTemplates
+import dev.kobu.java.JavaTypes
+import dev.kobu.java.InputJavaTypes
+import dev.kobu.java.OutputJavaTypes
+import dev.kobu.functions.TemplateFunctions
+import dev.kobu.java.JavaCommands
+
+const OUT_FILE_PATH = projectRootDir().resolve(Path(["tmp", "Person.java"]))
+
+def rule BuilderClassRule
+         for InputJavaFile as javaFile / definitions[0] as javaDef {
+    var fields = getFields(javaDef)
+
+    var builderClass = javaPublicStaticClass(javaDef.name + "Builder")
+    for (var field of fields) {
+        if (not field.static) {
+            builderClass.fields.add(javaPrivateField(field.name, field.fieldType))
+            var param = javaParam(field.name, field.fieldType)
+            builderClass.methods.add(javaPublicMethod("set" + field.name.capitalize(), [param],
+                javaObjectType(javaFile.package, builderClass.name)))
+        }
+    }
+
+    builderClass.constructors.add(javaConstructor([], []))
+
+    builderClass.methods.add(javaPublicMethod("build", [], javaObjectType(javaFile.package, javaDef.name)))
+
+    insert(builderClass)
+}
+
+def rule MainClassConstructorRule
+         for InputJavaFile / definitions[0] as javaDef {
+    if (javaDef instanceof InputJavaClass) {
+        var class = javaDef as InputJavaClass
+
+        var consParams: OutputJavaMethodParameter[] = []
+        if (class.fields != null) {
+            for (var field of class.fields) {
+                consParams.add(javaParam(field.name, field.fieldType))
+            }
+        }
+        var cons = javaConstructor([], consParams)
+        var mainClass = javaClass(class.name, [])
+        mainClass.constructors.add(cons)
+
+        insert(mainClass)
+    }
+
+}
+
+def rule MainClassBuilderMethodRule
+         for InputJavaFile as javaFile / definitions[0] as javaDef {
+    var builderMethod = javaStaticPublicMethod("builder", [], javaObjectType(javaFile.package, javaDef.name + "Builder"))
+    insert(builderMethod)
+}
+
+def template MainClassConstructorBodyTemplate extends JavaDefaultConstructorBodyTemplate
+             for OutputJavaClass as class / constructors[*] as cons
+             join InputJavaFile as asdvb / definitions[0] as javaDef
+             when javaDef.name == class.name <|
+${strJoin(cons.parameters.map(p => "this." + p.paramName + " = " + p.paramName + ";"), "\n")}
+|> as JavaMethodBodyTemplateType
+
+def template MainClassBuilderMethodBodyTemplate
+             for OutputJavaMethod as method
+             join InputJavaFile / definitions[0] as javaDef
+             when method.name == "builder" <|
+return new ${javaDef.name + "Builder"}();
+|> as JavaMethodBodyTemplateType
+
+def template BuilderSetterMethodBodyTemplate
+             for OutputJavaMethod as method
+             join OutputJavaField as field
+             when method.name == "set" + field.name.capitalize() <|
+this.${field.name} = ${field.name};
+return this;
+|> as JavaMethodBodyTemplateType
+
+def template BuilderBuildMethodBodyTemplate
+             for OutputJavaClass as class / methods[*] as methodTest
+             join InputJavaFile as jcTest / definitions[0] as javaDefTest
+             when methodTest.name == "build" <|
+return new ${javaDefTest.name}(${strPartitionJoin(class.fields.map(f => f.name), 3, ", ", ",\n" + " ".repeat(javaDefTest.name.length() + 12))});
+|> as JavaMethodBodyTemplateType
+
+def action BuilderClassAction
+           for OutputJavaClass as builderClass
+           join AnyTemplate as classTmpl of builderClass
+           join InputJavaFile as javaFile
+           when builderClass.name == javaFile.definitions[0].name + "Builder" {
+    var cmd = JavaAddOrReplaceInnerDefinition{
+        file: File(OUT_FILE_PATH),
+        name: builderClass.name,
+        content: classTmpl
+    }
+    runJavaCommand(cmd)
+}
+
+def action MainClassConstructorAction
+           for OutputJavaClass as class / constructors[*] as cons
+           join JavaMethodTemplateType as consTmpl of cons
+           join InputJavaFile as javaFile
+           when class.name == javaFile.definitions[0].name {
+    var cmd = JavaAddOrReplaceConstructor{
+        file: File(OUT_FILE_PATH),
+        constructor: cons,
+        content: consTmpl
+    }
+    runJavaCommand(cmd)
+}
+
+def action MainClassBuilderMethodAction
+           for OutputJavaMethod as method
+           join JavaMethodTemplateType as methodTmpl of method
+           join InputJavaFile as javaFile
+           when method.name == "builder" {
+    var cmd = JavaAddOrReplaceMethod{
+        file: File(OUT_FILE_PATH),
+        method: method,
+        content: methodTmpl
+    }
+    runJavaCommand(cmd)
+}
+
+fun getFields(javaDefinition: InputJavaDefinition): InputJavaField[] {
+    var fields: InputJavaField[] = []
+
+    if (javaDefinition instanceof InputJavaClass) {
+        var javaClass = javaDefinition as InputJavaClass
+        if (javaClass.fields != null) {
+            fields.addAll(javaClass.fields)
+        }
+    } else if (javaDefinition instanceof InputJavaRecord) {
+        var javaRecord = javaDefinition as InputJavaRecord
+        if (javaRecord.components != null) {
+            fields.addAll(javaRecord.components.map(c => InputJavaField{name: c.name, fieldType: c.fieldType}))
+        }
+    }
+
+    return fields
+}
+
+fun main(args: string[]): void {
+    var javaFilePath = projectRootDir().resolve(Path(["in", "Person.java"])).toString()
+    var javaFile = parseJavaFile(javaFilePath)
+    var outFile = File(OUT_FILE_PATH)
+
+    outFile.writeString(javaFile.file.read())
+
+    addRules(javaTemplates())
+    addRules(javaConstructorBodyTemplates())
+    addRules([BuilderClassRule, MainClassConstructorRule, MainClassBuilderMethodRule,
+              BuilderSetterMethodBodyTemplate, MainClassConstructorBodyTemplate,
+              BuilderBuildMethodBodyTemplate, MainClassBuilderMethodBodyTemplate,
+              BuilderClassAction, MainClassConstructorAction, MainClassBuilderMethodAction])
+    fireRules([javaFile])
+
+    print(outFile.read().replace("\n[ \t]+\n", "\n\n"))
+    outFile.delete()
+}

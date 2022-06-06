@@ -97,6 +97,11 @@ public class NativeFunctionSymbol extends Symbol implements NamedFunction, HasEx
     }
 
     @Override
+    public int getAnalyzerPriority() {
+        return 3;
+    }
+
+    @Override
     public void analyze(AnalyzerContext context, EvalContextProvider evalContextProvider) {
 
     }

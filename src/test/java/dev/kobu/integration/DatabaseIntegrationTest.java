@@ -22,15 +22,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package dev.kobu.interpreter.ast.symbol;
+package dev.kobu.integration;
 
-import dev.kobu.interpreter.ast.AnalyzerContext;
-import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-public interface HasExpr {
+import java.io.IOException;
 
-    int getAnalyzerPriority();
+@DisplayName("Integration test - database")
+public class DatabaseIntegrationTest extends IntegrationTestBase {
 
-    void analyze(AnalyzerContext context, EvalContextProvider evalContextProvider);
+    @Test
+    void htmlPage() throws IOException {
+        runTest("database/src/HtmlPage.kobu", "database/out/HtmlPage.out");
+    }
+
+    @Test
+    void csvToHtml() throws IOException {
+        runTest("database/src/CsvToHtml.kobu", "database/out/CsvToHtml.out");
+    }
+
+    @Test
+    void javaToString() throws IOException {
+        runTest("database/src/JavaToString.kobu", "database/out/JavaToString.out");
+    }
+
+    @Test
+    void javaBuilder() throws IOException {
+        runTest("database/src/JavaBuilder.kobu", "database/out/JavaBuilder.out");
+    }
 
 }

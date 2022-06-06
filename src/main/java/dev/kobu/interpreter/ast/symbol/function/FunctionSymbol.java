@@ -142,6 +142,11 @@ public class FunctionSymbol extends Symbol implements NamedFunction, UserDefined
     }
 
     @Override
+    public int getAnalyzerPriority() {
+        return 4;
+    }
+
+    @Override
     public void analyze(AnalyzerContext analyzerContext, EvalContextProvider evalContextProvider) {
         var context = evalContextProvider.newEvalContext(analyzerContext, moduleScope, this);
         var scope = context.getCurrentScope();

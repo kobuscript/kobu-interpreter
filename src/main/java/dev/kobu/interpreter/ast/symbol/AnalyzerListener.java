@@ -29,6 +29,8 @@ import dev.kobu.interpreter.ast.eval.context.EvalContextProvider;
 
 public interface AnalyzerListener {
 
+    int getAnalyzerListenerPriority();
+
     void afterAnalyzer(AnalyzerContext context, EvalContextProvider evalContextProvider);
 
 }

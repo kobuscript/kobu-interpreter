@@ -157,6 +157,11 @@ public class TemplateTypeSymbol extends Symbol implements Type, HasExpr {
     }
 
     @Override
+    public int getAnalyzerPriority() {
+        return 1;
+    }
+
+    @Override
     public void analyze(AnalyzerContext context, EvalContextProvider evalContextProvider) {
         if (superType != null) {
             List<String> path = new ArrayList<>();
