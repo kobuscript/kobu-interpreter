@@ -189,6 +189,7 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         if (filterExpr == null) {
             return true;
         }
+        StringValueExpr nameFilterExpr = (StringValueExpr) filterExpr.resolveField("name");
         ArrayValueExpr annFilterListExpr = (ArrayValueExpr) filterExpr.resolveField("typeAnnotations");
         RecordValueExpr superTypeFilterExpr = (RecordValueExpr) filterExpr.resolveField("superType");
         ArrayValueExpr implementsFilterExpr = (ArrayValueExpr) filterExpr.resolveField("implements");
@@ -201,9 +202,18 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
         ArrayValueExpr implementsListExpr = (ArrayValueExpr) javaDefExpr.resolveField("implements");
         List<ValueExpr> implementsValueList = implementsListExpr != null ? implementsListExpr.getValue() : new ArrayList<>();
 
+        boolean matchName;
         boolean matchAnnotations;
         boolean matchInterfaces;
         boolean matchSuperType = false;
+
+        if (nameFilterExpr != null) {
+            String pattern = nameFilterExpr.getValue();
+            matchName = matchName(javaDefExpr, pattern);
+        } else {
+            matchName = true;
+        }
+
         matchAnnotations = annFilterValueList.stream().allMatch(annFilterValue -> {
             if (!(annFilterValue instanceof RecordValueExpr)) {
                 return false;
@@ -251,7 +261,48 @@ public class JavaParserVisitor extends JavaParserBaseVisitor<ValueExpr> {
             matchSuperType = true;
         }
 
-        return matchAnnotations && matchSuperType && matchInterfaces;
+        return matchName && matchAnnotations && matchSuperType && matchInterfaces;
+    }
+
+    private boolean matchName(RecordValueExpr javaDefExpr, String pattern) {
+        StringValueExpr nameExpr = (StringValueExpr) javaDefExpr.resolveField("name");
+        if (nameExpr.getValue().matches(pattern)) {
+            return true;
+        } else {
+            ArrayValueExpr innerClassesExpr = (ArrayValueExpr) javaDefExpr.resolveField("innerClasses");
+            if (innerClassesExpr != null) {
+                for (ValueExpr innerClass : innerClassesExpr.getValue()) {
+                    if (matchName((RecordValueExpr) innerClass, pattern)) {
+                        return true;
+                    }
+                }
+            }
+            ArrayValueExpr innerInterfacesExpr = (ArrayValueExpr) javaDefExpr.resolveField("innerInterfaces");
+            if (innerInterfacesExpr != null) {
+                for (ValueExpr innerInterface : innerInterfacesExpr.getValue()) {
+                    if (matchName((RecordValueExpr) innerInterface, pattern)) {
+                        return true;
+                    }
+                }
+            }
+            ArrayValueExpr innerEnumsExpr = (ArrayValueExpr) javaDefExpr.resolveField("innerEnums");
+            if (innerEnumsExpr != null) {
+                for (ValueExpr innerEnum : innerEnumsExpr.getValue()) {
+                    if (matchName((RecordValueExpr) innerEnum, pattern)) {
+                        return true;
+                    }
+                }
+            }
+            ArrayValueExpr innerRecordsExpr = (ArrayValueExpr) javaDefExpr.resolveField("innerRecords");
+            if (innerRecordsExpr != null) {
+                for (ValueExpr innerRecord : innerRecordsExpr.getValue()) {
+                    if (matchName((RecordValueExpr) innerRecord, pattern)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override

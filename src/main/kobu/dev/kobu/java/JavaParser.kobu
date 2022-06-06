@@ -30,7 +30,8 @@ import dev.kobu.java.InputJavaTypes
 type record JavaFilter {
     typeAnnotations: JavaAnnotationFilter[],
     superType: JavaTypeFilter,
-    implements: JavaTypeFilter[]
+    implements: JavaTypeFilter[],
+    name: string
 }
 
 type record JavaAnnotationFilter {
@@ -43,8 +44,9 @@ type record JavaTypeFilter {
     name: string
 }
 
-fun newJavaFilter(): JavaFilter {
+fun newJavaFilter(name?: string): JavaFilter {
     return JavaFilter{
+        name: name,
         typeAnnotations: [],
         implements: []
     }
@@ -106,11 +108,83 @@ fun getJavaRootDir(javaFile: InputJavaFile): Path {
 }
 
 /**
- * Returns the path of a java file, denoted bu it's package and name.
+ * Returns the path of a java file, denoted by it's package and name.
  *
  */
 fun getJavaFilePath(rootDir: Path, package: string, name: string): Path {
     var parts = package.split("\\.")
     parts.add(name + ".java")
     return rootDir.resolve(Path(parts))
+}
+
+/**
+ * Locates and parses the super class of a given class. If the class doesn't have a super type or
+ * the super type source file cannot be found, it returns null.
+ */
+fun parseJavaSuperType(javaClass: InputJavaClass): InputJavaClass {
+    if (javaClass.superType != null) {
+        var pkg = javaClass.superType.package
+        if (pkg == null) {
+            pkg = javaClass.javaFile.package
+        }
+
+        var rootDir = getJavaRootDir(javaClass.javaFile)
+        var superTypeFilePath = getJavaFilePath(rootDir, pkg, javaClass.superType.name)
+        var javaFile: InputJavaFile = null
+        if (not File(superTypeFilePath).exists()) {
+            var javaFileList = parseJava(superTypeFilePath.getParent(), ".java", true, newJavaFilter(javaClass.superType.name))
+            if (javaFileList.size() > 0) {
+                javaFile = javaFileList[0]
+            } else {
+                return null
+            }
+        } else {
+            javaFile = parseJavaFile(superTypeFilePath.toString())
+        }
+        var javaClass: InputJavaClass = null;
+        for (var javaDef of javaFile.definitions) {
+            if (javaDef.name == javaClass.superType.name and javaDef instanceof InputJavaClass) {
+                javaClass = javaDef as InputJavaClass
+            }
+        }
+        if (javaClass != null) {
+            var innerType = javaClass.superType.innerType;
+            while (innerType != null) {
+                var innerClass = javaClass.innerClasses.find(cl => cl.name == innerType.name)
+                if (innerClass == null) {
+                    return null
+                }
+                javaClass = innerClass
+                innerType = innerType.innerType
+            }
+        }
+        return javaClass
+    }
+    return null
+}
+
+/**
+ * Get all fields of a java class, including inherited ones.
+ */
+fun getAllJavaClassFields(javaClass: InputJavaClass): InputJavaField[] {
+    var fields: InputJavaField[] = []
+    var superType = parseJavaSuperType(javaClass)
+    if (superType != null) {
+        fields.addAll(getAllJavaClassFields(superType))
+    }
+    fields.addAll(javaClass.fields)
+    return fields
+}
+
+/**
+ * Get all methods of a java class, including inherited ones.
+ */
+fun getAllJavaClassMethods(javaClass: InputJavaClass): InputJavaMethod[] {
+    var methods: InputJavaMethod[] = []
+    var superType = parseJavaSuperType(javaClass)
+    if (superType != null) {
+        methods.addAll(getAllJavaClassMethods(superType))
+    }
+    methods.addAll(javaClass.methods)
+    return methods
 }
