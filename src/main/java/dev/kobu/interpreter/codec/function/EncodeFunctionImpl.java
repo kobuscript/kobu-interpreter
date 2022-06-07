@@ -49,8 +49,7 @@ public class EncodeFunctionImpl extends NativeFunction {
             throw new IllegalArgumentError("'value' cannot be null", sourceCodeRef);
         }
 
-        ValueExpr result = context.getOutputWriter().encode(getModuleScope(), context, writer, sourceExpr, args, sourceCodeRef);
-        return result;
+        return context.getOutputWriter().encode(getModuleScope(), context, writer, sourceExpr, args, sourceCodeRef);
     }
 
 }

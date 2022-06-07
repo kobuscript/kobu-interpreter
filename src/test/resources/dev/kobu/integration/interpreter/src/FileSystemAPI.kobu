@@ -9,11 +9,11 @@ fun main(): void {
     files.sort((f1, f2) => f1.getName().compare(f2.getName()))
 
     files.forEach(txtFile => {
-        print(txtFile.getName() + ": " + wordCount(txtFile) + " words, " + txtFile.length() + " bytes.")
+        print(txtFile.getName() + ": " + wordCount(txtFile) + " words.")
     })
 
 }
 
 private fun wordCount(file: File): number {
-    return file.read().split("[ \t\f\n]+").length()
+    return file.read().split("[ \t\f\r\n]+").length()
 }

@@ -47,6 +47,7 @@ public class TemplateIndentation {
 
         if (trim) {
             return str
+                    .replaceAll("\\r\\n", "\n")
                     .replaceAll("^\\n", "")
                     .replaceAll("\\n$", "")
                     .replaceAll("\\n", marginStr);

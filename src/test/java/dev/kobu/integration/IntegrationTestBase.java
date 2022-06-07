@@ -39,6 +39,7 @@ public abstract class IntegrationTestBase {
     protected void runTest(String scriptPath, String expectedResultPath, String... args) throws IOException {
         try (InputStream expectedResultIn = getInputStream(expectedResultPath)) {
             var expectedResult = new String(expectedResultIn.readAllBytes(), StandardCharsets.UTF_8);
+            expectedResult = expectedResult.replaceAll("\\r\\n?", "\n");
 
             var fileSystem = new LocalKobuFileSystem();
             var scriptFile = new LocalKobuFile(new File(getFullPath(scriptPath)));
@@ -48,7 +49,7 @@ public abstract class IntegrationTestBase {
             var outPrintStream = new PrintStream(out);
             runner.run(outPrintStream, outPrintStream);
 
-            var result = out.toString(StandardCharsets.UTF_8);
+            var result = out.toString(StandardCharsets.UTF_8).replaceAll("\\r\\n?", "\n");
             assertEquals(expectedResult, result);
         }
     }

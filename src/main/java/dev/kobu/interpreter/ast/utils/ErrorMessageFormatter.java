@@ -217,14 +217,14 @@ public class ErrorMessageFormatter {
     private static String getPathOf(ResourceRef file, Project project) {
         if (project != null && project.getProjectDirectory() != null) {
             var relPath = Path.of(project.getProjectDirectory().getAbsolutePath())
-                    .relativize(Path.of(file.getAbsolutePath())).toString();
+                    .relativize(Path.of(file.getAbsolutePath())).toString().replace('\\', '/');
             if (!relPath.startsWith("..")) {
                 return relPath;
             } else if (file instanceof ClasspathScriptRef) {
                 return ((ClasspathScriptRef) file).extractModuleId();
             }
         }
-        return file.getAbsolutePath();
+        return file.getAbsolutePath().replace('\\', '/');
     }
 
 }

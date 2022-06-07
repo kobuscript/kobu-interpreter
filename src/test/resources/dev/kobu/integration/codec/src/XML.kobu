@@ -1,6 +1,7 @@
 module XML
 
 import dev.kobu.codec.Xml
+import dev.kobu.constants.Charsets
 
 type record Catalog {
     books: Book[]
@@ -39,5 +40,5 @@ fun main(): void {
         description: "new test entry"
     })
 
-    print(toXml(catalog, xmlMapping))
+    print(toXml(catalog, xmlMapping, UTF_8))
 }
