@@ -1616,8 +1616,12 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
                     @Override
                     public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
                         List<SymbolDescriptor> symbols = new ArrayList<>();
-                        symbols.addAll(getGlobalSymbols(moduleScope, SymbolTypeEnum.TYPE, SymbolTypeEnum.MODULE_REF));
-                        symbols.addAll(getExternalSymbols(moduleScope, externalModules, SymbolTypeEnum.TYPE));
+                        symbols.addAll(getGlobalSymbols(moduleScope, SymbolTypeEnum.RECORD_TYPE,
+                                SymbolTypeEnum.TEMPLATE_TYPE, SymbolTypeEnum.BUILTIN_TYPE, SymbolTypeEnum.RULE,
+                                SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.ACTION, SymbolTypeEnum.MODULE_REF));
+                        symbols.addAll(getExternalSymbols(moduleScope, externalModules, SymbolTypeEnum.RECORD_TYPE,
+                                SymbolTypeEnum.TEMPLATE_TYPE, SymbolTypeEnum.BUILTIN_TYPE,
+                                SymbolTypeEnum.RULE, SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.ACTION));
                         if (functionReturnType) {
                             symbols.add(SymbolDescriptorUtils.voidKeyword);
                         }

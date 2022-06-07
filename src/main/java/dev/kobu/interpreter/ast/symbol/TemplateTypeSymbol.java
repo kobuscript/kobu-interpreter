@@ -175,7 +175,7 @@ public class TemplateTypeSymbol extends Symbol implements Type, HasExpr {
             if (superType != null) {
                 description += " extends " + superType.getType().getName();
             }
-            this.documentation = new SymbolDocumentation(getModuleScope().getModuleId(), SymbolTypeEnum.TYPE,
+            this.documentation = new SymbolDocumentation(getModuleScope().getModuleId(), SymbolTypeEnum.TEMPLATE_TYPE,
                     description, docText);
         }
     }

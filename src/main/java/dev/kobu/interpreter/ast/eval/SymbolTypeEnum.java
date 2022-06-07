@@ -28,9 +28,12 @@ public enum SymbolTypeEnum {
 
     KEYWORD,
     VARIABLE,
+    CONSTANT,
     ATTRIBUTE,
     FUNCTION,
-    TYPE,
+    RECORD_TYPE,
+    TEMPLATE_TYPE,
+    BUILTIN_TYPE,
     MODULE_SEGMENT,
     MODULE_REF,
     RULE,

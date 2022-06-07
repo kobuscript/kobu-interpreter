@@ -71,17 +71,27 @@ public class SymbolDescriptor {
                 this.metadata = symbolType.getName();
             }
         } else if (symbol instanceof ConstantSymbol) {
-            this.type = SymbolTypeEnum.VARIABLE;
+            this.type = SymbolTypeEnum.CONSTANT;
             Type symbolType = ((ConstantSymbol) symbol).getType();
             if (symbolType != null) {
                 this.metadata = symbolType.getName();
             }
         } else if (symbol instanceof ModuleRefSymbol) {
-            this.name = ((ModuleRefSymbol)symbol).getAlias();
+            this.name = ((ModuleRefSymbol) symbol).getAlias();
             this.type = SymbolTypeEnum.MODULE_REF;
-            this.metadata = ((ModuleRefSymbol)symbol).getModuleScopeRef().getModuleId();
+            this.metadata = ((ModuleRefSymbol) symbol).getModuleScopeRef().getModuleId();
+        } else if (symbol instanceof RecordTypeSymbol) {
+            this.type = SymbolTypeEnum.RECORD_TYPE;
+            if (symbol.getSourceCodeRef() != null) {
+                this.metadata = symbol.getSourceCodeRef().getModuleId();
+            }
+        } else if (symbol instanceof TemplateTypeSymbol) {
+            this.type = SymbolTypeEnum.TEMPLATE_TYPE;
+            if (symbol.getSourceCodeRef() != null) {
+                this.metadata = symbol.getSourceCodeRef().getModuleId();
+            }
         } else if (symbol instanceof Type) {
-            this.type = SymbolTypeEnum.TYPE;
+            this.type = SymbolTypeEnum.BUILTIN_TYPE;
             if (symbol.getSourceCodeRef() != null) {
                 this.metadata = symbol.getSourceCodeRef().getModuleId();
             }
@@ -129,7 +139,7 @@ public class SymbolDescriptor {
     }
 
     public SymbolDescriptor(String prefix, RecordTypeSymbol symbol) {
-        this.type = SymbolTypeEnum.TYPE;
+        this.type = SymbolTypeEnum.RECORD_TYPE;
         this.name = prefix + "." + symbol.getNameInModule();
         this.label = symbol.getNameInModule();
         if (symbol.getSourceCodeRef() != null) {

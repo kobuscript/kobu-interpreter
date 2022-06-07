@@ -439,7 +439,7 @@ public class RecordTypeSymbol extends Symbol implements Type, HasExpr {
                     description += ">";
                 }
             }
-            this.documentation = new SymbolDocumentation(getModuleScope().getModuleId(), SymbolTypeEnum.TYPE,
+            this.documentation = new SymbolDocumentation(getModuleScope().getModuleId(), SymbolTypeEnum.RECORD_TYPE,
                     description, docText);
         }
         return documentation;

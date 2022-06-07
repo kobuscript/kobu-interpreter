@@ -62,7 +62,7 @@ public class UndefinedTypeError extends AnalyzerError {
 
     @Override
     public SymbolTypeEnum getSymbolType() {
-        return SymbolTypeEnum.TYPE;
+        return SymbolTypeEnum.BUILTIN_TYPE;
     }
 
     @Override

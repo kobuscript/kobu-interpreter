@@ -107,7 +107,9 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                                 SymbolTypeEnum.TEMPLATE,
                                 SymbolTypeEnum.ACTION,
                                 SymbolTypeEnum.KEYWORD,
-                                SymbolTypeEnum.TYPE);
+                                SymbolTypeEnum.BUILTIN_TYPE,
+                                SymbolTypeEnum.RECORD_TYPE,
+                                SymbolTypeEnum.TEMPLATE_TYPE);
             }
 
             if (symbolName.equals("")) {
@@ -347,7 +349,9 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
             symbols.addAll(getExternalSymbols(moduleScope, externalModules,
                     SymbolTypeEnum.FUNCTION, SymbolTypeEnum.RULE,
                     SymbolTypeEnum.TEMPLATE, SymbolTypeEnum.ACTION,
-                    SymbolTypeEnum.TYPE, SymbolTypeEnum.VARIABLE));
+                    SymbolTypeEnum.RECORD_TYPE, SymbolTypeEnum.TEMPLATE_TYPE,
+                    SymbolTypeEnum.BUILTIN_TYPE, SymbolTypeEnum.CONSTANT,
+                    SymbolTypeEnum.VARIABLE));
         }
         return symbols;
     }
