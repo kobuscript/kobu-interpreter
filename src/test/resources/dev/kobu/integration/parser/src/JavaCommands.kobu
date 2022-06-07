@@ -30,6 +30,6 @@ fun main(): void {
 
     var outFile = File(outFilePath)
     print(outFile.read())
-    //outFile.delete()
+    outFile.delete()
 
 }

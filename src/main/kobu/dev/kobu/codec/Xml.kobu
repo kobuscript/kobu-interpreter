@@ -125,7 +125,7 @@ def native writeXml<T>(file: File, value: T, xmlMapping: XmlMapping<T>, charset?
 /**
  * Serializes a value to XML using the given mapping configuration
  */
-def native toXml<T>(value: T, xmlMapping: XmlMapping<T>): string;
+def native toXml<T>(value: T, xmlMapping: XmlMapping<T>, charset?: string): string;
 
 
 
