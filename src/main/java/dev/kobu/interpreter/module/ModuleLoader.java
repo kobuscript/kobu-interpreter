@@ -201,7 +201,8 @@ public class ModuleLoader {
             }
 
             if (symbol != null) {
-                if (symbol instanceof RecordTypeSymbol || symbol instanceof TemplateTypeSymbol) {
+                if (symbol instanceof RecordTypeSymbol || symbol instanceof TemplateTypeSymbol
+                        || symbol instanceof RuleSymbol) {
                     return KobuElementDescriptor.element(symbol.getSourceCodeRef().getModuleId(), canonicalName);
                 } else if (symbol instanceof BuiltinTypeSymbol) {
                     return KobuElementDescriptor.builtinElement(canonicalName);
