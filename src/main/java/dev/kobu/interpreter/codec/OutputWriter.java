@@ -61,7 +61,12 @@ public class OutputWriter {
     public ValueExpr encode(ModuleScope moduleScope, EvalContext context, Writer writer,
                             ValueExpr source, Map<String, ValueExpr> args, SourceCodeRef sourceCodeRef) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        writer.write(moduleScope, context, source, out, Charset.defaultCharset(), args, sourceCodeRef);
+        ValueExpr charsetExpr = args.get("charset");
+        Charset charset = Charset.defaultCharset();
+        if (charsetExpr instanceof StringValueExpr) {
+            charset = Charset.forName(((StringValueExpr)charsetExpr).getValue());
+        }
+        writer.write(moduleScope, context, source, out, charset, args, sourceCodeRef);
         return new StringValueExpr(out.toString());
     }
 

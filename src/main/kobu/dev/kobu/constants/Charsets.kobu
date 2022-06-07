@@ -24,14 +24,14 @@ SOFTWARE.
 
 module dev.kobu.constants.Charsets
 
-const UTF_8 = "UTF_8"
+const UTF_8 = "UTF-8"
 
-const UTF_16 = "UTF_16"
+const UTF_16 = "UTF-16"
 
-const UTF_16BE = "UTF_16BE"
+const UTF_16BE = "UTF-16BE"
 
-const UTF_16LE = "UTF_16LE"
+const UTF_16LE = "UTF-16LE"
 
-const ISO_8859_1 = "ISO_8859_1"
+const ISO_8859_1 = "ISO-8859-1"
 
-const US_ASCII = "US_ASCII"
+const US_ASCII = "US-ASCII"
