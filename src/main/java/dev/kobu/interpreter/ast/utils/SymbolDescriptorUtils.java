@@ -56,7 +56,9 @@ public class SymbolDescriptorUtils {
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "for", "", ""),
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "while", "", ""),
             new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "var", "", ""),
-            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "const", "", "")
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "const", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "return", "", ""),
+            new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "instanceof", "", "")
     );
 
     public static final SymbolDescriptor voidKeyword = new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "void", "", "");

@@ -131,9 +131,11 @@ typerecord : TYPE TYPE_RECORD ID typeParameters? inheritance? LCB attributes? RC
 
 typetemplate : TYPE TYPE_TEMPLATE ID templateInheritance? ( LCB RCB? )? ;
 
-inheritance : EXTENDS typeName ;
+inheritance : EXTENDS typeName
+              | ID {notifyErrorListenersPrevToken("'extends' expected");} ;
 
-templateInheritance : EXTENDS typeName ;
+templateInheritance : EXTENDS typeName
+                      | ID {notifyErrorListenersPrevToken("'extends' expected");} ;
 
 attributes : ( STAR | ID ) ( COLON type? )? ( COMMA | COMMA? attributes )? ;
 
@@ -149,7 +151,8 @@ defaction : DEF DEFACTION ID ruleExtends? FOR queryExpr extractExpr* joinExpr* (
 
 defrule : DEF DEFRULE ID ruleExtends? FOR queryExpr extractExpr* joinExpr* ( WHEN expr )? LCB block RCB ;
 
-ruleExtends : EXTENDS typeName ;
+ruleExtends : EXTENDS typeName
+              | ID {notifyErrorListenersPrevToken("'extends' expected");} ;
 
 queryExpr : ANY? type queryExprAlias? ( DIV queryExprSegment )? ;
 
