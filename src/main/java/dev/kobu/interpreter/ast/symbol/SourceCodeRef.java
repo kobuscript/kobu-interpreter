@@ -66,7 +66,7 @@ public class SourceCodeRef {
         this.charStart = Math.max(charStart, 0);
         this.lineEnd = lineEnd;
         this.charEnd = charEnd;
-        this.startOffset = Math.max(startOffset, 0);
+        this.startOffset = Math.min(Math.max(startOffset, 0), endOffset);
         this.endOffset = endOffset;
         this.hasPosition = true;
     }
