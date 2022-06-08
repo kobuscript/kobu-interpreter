@@ -72,7 +72,7 @@ public class InstanceOfExpr implements Expr {
                 this.type = UnknownType.INSTANCE;
                 return;
             }
-            if (!expr.getType().isAssignableFrom(testType)) {
+            if (!testType.isAssignableFrom(expr.getType()) && !expr.getType().isAssignableFrom(testType)) {
                 context.getAnalyzerContext().getErrorScope().addError(new CastTypeError(sourceCodeRef,
                         testType, expr.getType()));
                 this.type = UnknownType.INSTANCE;
@@ -93,6 +93,6 @@ public class InstanceOfExpr implements Expr {
     @Override
     public ValueExpr evalExpr(EvalContext context) {
         ValueExpr value = expr.evalExpr(context);
-        return BooleanValueExpr.fromValue(value.getType().isAssignableFrom(testType));
+        return BooleanValueExpr.fromValue(testType.isAssignableFrom(value.getType()));
     }
 }

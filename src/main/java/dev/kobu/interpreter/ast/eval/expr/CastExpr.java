@@ -72,7 +72,7 @@ public class CastExpr implements Expr {
                 this.type = UnknownType.INSTANCE;
                 return;
             }
-            if (!expr.getType().isAssignableFrom(targetType)) {
+            if (!targetType.isAssignableFrom(expr.getType()) & !expr.getType().isAssignableFrom(targetType)) {
                 context.getAnalyzerContext().getErrorScope().addError(new CastTypeError(sourceCodeRef,
                         targetType, expr.getType()));
                 this.type = UnknownType.INSTANCE;
@@ -93,7 +93,7 @@ public class CastExpr implements Expr {
     public ValueExpr evalExpr(EvalContext context) {
         ValueExpr value = expr.evalExpr(context);
 
-        if (!value.getType().isAssignableFrom(targetType)) {
+        if (!targetType.isAssignableFrom(value.getType())) {
             throw new RuntimeCastTypeError(sourceCodeRef, targetType, value.getType());
         }
 

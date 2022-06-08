@@ -168,17 +168,31 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
             context.getErrorScope().addError(new InvalidTemplateTypeError(getSourceCodeRef(ctx.ID())));
         }
 
-        if (ctx.templateInheritance() != null && ctx.templateInheritance().typeName() != null) {
-            var typeNameExpr = ctx.templateInheritance().typeName();
-            Type superType = (Type) visit(typeNameExpr);
-            if (!(superType instanceof TemplateTypeSymbol)) {
-                if (!(superType instanceof AnyTemplateTypeSymbol)) {
-                    context.getErrorScope().addError(new TemplateInvalidSuperTypeError(getSourceCodeRef(typeNameExpr),
-                            templateType, typeNameExpr.getText()));
+        if (ctx.templateInheritance() != null) {
+            if (ctx.templateInheritance().typeName() != null) {
+                var typeNameExpr = ctx.templateInheritance().typeName();
+                Type superType = (Type) visit(typeNameExpr);
+                if (!(superType instanceof TemplateTypeSymbol)) {
+                    if (!(superType instanceof AnyTemplateTypeSymbol)) {
+                        context.getErrorScope().addError(new TemplateInvalidSuperTypeError(getSourceCodeRef(typeNameExpr),
+                                templateType, typeNameExpr.getText()));
+                    }
+                } else {
+                    templateType.setSuperType(new TemplateSuperType(getSourceCodeRef(typeNameExpr),
+                            (TemplateTypeSymbol) superType));
                 }
-            } else {
-                templateType.setSuperType(new TemplateSuperType(getSourceCodeRef(typeNameExpr),
-                        (TemplateTypeSymbol) superType));
+            } else if (ctx.templateInheritance().ID() != null) {
+                moduleScope.registerAutoCompletionSource(ctx.templateInheritance().ID().getSymbol().getStartIndex(), new AutoCompletionSource() {
+                    @Override
+                    public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                        return List.of(new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "extends", "", ""));
+                    }
+
+                    @Override
+                    public boolean hasOwnCompletionScope() {
+                        return false;
+                    }
+                });
             }
         }
 
@@ -235,17 +249,31 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         }
 
-        if (ctx.inheritance() != null && ctx.inheritance().typeName() != null) {
-            var typeNameExpr = ctx.inheritance().typeName();
-            Type superType = (Type) visit(typeNameExpr);
-            if (!(superType instanceof RecordTypeSymbol)) {
-                if (!(superType instanceof AnyRecordTypeSymbol)) {
-                    context.getErrorScope().addError(new RecordInvalidSuperTypeError(getSourceCodeRef(typeNameExpr), recordType,
-                            typeNameExpr.getText()));
+        if (ctx.inheritance() != null) {
+            if (ctx.inheritance().typeName() != null) {
+                var typeNameExpr = ctx.inheritance().typeName();
+                Type superType = (Type) visit(typeNameExpr);
+                if (!(superType instanceof RecordTypeSymbol)) {
+                    if (!(superType instanceof AnyRecordTypeSymbol)) {
+                        context.getErrorScope().addError(new RecordInvalidSuperTypeError(getSourceCodeRef(typeNameExpr), recordType,
+                                typeNameExpr.getText()));
+                    }
+                } else {
+                    recordType.setSuperType(new RecordSuperType(getSourceCodeRef(typeNameExpr),
+                            (RecordTypeSymbol) superType));
                 }
-            } else {
-                recordType.setSuperType(new RecordSuperType(getSourceCodeRef(typeNameExpr),
-                        (RecordTypeSymbol) superType));
+            } else if (ctx.inheritance().ID() != null) {
+                moduleScope.registerAutoCompletionSource(ctx.inheritance().ID().getSymbol().getStartIndex(), new AutoCompletionSource() {
+                    @Override
+                    public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                        return List.of(new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "extends", "", ""));
+                    }
+
+                    @Override
+                    public boolean hasOwnCompletionScope() {
+                        return false;
+                    }
+                });
             }
         }
 
@@ -492,15 +520,29 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         var rule = (RuleSymbol) symbol;
 
-        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
-            ruleTypeScope = true;
-            var parentRule = visit(ctx.ruleExtends().typeName());
-            ruleTypeScope = false;
-            if (parentRule instanceof RuleSymbol) {
-                rule.setParentRuleSymbol((RuleSymbol) parentRule);
-            } else {
-                context.getErrorScope().addError(new InvalidParentRuleError(getSourceCodeRef(ctx.ruleExtends().typeName()),
-                        ctx.ruleExtends().getText()));
+        if (ctx.ruleExtends() != null) {
+            if (ctx.ruleExtends().typeName() != null) {
+                ruleTypeScope = true;
+                var parentRule = visit(ctx.ruleExtends().typeName());
+                ruleTypeScope = false;
+                if (parentRule instanceof RuleSymbol) {
+                    rule.setParentRuleSymbol((RuleSymbol) parentRule);
+                } else {
+                    context.getErrorScope().addError(new InvalidParentRuleError(getSourceCodeRef(ctx.ruleExtends().typeName()),
+                            ctx.ruleExtends().getText()));
+                }
+            } else if (ctx.ruleExtends().ID() != null) {
+                moduleScope.registerAutoCompletionSource(ctx.ruleExtends().ID().getSymbol().getStartIndex(), new AutoCompletionSource() {
+                    @Override
+                    public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                        return List.of(new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "extends", "", ""));
+                    }
+
+                    @Override
+                    public boolean hasOwnCompletionScope() {
+                        return false;
+                    }
+                });
             }
         }
 
@@ -591,15 +633,29 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         var rule = (RuleSymbol) symbol;
 
-        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
-            ruleTypeScope = true;
-            var parentRule = visit(ctx.ruleExtends().typeName());
-            ruleTypeScope = false;
-            if (parentRule instanceof RuleSymbol) {
-                rule.setParentRuleSymbol((RuleSymbol) parentRule);
-            } else {
-                context.getErrorScope().addError(new InvalidParentRuleError(getSourceCodeRef(ctx.ruleExtends().typeName()),
-                        ctx.ruleExtends().getText()));
+        if (ctx.ruleExtends() != null) {
+            if (ctx.ruleExtends().typeName() != null) {
+                ruleTypeScope = true;
+                var parentRule = visit(ctx.ruleExtends().typeName());
+                ruleTypeScope = false;
+                if (parentRule instanceof RuleSymbol) {
+                    rule.setParentRuleSymbol((RuleSymbol) parentRule);
+                } else {
+                    context.getErrorScope().addError(new InvalidParentRuleError(getSourceCodeRef(ctx.ruleExtends().typeName()),
+                            ctx.ruleExtends().getText()));
+                }
+            } else if (ctx.ruleExtends().ID() != null) {
+                moduleScope.registerAutoCompletionSource(ctx.ruleExtends().ID().getSymbol().getStartIndex(), new AutoCompletionSource() {
+                    @Override
+                    public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                        return List.of(new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "extends", "", ""));
+                    }
+
+                    @Override
+                    public boolean hasOwnCompletionScope() {
+                        return false;
+                    }
+                });
             }
         }
 
@@ -655,15 +711,29 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
         var rule = (RuleSymbol) symbol;
 
-        if (ctx.ruleExtends() != null && ctx.ruleExtends().typeName() != null) {
-            ruleTypeScope = true;
-            var parentRule = visit(ctx.ruleExtends().typeName());
-            ruleTypeScope = false;
-            if (parentRule instanceof RuleSymbol) {
-                rule.setParentRuleSymbol((RuleSymbol) parentRule);
-            } else {
-                context.getErrorScope().addError(new InvalidParentRuleError(getSourceCodeRef(ctx.ruleExtends().typeName()),
-                        ctx.ruleExtends().getText()));
+        if (ctx.ruleExtends() != null) {
+            if (ctx.ruleExtends().typeName() != null) {
+                ruleTypeScope = true;
+                var parentRule = visit(ctx.ruleExtends().typeName());
+                ruleTypeScope = false;
+                if (parentRule instanceof RuleSymbol) {
+                    rule.setParentRuleSymbol((RuleSymbol) parentRule);
+                } else {
+                    context.getErrorScope().addError(new InvalidParentRuleError(getSourceCodeRef(ctx.ruleExtends().typeName()),
+                            ctx.ruleExtends().getText()));
+                }
+            } else if (ctx.ruleExtends().ID() != null) {
+                moduleScope.registerAutoCompletionSource(ctx.ruleExtends().ID().getSymbol().getStartIndex(), new AutoCompletionSource() {
+                    @Override
+                    public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+                        return List.of(new SymbolDescriptor(SymbolTypeEnum.KEYWORD, "extends", "", ""));
+                    }
+
+                    @Override
+                    public boolean hasOwnCompletionScope() {
+                        return false;
+                    }
+                });
             }
         }
 

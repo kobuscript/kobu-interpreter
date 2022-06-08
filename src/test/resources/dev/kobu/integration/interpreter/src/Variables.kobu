@@ -85,6 +85,13 @@ fun main(): void {
     print(rec3)
     print(rec4)
 
+    print("rec2 instanceof MyRecord2: " + (rec2 instanceof MyRecord2))
+    print("rec2 instanceof MyRecord: " + (rec2 instanceof MyRecord))
+    print("rec2 instanceof AnyRecord: " + (rec2 instanceof AnyRecord))
+    print("rec2 instanceof Any: " + (rec2 instanceof Any))
+    var r = rec2 as AnyRecord
+    print("r instanceof MyRecord3: " + (r instanceof MyRecord3))
+
     rec3.myAttr2 = null
     print(rec3)
 
