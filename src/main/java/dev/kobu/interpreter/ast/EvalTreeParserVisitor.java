@@ -1550,7 +1550,7 @@ public class EvalTreeParserVisitor extends KobuParserVisitor<AstNode> {
 
     @Override
     public AstNode visitQueryFieldExpr(KobuParser.QueryFieldExprContext ctx) {
-        var field = new QueryFieldClause(getSourceCodeRef(ctx), ctx.ID().getText());
+        var field = new QueryFieldClause(moduleScope, getSourceCodeRef(ctx), ctx.ID().getText());
         if (ctx.queryExprArraySelect() != null) {
             field.setBind(null);
             QueryArrayItemClause arrayItemClause = (QueryArrayItemClause) visit(ctx.queryExprArraySelect());

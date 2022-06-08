@@ -26,25 +26,25 @@ package dev.kobu.interpreter.ast.query;
 
 import dev.kobu.database.index.Match;
 import dev.kobu.database.index.impl.InternalAccIndexValueExpr;
-import dev.kobu.interpreter.ast.eval.ValueExpr;
+import dev.kobu.interpreter.ast.eval.*;
 import dev.kobu.interpreter.ast.eval.context.EvalContext;
+import dev.kobu.interpreter.ast.eval.context.EvalModeEnum;
 import dev.kobu.interpreter.ast.eval.expr.value.ArrayValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.NullValueExpr;
 import dev.kobu.interpreter.ast.eval.expr.value.RecordValueExpr;
-import dev.kobu.interpreter.ast.symbol.RecordTypeSymbol;
-import dev.kobu.interpreter.ast.symbol.SourceCodeRef;
-import dev.kobu.interpreter.ast.symbol.Type;
-import dev.kobu.interpreter.ast.symbol.VariableSymbol;
+import dev.kobu.interpreter.ast.symbol.*;
 import dev.kobu.interpreter.ast.symbol.array.ArrayType;
+import dev.kobu.interpreter.ast.symbol.function.NamedFunction;
 import dev.kobu.interpreter.error.analyzer.InvalidQueryType;
 import dev.kobu.interpreter.error.analyzer.NotArrayTypeError;
 import dev.kobu.interpreter.error.analyzer.UndefinedAttributeError;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class QueryFieldClause implements QueryClause {
+public class QueryFieldClause implements QueryClause, HasElementRef, AutoCompletionSource {
 
     private final SourceCodeRef sourceCodeRef;
 
@@ -66,9 +66,18 @@ public class QueryFieldClause implements QueryClause {
 
     private ValueExpr valueScope;
 
-    public QueryFieldClause(SourceCodeRef sourceCodeRef, String field) {
+    private SourceCodeRef elementRef;
+
+    private Collection<SymbolDescriptor> symbolsInScope;
+
+    public QueryFieldClause(ModuleScope moduleScope, SourceCodeRef sourceCodeRef, String field) {
         this.sourceCodeRef = sourceCodeRef;
         this.field = field;
+
+        if (moduleScope.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
+            moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
+        }
     }
 
     public SourceCodeRef getSourceCodeRef() {
@@ -87,6 +96,15 @@ public class QueryFieldClause implements QueryClause {
 
     @Override
     public void analyze(EvalContext context) {
+        if (context.getEvalMode() == EvalModeEnum.ANALYZER_SERVICE) {
+            List<SymbolDescriptor> symbols = new ArrayList<>();
+            for (FieldDescriptor field : typeScope.getFields()) {
+                symbols.add(new SymbolDescriptor(field));
+            }
+            this.symbolsInScope = symbols;
+            this.elementRef = typeScope.getFieldRef(field);
+        }
+
         var fieldType = typeScope.resolveField(field);
         if (fieldType == null) {
             context.addAnalyzerError(new UndefinedAttributeError(sourceCodeRef, typeScope, field));
@@ -232,4 +250,21 @@ public class QueryFieldClause implements QueryClause {
         this.valueScope = valueScope;
     }
 
+    @Override
+    public List<SymbolDescriptor> requestSuggestions(List<ModuleScope> externalModules) {
+        if (symbolsInScope == null) {
+            return EMPTY_LIST;
+        }
+        return new ArrayList<>(symbolsInScope);
+    }
+
+    @Override
+    public boolean hasOwnCompletionScope() {
+        return false;
+    }
+
+    @Override
+    public SourceCodeRef getElementRef() {
+        return elementRef;
+    }
 }

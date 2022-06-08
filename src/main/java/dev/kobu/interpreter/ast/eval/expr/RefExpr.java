@@ -86,7 +86,6 @@ public class RefExpr implements Expr, HasTypeScope, MemoryReference, HasElementR
                 moduleScope.registerRef(sourceCodeRef.getStartOffset(), this);
                 moduleScope.registerAutoCompletionSource(sourceCodeRef.getStartOffset(), this);
             }
-
         }
     }
 
